@@ -1,0 +1,10 @@
+.build/
+.swiftpm/
+.DS_Store
+**/xcuserdata/
+DerivedData/
+AnkiRust.xcframework/
+anki-bridge-rs/target/
+anki-upstream/target/
+.claude/settings.local.json
+.superpowers/

@@ -1,0 +1,18 @@
+[package]
+name = "anki-bridge-ios"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["staticlib"]
+
+[dependencies]
+anki = { path = "../anki-upstream/rslib", features = ["rustls"] }
+anki_proto = { path = "../anki-upstream/rslib/proto" }
+prost = "0.13"
+
+[profile.release]
+opt-level = "s"     # Optimize for size (iOS binary)
+lto = true
+strip = true
