@@ -1,0 +1,3 @@
+[submodule "anki-upstream"]
+	path = anki-upstream
+	url = https://github.com/ankitects/anki.git

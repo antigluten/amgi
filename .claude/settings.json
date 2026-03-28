@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Edit(memory/*)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"systemMessage\": \"Memory files loaded from memory/ directory. Read memory/user.md, memory/preferences.md, memory/decisions.md, memory/people.md for context.\"}'",
+            "statusMessage": "Loading project memory..."
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "agent",
+            "prompt": "Review the conversation that just happened. Check if any of these memory files need updating based on new information learned during the session:\n\n1. memory/user.md — User profile, experience, preferences\n2. memory/preferences.md — Code style, architecture, tools\n3. memory/decisions.md — Architectural decisions made\n4. memory/people.md — People and repositories\n\nOnly update files if there is genuinely new information. Do NOT update if nothing changed. Read each file first, then edit only what's new.",
+            "timeout": 30,
+            "statusMessage": "Updating project memory..."
+          }
+        ]
+      }
+    ]
+  }
+}
