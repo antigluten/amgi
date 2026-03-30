@@ -46,6 +46,14 @@ struct ContentView: View {
                         .id(refreshID)
                 }
             }
+            #if DEBUG
+            Tab("Debug", systemImage: "wrench.and.screwdriver") {
+                NavigationStack {
+                    DebugView()
+                        .id(refreshID)
+                }
+            }
+            #endif
         }
         .sheet(isPresented: $showSync) {
             refreshID = UUID()
