@@ -18,8 +18,10 @@ let package = Package(
         .library(name: "AnkiKit", targets: ["AnkiKit"]),
         .library(name: "AnkiProto", targets: ["AnkiProto"]),
         .library(name: "AnkiBackend", targets: ["AnkiBackend"]),
+        .library(name: "AnkiServices", targets: ["AnkiServices"]),
         .library(name: "AnkiClients", targets: ["AnkiClients"]),
         .library(name: "AnkiSync", targets: ["AnkiSync"]),
+        .library(name: "AmgiCardWeb", targets: ["AmgiCardWeb"]),
     ],
     dependencies: [
         .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.0.0"),
@@ -55,7 +57,7 @@ let package = Package(
             swiftSettings: sharedSwiftSettings
         ),
         .target(
-            name: "AnkiClients",
+            name: "AnkiServices",
             dependencies: [
                 "AnkiKit",
                 "AnkiBackend",
@@ -69,10 +71,31 @@ let package = Package(
             swiftSettings: sharedSwiftSettings
         ),
         .target(
+            name: "AnkiClients",
+            dependencies: [
+                "AnkiKit",
+                "AnkiServices",
+                "AnkiSync",
+                .product(name: "Dependencies", package: "swift-dependencies"),
+                .product(name: "DependenciesMacros", package: "swift-dependencies"),
+                .product(name: "Logging", package: "swift-log"),
+            ],
+            swiftSettings: sharedSwiftSettings
+        ),
+        .target(
             name: "AnkiSync",
             dependencies: [
                 "AnkiKit",
             ],
+            swiftSettings: sharedSwiftSettings
+        ),
+        .target(
+            name: "AmgiCardWeb",
+            swiftSettings: sharedSwiftSettings
+        ),
+        .testTarget(
+            name: "AmgiCardWebTests",
+            dependencies: ["AmgiCardWeb"],
             swiftSettings: sharedSwiftSettings
         ),
     ],

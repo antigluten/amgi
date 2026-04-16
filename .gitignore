@@ -2,7 +2,10 @@
 .swiftpm/
 .DS_Store
 **/xcuserdata/
+*.xcworkspace/
+AmgiApp/memory/
 DerivedData/
+build/
 AnkiRust.xcframework/
 anki-bridge-rs/target/
 anki-upstream/target/
