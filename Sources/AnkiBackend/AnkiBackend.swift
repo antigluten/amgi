@@ -12,6 +12,13 @@ public final class AnkiBackend: Sendable {
     private nonisolated(unsafe) var mediaFolderPath: String?
     private nonisolated(unsafe) var mediaDbPath: String?
 
+    /// Absolute path of the open collection's media folder, or nil if no
+    /// collection is currently open. Backed by `nonisolated(unsafe)` storage
+    /// that is set during `openCollection` and cleared during `close`. Safe to
+    /// read from any thread for the duration of an open collection, but callers
+    /// must not assume stability across `close` / `openCollection` cycles.
+    public var currentMediaFolderPath: String? { mediaFolderPath }
+
     public init(preferredLangs: [String] = ["en"]) throws {
         var initMsg = Anki_Backend_BackendInit()
         initMsg.preferredLangs = preferredLangs
@@ -38,23 +45,23 @@ public final class AnkiBackend: Sendable {
         anki_close_backend(backendPtr)
     }
 
-    // MARK: - Typed RPC
+    // MARK: - Typed RPC (package — use AnkiServices, not these directly)
 
-    public func invoke<Req: SwiftProtobuf.Message, Resp: SwiftProtobuf.Message>(
+    package func invoke<Req: SwiftProtobuf.Message, Resp: SwiftProtobuf.Message>(
         service: UInt32, method: UInt32, request: Req
     ) throws -> Resp {
         let responseBytes = try call(service: service, method: method, request: request)
         return try Resp(serializedBytes: responseBytes)
     }
 
-    public func invoke<Resp: SwiftProtobuf.Message>(
+    package func invoke<Resp: SwiftProtobuf.Message>(
         service: UInt32, method: UInt32
     ) throws -> Resp {
         let responseBytes = try callRaw(service: service, method: method, input: Data())
         return try Resp(serializedBytes: responseBytes)
     }
 
-    public func call(
+    package func call(
         service: UInt32, method: UInt32,
         request: some SwiftProtobuf.Message
     ) throws -> Data {
@@ -62,18 +69,18 @@ public final class AnkiBackend: Sendable {
         return try callRaw(service: service, method: method, input: inputBytes)
     }
 
-    public func call(service: UInt32, method: UInt32) throws -> Data {
+    package func call(service: UInt32, method: UInt32) throws -> Data {
         try callRaw(service: service, method: method, input: Data())
     }
 
-    public func callVoid(
+    package func callVoid(
         service: UInt32, method: UInt32,
         request: some SwiftProtobuf.Message
     ) throws {
         _ = try call(service: service, method: method, request: request)
     }
 
-    public func callVoid(service: UInt32, method: UInt32) throws {
+    package func callVoid(service: UInt32, method: UInt32) throws {
         _ = try call(service: service, method: method)
     }
 
@@ -122,6 +129,11 @@ public final class AnkiBackend: Sendable {
         try callVoid(service: Service.collection, method: CollectionMethod.close, request: req)
     }
 
+    /// Runs CheckDatabase to repair any inconsistencies (CollectionService 2, method 0).
+    public func checkDatabase() throws {
+        _ = try callRaw(service: Service.collectionOps, method: CollectionOpsMethod.checkDatabase, input: Data())
+    }
+
     // MARK: - Raw FFI
 
     private func callRaw(service: UInt32, method: UInt32, input: Data) throws -> Data {
@@ -163,88 +175,100 @@ public final class AnkiBackend: Sendable {
     }
 }
 
-// MARK: - Service Constants
+// MARK: - Service Constants (package — implementation detail of AnkiServices)
 
 extension AnkiBackend {
-    public enum Service {
-        public static let sync: UInt32 = 1
-        public static let collection: UInt32 = 3
-        public static let cards: UInt32 = 5
-        public static let decks: UInt32 = 7
-        public static let scheduler: UInt32 = 13
-        public static let notetypes: UInt32 = 23
-        public static let notes: UInt32 = 25
-        public static let cardRendering: UInt32 = 27
-        public static let search: UInt32 = 29
-        public static let importExport: UInt32 = 37
-        public static let stats: UInt32 = 41
-        public static let tags: UInt32 = 43
+    package enum Service {
+        package static let sync: UInt32 = 1
+        package static let collectionOps: UInt32 = 2
+        package static let collection: UInt32 = 3
+        package static let cards: UInt32 = 5
+        package static let decks: UInt32 = 7
+        package static let scheduler: UInt32 = 13
+        package static let notetypes: UInt32 = 23
+        package static let notes: UInt32 = 25
+        package static let cardRendering: UInt32 = 27
+        package static let search: UInt32 = 29
+        package static let importExport: UInt32 = 37
+        package static let stats: UInt32 = 41
+        package static let tags: UInt32 = 43
     }
 
-    public enum CollectionMethod {
-        public static let open: UInt32 = 0
-        public static let close: UInt32 = 1
-        public static let latestProgress: UInt32 = 4
+    package enum CollectionOpsMethod {
+        package static let checkDatabase: UInt32 = 0
+        package static let getUndoStatus: UInt32 = 1
+        package static let undo: UInt32 = 2
     }
 
-    public enum SyncMethod {
-        public static let syncMedia: UInt32 = 0
-        public static let syncLogin: UInt32 = 3
-        public static let syncStatus: UInt32 = 4
-        public static let syncCollection: UInt32 = 5
-        public static let fullUploadOrDownload: UInt32 = 6
+    package enum CollectionMethod {
+        package static let open: UInt32 = 0
+        package static let close: UInt32 = 1
+        package static let latestProgress: UInt32 = 4
+    }
+
+    package enum SyncMethod {
+        package static let syncMedia: UInt32 = 0
+        package static let syncLogin: UInt32 = 3
+        package static let syncStatus: UInt32 = 4
+        package static let syncCollection: UInt32 = 5
+        package static let fullUploadOrDownload: UInt32 = 6
     }
 
     // Method indices from BackendSchedulerService (service 13) dispatch table.
     // Backend-level has 3 extra methods at start (computeFsrsParams, benchmark, exportDataset)
     // so Collection-level indices are offset by +3.
-    public enum SchedulerMethod {
-        public static let getQueuedCards: UInt32 = 3
-        public static let answerCard: UInt32 = 4
-        public static let schedTimingToday: UInt32 = 5
-        public static let countsForDeckToday: UInt32 = 10
-        public static let congratsInfo: UInt32 = 11
+    package enum SchedulerMethod {
+        package static let getQueuedCards: UInt32 = 3
+        package static let answerCard: UInt32 = 4
+        package static let schedTimingToday: UInt32 = 5
+        package static let countsForDeckToday: UInt32 = 10
+        package static let congratsInfo: UInt32 = 11
     }
 
-    public enum NotesMethod {
-        public static let newNote: UInt32 = 0
-        public static let addNote: UInt32 = 1
-        public static let updateNotes: UInt32 = 5
-        public static let getNote: UInt32 = 6
-        public static let removeNotes: UInt32 = 7
+    package enum NotesMethod {
+        package static let newNote: UInt32 = 0
+        package static let addNote: UInt32 = 1
+        package static let removeNotes: UInt32 = 3  // verified dispatch index
+        package static let updateNotes: UInt32 = 5
+        package static let getNote: UInt32 = 6
     }
 
-    public enum DecksMethod {
-        public static let getDeck: UInt32 = 8
-        public static let getDeckNames: UInt32 = 13
-        public static let getDeckTree: UInt32 = 4
-        public static let setCurrentDeck: UInt32 = 22
-        public static let getCurrentDeck: UInt32 = 23
+    package enum DecksMethod {
+        package static let newDeck: UInt32 = 0
+        package static let addDeck: UInt32 = 1
+        package static let addOrUpdateDeckLegacy: UInt32 = 3
+        package static let getDeckTree: UInt32 = 4
+        package static let getDeck: UInt32 = 8
+        package static let getDeckNames: UInt32 = 13
+        package static let removeDecks: UInt32 = 16
+        package static let renameDeck: UInt32 = 18
+        package static let setCurrentDeck: UInt32 = 22
+        package static let getCurrentDeck: UInt32 = 23
     }
 
-    public enum SearchMethod {
-        public static let searchCards: UInt32 = 1
-        public static let searchNotes: UInt32 = 2
+    package enum SearchMethod {
+        package static let searchCards: UInt32 = 1
+        package static let searchNotes: UInt32 = 2
     }
 
     // BackendCardRenderingService (27) has 6 extra methods before renderExistingCard
-    public enum CardRenderingMethod {
-        public static let renderExistingCard: UInt32 = 6
+    package enum CardRenderingMethod {
+        package static let renderExistingCard: UInt32 = 6
     }
 
-    public enum NotetypesMethod {
-        public static let getNotetype: UInt32 = 6
-        public static let getNotetypeNames: UInt32 = 8
+    package enum NotetypesMethod {
+        package static let getNotetype: UInt32 = 6
+        package static let getNotetypeNames: UInt32 = 8
     }
 
-    public enum ImportExportMethod {
-        public static let importCollectionPackage: UInt32 = 0
-        public static let exportCollectionPackage: UInt32 = 1
-        public static let importAnkiPackage: UInt32 = 2
+    package enum ImportExportMethod {
+        package static let importCollectionPackage: UInt32 = 0
+        package static let exportCollectionPackage: UInt32 = 1
+        package static let importAnkiPackage: UInt32 = 2
     }
 
-    public enum StatsMethod {
-        public static let cardStats: UInt32 = 0
-        public static let graphs: UInt32 = 2
+    package enum StatsMethod {
+        package static let cardStats: UInt32 = 0
+        package static let graphs: UInt32 = 2
     }
 }

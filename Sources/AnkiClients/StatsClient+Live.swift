@@ -1,25 +1,14 @@
-import AnkiBackend
-import AnkiProto
+import AnkiServices
 public import Dependencies
 import DependenciesMacros
-import Foundation
-import SwiftProtobuf
 
 extension StatsClient: DependencyKey {
     public static let liveValue: Self = {
-        @Dependency(\.ankiBackend) var backend
+        @Dependency(\.statsService) var stats
 
         return Self(
             fetchGraphs: { search, days in
-                var req = Anki_Stats_GraphsRequest()
-                req.search = search
-                req.days = days
-                let response: Anki_Stats_GraphsResponse = try backend.invoke(
-                    service: AnkiBackend.Service.stats,
-                    method: AnkiBackend.StatsMethod.graphs,
-                    request: req
-                )
-                return try response.serializedData()
+                try stats.fetchGraphs(search, days)
             }
         )
     }()
