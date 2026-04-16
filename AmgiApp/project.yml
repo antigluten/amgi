@@ -1,0 +1,87 @@
+name: AmgiApp
+options:
+  bundleIdPrefix: com.amgiapp
+  deploymentTarget:
+    iOS: "18.0"
+  defaultSourceDirectoryType: syncedFolder
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+packages:
+  AnkiBridge:
+    path: ..
+  swift-navigation:
+    url: https://github.com/pointfreeco/swift-navigation
+    from: 2.0.0
+  swift-sharing:
+    url: https://github.com/pointfreeco/swift-sharing
+    from: 2.0.0
+schemes:
+  AmgiApp:
+    build:
+      targets:
+        AmgiApp: all
+        AmgiWidget: all
+    run:
+      config: Debug
+targets:
+  AmgiApp:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources
+        type: group
+        excludes:
+          - "Widgets"
+      - path: Assets.xcassets
+      - path: Resources/mathjax
+        type: folder
+    dependencies:
+      - package: AnkiBridge
+        product: AnkiKit
+      - package: AnkiBridge
+        product: AnkiServices
+      - package: AnkiBridge
+        product: AnkiClients
+      - package: AnkiBridge
+        product: AnkiSync
+      - package: AnkiBridge
+        product: AnkiBackend
+      - package: AnkiBridge
+        product: AnkiProto
+      - package: AnkiBridge
+        product: AmgiCardWeb
+      - package: swift-navigation
+        product: SwiftNavigation
+      - package: swift-navigation
+        product: UIKitNavigation
+      - package: swift-sharing
+        product: Sharing
+      - sdk: WidgetKit.framework
+      - target: AmgiWidget
+        embed: true
+    settings:
+      base:
+        INFOPLIST_FILE: Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: com.amgiapp.AmgiApp
+        CODE_SIGN_ENTITLEMENTS: AmgiApp.entitlements
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+
+  AmgiWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Sources/Widgets
+      - path: Sources/Shared/WidgetSnapshot.swift
+      - path: Sources/Shared/WidgetSnapshotStore.swift
+    dependencies:
+      - package: AnkiBridge
+        product: AnkiKit
+      - sdk: WidgetKit.framework
+      - sdk: SwiftUI.framework
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.amgiapp.AmgiApp.widget
+        INFOPLIST_FILE: Sources/Widgets/Info.plist
+        CODE_SIGN_ENTITLEMENTS: AmgiWidget.entitlements

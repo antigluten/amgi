@@ -1,0 +1,801 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		01BBA23FD8A728553F6179CB /* EaseChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7B1366ED7DF9A2977AC85B /* EaseChart.swift */; };
+		05B3C09F3B96E96D972F0424 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CAE0DE68DC7E04F773A57E14 /* SwiftUI.framework */; };
+		062F0A03C2F04F91B637A832 /* WidgetSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53DE7E42DF22C7093A9EDC7F /* WidgetSnapshot.swift */; };
+		07A00C4390C97BA05E15ACDC /* ButtonsChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68925B7C459B6B33BA955D7E /* ButtonsChart.swift */; };
+		0C2752F4E87C078DFC8271DE /* IntervalsChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46930603BF409DD049080BAC /* IntervalsChart.swift */; };
+		0E6BAFDFFDAF2EFE7E9A17F4 /* TodayStatsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ABDBB7A9C9C60BDE49C97F8 /* TodayStatsCard.swift */; };
+		0F40C1E8847A0ABB57C180F5 /* ReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CB7489D2E74B5E73B594C7A /* ReviewView.swift */; };
+		1A215EB46E5B321E13CB9CFB /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 771456E3EFBF1BE767B6E246 /* ShareSheet.swift */; };
+		1DD1AA66CD8C6AA32230C503 /* PeriodPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1DCE99E057D12847A0D13A /* PeriodPicker.swift */; };
+		20EBB57A4C92FAFE5A69CEAB /* FutureDueChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96615CBB62B11C0AAABBD34C /* FutureDueChart.swift */; };
+		22002B3423A998AABA9D4255 /* ReviewsChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA31D05E17814E8B82C6828B /* ReviewsChart.swift */; };
+		2B3722F4A958BE92E88FC2C5 /* CardWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E265F3067C4AA7E4D05DD2FC /* CardWebView.swift */; };
+		2F6CCEA4FF8B775FCA9299DA /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B60A11C277A30E8180CB0F1 /* WidgetKit.framework */; };
+		34270B208122270BAC697B31 /* AmgiCardWeb in Frameworks */ = {isa = PBXBuildFile; productRef = 5089B17C1D8C3637BE4FB0A9 /* AmgiCardWeb */; };
+		367BBDB7484B7572FFDFB37B /* AmgiModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEC12C82CE9FD0F5018C98D6 /* AmgiModifiers.swift */; };
+		385A4D906C43ED5E17ADB367 /* AmgiTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77BCE95B1AE4E0D131C5E2DE /* AmgiTypography.swift */; };
+		3A0D999E07080EBD749A53AF /* WidgetSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53DE7E42DF22C7093A9EDC7F /* WidgetSnapshot.swift */; };
+		3BE4592CD95AE2157BD0A7BE /* SyncSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF04EBAF4FEBD5B04D2C45C9 /* SyncSheet.swift */; };
+		3F4F631E50BED31EF5B8E960 /* StatsDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A22120BF1E94A657A26DDD3D /* StatsDashboardView.swift */; };
+		432EFA88F323B205548FDE22 /* mathjax in Resources */ = {isa = PBXBuildFile; fileRef = 44CF30873346E609AC9D7ADE /* mathjax */; };
+		5620C7B259074A8C419F37B3 /* DeckCountsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 563D97E28D0A34E270C7C744 /* DeckCountsView.swift */; };
+		570828091E1FF534441427EA /* DebugView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B219D0FE129E5978B1B69180 /* DebugView.swift */; };
+		58CAEF6BE5C190FC9FE8D511 /* UIKitNavigation in Frameworks */ = {isa = PBXBuildFile; productRef = C6F941841B903375DAA58334 /* UIKitNavigation */; };
+		62827AECD070650394B5BBDB /* CardStateChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8800AE28B6B04D42B84BAD /* CardStateChart.swift */; };
+		652134A3080AAB2E8524794F /* AnkiKit in Frameworks */ = {isa = PBXBuildFile; productRef = D17643555D7431BE694A9400 /* AnkiKit */; };
+		65AB762F978CECBF6C7A321D /* HeatmapChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13D8CF90DE28038B33225CB9 /* HeatmapChart.swift */; };
+		6932C86281AB9089FDCF9C6B /* AnkiServices in Frameworks */ = {isa = PBXBuildFile; productRef = 9C12DFB8208798638ECB4C68 /* AnkiServices */; };
+		70BA3C17D61EE36D3C9459F7 /* NoteEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD31FEA1C35D0834FF9F2AE8 /* NoteEditorView.swift */; };
+		70E78891F6A13FB1AD4C6641 /* ImportHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4321AD543C71CB54FEE51BDD /* ImportHelper.swift */; };
+		71A1B053966773D1157AA618 /* AnkiClients in Frameworks */ = {isa = PBXBuildFile; productRef = 3FED5E304581C8F9AF5A7AA8 /* AnkiClients */; };
+		72EFBA61E6007A14BAC1DF9E /* WriteWidgetSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DE9F2C493FA28C7CD204D93 /* WriteWidgetSnapshot.swift */; };
+		73BED515464AA8C80C765BFF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44792958B343213988DC8FFB /* ContentView.swift */; };
+		79AB97A5F02DD5E940373863 /* AmgiSpacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41932790D6D52614FE97FB6A /* AmgiSpacing.swift */; };
+		7AED302F88881176C8C44CA7 /* DeckListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF6D85A3D634BB2332122756 /* DeckListView.swift */; };
+		7C46534E4D979D315641F713 /* AnkiSync in Frameworks */ = {isa = PBXBuildFile; productRef = 9F148DCECED472C7DE230AB6 /* AnkiSync */; };
+		8037088122D7F4739E1D412A /* AnkiKit in Frameworks */ = {isa = PBXBuildFile; productRef = EEE5266ACE0725F53E9703A8 /* AnkiKit */; };
+		8AD06D30608491B042880E1E /* AmgiWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A837EB0A30B6E90B20D5C1CD /* AmgiWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		94AB6A9BE4BC63D84EC48E6B /* AnkiProto in Frameworks */ = {isa = PBXBuildFile; productRef = 0BBBA9E831360913A56B8508 /* AnkiProto */; };
+		973A71851E7AB4BA413D3FC1 /* ReviewSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87E19F9B850C7DB93BC33F8E /* ReviewSession.swift */; };
+		9979FC83164BAD629D3522E7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C77F11AE7234C74B34230540 /* Assets.xcassets */; };
+		9D6CF5DF5BB0C3A4C0902FB6 /* AddNoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 381DC7574DA0AD7F7586A1AC /* AddNoteView.swift */; };
+		9F04117D1D3772A46BD87844 /* Sharing in Frameworks */ = {isa = PBXBuildFile; productRef = 4F99E922EA9267E4EE4CD5D6 /* Sharing */; };
+		A87D48D4DA8668BA3F705983 /* SwiftNavigation in Frameworks */ = {isa = PBXBuildFile; productRef = A83E8288FCBE678AC922CFF0 /* SwiftNavigation */; };
+		A94A78430672FA123F40972B /* WidgetSnapshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13AD8D3240232140F43CA3E4 /* WidgetSnapshotStore.swift */; };
+		ABFA94EB10FCE4ECADD03DBA /* LoginSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E15B27DFDDB066A4F26A2AC0 /* LoginSheet.swift */; };
+		B3C3B80F855C1B352B1B3617 /* ForecastChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7AB29C6FF05CB545EE528A4 /* ForecastChart.swift */; };
+		BB3E89CDD647E53D949E751D /* AmgiAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8194F942C511DFA83C0CB371 /* AmgiAppApp.swift */; };
+		C417D0DB3832D3592A5A3BA1 /* AnkiBackend in Frameworks */ = {isa = PBXBuildFile; productRef = F40C6D05700BCD9DB3969CD4 /* AnkiBackend */; };
+		C8F1B9AA66F4E9BC60209FAC /* AmgiColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02203829FD34BDFE7221AD1 /* AmgiColors.swift */; };
+		C982AAB082A6BE5BF81A38E0 /* SharedKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 230D9AB6235454610CDF182B /* SharedKeys.swift */; };
+		CBE89D68D22071306BEA2FA7 /* WidgetSnapshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13AD8D3240232140F43CA3E4 /* WidgetSnapshotStore.swift */; };
+		D4A17660BBB9A1BEDEFD1757 /* HourlyChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDD5C86C6797AA2A03EDA7F2 /* HourlyChart.swift */; };
+		D4CE8475B20AA7DABC38173B /* BrowseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9BE6763BA3D99599AEEF5EB /* BrowseView.swift */; };
+		DDD628AAE6A4C19DA5B95D92 /* RetentionChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F01877135006A91E7307925 /* RetentionChart.swift */; };
+		E45540503268E00A3CAC9B04 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B60A11C277A30E8180CB0F1 /* WidgetKit.framework */; };
+		FA6F34B1F03D032967D1A495 /* AddedChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D96AF0D713B27B32FA98015 /* AddedChart.swift */; };
+		FAC37531F72B8508E8253A62 /* CardAssetScheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A33DB0DDA9DDB6DF8F59802 /* CardAssetScheme.swift */; };
+		FCB99F58E7F60D1D8395F63A /* DeckDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 281E4C76C1DF305DC7227BB9 /* DeckDetailView.swift */; };
+		FE005216E1B6A16B60A88A9D /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E09DF2F9BCEDD04F59A90AA /* OnboardingView.swift */; };
+		FE8CE98F275F0B697E0A83C1 /* CardCountsChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB6BD09886C573AB8B8CF6B8 /* CardCountsChart.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		EE34BEA2D08D4B4B3CE4BF7A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CCE55545D9F1ABEDD48DB366 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9B3B324834735D7AA9620491;
+			remoteInfo = AmgiWidget;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		410CE2AB2D9AFEF1B607231D /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				8AD06D30608491B042880E1E /* AmgiWidget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		0A33DB0DDA9DDB6DF8F59802 /* CardAssetScheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardAssetScheme.swift; sourceTree = "<group>"; };
+		0A8800AE28B6B04D42B84BAD /* CardStateChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardStateChart.swift; sourceTree = "<group>"; };
+		13AD8D3240232140F43CA3E4 /* WidgetSnapshotStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSnapshotStore.swift; sourceTree = "<group>"; };
+		13D8CF90DE28038B33225CB9 /* HeatmapChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeatmapChart.swift; sourceTree = "<group>"; };
+		1ABDBB7A9C9C60BDE49C97F8 /* TodayStatsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayStatsCard.swift; sourceTree = "<group>"; };
+		230D9AB6235454610CDF182B /* SharedKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedKeys.swift; sourceTree = "<group>"; };
+		281E4C76C1DF305DC7227BB9 /* DeckDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeckDetailView.swift; sourceTree = "<group>"; };
+		2B60A11C277A30E8180CB0F1 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		2E09DF2F9BCEDD04F59A90AA /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		381DC7574DA0AD7F7586A1AC /* AddNoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddNoteView.swift; sourceTree = "<group>"; };
+		41932790D6D52614FE97FB6A /* AmgiSpacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmgiSpacing.swift; sourceTree = "<group>"; };
+		4321AD543C71CB54FEE51BDD /* ImportHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportHelper.swift; sourceTree = "<group>"; };
+		44792958B343213988DC8FFB /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		44CF30873346E609AC9D7ADE /* mathjax */ = {isa = PBXFileReference; lastKnownFileType = folder; name = mathjax; path = Resources/mathjax; sourceTree = SOURCE_ROOT; };
+		46930603BF409DD049080BAC /* IntervalsChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntervalsChart.swift; sourceTree = "<group>"; };
+		4CB7489D2E74B5E73B594C7A /* ReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewView.swift; sourceTree = "<group>"; };
+		4F01877135006A91E7307925 /* RetentionChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RetentionChart.swift; sourceTree = "<group>"; };
+		53DE7E42DF22C7093A9EDC7F /* WidgetSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSnapshot.swift; sourceTree = "<group>"; };
+		563D97E28D0A34E270C7C744 /* DeckCountsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeckCountsView.swift; sourceTree = "<group>"; };
+		5D96AF0D713B27B32FA98015 /* AddedChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddedChart.swift; sourceTree = "<group>"; };
+		68925B7C459B6B33BA955D7E /* ButtonsChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonsChart.swift; sourceTree = "<group>"; };
+		6C1DCE99E057D12847A0D13A /* PeriodPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeriodPicker.swift; sourceTree = "<group>"; };
+		771456E3EFBF1BE767B6E246 /* ShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareSheet.swift; sourceTree = "<group>"; };
+		77BCE95B1AE4E0D131C5E2DE /* AmgiTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmgiTypography.swift; sourceTree = "<group>"; };
+		8194F942C511DFA83C0CB371 /* AmgiAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmgiAppApp.swift; sourceTree = "<group>"; };
+		87E19F9B850C7DB93BC33F8E /* ReviewSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewSession.swift; sourceTree = "<group>"; };
+		96615CBB62B11C0AAABBD34C /* FutureDueChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FutureDueChart.swift; sourceTree = "<group>"; };
+		9DE9F2C493FA28C7CD204D93 /* WriteWidgetSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WriteWidgetSnapshot.swift; sourceTree = "<group>"; };
+		A22120BF1E94A657A26DDD3D /* StatsDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsDashboardView.swift; sourceTree = "<group>"; };
+		A837EB0A30B6E90B20D5C1CD /* AmgiWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = AmgiWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		AD31FEA1C35D0834FF9F2AE8 /* NoteEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteEditorView.swift; sourceTree = "<group>"; };
+		B219D0FE129E5978B1B69180 /* DebugView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugView.swift; sourceTree = "<group>"; };
+		BA31D05E17814E8B82C6828B /* ReviewsChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewsChart.swift; sourceTree = "<group>"; };
+		BEC12C82CE9FD0F5018C98D6 /* AmgiModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmgiModifiers.swift; sourceTree = "<group>"; };
+		BF04EBAF4FEBD5B04D2C45C9 /* SyncSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncSheet.swift; sourceTree = "<group>"; };
+		C57E0A30A0C5B7FE232BF0C3 /* amgi */ = {isa = PBXFileReference; lastKnownFileType = folder; name = amgi; path = ..; sourceTree = SOURCE_ROOT; };
+		C77F11AE7234C74B34230540 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		CAE0DE68DC7E04F773A57E14 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		CF6D85A3D634BB2332122756 /* DeckListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeckListView.swift; sourceTree = "<group>"; };
+		D7AB29C6FF05CB545EE528A4 /* ForecastChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForecastChart.swift; sourceTree = "<group>"; };
+		D9BE6763BA3D99599AEEF5EB /* BrowseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseView.swift; sourceTree = "<group>"; };
+		DE61E854280804F08BB1DD31 /* AmgiApp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = AmgiApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E15B27DFDDB066A4F26A2AC0 /* LoginSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginSheet.swift; sourceTree = "<group>"; };
+		E265F3067C4AA7E4D05DD2FC /* CardWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardWebView.swift; sourceTree = "<group>"; };
+		EA7B1366ED7DF9A2977AC85B /* EaseChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EaseChart.swift; sourceTree = "<group>"; };
+		EB6BD09886C573AB8B8CF6B8 /* CardCountsChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardCountsChart.swift; sourceTree = "<group>"; };
+		EDD5C86C6797AA2A03EDA7F2 /* HourlyChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HourlyChart.swift; sourceTree = "<group>"; };
+		F02203829FD34BDFE7221AD1 /* AmgiColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmgiColors.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		47B6144E346E2B50C7F63EC1 /* Sources/Widgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = Sources/Widgets;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		13D1F5F67D6C828F4B9F1C8F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				652134A3080AAB2E8524794F /* AnkiKit in Frameworks */,
+				E45540503268E00A3CAC9B04 /* WidgetKit.framework in Frameworks */,
+				05B3C09F3B96E96D972F0424 /* SwiftUI.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		19B37F948ED2A792E3A74AC2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8037088122D7F4739E1D412A /* AnkiKit in Frameworks */,
+				6932C86281AB9089FDCF9C6B /* AnkiServices in Frameworks */,
+				71A1B053966773D1157AA618 /* AnkiClients in Frameworks */,
+				7C46534E4D979D315641F713 /* AnkiSync in Frameworks */,
+				C417D0DB3832D3592A5A3BA1 /* AnkiBackend in Frameworks */,
+				94AB6A9BE4BC63D84EC48E6B /* AnkiProto in Frameworks */,
+				34270B208122270BAC697B31 /* AmgiCardWeb in Frameworks */,
+				A87D48D4DA8668BA3F705983 /* SwiftNavigation in Frameworks */,
+				58CAEF6BE5C190FC9FE8D511 /* UIKitNavigation in Frameworks */,
+				9F04117D1D3772A46BD87844 /* Sharing in Frameworks */,
+				2F6CCEA4FF8B775FCA9299DA /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		11E2E0C450936C7DED737DDE /* Review */ = {
+			isa = PBXGroup;
+			children = (
+				0A33DB0DDA9DDB6DF8F59802 /* CardAssetScheme.swift */,
+				E265F3067C4AA7E4D05DD2FC /* CardWebView.swift */,
+				87E19F9B850C7DB93BC33F8E /* ReviewSession.swift */,
+				4CB7489D2E74B5E73B594C7A /* ReviewView.swift */,
+			);
+			path = Review;
+			sourceTree = "<group>";
+		};
+		16035EC6AE95BA7216E87391 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				563D97E28D0A34E270C7C744 /* DeckCountsView.swift */,
+				4321AD543C71CB54FEE51BDD /* ImportHelper.swift */,
+				230D9AB6235454610CDF182B /* SharedKeys.swift */,
+				771456E3EFBF1BE767B6E246 /* ShareSheet.swift */,
+				53DE7E42DF22C7093A9EDC7F /* WidgetSnapshot.swift */,
+				13AD8D3240232140F43CA3E4 /* WidgetSnapshotStore.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		54701E5FE2188037820D21A7 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				CAE0DE68DC7E04F773A57E14 /* SwiftUI.framework */,
+				2B60A11C277A30E8180CB0F1 /* WidgetKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		652799243D2BEF4E5B7E34D5 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				C57E0A30A0C5B7FE232BF0C3 /* amgi */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		852CFC1C0D03FE7967E700AA /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				8194F942C511DFA83C0CB371 /* AmgiAppApp.swift */,
+				44792958B343213988DC8FFB /* ContentView.swift */,
+				B219D0FE129E5978B1B69180 /* DebugView.swift */,
+				9DE9F2C493FA28C7CD204D93 /* WriteWidgetSnapshot.swift */,
+				D3B4DE84AA5798262B840FF6 /* Browse */,
+				90ADF1CE73507EC0A39F4C07 /* Decks */,
+				11E2E0C450936C7DED737DDE /* Review */,
+				16035EC6AE95BA7216E87391 /* Shared */,
+				D52BA660D2F2D5DCD5C6F489 /* Stats */,
+				EA32F8BFB08788B1C8A22D79 /* Sync */,
+				F7FCEC84459682EDFF3AB6F0 /* Theme */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		90ADF1CE73507EC0A39F4C07 /* Decks */ = {
+			isa = PBXGroup;
+			children = (
+				281E4C76C1DF305DC7227BB9 /* DeckDetailView.swift */,
+				CF6D85A3D634BB2332122756 /* DeckListView.swift */,
+			);
+			path = Decks;
+			sourceTree = "<group>";
+		};
+		D3B4DE84AA5798262B840FF6 /* Browse */ = {
+			isa = PBXGroup;
+			children = (
+				381DC7574DA0AD7F7586A1AC /* AddNoteView.swift */,
+				D9BE6763BA3D99599AEEF5EB /* BrowseView.swift */,
+				AD31FEA1C35D0834FF9F2AE8 /* NoteEditorView.swift */,
+			);
+			path = Browse;
+			sourceTree = "<group>";
+		};
+		D52BA660D2F2D5DCD5C6F489 /* Stats */ = {
+			isa = PBXGroup;
+			children = (
+				5D96AF0D713B27B32FA98015 /* AddedChart.swift */,
+				68925B7C459B6B33BA955D7E /* ButtonsChart.swift */,
+				EB6BD09886C573AB8B8CF6B8 /* CardCountsChart.swift */,
+				0A8800AE28B6B04D42B84BAD /* CardStateChart.swift */,
+				EA7B1366ED7DF9A2977AC85B /* EaseChart.swift */,
+				D7AB29C6FF05CB545EE528A4 /* ForecastChart.swift */,
+				96615CBB62B11C0AAABBD34C /* FutureDueChart.swift */,
+				13D8CF90DE28038B33225CB9 /* HeatmapChart.swift */,
+				EDD5C86C6797AA2A03EDA7F2 /* HourlyChart.swift */,
+				46930603BF409DD049080BAC /* IntervalsChart.swift */,
+				6C1DCE99E057D12847A0D13A /* PeriodPicker.swift */,
+				4F01877135006A91E7307925 /* RetentionChart.swift */,
+				BA31D05E17814E8B82C6828B /* ReviewsChart.swift */,
+				A22120BF1E94A657A26DDD3D /* StatsDashboardView.swift */,
+				1ABDBB7A9C9C60BDE49C97F8 /* TodayStatsCard.swift */,
+			);
+			path = Stats;
+			sourceTree = "<group>";
+		};
+		EA32F8BFB08788B1C8A22D79 /* Sync */ = {
+			isa = PBXGroup;
+			children = (
+				E15B27DFDDB066A4F26A2AC0 /* LoginSheet.swift */,
+				2E09DF2F9BCEDD04F59A90AA /* OnboardingView.swift */,
+				BF04EBAF4FEBD5B04D2C45C9 /* SyncSheet.swift */,
+			);
+			path = Sync;
+			sourceTree = "<group>";
+		};
+		F25D5B8FD2D15F7D2AD5DB36 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				DE61E854280804F08BB1DD31 /* AmgiApp.app */,
+				A837EB0A30B6E90B20D5C1CD /* AmgiWidget.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F7FCEC84459682EDFF3AB6F0 /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				F02203829FD34BDFE7221AD1 /* AmgiColors.swift */,
+				BEC12C82CE9FD0F5018C98D6 /* AmgiModifiers.swift */,
+				41932790D6D52614FE97FB6A /* AmgiSpacing.swift */,
+				77BCE95B1AE4E0D131C5E2DE /* AmgiTypography.swift */,
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
+		F90D9C10E2CEF0656D9B04B5 = {
+			isa = PBXGroup;
+			children = (
+				C77F11AE7234C74B34230540 /* Assets.xcassets */,
+				44CF30873346E609AC9D7ADE /* mathjax */,
+				47B6144E346E2B50C7F63EC1 /* Sources/Widgets */,
+				652799243D2BEF4E5B7E34D5 /* Packages */,
+				852CFC1C0D03FE7967E700AA /* Sources */,
+				54701E5FE2188037820D21A7 /* Frameworks */,
+				F25D5B8FD2D15F7D2AD5DB36 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		95284AD6E89B9B84191749DE /* AmgiApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 508649333842CC573F536F96 /* Build configuration list for PBXNativeTarget "AmgiApp" */;
+			buildPhases = (
+				C6234D2D0CDEA070ABE0CDBC /* Sources */,
+				507BEFC74A9D1D4C5981265B /* Resources */,
+				19B37F948ED2A792E3A74AC2 /* Frameworks */,
+				410CE2AB2D9AFEF1B607231D /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3267403ADAD9A214E1235DFB /* PBXTargetDependency */,
+			);
+			name = AmgiApp;
+			packageProductDependencies = (
+				EEE5266ACE0725F53E9703A8 /* AnkiKit */,
+				9C12DFB8208798638ECB4C68 /* AnkiServices */,
+				3FED5E304581C8F9AF5A7AA8 /* AnkiClients */,
+				9F148DCECED472C7DE230AB6 /* AnkiSync */,
+				F40C6D05700BCD9DB3969CD4 /* AnkiBackend */,
+				0BBBA9E831360913A56B8508 /* AnkiProto */,
+				5089B17C1D8C3637BE4FB0A9 /* AmgiCardWeb */,
+				A83E8288FCBE678AC922CFF0 /* SwiftNavigation */,
+				C6F941841B903375DAA58334 /* UIKitNavigation */,
+				4F99E922EA9267E4EE4CD5D6 /* Sharing */,
+			);
+			productName = AmgiApp;
+			productReference = DE61E854280804F08BB1DD31 /* AmgiApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+		9B3B324834735D7AA9620491 /* AmgiWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BEB8DB7903F6F37B14F30E04 /* Build configuration list for PBXNativeTarget "AmgiWidget" */;
+			buildPhases = (
+				D810BE70AAE191E80D5A7779 /* Sources */,
+				13D1F5F67D6C828F4B9F1C8F /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				47B6144E346E2B50C7F63EC1 /* Sources/Widgets */,
+			);
+			name = AmgiWidget;
+			packageProductDependencies = (
+				D17643555D7431BE694A9400 /* AnkiKit */,
+			);
+			productName = AmgiWidget;
+			productReference = A837EB0A30B6E90B20D5C1CD /* AmgiWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CCE55545D9F1ABEDD48DB366 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+			};
+			buildConfigurationList = BC4A80AD6076C8423E530840 /* Build configuration list for PBXProject "AmgiApp" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = F90D9C10E2CEF0656D9B04B5;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				0654502C09BEED604C13D953 /* XCRemoteSwiftPackageReference "swift-navigation" */,
+				7B720D20F213A6E6D8D5745C /* XCRemoteSwiftPackageReference "swift-sharing" */,
+				269F9635F97EDD12C747836B /* XCLocalSwiftPackageReference ".." */,
+			);
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				95284AD6E89B9B84191749DE /* AmgiApp */,
+				9B3B324834735D7AA9620491 /* AmgiWidget */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		507BEFC74A9D1D4C5981265B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9979FC83164BAD629D3522E7 /* Assets.xcassets in Resources */,
+				432EFA88F323B205548FDE22 /* mathjax in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C6234D2D0CDEA070ABE0CDBC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9D6CF5DF5BB0C3A4C0902FB6 /* AddNoteView.swift in Sources */,
+				FA6F34B1F03D032967D1A495 /* AddedChart.swift in Sources */,
+				BB3E89CDD647E53D949E751D /* AmgiAppApp.swift in Sources */,
+				C8F1B9AA66F4E9BC60209FAC /* AmgiColors.swift in Sources */,
+				367BBDB7484B7572FFDFB37B /* AmgiModifiers.swift in Sources */,
+				79AB97A5F02DD5E940373863 /* AmgiSpacing.swift in Sources */,
+				385A4D906C43ED5E17ADB367 /* AmgiTypography.swift in Sources */,
+				D4CE8475B20AA7DABC38173B /* BrowseView.swift in Sources */,
+				07A00C4390C97BA05E15ACDC /* ButtonsChart.swift in Sources */,
+				FAC37531F72B8508E8253A62 /* CardAssetScheme.swift in Sources */,
+				FE8CE98F275F0B697E0A83C1 /* CardCountsChart.swift in Sources */,
+				62827AECD070650394B5BBDB /* CardStateChart.swift in Sources */,
+				2B3722F4A958BE92E88FC2C5 /* CardWebView.swift in Sources */,
+				73BED515464AA8C80C765BFF /* ContentView.swift in Sources */,
+				570828091E1FF534441427EA /* DebugView.swift in Sources */,
+				5620C7B259074A8C419F37B3 /* DeckCountsView.swift in Sources */,
+				FCB99F58E7F60D1D8395F63A /* DeckDetailView.swift in Sources */,
+				7AED302F88881176C8C44CA7 /* DeckListView.swift in Sources */,
+				01BBA23FD8A728553F6179CB /* EaseChart.swift in Sources */,
+				B3C3B80F855C1B352B1B3617 /* ForecastChart.swift in Sources */,
+				20EBB57A4C92FAFE5A69CEAB /* FutureDueChart.swift in Sources */,
+				65AB762F978CECBF6C7A321D /* HeatmapChart.swift in Sources */,
+				D4A17660BBB9A1BEDEFD1757 /* HourlyChart.swift in Sources */,
+				70E78891F6A13FB1AD4C6641 /* ImportHelper.swift in Sources */,
+				0C2752F4E87C078DFC8271DE /* IntervalsChart.swift in Sources */,
+				ABFA94EB10FCE4ECADD03DBA /* LoginSheet.swift in Sources */,
+				70BA3C17D61EE36D3C9459F7 /* NoteEditorView.swift in Sources */,
+				FE005216E1B6A16B60A88A9D /* OnboardingView.swift in Sources */,
+				1DD1AA66CD8C6AA32230C503 /* PeriodPicker.swift in Sources */,
+				DDD628AAE6A4C19DA5B95D92 /* RetentionChart.swift in Sources */,
+				973A71851E7AB4BA413D3FC1 /* ReviewSession.swift in Sources */,
+				0F40C1E8847A0ABB57C180F5 /* ReviewView.swift in Sources */,
+				22002B3423A998AABA9D4255 /* ReviewsChart.swift in Sources */,
+				1A215EB46E5B321E13CB9CFB /* ShareSheet.swift in Sources */,
+				C982AAB082A6BE5BF81A38E0 /* SharedKeys.swift in Sources */,
+				3F4F631E50BED31EF5B8E960 /* StatsDashboardView.swift in Sources */,
+				3BE4592CD95AE2157BD0A7BE /* SyncSheet.swift in Sources */,
+				0E6BAFDFFDAF2EFE7E9A17F4 /* TodayStatsCard.swift in Sources */,
+				3A0D999E07080EBD749A53AF /* WidgetSnapshot.swift in Sources */,
+				CBE89D68D22071306BEA2FA7 /* WidgetSnapshotStore.swift in Sources */,
+				72EFBA61E6007A14BAC1DF9E /* WriteWidgetSnapshot.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D810BE70AAE191E80D5A7779 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				062F0A03C2F04F91B637A832 /* WidgetSnapshot.swift in Sources */,
+				A94A78430672FA123F40972B /* WidgetSnapshotStore.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		3267403ADAD9A214E1235DFB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9B3B324834735D7AA9620491 /* AmgiWidget */;
+			targetProxy = EE34BEA2D08D4B4B3CE4BF7A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		01CDE097EE270648A3455BCC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		48CAD2B8E5E76236A9CE3FF8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = AmgiApp.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.amgiapp.AmgiApp;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		B9DA3DD5F83727DB538B5362 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		BCA1A313BD0827666D6635B3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = AmgiApp.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.amgiapp.AmgiApp;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CDA499720B04E282D7607B17 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = AmgiWidget.entitlements;
+				INFOPLIST_FILE = Sources/Widgets/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.amgiapp.AmgiApp.widget;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		DA5608BBDBA218288D59134B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = AmgiWidget.entitlements;
+				INFOPLIST_FILE = Sources/Widgets/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.amgiapp.AmgiApp.widget;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		508649333842CC573F536F96 /* Build configuration list for PBXNativeTarget "AmgiApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BCA1A313BD0827666D6635B3 /* Debug */,
+				48CAD2B8E5E76236A9CE3FF8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		BC4A80AD6076C8423E530840 /* Build configuration list for PBXProject "AmgiApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B9DA3DD5F83727DB538B5362 /* Debug */,
+				01CDE097EE270648A3455BCC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		BEB8DB7903F6F37B14F30E04 /* Build configuration list for PBXNativeTarget "AmgiWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CDA499720B04E282D7607B17 /* Debug */,
+				DA5608BBDBA218288D59134B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		269F9635F97EDD12C747836B /* XCLocalSwiftPackageReference ".." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ..;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		0654502C09BEED604C13D953 /* XCRemoteSwiftPackageReference "swift-navigation" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-navigation";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+		7B720D20F213A6E6D8D5745C /* XCRemoteSwiftPackageReference "swift-sharing" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-sharing";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0BBBA9E831360913A56B8508 /* AnkiProto */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AnkiProto;
+		};
+		3FED5E304581C8F9AF5A7AA8 /* AnkiClients */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AnkiClients;
+		};
+		4F99E922EA9267E4EE4CD5D6 /* Sharing */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7B720D20F213A6E6D8D5745C /* XCRemoteSwiftPackageReference "swift-sharing" */;
+			productName = Sharing;
+		};
+		5089B17C1D8C3637BE4FB0A9 /* AmgiCardWeb */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AmgiCardWeb;
+		};
+		9C12DFB8208798638ECB4C68 /* AnkiServices */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AnkiServices;
+		};
+		9F148DCECED472C7DE230AB6 /* AnkiSync */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AnkiSync;
+		};
+		A83E8288FCBE678AC922CFF0 /* SwiftNavigation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0654502C09BEED604C13D953 /* XCRemoteSwiftPackageReference "swift-navigation" */;
+			productName = SwiftNavigation;
+		};
+		C6F941841B903375DAA58334 /* UIKitNavigation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0654502C09BEED604C13D953 /* XCRemoteSwiftPackageReference "swift-navigation" */;
+			productName = UIKitNavigation;
+		};
+		D17643555D7431BE694A9400 /* AnkiKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AnkiKit;
+		};
+		EEE5266ACE0725F53E9703A8 /* AnkiKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AnkiKit;
+		};
+		F40C6D05700BCD9DB3969CD4 /* AnkiBackend */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AnkiBackend;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = CCE55545D9F1ABEDD48DB366 /* Project object */;
+}
