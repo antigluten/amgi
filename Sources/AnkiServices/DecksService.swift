@@ -15,6 +15,8 @@ public struct DecksService: Sendable {
     public var createDeck: @Sendable (_ name: String) throws -> Int64
     public var renameDeck: @Sendable (_ deckId: Int64, _ name: String) throws -> Void
     public var removeDeck: @Sendable (_ deckId: Int64) throws -> Void
+    public var rebuildFilteredDeck: @Sendable (_ deckId: Int64) throws -> Int
+    public var emptyFilteredDeck: @Sendable (_ deckId: Int64) throws -> Void
 }
 
 extension DecksService: DependencyKey {
@@ -121,6 +123,25 @@ extension DecksService: DependencyKey {
                     method: AnkiBackend.DecksMethod.removeDecks,
                     request: req
                 )
+            },
+            rebuildFilteredDeck: { deckId in
+                var req = Anki_Decks_DeckId()
+                req.did = deckId
+                let resp: Anki_Collection_OpChangesWithCount = try backend.invoke(
+                    service: AnkiBackend.Service.scheduler,
+                    method: AnkiBackend.SchedulerMethod.rebuildFilteredDeck,
+                    request: req
+                )
+                return Int(resp.count)
+            },
+            emptyFilteredDeck: { deckId in
+                var req = Anki_Decks_DeckId()
+                req.did = deckId
+                try backend.callVoid(
+                    service: AnkiBackend.Service.scheduler,
+                    method: AnkiBackend.SchedulerMethod.emptyFilteredDeck,
+                    request: req
+                )
             }
         )
     }()
@@ -150,7 +171,8 @@ private func flattenDeckTree(_ node: Anki_Decks_DeckTreeNode, parentPath: String
                 newCount: Int(child.newCount),
                 learnCount: Int(child.learnCount),
                 reviewCount: Int(child.reviewCount)
-            )
+            ),
+            isFiltered: child.filtered
         ))
         result.append(contentsOf: flattenDeckTree(child, parentPath: fullPath))
     }
@@ -176,6 +198,7 @@ private func mapDeckTreeNode(_ node: Anki_Decks_DeckTreeNode, parentPath: String
             learnCount: Int(node.learnCount),
             reviewCount: Int(node.reviewCount)
         ),
+        isFiltered: node.filtered,
         children: node.children.map { mapDeckTreeNode($0, parentPath: fullPath) }
     )
 }
