@@ -31,6 +31,12 @@ Amgi wraps the official [ankitects/anki](https://github.com/ankitects/anki) Rust
 - **Statistics Dashboard** -- full-year review heatmap (auto-scrolls to today), streak counter, retention rate, forecast chart, card count breakdown
 - **Offline-First** -- everything works offline; sync when you have a connection
 - **Swift 6.2 Strict Concurrency** -- zero data races, fully actor-isolated, `Sendable` throughout
+- **Multi-Theme** -- Vivid and Muted palettes, Light/Dark/Follow-System appearance, propagated through the SwiftUI environment to the app and home-screen widgets
+- **Image Occlusion** -- create and edit Image Occlusion notes with an in-app canvas (rectangle, ellipse, polygon, text masks); reviewer parity with upstream Anki
+- **Card Template Editor** -- edit card front/back/styling with live uncommitted preview powered by the Rust render engine
+- **Settings + Maintenance** -- dedicated tab with Backup, User Files, Empty Cards, Media Check, Deck Templates, About
+- **Tags + Rich Note Editor** -- inline tag management and rich field editing with audio playback and HTML preview
+- **Statistics** -- retrievability histogram, optimized year-long heatmap, dual-axis tooltips for Future Due and Reviews
 
 ## Screenshots
 
@@ -133,10 +139,11 @@ The AGPL requires that if you distribute this software or run it as a network se
 
 ## Contributing
 
-Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines, code style, and the development setup.
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines, code style, and the development setup. A list of contributors is maintained in [CONTRIBUTORS.md](CONTRIBUTORS.md).
 
 ## Acknowledgments
 
 - **[Damien Elmes](https://github.com/dae)** and the [ankitects/anki](https://github.com/ankitects/anki) contributors for the Rust backend that powers this app
+- **[DreamAfar](https://github.com/DreamAfar)** for the v0.0.3 fork that contributed Image Occlusion, the multi-theme system, the Settings tab, the card template editor, retrievability stats, tag management, the rich note editor, and the GitHub Actions IPA workflow
 - **[AnkiDroid](https://github.com/ankidroid/Anki-Android)** for pioneering the Rust backend bridge pattern on mobile
 - **[Point-Free](https://www.pointfree.co/)** for [swift-dependencies](https://github.com/pointfreeco/swift-dependencies)
