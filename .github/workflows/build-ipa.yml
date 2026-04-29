@@ -1,0 +1,282 @@
+name: Build Unsigned IPA
+
+on:
+  workflow_dispatch:        # manual trigger from Actions UI
+  push:
+    tags:
+      - 'v*'                # any version tag triggers release publish
+
+# Cancel in-progress runs for branches/dispatch only. Tag-triggered release
+# runs use a tag-specific group with cancel-in-progress disabled so a re-tag
+# (or rapid push) doesn't abort a release publish mid-flight.
+concurrency:
+  group: build-ipa-${{ github.ref_type == 'tag' && format('tag-{0}', github.ref) || github.ref }}
+  cancel-in-progress: ${{ github.ref_type != 'tag' }}
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+# Default shell for every `run:` step. The `github` context is not available
+# at the workflow level, so we don't set working-directory here — every step
+# defaults to $GITHUB_WORKSPACE automatically.
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 60
+
+    # GITHUB_TOKEN scopes — minimal set required for tag-triggered release publish.
+    permissions:
+      contents: write
+
+    steps:
+      # ── 1. Select Xcode 26.3 (release build, not RC) ─────────────
+      - name: Select Xcode 26.3
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '26.3'
+
+      # ── 2. Confirm toolchain versions ────────────────────────────
+      - name: Show versions
+        run: |
+          xcodebuild -version
+          swift --version
+
+      # ── 3. Checkout repository (including submodules) ────────────
+      - name: Checkout repository with submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      # ── 4. Install Rust toolchain ─────────────────────────────────
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.95"
+          targets: aarch64-apple-ios,aarch64-apple-ios-sim,x86_64-apple-ios
+
+      # ── 5. Cache Rust build artifacts ─────────────────────────────
+      - name: Cache Rust build artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            anki-bridge-rs/target
+            anki-upstream/out
+          # Toolchain version is part of the key so a Rust upgrade (1.95 → ...)
+          # forces a clean rebuild rather than reusing artifacts from the prior compiler.
+          key: ${{ runner.os }}-rust-1.95-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-1.95-
+            ${{ runner.os }}-rust-
+
+      # ── 6. Install Homebrew dependencies ──────────────────────────
+      - name: Install Homebrew dependencies
+        run: |
+          brew install protobuf swift-protobuf xcodegen
+
+      # ── 7. Build Rust XCFramework ─────────────────────────────────
+      - name: Build Rust XCFramework
+        run: |
+          chmod +x ./scripts/build-xcframework.sh
+          ./scripts/build-xcframework.sh
+
+      # ── 8. Generate Swift protobuf types ──────────────────────────
+      - name: Generate Swift protobuf types
+        run: |
+          chmod +x ./scripts/generate-protos.sh
+          ./scripts/generate-protos.sh
+
+      # ── 9. Generate Xcode project ─────────────────────────────────
+      - name: Generate Xcode project
+        run: |
+          cd AmgiApp && xcodegen generate
+          echo "=== Files in AmgiApp/ ==="
+          ls -la ../AmgiApp/
+
+      # ── 9.2. Simulator smoke check (catch UI/platform compile issues early) ──
+      - name: Build Debug Simulator (Compatibility Smoke Check)
+        run: |
+          set -o pipefail
+          DERIVED_DATA_PATH="$RUNNER_TEMP/DerivedData"
+          if xcodebuild -list -project AmgiApp/AmgiApp.xcodeproj | grep -q "Tests"; then
+            xcodebuild build-for-testing \
+              -project AmgiApp/AmgiApp.xcodeproj \
+              -scheme AmgiApp \
+              -configuration Debug \
+              -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max' \
+              -derivedDataPath "$DERIVED_DATA_PATH" \
+              -skipPackagePluginValidation \
+              -skipMacroValidation \
+              2>&1 | tee simulator-build.log
+          else
+            xcodebuild build \
+              -project AmgiApp/AmgiApp.xcodeproj \
+              -scheme AmgiApp \
+              -configuration Debug \
+              -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max' \
+              -derivedDataPath "$DERIVED_DATA_PATH" \
+              -skipPackagePluginValidation \
+              -skipMacroValidation \
+              2>&1 | tee simulator-build.log
+          fi
+
+      # ── 9.5. Run tests ────────────────────────────────────────────
+      # TODO: Add CI test step once testability is sorted out.
+      #       AmgiThemeTests (SPM) require the iOS-only Rust XCFramework,
+      #       so `swift test` doesn't run cleanly on macOS CI runners.
+      #       Xcode integration tests need a test target wired into the
+      #       AmgiApp scheme first.
+
+      # ── 10. Build unsigned xcarchive ──────────────────────────────
+      # -skipPackagePluginValidation: allows Swift macro plugins (e.g.
+      #   DependenciesMacrosPlugin) without the interactive trust prompt.
+      # -skipMacroValidation: skips Xcode's macro validation for the same reason.
+      - name: Build unsigned xcarchive
+        run: |
+          set -o pipefail
+          xcodebuild archive \
+            -project AmgiApp/AmgiApp.xcodeproj \
+            -scheme AmgiApp \
+            -configuration Release \
+            -archivePath "$RUNNER_TEMP/AmgiApp.xcarchive" \
+            -sdk iphoneos \
+            ONLY_ACTIVE_ARCH=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            -skipPackagePluginValidation \
+            -skipMacroValidation \
+            2>&1 | tee build.log
+
+          if [ ! -d "$RUNNER_TEMP/AmgiApp.xcarchive" ]; then
+            echo "Archive output not found at $RUNNER_TEMP/AmgiApp.xcarchive"
+            exit 1
+          fi
+          echo "Archive build successful."
+
+      # ── 11. Package .app into unsigned .ipa ───────────────────────
+      - name: Package .app into unsigned .ipa
+        run: |
+          ARCHIVE_PATH="$RUNNER_TEMP/AmgiApp.xcarchive"
+
+          echo "=== Archive contents ==="
+          find "$ARCHIVE_PATH" -maxdepth 3 | head -30
+
+          APP_PATH=$(find "$ARCHIVE_PATH/Products/Applications" -name "*.app" | head -1)
+          echo "Found app: $APP_PATH"
+
+          if [ -z "$APP_PATH" ]; then
+            echo "ERROR: No .app found in archive"
+            exit 1
+          fi
+
+          mkdir -p /tmp/Payload
+          cp -r "$APP_PATH" /tmp/Payload/
+
+          cd /tmp
+          zip -r AmgiApp-unsigned.ipa Payload
+
+          echo "=== IPA created ==="
+          ls -lh /tmp/AmgiApp-unsigned.ipa
+
+      # ── 12. Upload unsigned IPA as workflow artifact ───────────────
+      - name: Upload unsigned IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: AmgiApp-unsigned-ipa
+          path: /tmp/AmgiApp-unsigned.ipa
+          retention-days: 7
+
+      # ── 13. Generate build summary ────────────────────────────────
+      - name: Generate Build Summary
+        if: always()
+        run: |
+          IPA_PATH="/tmp/AmgiApp-unsigned.ipa"
+          {
+            echo "# Amgi iOS IPA Build Summary"
+            echo ""
+            echo "**Build Date**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+            echo "**Commit**: \`${{ github.sha }}\`"
+            echo "**Branch / Ref**: \`${{ github.ref_name }}\`"
+            echo "**IPA File**: AmgiApp-unsigned.ipa"
+            if [ -f "$IPA_PATH" ]; then
+              IPA_SIZE=$(ls -lh "$IPA_PATH" | awk '{print $5}')
+              IPA_SHA256=$(shasum -a 256 "$IPA_PATH" | awk '{print $1}')
+              echo "**IPA Size**: $IPA_SIZE"
+              echo "**IPA SHA256**: \`$IPA_SHA256\`"
+            else
+              echo "**IPA Size**: N/A (IPA not generated)"
+              echo "**IPA SHA256**: N/A"
+              IPA_SHA256="N/A"
+            fi
+          } > build-summary.md
+
+          if [ -f build.log ]; then
+            {
+              echo ""
+              echo "## Compile Log Tail"
+              echo '```'
+              tail -20 build.log
+              echo '```'
+            } >> build-summary.md
+          fi
+
+          cat build-summary.md
+
+          # Export SHA256 for the release step below
+          echo "IPA_SHA256=${IPA_SHA256}" >> "$GITHUB_ENV"
+
+      # ── 14. Upload build summary as workflow artifact ─────────────
+      - name: Upload Build Summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-summary
+          path: build-summary.md
+          retention-days: 7
+
+      # ── 15. Publish GitHub Release (tag builds only) ──────────────
+      # Runs only when the workflow was triggered by a 'v*' tag push.
+      # workflow_dispatch runs still upload the artifact above but do not
+      # create a release.
+      - name: Publish GitHub Release
+        if: github.ref_type == 'tag' && env.IPA_SHA256 != '' && env.IPA_SHA256 != 'N/A'
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-rc') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-alpha') }}
+          files: /tmp/AmgiApp-unsigned.ipa
+          body: |
+            ## Amgi ${{ github.ref_name }}
+
+            Unsigned iOS IPA build. Sign locally with [AltStore](https://altstore.io/) or [Sideloadly](https://sideloadly.io/) using your own Apple ID.
+
+            ### Install
+
+            1. Download `AmgiApp-unsigned.ipa` from this release.
+            2. Open AltStore or Sideloadly on your computer.
+            3. Drag the IPA into the tool and sign with your Apple ID.
+            4. Install on your device.
+
+            Free Apple IDs: install lasts 7 days. Paid Apple Developer Program: 1 year.
+
+            ### Verify
+
+            ```
+            shasum -a 256 AmgiApp-unsigned.ipa
+            ```
+
+            Expected SHA256: `${{ env.IPA_SHA256 }}`
+
+            ### License
+
+            Amgi is licensed under [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html).
+            It includes the [ankitects/anki](https://github.com/ankitects/anki) Rust backend (also AGPL-3.0).
+
+            Source: https://github.com/${{ github.repository }}/tree/${{ github.sha }}
