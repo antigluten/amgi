@@ -1,4 +1,5 @@
 import SwiftUI
+import AmgiTheme
 import AnkiKit
 import AnkiClients
 import AnkiProto
@@ -6,6 +7,7 @@ import Dependencies
 import SwiftProtobuf
 
 struct StatsDashboardView: View {
+    @Environment(\.palette) private var palette
     @Dependency(\.statsClient) var statsClient
     @Dependency(\.deckClient) var deckClient
 
@@ -38,7 +40,7 @@ struct StatsDashboardView: View {
 
                     PeriodStatsCard(period: period, today: graphs.today, reviews: graphs.reviews)
                     FutureDueChart(futureDue: graphs.futureDue, period: period)
-                    HeatmapChart(reviews: graphs.reviews)
+                    HeatmapChartOptimized(reviews: graphs.reviews)
                     ReviewsChart(reviews: graphs.reviews, period: period)
                     CardCountsChart(cardCounts: graphs.cardCounts)
                     IntervalsChart(intervals: graphs.intervals)
@@ -47,12 +49,13 @@ struct StatsDashboardView: View {
                     ButtonsChart(buttons: graphs.buttons, period: period)
                     AddedChart(added: graphs.added, period: period)
                     RetentionChart(trueRetention: graphs.trueRetention)
+                    RetrievabilityChart(retrievability: graphs.retrievability)
                 }
             }
             .padding(AmgiSpacing.lg)
         }
         .scrollContentBackground(.hidden)
-        .background(Color.amgiSurface)
+        .background(palette.surface)
         .navigationTitle("Statistics")
         .task {
             await loadDecks()

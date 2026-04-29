@@ -1,10 +1,12 @@
 import SwiftUI
+import AmgiTheme
 import Charts
 import AnkiProto
 
 struct FutureDueChart: View {
     let futureDue: Anki_Stats_GraphsResponse.FutureDue
     let period: StatsPeriod
+    @Environment(\.palette) private var palette
     @State private var includeBacklog = false
 
     private var filteredData: [(day: Int, count: Int)] {
@@ -69,7 +71,7 @@ struct FutureDueChart: View {
     private func footerItem(_ label: String, value: String) -> some View {
         VStack(spacing: AmgiSpacing.xxs) {
             Text(value).amgiFont(.captionBold).monospacedDigit()
-            Text(label).amgiFont(.micro).foregroundStyle(Color.amgiTextSecondary)
+            Text(label).amgiFont(.micro).foregroundStyle(palette.textSecondary)
         }
         .frame(maxWidth: .infinity)
     }

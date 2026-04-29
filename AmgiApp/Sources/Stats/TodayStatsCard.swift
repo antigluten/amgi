@@ -1,10 +1,12 @@
 import SwiftUI
+import AmgiTheme
 import AnkiProto
 
 struct PeriodStatsCard: View {
     let period: StatsPeriod
     let today: Anki_Stats_GraphsResponse.Today
     let reviews: Anki_Stats_GraphsResponse.ReviewCountsAndTimes
+    @Environment(\.palette) private var palette
 
     private var periodTitle: String {
         switch period {
@@ -62,7 +64,7 @@ struct PeriodStatsCard: View {
         VStack(alignment: .leading, spacing: 12) {
             Text(periodTitle)
                 .amgiFont(.captionBold)
-                .foregroundStyle(Color.amgiTextSecondary)
+                .foregroundStyle(palette.textSecondary)
                 .textCase(.uppercase)
 
             if period == .day {
@@ -114,14 +116,14 @@ struct PeriodStatsCard: View {
     private func statItem(title: String, value: String, color: Color) -> some View {
         VStack(spacing: AmgiSpacing.xxs) {
             Text(value).amgiFont(.sectionHeading).foregroundStyle(color)
-            Text(title).amgiFont(.caption).foregroundStyle(Color.amgiTextSecondary)
+            Text(title).amgiFont(.caption).foregroundStyle(palette.textSecondary)
         }
     }
 
     private func statBadge(_ title: String, count: UInt32, color: Color) -> some View {
         VStack(spacing: AmgiSpacing.xxs) {
             Text("\(count)").amgiFont(.bodyEmphasis).foregroundStyle(color)
-            Text(title).amgiFont(.micro).foregroundStyle(Color.amgiTextSecondary)
+            Text(title).amgiFont(.micro).foregroundStyle(palette.textSecondary)
         }
     }
 

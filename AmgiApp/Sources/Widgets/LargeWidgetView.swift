@@ -1,8 +1,10 @@
 // AmgiApp/Sources/Widgets/LargeWidgetView.swift
 import SwiftUI
 import WidgetKit
+import AmgiTheme
 
 struct LargeWidgetView: View {
+    @Environment(\.palette) private var palette
     let snapshot: WidgetSnapshot
 
     private var totalDue: Int { snapshot.totalDue }
@@ -24,7 +26,7 @@ struct LargeWidgetView: View {
             HStack {
                 Text(snapshot.deckName)
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(palette.textPrimary)
                     .lineLimit(1)
                     .truncationMode(.tail)
                 Spacer()
@@ -36,11 +38,11 @@ struct LargeWidgetView: View {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
                 Text("\(totalDue)")
                     .font(.system(size: 52, weight: .bold))
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(palette.textPrimary)
                     .kerning(-2.5)
                 Text("cards due")
                     .font(.system(size: 14))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(palette.textSecondary)
             }
             .padding(.bottom, 4)
 
@@ -49,10 +51,10 @@ struct LargeWidgetView: View {
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
                         RoundedRectangle(cornerRadius: 2)
-                            .fill(Color.primary.opacity(0.07))
+                            .fill(palette.textPrimary.opacity(0.07))
                             .frame(height: 4)
                         RoundedRectangle(cornerRadius: 2)
-                            .fill(Color.accentColor)
+                            .fill(palette.accent)
                             .frame(width: geo.size.width * progressFraction, height: 4)
                     }
                 }
@@ -60,7 +62,7 @@ struct LargeWidgetView: View {
 
                 Text("\(snapshot.reviewedToday) reviewed today · \(totalDue) remaining")
                     .font(.system(size: 11))
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(palette.textTertiary)
             }
             .padding(.bottom, 12)
 
@@ -85,7 +87,7 @@ struct LargeWidgetView: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text("Last 7 Days")
                     .font(.system(size: 10, weight: .medium))
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(palette.textTertiary)
                     .textCase(.uppercase)
                     .kerning(0.3)
 
@@ -97,13 +99,13 @@ struct LargeWidgetView: View {
                                 VStack {
                                     Spacer()
                                     RoundedRectangle(cornerRadius: 3)
-                                        .fill(Color.accentColor.opacity(index == 6 ? 0.9 : 0.5))
+                                        .fill(palette.accent.opacity(index == 6 ? 0.9 : 0.5))
                                         .frame(height: max(3, geo.size.height * fraction))
                                 }
                             }
                             Text(dayLabel(index))
                                 .font(.system(size: 9))
-                                .foregroundStyle(index == 6 ? Color.primary.opacity(0.6) : Color.primary.opacity(0.25))
+                                .foregroundStyle(index == 6 ? palette.textPrimary.opacity(0.6) : palette.textPrimary.opacity(0.25))
                         }
                     }
                 }
@@ -123,18 +125,18 @@ struct LargeWidgetView: View {
                 .font(.system(size: 13))
             Text("\(snapshot.streak) day streak")
                 .font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(Color.orange)
+                .foregroundStyle(palette.warning)
         }
         .padding(.vertical, 4)
         .padding(.horizontal, 10)
-        .background(Color.orange.opacity(0.12), in: Capsule())
+        .background(palette.warning.opacity(0.12), in: Capsule())
     }
 
     private func breakdownColumn(color: Color, label: String, count: Int) -> some View {
         VStack(spacing: 3) {
             Text("\(count)")
                 .font(.system(size: 22, weight: .bold))
-                .foregroundStyle(.primary)
+                .foregroundStyle(palette.textPrimary)
                 .kerning(-0.8)
             HStack(spacing: 4) {
                 Circle()
@@ -142,7 +144,7 @@ struct LargeWidgetView: View {
                     .frame(width: 6, height: 6)
                 Text(label)
                     .font(.system(size: 11))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(palette.textSecondary)
             }
         }
         .frame(maxWidth: .infinity)

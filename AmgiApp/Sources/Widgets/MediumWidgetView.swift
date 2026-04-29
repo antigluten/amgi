@@ -1,8 +1,10 @@
 // AmgiApp/Sources/Widgets/MediumWidgetView.swift
 import SwiftUI
 import WidgetKit
+import AmgiTheme
 
 struct MediumWidgetView: View {
+    @Environment(\.palette) private var palette
     let snapshot: WidgetSnapshot
 
     var body: some View {
@@ -14,10 +16,10 @@ struct MediumWidgetView: View {
                         .font(.system(size: 16))
                     Text("\(snapshot.streak)")
                         .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(Color.orange)
+                        .foregroundStyle(palette.warning)
                     Text("day streak")
                         .font(.system(size: 11))
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(palette.textTertiary)
                 }
 
                 Spacer()
@@ -25,20 +27,20 @@ struct MediumWidgetView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("\(snapshot.totalDue)")
                         .font(.system(size: 50, weight: .bold))
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(palette.textPrimary)
                         .minimumScaleFactor(0.6)
                         .lineLimit(1)
                         .kerning(-2)
                     Text("cards due")
                         .font(.system(size: 11))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(palette.textSecondary)
                 }
 
                 Spacer()
 
                 Text(snapshot.deckName)
                     .font(.system(size: 10))
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(palette.textTertiary)
                     .lineLimit(1)
                     .truncationMode(.tail)
             }
@@ -62,11 +64,11 @@ struct MediumWidgetView: View {
                 HStack {
                     Text("Done today")
                         .font(.system(size: 11))
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(palette.textTertiary)
                     Spacer()
                     Text("\(snapshot.reviewedToday)")
                         .font(.system(size: 11, weight: .semibold))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(palette.textSecondary)
                 }
             }
             .frame(minWidth: 108)
@@ -83,11 +85,11 @@ struct MediumWidgetView: View {
                 .frame(width: 7, height: 7)
             Text(label)
                 .font(.system(size: 13))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(palette.textSecondary)
             Spacer()
             Text("\(count)")
                 .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(.primary)
+                .foregroundStyle(palette.textPrimary)
         }
     }
 }

@@ -1,8 +1,10 @@
 // AmgiApp/Sources/Widgets/SmallWidgetView.swift
 import SwiftUI
 import WidgetKit
+import AmgiTheme
 
 struct SmallWidgetView: View {
+    @Environment(\.palette) private var palette
     let snapshot: WidgetSnapshot
 
     var body: some View {
@@ -13,10 +15,10 @@ struct SmallWidgetView: View {
                     .font(.system(size: 17))
                 Text("\(snapshot.streak)")
                     .font(.system(size: 15, weight: .bold))
-                    .foregroundStyle(Color.orange)
+                    .foregroundStyle(palette.warning)
                 Text("day streak")
                     .font(.system(size: 11))
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(palette.textTertiary)
             }
 
             Spacer()
@@ -25,13 +27,13 @@ struct SmallWidgetView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text("\(snapshot.totalDue)")
                     .font(.system(size: 54, weight: .bold, design: .default))
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(palette.textPrimary)
                     .minimumScaleFactor(0.6)
                     .lineLimit(1)
                     .kerning(-2)
                 Text("cards due")
                     .font(.system(size: 12))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(palette.textSecondary)
             }
 
             Spacer()
@@ -39,7 +41,7 @@ struct SmallWidgetView: View {
             // Deck name
             Text(snapshot.deckName)
                 .font(.system(size: 11))
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(palette.textTertiary)
                 .lineLimit(1)
                 .truncationMode(.tail)
         }

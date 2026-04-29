@@ -1,4 +1,5 @@
 import SwiftUI
+import AmgiTheme
 import AnkiKit
 import AnkiClients
 import Dependencies
@@ -75,6 +76,7 @@ private struct DeckRowView: View {
     let node: DeckTreeNode
     let onMutated: () async -> Void
 
+    @Environment(\.palette) private var palette
     @Dependency(\.deckClient) var deckClient
     @State private var showRenameSheet = false
     @State private var showDeleteAlert = false
@@ -139,17 +141,28 @@ private struct DeckRowView: View {
     }
 
     private var rowLabel: some View {
-        HStack {
+        HStack(spacing: 10) {
+            if node.isFiltered {
+                Image(systemName: "bolt.fill")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: 22, height: 22)
+                    .background(
+                        palette.customStudyBadge,
+                        in: RoundedRectangle(cornerRadius: 5)
+                    )
+                    .accessibilityLabel("Custom study deck")
+            }
             Text(node.name)
                 .amgiFont(.body)
-                .foregroundStyle(Color.amgiTextPrimary)
+                .foregroundStyle(palette.textPrimary)
             Spacer()
             DeckCountsView(counts: node.counts)
         }
     }
 
     private var deckInfo: DeckInfo {
-        DeckInfo(id: node.id, name: node.fullName, counts: node.counts)
+        DeckInfo(id: node.id, name: node.fullName, counts: node.counts, isFiltered: node.isFiltered)
     }
 }
 

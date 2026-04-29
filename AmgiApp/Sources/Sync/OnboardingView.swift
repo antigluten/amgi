@@ -1,8 +1,10 @@
 import SwiftUI
+import AmgiTheme
 import AnkiSync
 import Sharing
 
 struct OnboardingView: View {
+    @Environment(\.palette) private var palette
     @Shared(.onboardingCompleted) private var onboardingCompleted
     @Shared(.syncMode) private var syncMode
     @State private var showServerSetup = false
@@ -14,15 +16,15 @@ struct OnboardingView: View {
 
             Image(systemName: "rectangle.stack.fill")
                 .font(.system(size: 64))
-                .foregroundStyle(Color.amgiAccent)
+                .foregroundStyle(palette.accent)
 
             Text("Welcome")
                 .amgiFont(.displayHero)
-                .foregroundStyle(Color.amgiTextPrimary)
+                .foregroundStyle(palette.textPrimary)
 
             Text("Choose how to sync your collection")
                 .amgiFont(.body)
-                .foregroundStyle(Color.amgiTextSecondary)
+                .foregroundStyle(palette.textSecondary)
 
             VStack(spacing: AmgiSpacing.md) {
                 if showServerSetup {
@@ -44,7 +46,7 @@ struct OnboardingView: View {
                             showServerSetup = false
                         }
                         .amgiFont(.caption)
-                        .foregroundStyle(Color.amgiTextSecondary)
+                        .foregroundStyle(palette.textSecondary)
                     }
                 } else {
                     Button {
@@ -69,11 +71,11 @@ struct OnboardingView: View {
 
             Text("You can change this anytime in sync settings")
                 .amgiFont(.micro)
-                .foregroundStyle(Color.amgiTextTertiary)
+                .foregroundStyle(palette.textTertiary)
 
             Spacer()
         }
-        .background(Color.amgiBackground)
+        .background(palette.background)
     }
 
     private func saveAndContinue() {

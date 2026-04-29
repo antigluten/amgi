@@ -1,10 +1,12 @@
 import SwiftUI
+import AmgiTheme
 import AnkiKit
 
 struct ReviewView: View {
     let deckId: Int64
     let onDismiss: () -> Void
 
+    @Environment(\.palette) private var palette
     @State private var session: ReviewSession
 
     init(deckId: Int64, onDismiss: @escaping () -> Void) {
@@ -21,7 +23,7 @@ struct ReviewView: View {
                     Spacer()
                     Text("\(session.sessionStats.reviewed) reviewed")
                         .amgiFont(.caption)
-                        .foregroundStyle(Color.amgiTextSecondary)
+                        .foregroundStyle(palette.textSecondary)
                 }
                 .padding(.horizontal)
                 .padding(.vertical, 8)
@@ -32,7 +34,7 @@ struct ReviewView: View {
                     cardView
                 }
             }
-            .background(Color.amgiBackground)
+            .background(palette.background)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -135,14 +137,14 @@ struct ReviewView: View {
                 .foregroundStyle(.green)
             Text("Congratulations!")
                 .amgiFont(.sectionHeading)
-                .foregroundStyle(Color.amgiTextPrimary)
+                .foregroundStyle(palette.textPrimary)
             Text("You've reviewed \(session.sessionStats.reviewed) cards")
                 .amgiFont(.body)
-                .foregroundStyle(Color.amgiTextSecondary)
+                .foregroundStyle(palette.textSecondary)
             if session.sessionStats.reviewed > 0 {
                 Text("Accuracy: \(Int(session.sessionStats.accuracy * 100))%")
                     .amgiFont(.body)
-                    .foregroundStyle(Color.amgiTextSecondary)
+                    .foregroundStyle(palette.textSecondary)
             }
             Spacer()
             Button("Done") { onDismiss() }
