@@ -10,6 +10,8 @@ public struct DeckClient: Sendable {
     public var create: @Sendable (_ name: String) throws -> Int64
     public var rename: @Sendable (_ deckId: Int64, _ name: String) throws -> Void
     public var delete: @Sendable (_ deckId: Int64) throws -> Void
+    public var rebuildFilteredDeck: @Sendable (_ deckId: Int64) throws -> Int
+    public var emptyFilteredDeck: @Sendable (_ deckId: Int64) throws -> Void
 }
 
 extension DeckClient: TestDependencyKey {

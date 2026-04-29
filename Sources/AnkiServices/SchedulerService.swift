@@ -135,8 +135,16 @@ private func mapCardRecord(_ c: Anki_Cards_Card) -> CardRecord {
 
 private func scheduledSecs(_ state: Anki_Scheduler_SchedulingState) -> UInt32 {
     switch state.kind {
-    case .normal(let n): return normalScheduledSecs(n)
-    case .filtered, .none: return 0
+    case .normal(let n):
+        return normalScheduledSecs(n)
+    case .filtered(let f):
+        switch f.kind {
+        case .rescheduling(let r): return normalScheduledSecs(r.originalState)
+        case .preview(let p):      return p.scheduledSecs
+        case .none:                return 0
+        }
+    case .none:
+        return 0
     }
 }
 

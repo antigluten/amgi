@@ -2,6 +2,7 @@ import SwiftUI
 import AnkiKit
 import AnkiClients
 import Dependencies
+import AmgiTheme
 
 struct BrowseView: View {
     @Dependency(\.noteClient) var noteClient
@@ -18,6 +19,7 @@ struct BrowseView: View {
     @State private var isLoading = false
     @State private var hasMorePages = true
     @State private var showAddNote = false
+    @State private var showAddImageOcclusion = false
 
     private let pageSize = 50
 
@@ -34,18 +36,23 @@ struct BrowseView: View {
             } else {
                 List {
                     ForEach(notes, id: \.id) { note in
-                        NavigationLink(value: note) {
-                            NoteRowView(note: note)
-                                .onAppear {
-                                    // Lazy-load stub notes when they appear on screen
-                                    if note.sfld == "Loading..." {
-                                        Task { await fetchNoteDetails(id: note.id) }
+                        HStack {
+                            NavigationLink(value: note) {
+                                NoteRowView(note: note)
+                                    .onAppear {
+                                        // Lazy-load stub notes when they appear on screen
+                                        if note.sfld == "Loading..." {
+                                            Task { await fetchNoteDetails(id: note.id) }
+                                        }
+                                        // Paging: load next batch near the end
+                                        if note.id == notes.last?.id {
+                                            Task { await loadNextPage() }
+                                        }
                                     }
-                                    // Paging: load next batch near the end
-                                    if note.id == notes.last?.id {
-                                        Task { await loadNextPage() }
-                                    }
-                                }
+                            }
+                            NoteContextMenuButton(noteId: note.id) {
+                                Task { await performSearch() }
+                            }
                         }
                     }
 
@@ -62,7 +69,7 @@ struct BrowseView: View {
                     let resolvedNote = (note.sfld == "Loading...")
                         ? (try? noteClient.fetch(note.id)) ?? note
                         : note
-                    NoteEditorView(note: resolvedNote) {
+                    NoteEditingDestinationView(note: resolvedNote) {
                         Task { await performSearch() }
                     }
                 }
@@ -72,8 +79,9 @@ struct BrowseView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    showAddNote = true
+                Menu {
+                    Button("Add Note") { showAddNote = true }
+                    Button("Add Image Occlusion") { showAddImageOcclusion = true }
                 } label: {
                     Image(systemName: "plus")
                 }
@@ -90,6 +98,9 @@ struct BrowseView: View {
             AddNoteView {
                 Task { await performSearch() }
             }
+        }
+        .sheet(isPresented: $showAddImageOcclusion) {
+            AddImageOcclusionNoteView { Task { await performSearch() } }
         }
         .safeAreaInset(edge: .top) {
             if !allDecks.isEmpty {
@@ -256,6 +267,38 @@ struct BrowseView: View {
             parts.append(trimmed)
         }
         return parts.joined(separator: " ")
+    }
+}
+
+// MARK: - NoteContextMenuButton
+
+/// Resolves the first cardId for a note lazily on first appear, then shows CardContextMenu.
+@MainActor
+struct NoteContextMenuButton: View {
+    let noteId: Int64
+    var onSuccess: (() -> Void)?
+
+    @Dependency(\.cardClient) var cardClient
+    @State private var firstCardId: Int64?
+
+    var body: some View {
+        Group {
+            if let cardId = firstCardId {
+                CardContextMenu(
+                    cardId: cardId,
+                    noteId: noteId,
+                    onSuccess: onSuccess
+                )
+            } else {
+                Image(systemName: "ellipsis.circle")
+                    .font(AmgiFont.bodyEmphasis.font)
+                    .foregroundStyle(.tertiary)
+            }
+        }
+        .task(id: noteId) {
+            guard firstCardId == nil else { return }
+            firstCardId = (try? cardClient.fetchByNote(noteId))?.first?.id
+        }
     }
 }
 

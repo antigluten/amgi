@@ -11,6 +11,12 @@ public struct CardClient: Sendable {
     public var undo: @Sendable (_ cardId: Int64) throws -> Void
     public var suspend: @Sendable (_ cardId: Int64) throws -> Void
     public var bury: @Sendable (_ cardId: Int64) throws -> Void
+    public var flag: @Sendable (_ cardId: Int64, _ value: UInt32) throws -> Void
+    public var resetToNew: @Sendable (_ cardId: Int64) throws -> Void
+    public var undoLast: @Sendable () throws -> Void
+    public var getCardFlags: @Sendable (_ cardId: Int64) throws -> UInt32
+    public var hasUndoableAction: @Sendable () throws -> Bool
+    public var removeCards: @Sendable (_ cardIds: [Int64]) throws -> Void
 }
 
 extension CardClient: TestDependencyKey {

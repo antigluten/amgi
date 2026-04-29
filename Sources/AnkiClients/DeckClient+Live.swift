@@ -32,6 +32,15 @@ extension DeckClient: DependencyKey {
             },
             delete: { deckId in
                 try decks.removeDeck(deckId)
+            },
+            rebuildFilteredDeck: { deckId in
+                let count = try decks.rebuildFilteredDeck(deckId)
+                logger.info("Rebuilt filtered deck \(deckId): \(count) cards")
+                return count
+            },
+            emptyFilteredDeck: { deckId in
+                try decks.emptyFilteredDeck(deckId)
+                logger.info("Emptied filtered deck \(deckId)")
             }
         )
     }()

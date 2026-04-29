@@ -3,6 +3,12 @@ public import Foundation
 public enum CardAssetPath {
     public static let scheme = "amgi-asset"
 
+    public static let mediaBaseURL = URL(string: "amgi-asset://media/")!
+
+    public static func mediaBaseTag() -> String {
+        #"<base href="amgi-asset://media/">"#
+    }
+
     /// Resolves an `amgi-asset://` URL to an absolute file path on disk, or nil
     /// if the URL is malformed, targets an unknown host, attempts path
     /// traversal outside the allowed root, or points to an asset subdirectory

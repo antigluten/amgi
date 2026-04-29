@@ -2,11 +2,13 @@ public struct DeckInfo: Sendable, Equatable, Identifiable, Hashable {
     public let id: Int64
     public var name: String
     public var counts: DeckCounts
+    public var isFiltered: Bool
 
-    public init(id: Int64, name: String, counts: DeckCounts = .zero) {
+    public init(id: Int64, name: String, counts: DeckCounts = .zero, isFiltered: Bool = false) {
         self.id = id
         self.name = name
         self.counts = counts
+        self.isFiltered = isFiltered
     }
 }
 
@@ -15,6 +17,7 @@ public struct DeckTreeNode: Sendable, Equatable, Identifiable {
     public var name: String
     public var fullName: String
     public var counts: DeckCounts
+    public var isFiltered: Bool
     public var children: [DeckTreeNode]
 
     public init(
@@ -22,12 +25,14 @@ public struct DeckTreeNode: Sendable, Equatable, Identifiable {
         name: String,
         fullName: String,
         counts: DeckCounts = .zero,
+        isFiltered: Bool = false,
         children: [DeckTreeNode] = []
     ) {
         self.id = id
         self.name = name
         self.fullName = fullName
         self.counts = counts
+        self.isFiltered = isFiltered
         self.children = children
     }
 }

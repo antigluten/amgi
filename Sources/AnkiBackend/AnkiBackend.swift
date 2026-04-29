@@ -189,7 +189,9 @@ extension AnkiBackend {
         package static let notes: UInt32 = 25
         package static let cardRendering: UInt32 = 27
         package static let search: UInt32 = 29
+        package static let imageOcclusion: UInt32 = 35
         package static let importExport: UInt32 = 37
+        package static let media: UInt32 = 39
         package static let stats: UInt32 = 41
         package static let tags: UInt32 = 43
     }
@@ -223,6 +225,9 @@ extension AnkiBackend {
         package static let schedTimingToday: UInt32 = 5
         package static let countsForDeckToday: UInt32 = 10
         package static let congratsInfo: UInt32 = 11
+        package static let emptyFilteredDeck: UInt32 = 15
+        package static let rebuildFilteredDeck: UInt32 = 16
+        package static let scheduleCardsAsNew: UInt32 = 17
     }
 
     package enum NotesMethod {
@@ -251,14 +256,57 @@ extension AnkiBackend {
         package static let searchNotes: UInt32 = 2
     }
 
+    package enum TagsMethod {
+        package static let clearUnusedTags: UInt32 = 0
+        package static let allTags: UInt32 = 1
+        package static let removeTags: UInt32 = 2
+        package static let setTagCollapsed: UInt32 = 3
+        package static let tagTree: UInt32 = 4
+        package static let reparentTags: UInt32 = 5
+        package static let renameTags: UInt32 = 6
+        package static let addNoteTags: UInt32 = 7
+        package static let removeNoteTags: UInt32 = 8
+        package static let findAndReplaceTag: UInt32 = 9
+        package static let completeTag: UInt32 = 10
+    }
+
+    package enum ImageOcclusionMethod {
+        // BackendImageOcclusionService (service 35) — delegated from upstream
+        // ImageOcclusionService method indices.
+        package static let getImageForOcclusion: UInt32 = 0
+        package static let getImageOcclusionNote: UInt32 = 1
+        package static let getImageOcclusionFields: UInt32 = 2
+        package static let addImageOcclusionNotetype: UInt32 = 3
+        package static let addImageOcclusionNote: UInt32 = 4
+        package static let updateImageOcclusionNote: UInt32 = 5
+    }
+
+    package enum MediaMethod {
+        package static let checkMedia: UInt32 = 0
+        package static let addMediaFile: UInt32 = 1
+        package static let trashMediaFiles: UInt32 = 2
+        package static let emptyTrash: UInt32 = 3
+        package static let restoreTrash: UInt32 = 4
+    }
+
     // BackendCardRenderingService (27) has 6 extra methods before renderExistingCard
     package enum CardRenderingMethod {
+        package static let getEmptyCards: UInt32 = 5
         package static let renderExistingCard: UInt32 = 6
+        package static let renderUncommittedCard: UInt32 = 7
+    }
+
+    package enum CardsMethod {
+        package static let getCard: UInt32 = 0
+        package static let removeCards: UInt32 = 2
+        package static let setFlag: UInt32 = 4
     }
 
     package enum NotetypesMethod {
+        package static let updateNotetype: UInt32 = 1
         package static let getNotetype: UInt32 = 6
         package static let getNotetypeNames: UInt32 = 8
+        package static let removeNotetype: UInt32 = 11
     }
 
     package enum ImportExportMethod {
