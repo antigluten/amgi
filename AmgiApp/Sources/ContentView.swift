@@ -48,6 +48,12 @@ struct ContentView: View {
                         .id(refreshID)
                 }
             }
+            Tab("Settings", systemImage: "gearshape") {
+                NavigationStack {
+                    SettingsView()
+                        .id(refreshID)
+                }
+            }
             #if DEBUG
             Tab("Debug", systemImage: "wrench.and.screwdriver") {
                 NavigationStack {
