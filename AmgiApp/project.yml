@@ -11,6 +11,8 @@ settings:
 packages:
   AnkiBridge:
     path: ..
+  AmgiUI:
+    path: ../AmgiUI
   swift-navigation:
     url: https://github.com/pointfreeco/swift-navigation
     from: 2.0.0
@@ -52,6 +54,8 @@ targets:
         product: AnkiProto
       - package: AnkiBridge
         product: AmgiCardWeb
+      - package: AmgiUI
+        product: AmgiTheme
       - package: swift-navigation
         product: SwiftNavigation
       - package: swift-navigation
@@ -78,6 +82,8 @@ targets:
     dependencies:
       - package: AnkiBridge
         product: AnkiKit
+      - package: AmgiUI
+        product: AmgiTheme
       - sdk: WidgetKit.framework
       - sdk: SwiftUI.framework
     settings:

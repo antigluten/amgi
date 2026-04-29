@@ -74,6 +74,8 @@ let package = Package(
             name: "AnkiClients",
             dependencies: [
                 "AnkiKit",
+                "AnkiBackend",
+                "AnkiProto",
                 "AnkiServices",
                 "AnkiSync",
                 .product(name: "Dependencies", package: "swift-dependencies"),
