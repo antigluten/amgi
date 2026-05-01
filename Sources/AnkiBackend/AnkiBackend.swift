@@ -313,6 +313,7 @@ extension AnkiBackend {
         package static let importCollectionPackage: UInt32 = 0
         package static let exportCollectionPackage: UInt32 = 1
         package static let importAnkiPackage: UInt32 = 2
+        package static let exportAnkiPackage: UInt32 = 4
     }
 
     package enum StatsMethod {

@@ -8,10 +8,14 @@ public enum SyncDirection: Sendable {
 public struct SyncError: Error, Sendable, Equatable {
     public let message: String
     public let isRetryable: Bool
+    /// When set, an in-progress merge failed and the local-collection backup
+    /// .apkg has been left on disk at this path so the user can recover.
+    public let recoveryBackupPath: String?
 
-    public init(message: String, isRetryable: Bool = true) {
+    public init(message: String, isRetryable: Bool = true, recoveryBackupPath: String? = nil) {
         self.message = message
         self.isRetryable = isRetryable
+        self.recoveryBackupPath = recoveryBackupPath
     }
 
     public static let authFailed = SyncError(message: "Authentication failed", isRetryable: false)
