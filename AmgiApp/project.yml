@@ -3,11 +3,14 @@ options:
   bundleIdPrefix: com.amgiapp
   deploymentTarget:
     iOS: "18.0"
+    watchOS: "11.0"
   defaultSourceDirectoryType: syncedFolder
 settings:
   base:
     SWIFT_VERSION: "6.0"
     SWIFT_STRICT_CONCURRENCY: complete
+    ONLY_ACTIVE_ARCH: true
+    ARCHS: arm64
 packages:
   AnkiBridge:
     path: ..
@@ -32,10 +35,18 @@ targets:
     type: application
     platform: iOS
     sources:
-      - path: Sources
-        type: group
-        excludes:
-          - "Widgets"
+      - path: Sources/Browse
+      - path: Sources/Decks
+      - path: Sources/Review
+      - path: Sources/Settings
+      - path: Sources/Shared
+      - path: Sources/Stats
+      - path: Sources/Sync
+      - path: Sources/Theme
+      - path: Sources/AmgiAppApp.swift
+      - path: Sources/ContentView.swift
+      - path: Sources/DebugView.swift
+      - path: Sources/WriteWidgetSnapshot.swift
       - path: Assets.xcassets
       - path: Resources/mathjax
         type: folder
@@ -91,3 +102,71 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.amgiapp.AmgiApp.widget
         INFOPLIST_FILE: Sources/Widgets/Info.plist
         CODE_SIGN_ENTITLEMENTS: AmgiWidget.entitlements
+
+  AmgiWatchApp:
+    type: application
+    platform: watchOS
+    sources:
+      - path: Sources/Watch
+        type: group
+      - path: Sources/Shared
+        type: group
+        excludes:
+          - ShareSheet.swift
+          - CardContextMenu.swift
+          - TagsView.swift
+      - path: Sources/Theme
+        type: group
+        excludes:
+          - AmgiColors.swift
+          - AmgiModifiers.swift
+      - path: Sources/Decks
+        type: group
+        excludes:
+          - DeckListView.swift
+          - DeckDetailView.swift
+          - DeckTemplateListView.swift
+          - TemplateSourceEditor.swift
+      - path: Sources/Review
+        type: group
+        excludes:
+          - ReviewView.swift
+          - CardAssetScheme.swift
+          - CardWebView.swift
+      - path: Sources/Stats/PeriodPicker.swift
+      - path: Sources/Stats/TodayStatsCard.swift
+      - path: Sources/Stats/FutureDueChart.swift
+      - path: Sources/Stats/ReviewsChart.swift
+      - path: Sources/Stats/CardCountsChart.swift
+      - path: Sources/Stats/IntervalsChart.swift
+      - path: Sources/Stats/EaseChart.swift
+      - path: Sources/Stats/HourlyChart.swift
+      - path: Sources/Stats/ButtonsChart.swift
+      - path: Sources/Stats/AddedChart.swift
+      - path: Sources/Stats/RetentionChart.swift
+    dependencies:
+      - package: AnkiBridge
+        product: AnkiKit
+      - package: AmgiUI
+        product: AmgiTheme
+      - package: AnkiBridge
+        product: AnkiServices
+      - package: AnkiBridge
+        product: AnkiClients
+      - package: AnkiBridge
+        product: AnkiSync
+      - package: AnkiBridge
+        product: AnkiBackend
+      - package: AnkiBridge
+        product: AnkiProto
+      - package: swift-navigation
+        product: SwiftNavigation
+      - package: swift-sharing
+        product: Sharing
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.amgiapp.AmgiApp.watch
+        CODE_SIGN_ENTITLEMENTS: AmgiWatchApp.entitlements
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_WKCompanionAppBundleIdentifier: com.amgiapp.AmgiApp
