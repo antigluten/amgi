@@ -12,6 +12,7 @@ struct SyncSheet: View {
     @State private var syncState: SyncState = .idle
     @State private var showLogin = false
     @State private var showServerSetup = false
+    @State private var pendingDestructiveChoice: SyncDirection?
     @Shared(.syncMode) private var syncMode
 
     enum SyncState {
@@ -149,6 +150,7 @@ struct SyncSheet: View {
     private func logout() {
         KeychainHelper.deleteHostKey()
         KeychainHelper.deleteUsername()
+        KeychainHelper.deleteCurrentEndpoint()
         syncState = .idle
     }
 
@@ -219,28 +221,85 @@ struct SyncSheet: View {
                 .foregroundStyle(.orange)
             Text("Full Sync Required")
                 .font(.title3.weight(.semibold))
-            Text("Your collection has changed in a way that requires replacing one copy entirely.")
+            Text("Your local and server collections have diverged. Choose how to reconcile them — Merge is the safest option.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
 
             VStack(spacing: 8) {
                 Button {
-                    Task { await fullSync(.download) }
+                    Task { await mergeFullSync() }
                 } label: {
-                    Label("Download from Server", systemImage: "arrow.down.circle")
-                        .frame(maxWidth: .infinity)
+                    VStack(spacing: 2) {
+                        Label("Merge (combine both)", systemImage: "arrow.triangle.merge")
+                            .frame(maxWidth: .infinity)
+                        Text("Keeps cards from both sides; conflicts use newest")
+                            .font(.caption2)
+                            .foregroundStyle(.white.opacity(0.85))
+                    }
                 }
                 .buttonStyle(.borderedProminent)
 
-                Button {
-                    Task { await fullSync(.upload) }
+                Button(role: .destructive) {
+                    pendingDestructiveChoice = .download
                 } label: {
-                    Label("Upload to Server", systemImage: "arrow.up.circle")
-                        .frame(maxWidth: .infinity)
+                    VStack(spacing: 2) {
+                        Label("Replace local with server", systemImage: "arrow.down.circle")
+                            .frame(maxWidth: .infinity)
+                        Text("Local-only changes will be lost")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .buttonStyle(.bordered)
+
+                Button(role: .destructive) {
+                    pendingDestructiveChoice = .upload
+                } label: {
+                    VStack(spacing: 2) {
+                        Label("Replace server with local", systemImage: "arrow.up.circle")
+                            .frame(maxWidth: .infinity)
+                        Text("Server-only changes will be lost")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
                 }
                 .buttonStyle(.bordered)
             }
+        }
+        .confirmationDialog(
+            destructiveDialogTitle,
+            isPresented: Binding(
+                get: { pendingDestructiveChoice != nil },
+                set: { if !$0 { pendingDestructiveChoice = nil } }
+            ),
+            titleVisibility: .visible,
+            presenting: pendingDestructiveChoice
+        ) { choice in
+            Button(destructiveButtonLabel(choice), role: .destructive) {
+                Task { await fullSync(choice) }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { choice in
+            Text(destructiveDialogMessage(choice))
+        }
+    }
+
+    private var destructiveDialogTitle: String { "This cannot be undone" }
+
+    private func destructiveButtonLabel(_ choice: SyncDirection) -> String {
+        switch choice {
+        case .download: return "Replace Local"
+        case .upload: return "Replace Server"
+        }
+    }
+
+    private func destructiveDialogMessage(_ choice: SyncDirection) -> String {
+        switch choice {
+        case .download:
+            return "Your local collection will be permanently overwritten with the server's copy. Any cards or reviews that exist only locally will be lost."
+        case .upload:
+            return "The server's collection will be permanently overwritten with your local copy. Any cards or reviews that exist only on the server will be lost."
         }
     }
 
@@ -251,6 +310,22 @@ struct SyncSheet: View {
         do {
             try await syncClient.fullSync(direction)
             syncState = .success(SyncSummary())
+        } catch {
+            syncState = .error(error.localizedDescription)
+        }
+    }
+
+    private func mergeFullSync() async {
+        syncState = .syncing("Preparing merge...")
+        do {
+            try await syncClient.merge { message in
+                Task { @MainActor in
+                    syncState = .syncing(message)
+                }
+            }
+            syncState = .success(SyncSummary())
+        } catch let syncError as SyncError where syncError.recoveryBackupPath != nil {
+            syncState = .error(syncError.message)
         } catch {
             syncState = .error(error.localizedDescription)
         }
@@ -307,6 +382,7 @@ private struct ServerSetupSheet: View {
         $syncMode.withLock { $0 = .custom }
         // Clear existing auth since server changed
         KeychainHelper.deleteHostKey()
+        KeychainHelper.deleteCurrentEndpoint()
         isPresented = false
         onComplete()
     }

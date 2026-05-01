@@ -42,6 +42,7 @@ extension SyncService: DependencyKey {
 
                     if response.hasNewEndpoint, !response.newEndpoint.isEmpty {
                         auth.endpoint = response.newEndpoint
+                        try? KeychainHelper.saveCurrentEndpoint(response.newEndpoint)
                     }
 
                     switch response.required {
@@ -51,8 +52,12 @@ extension SyncService: DependencyKey {
                     case .normalSync:
                         return SyncSummary()
 
-                    case .fullSync, .fullDownload:
-                        logger.info("Full download required")
+                    case .fullSync:
+                        logger.info("Full sync required - user must choose direction")
+                        throw SyncError.fullSyncRequired
+
+                    case .fullDownload:
+                        logger.info("Full download required (local collection empty)")
                         var dlReq = Anki_Sync_FullUploadOrDownloadRequest()
                         dlReq.auth = auth
                         dlReq.upload = false
