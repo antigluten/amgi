@@ -1,6 +1,8 @@
 // AmgiApp/Sources/AmgiAppApp.swift
 import BackgroundTasks
 import SwiftUI
+import AmgiReader
+import AmgiReaderDictionary
 import AmgiTheme
 import AnkiBackend
 import AnkiSync
@@ -36,13 +38,19 @@ struct AnkiAppApp: App {
         }
         scheduleWidgetRefreshTask()
 
+        // Multi-profile bootstrap: migrate legacy single-collection
+        // layout into the default profile, then resolve the active
+        // profile (consuming a pending switch from the previous session
+        // if one was queued in Settings → Profiles).
+        AccountStore.migrateLegacyCollectionIfNeeded()
+        let activeProfile = MainActor.assumeIsolated {
+            AccountStore.shared.consumePendingSwitch()
+        }
+
         try! prepareDependencies {
             let backend = try AnkiBackend(preferredLangs: ["en"])
 
-            let appSupport = FileManager.default.urls(
-                for: .applicationSupportDirectory, in: .userDomainMask
-            ).first!
-            let ankiDir = appSupport.appendingPathComponent("AnkiCollection", isDirectory: true)
+            let ankiDir = AccountStore.profileDirectory(for: activeProfile.id)
             try FileManager.default.createDirectory(at: ankiDir, withIntermediateDirectories: true)
 
             let collectionPath = ankiDir.appendingPathComponent("collection.anki2").path
@@ -59,6 +67,11 @@ struct AnkiAppApp: App {
             )
             try? backend.checkDatabase()
             $0.ankiBackend = backend
+            $0.syncCoordinator = SyncCoordinator()
+            // Wire the Anki-backed concrete realization of the dictionary
+            // engine's abstract config store. Keeps the engine package
+            // (AmgiReaderDictionary) free of Anki imports.
+            $0.dictionaryConfigStore = AnkiBackedDictionaryConfigStore.makeStore()
         }
     }
 
