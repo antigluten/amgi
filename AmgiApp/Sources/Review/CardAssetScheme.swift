@@ -1,83 +1,78 @@
 import Foundation
 import WebKit
 import AmgiCardWeb
-import Dependencies
 import AnkiBackend
-import os
+import Dependencies
 
 final class CardAssetScheme: NSObject, WKURLSchemeHandler {
-    private static let logger = Logger(subsystem: "com.amgiapp.AmgiApp", category: "CardAssetScheme")
-
-    private let bundleRoot: String
-    private let mediaRootProvider: @Sendable () -> String?
-
-    init(
-        bundleRoot: String = Bundle.main.bundlePath,
-        mediaRootProvider: @escaping @Sendable () -> String? = {
-            @Dependency(\.ankiBackend) var backend
-            return backend.currentMediaFolderPath
-        }
-    ) {
-        self.bundleRoot = bundleRoot
-        self.mediaRootProvider = mediaRootProvider
-    }
-
     func webView(_ webView: WKWebView, start urlSchemeTask: any WKURLSchemeTask) {
         guard let url = urlSchemeTask.request.url else {
             urlSchemeTask.didFailWithError(URLError(.badURL))
             return
         }
-        guard let mediaRoot = mediaRootProvider() else {
-            // Transient: collection may not yet be open. Respond 503 rather than
-            // failing hard so the WebView's network stack doesn't remember a
-            // terminal error.
-            respond(task: urlSchemeTask, url: url, statusCode: 503, body: Data())
+
+        @Dependency(\.ankiBackend) var backend
+        let mediaRoot: URL? = {
+            guard let path = backend.currentMediaFolderPath else { return nil }
+            return URL(fileURLWithPath: path)
+        }()
+        let bundleRoot = Bundle.main.resourceURL
+
+        if url.host?.lowercased() == "media", mediaRoot == nil {
+            respond(to: urlSchemeTask, url: url, statusCode: 503, mimeType: "text/plain", data: Data())
             return
         }
-        guard let filePath = CardAssetPath.resolve(
-            url: url, mediaRoot: mediaRoot, bundleRoot: bundleRoot
-        ) else {
-            urlSchemeTask.didFailWithError(URLError(.noPermissionsToReadFile))
+
+        // CardAssetPath.resolve only handles 'media' and 'assets' hosts.
+        // For 'card' host, we don't serve files—the baseURL is just for relative URL resolution.
+        // This is a no-op for card host; links will be handled by JavaScript handlers.
+        guard let fileURL = CardAssetPath.resolve(url: url, mediaRoot: mediaRoot, bundleRoot: bundleRoot) else {
+            // Not a resolvable asset path (e.g., 'card' host). Respond with 204 (No Content).
+            respond(to: urlSchemeTask, url: url, statusCode: 204, mimeType: "text/plain", data: Data())
             return
         }
-        let data: Data
+
         do {
-            data = try Data(contentsOf: URL(fileURLWithPath: filePath))
+            let data = try Data(contentsOf: fileURL, options: .mappedIfSafe)
+            respond(
+                to: urlSchemeTask,
+                url: url,
+                statusCode: 200,
+                mimeType: CardAssetPath.mimeType(for: fileURL),
+                data: data
+            )
         } catch {
-            Self.logger.error("CardAssetScheme: failed to read \(filePath, privacy: .public): \(error.localizedDescription, privacy: .public)")
-            urlSchemeTask.didFailWithError(URLError(.fileDoesNotExist))
-            return
+            respond(to: urlSchemeTask, url: url, statusCode: 404, mimeType: "text/plain", data: Data())
         }
-        let mime = CardAssetPath.mimeType(for: filePath)
-        respond(task: urlSchemeTask, url: url, statusCode: 200, body: data, mime: mime)
     }
 
-    func webView(_ webView: WKWebView, stop urlSchemeTask: any WKURLSchemeTask) {
-        // Data(contentsOf:) is synchronous; no cancellable work remains once start() returns.
-    }
+    func webView(_ webView: WKWebView, stop urlSchemeTask: any WKURLSchemeTask) {}
 
     private func respond(
-        task: any WKURLSchemeTask,
+        to task: any WKURLSchemeTask,
         url: URL,
         statusCode: Int,
-        body: Data,
-        mime: String = "application/octet-stream"
+        mimeType: String,
+        data: Data
     ) {
-        let headers: [String: String] = [
-            "Content-Type": mime,
-            "Content-Length": "\(body.count)",
-        ]
         guard let response = HTTPURLResponse(
             url: url,
             statusCode: statusCode,
             httpVersion: "HTTP/1.1",
-            headerFields: headers
+            headerFields: [
+                "Content-Type": mimeType,
+                "Content-Length": String(data.count),
+                "Cache-Control": "no-cache",
+            ]
         ) else {
             task.didFailWithError(URLError(.badServerResponse))
             return
         }
+
         task.didReceive(response)
-        task.didReceive(body)
+        if !data.isEmpty {
+            task.didReceive(data)
+        }
         task.didFinish()
     }
 }
