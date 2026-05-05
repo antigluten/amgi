@@ -1,4 +1,4 @@
-public struct NoteRecord: Sendable, Hashable {
+public struct NoteRecord: Sendable, Hashable, Identifiable {
     public let id: Int64
     public var guid: String
     public var mid: Int64

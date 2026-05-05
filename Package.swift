@@ -13,7 +13,10 @@ let sharedSwiftSettings: [SwiftSetting] = [
 
 let package = Package(
     name: "AnkiBridge",
-    platforms: [.iOS(.v17), .macOS(.v14)],
+    // Pinned to iOS 18 / macOS 15 because the sibling AmgiReader package
+    // depends on hoshidicts, which requires macOS 15+. The app target
+    // already deploys iOS 18 so this is a no-op for users.
+    platforms: [.iOS(.v18), .macOS(.v15)],
     products: [
         .library(name: "AnkiKit", targets: ["AnkiKit"]),
         .library(name: "AnkiProto", targets: ["AnkiProto"]),
@@ -27,6 +30,11 @@ let package = Package(
         .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.0.0"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
         .package(url: "https://github.com/apple/swift-protobuf.git", from: "1.28.0"),
+        // Reader/Dictionary domain types live in a sibling package so the
+        // book/chapter/lookup model isn't entangled with Anki primitives.
+        // The Anki-bridged loader (ReaderBookClient) lives in AnkiClients
+        // and imports this package for its types.
+        .package(path: "AmgiReader"),
     ],
     targets: [
         // MARK: - Rust Bridge
@@ -78,6 +86,7 @@ let package = Package(
                 "AnkiProto",
                 "AnkiServices",
                 "AnkiSync",
+                .product(name: "AmgiReader", package: "AmgiReader"),
                 .product(name: "Dependencies", package: "swift-dependencies"),
                 .product(name: "DependenciesMacros", package: "swift-dependencies"),
                 .product(name: "Logging", package: "swift-log"),

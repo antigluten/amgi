@@ -16,12 +16,13 @@ concurrency:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
-# Default shell for every `run:` step. The `github` context is not available
-# at the workflow level, so we don't set working-directory here — every step
-# defaults to $GITHUB_WORKSPACE automatically.
+# Default shell options for every `run:` step — fail on undefined vars and on
+# the first error in a pipeline, so `xcodebuild ... | tee log.txt` failures
+# aren't masked by tee's success exit code.
 defaults:
   run:
     shell: bash
+    working-directory: ${{ github.workspace }}
 
 jobs:
   build:

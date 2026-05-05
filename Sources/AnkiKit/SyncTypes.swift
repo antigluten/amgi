@@ -1,11 +1,11 @@
-import Foundation
+public import Foundation
 
 public enum SyncDirection: Sendable {
     case upload
     case download
 }
 
-public struct SyncError: Error, Sendable, Equatable {
+public struct SyncError: Error, LocalizedError, Sendable, Equatable {
     public let message: String
     public let isRetryable: Bool
 
@@ -13,6 +13,8 @@ public struct SyncError: Error, Sendable, Equatable {
         self.message = message
         self.isRetryable = isRetryable
     }
+
+    public var errorDescription: String? { message }
 
     public static let authFailed = SyncError(message: "Authentication failed", isRetryable: false)
     public static let networkUnavailable = SyncError(message: "Network unavailable", isRetryable: true)

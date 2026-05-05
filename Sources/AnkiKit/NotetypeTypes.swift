@@ -10,6 +10,21 @@ public struct NotetypeInfo: Sendable {
     }
 }
 
+/// Per-field config info for a notetype field — used by typed-answer rendering.
+public struct NotetypeFieldInfo: Sendable {
+    public let name: String
+    public let ordinal: Int
+    public let fontName: String
+    public let fontSize: Int
+
+    package init(name: String, ordinal: Int, fontName: String, fontSize: Int) {
+        self.name = name
+        self.ordinal = ordinal
+        self.fontName = fontName
+        self.fontSize = fontSize
+    }
+}
+
 public struct NewNoteTemplate: Sendable {
     public let notetypeId: Int64
     public var fields: [String]
