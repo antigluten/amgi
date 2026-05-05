@@ -56,7 +56,6 @@
 		AB3689DD4BAB90D24C81C5A1 /* ReviewsChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD607A2DE7606E65C133987A /* ReviewsChart.swift */; };
 		B6FFC838741047506C56B503 /* RetentionChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = C47B73C334B62AD0A0729DB0 /* RetentionChart.swift */; };
 		BB3E89CDD647E53D949E751D /* AmgiAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8194F942C511DFA83C0CB371 /* AmgiAppApp.swift */; };
-		BFFE223EE84AD396C3596DD1 /* CardContextMenuWatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1CCD28B3B2B6157C5080D9 /* CardContextMenuWatch.swift */; };
 		C417D0DB3832D3592A5A3BA1 /* AnkiBackend in Frameworks */ = {isa = PBXBuildFile; productRef = F40C6D05700BCD9DB3969CD4 /* AnkiBackend */; };
 		C7E42C769A4C5821E0D2A65E /* AnkiClients in Frameworks */ = {isa = PBXBuildFile; productRef = 1D9F9CD702DB5DC5DC8AAB30 /* AnkiClients */; };
 		CC537D2D55B52A4BD7E35D02 /* WatchReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAC32D61C2C66C6ED71E2F1E /* WatchReviewView.swift */; };
@@ -101,7 +100,6 @@
 		161E2EDD621D936CBBCDE8FD /* AmgiTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmgiTypography.swift; sourceTree = "<group>"; };
 		17A3FD796487EE3148C97DED /* EaseChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EaseChart.swift; sourceTree = "<group>"; };
 		1955D163641C3A6B4C3FCD56 /* SharedKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedKeys.swift; sourceTree = "<group>"; };
-		1D1CCD28B3B2B6157C5080D9 /* CardContextMenuWatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardContextMenuWatch.swift; sourceTree = "<group>"; };
 		1D2F26CE5EB6060C2EB82D25 /* ReviewSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewSession.swift; sourceTree = "<group>"; };
 		2B60A11C277A30E8180CB0F1 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		2ED3EC752BE10F016D1DDC7A /* WatchLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchLoginView.swift; sourceTree = "<group>"; };
@@ -362,7 +360,6 @@
 			children = (
 				30A828298F6079C1DA890F67 /* AmgiColorsWatch.swift */,
 				6CB5F2309F5A73FCDBCAEF1B /* AmgiModifiersWatch.swift */,
-				1D1CCD28B3B2B6157C5080D9 /* CardContextMenuWatch.swift */,
 				491E02068FA0CEFFA5C53B64 /* WatchApp.swift */,
 				6320359FC6CA6D92945161A1 /* WatchContentView.swift */,
 				5B2868E7DF38AB014685320A /* WatchDeckDetailView.swift */,
@@ -595,7 +592,6 @@
 				5C90F71C28BA71DCD3234ED8 /* AmgiSpacing.swift in Sources */,
 				7E0F969FE51C02E3F82A8EFE /* AmgiTypography.swift in Sources */,
 				5118FC0E96F042A52C760244 /* ButtonsChart.swift in Sources */,
-				BFFE223EE84AD396C3596DD1 /* CardContextMenuWatch.swift in Sources */,
 				ECC2240EADC17061E3B6F04F /* CardCountsChart.swift in Sources */,
 				7A8C7F9E38ADB8A798536E72 /* DeckCountsView.swift in Sources */,
 				9F9AEC406A84BB7E02B2C8F0 /* EaseChart.swift in Sources */,

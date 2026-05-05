@@ -4,6 +4,7 @@ import Dependencies
 import Foundation
 import Sharing
 import SwiftUI
+import AmgiTheme
 
 @main
 struct WatchApp: App {
@@ -33,13 +34,16 @@ struct WatchApp: App {
     }
     var body: some Scene {
         WindowGroup {
-            if isLoggedIn {
-                WatchContentView()
-            } else {
-                WatchLoginView {
-                    isLoggedIn = true
+            Group {
+                if isLoggedIn {
+                    WatchContentView()
+                } else {
+                    WatchLoginView {
+                        isLoggedIn = true
+                    }
                 }
             }
+            .themedRoot()
         }
     }
 }
