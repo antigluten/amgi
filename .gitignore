@@ -11,3 +11,4 @@ anki-bridge-rs/target/
 anki-upstream/target/
 .claude/settings.local.json
 .superpowers/
+/.agent-shell/
