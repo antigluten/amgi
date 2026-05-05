@@ -20,7 +20,19 @@ struct AddNoteView: View {
     @State private var isSaving = false
     @State private var errorMessage: String?
 
+    let preselectedDeckId: Int64?
+    let initialDraft: AddNoteDraft?
     let onSave: () -> Void
+
+    init(
+        preselectedDeckId: Int64? = nil,
+        initialDraft: AddNoteDraft? = nil,
+        onSave: @escaping () -> Void
+    ) {
+        self.preselectedDeckId = preselectedDeckId ?? initialDraft?.deckID
+        self.initialDraft = initialDraft
+        self.onSave = onSave
+    }
 
     var body: some View {
         NavigationStack {
@@ -99,16 +111,30 @@ struct AddNoteView: View {
 
     private func loadData() async {
         decks = (try? deckClient.fetchAll()) ?? []
-        if let first = decks.first { selectedDeckId = first.id }
+        if let preselectedDeckId, decks.contains(where: { $0.id == preselectedDeckId }) {
+            selectedDeckId = preselectedDeckId
+        } else if let first = decks.first {
+            selectedDeckId = first.id
+        }
 
         do {
             notetypeNames = try notetypesService.getNotetypeNames()
-            if let first = notetypeNames.first {
-                selectedNotetypeId = first.id
+            // Honour an incoming draft's preferred notetype when it
+            // matches one the user actually has; otherwise fall back to
+            // the first available.
+            let chosen = initialDraft?.notetypeID
+                .flatMap { id in notetypeNames.first(where: { $0.id == id }) }
+                ?? notetypeNames.first
+            if let chosen {
+                selectedNotetypeId = chosen.id
                 loadFields()
             }
         } catch {
             print("[AddNote] Error loading notetypes: \(error)")
+        }
+
+        if let initialDraft, !initialDraft.tags.isEmpty {
+            tags = initialDraft.tags.joined(separator: " ")
         }
     }
 
@@ -117,7 +143,13 @@ struct AddNoteView: View {
         do {
             let notetype = try notetypesService.getNotetype(selectedNotetypeId)
             fieldNames = notetype.fieldNames
-            fieldValues = Array(repeating: "", count: fieldNames.count)
+            // Pre-fill from the incoming draft by mapping
+            // `fieldValues[name] → fieldValues[positionalIndex]` against
+            // the notetype's actual field-name list. Names not present
+            // on this notetype are silently dropped.
+            fieldValues = fieldNames.map { name in
+                initialDraft?.fieldValues[name] ?? ""
+            }
         } catch {
             print("[AddNote] Error loading fields: \(error)")
         }
