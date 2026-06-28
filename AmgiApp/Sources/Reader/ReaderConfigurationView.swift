@@ -1,4 +1,3 @@
-import AmgiTheme
 import AnkiClients
 import AnkiKit
 import Dependencies
@@ -12,7 +11,6 @@ struct ReaderConfigurationView: View {
     let onDismiss: () -> Void
 
     @State private var model = ReaderConfigurationModel()
-    @Environment(\.palette) private var palette
 
     @Shared(.appStorage(ReaderPreferenceKey.deckName)) private var deckName: String = ""
     @Shared(.appStorage(ReaderPreferenceKey.bookIDField)) private var bookIDField: String = ""
@@ -27,7 +25,7 @@ struct ReaderConfigurationView: View {
         Form {
             Section("Deck") {
                 if model.decks.isEmpty {
-                    Text("Loading decks…").foregroundStyle(palette.textSecondary)
+                    Text("Loading decks…").foregroundStyle(.secondary)
                 } else {
                     Picker("Deck", selection: Binding($deckName)) {
                         Text("Select a deck").tag("")
@@ -74,7 +72,7 @@ struct ReaderConfigurationView: View {
             }
 
             if let loadError = model.loadError {
-                Section { Text(loadError).foregroundStyle(palette.danger) }
+                Section { Text(loadError).foregroundStyle(.red) }
             }
         }
         .navigationTitle("Reader Setup")

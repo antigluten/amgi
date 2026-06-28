@@ -41,7 +41,7 @@ final class AddImageOcclusionModel {
     }
 
     func loadDecks() async {
-        decks = (try? await deckClient.fetchAll()) ?? []
+        decks = (try? deckClient.fetchAll()) ?? []
 
         if let preselectedDeckId, decks.contains(where: { $0.id == preselectedDeckId }) {
             selectedDeckId = preselectedDeckId
@@ -101,7 +101,7 @@ final class AddImageOcclusionModel {
         let tags = tagsText.split(separator: " ").map(String.init).filter { !$0.isEmpty }
 
         do {
-            try await client.addNote(url, occlusions, header, backExtra, tags, selectedDeckId, NotetypeID(0))
+            try client.addNote(url, occlusions, header, backExtra, tags, selectedDeckId, NotetypeID(0))
             return true
         } catch {
             errorMessage = error.localizedDescription

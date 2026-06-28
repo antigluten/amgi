@@ -17,9 +17,7 @@ struct EmptyCardsView: View {
         EmptyCardsContent(
             model: model,
             onOpenNote: { id in
-                Task {
-                    if let note = await model.fetchNote(id) { editingNote = note }
-                }
+                if let note = model.fetchNote(id) { editingNote = note }
             },
             onRequestDeleteAll: { showDeleteConfirm = true }
         )
@@ -169,7 +167,7 @@ struct EmptyCardsContent: View {
                     HStack(alignment: .top, spacing: AmgiSpacing.sm) {
                         VStack(alignment: .leading, spacing: AmgiSpacing.xxs) {
                             Text("Note id: \(entry.id)")
-                                .font(.system(size: AmgiFont.body.size, weight: AmgiFont.body.weight).monospacedDigit())
+                                .font(.subheadline.monospacedDigit())
                                 .foregroundStyle(palette.textPrimary)
                             Text("\(entry.emptyCards) of \(entry.totalCards) cards empty")
                                 .amgiFont(.caption)

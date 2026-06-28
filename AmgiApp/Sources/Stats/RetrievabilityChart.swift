@@ -1,7 +1,6 @@
 import SwiftUI
 import Charts
 import AmgiTheme
-import AmgiUI
 import AnkiKit
 
 struct RetrievabilityChart: View {
@@ -61,17 +60,6 @@ struct RetrievabilityChart: View {
     }
 
     var body: some View {
-        AmgiCard(
-            background: .surfaceElevated,
-            shadow: palette.shadows.md,
-            cornerRadius: AmgiRadius.inset,
-            contentInsets: EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
-        ) {
-            retrievabilityCardContent
-        }
-    }
-
-    private var retrievabilityCardContent: some View {
         VStack(alignment: .leading, spacing: AmgiSpacing.sm) {
             HStack {
                 VStack(alignment: .leading, spacing: AmgiSpacing.xxs) {
@@ -99,6 +87,7 @@ struct RetrievabilityChart: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .amgiCard(elevated: true)
     }
 
     private var retrievabilityChart: some View {

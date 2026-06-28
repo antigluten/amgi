@@ -30,22 +30,14 @@ extension SyncService: DependencyKey {
 
                     if let newEndpoint = result.newEndpoint {
                         auth = SyncAuth(hkey: auth.hkey, endpoint: newEndpoint)
-                        // AnkiWeb pins upload/download to a specific shard and
-                        // only emits the redirect here — persist it so later
-                        // FullUploadOrDownload calls hit the shard directly.
-                        try? KeychainHelper.saveCurrentEndpoint(newEndpoint)
                     }
 
                     switch result.required {
                     case .noChanges, .normalSync:
                         return SyncSummary()
 
-                    case .fullSync:
-                        logger.info("Full sync required - user must choose direction")
-                        throw SyncError.fullSyncRequired
-
-                    case .fullDownload:
-                        logger.info("Full download required (local collection empty)")
+                    case .fullSync, .fullDownload:
+                        logger.info("Full download required")
                         try backend.invoke(.fullUploadOrDownload(
                             auth: auth, upload: false, serverUsn: result.serverMediaUsn
                         ))

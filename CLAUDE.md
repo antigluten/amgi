@@ -22,6 +22,7 @@ and called from Swift via C FFI + protobuf.
 ```
 AmgiApp (iOS app target — AmgiApp/, xcodegen → AmgiApp.xcodeproj)
   ├─ depends on → AnkiBridge package (this repo's root Package.swift)
+  ├─ depends on → AmgiDomain  (sibling SPM, ./AmgiDomain)
   ├─ depends on → AmgiReader  (sibling SPM, ./AmgiReader; vendors EPUBKit)
   └─ depends on → AmgiUI      (sibling SPM, ./AmgiUI)
 
@@ -59,7 +60,7 @@ dictionary UI, widgets.
 | `AnkiBackend` | Swift class wrapping the Rust C FFI; owns the backend pointer, dispatches `Request<R>`, decodes responses. Carries the `RPCObserver` hook. |
 | `AnkiProtoBridge` | The sole sanctioned bridge between protobufs and Swift mirrors. Exposes `Request<R>` factories (`.deckNames`, `.getDeckTree`, …), `ServiceCatalog`, and `*Method` typed dispatch wrappers. Conversions live in `Sources/AnkiProtoBridge/Conversions/`. |
 | `AnkiServices` | High-level service facades (`DecksService`, `SchedulerService`, `SyncService`, `StatsService`, `NotesService`, `NotetypesService`, `CardRenderingService`, `ImportExportService`, `CollectionService`). |
-| `AnkiClients` | `@DependencyClient` structs + `liveValue` implementations. The UI's preferred entry point into the Anki engine; where no client wrapper exists, feature code may use an `AnkiServices` facade directly (sanctioned second tier — don't add thin pass-through clients just to avoid it). Direct `AnkiBackend` use is reserved for the composition root and low-level asset/config plumbing. |
+| `AnkiClients` | `@DependencyClient` structs + `liveValue` implementations. The UI's only entry point into the Anki engine. |
 | `AnkiSync` | KeychainHelper for sync credentials. |
 | `AmgiCardWeb` | WebKit-based card renderer host. |
 | `AnkiRustLib` | `binaryTarget` pointing at `AnkiRust.xcframework`. iOS-only. |
@@ -67,6 +68,7 @@ dictionary UI, widgets.
 ### Sibling SPM packages (path-resolved)
 | Package / Module | Purpose |
 |---|---|
+| `AmgiDomain` (./AmgiDomain) | App-domain types that aren't part of the Anki engine surface (reader book/chapter models, dictionary lookup shapes). Keeps "Amgi the app" decoupled from "Anki the engine". |
 | `AmgiReader` (./AmgiReader) | Pure-Swift reader domain types — no EPUB/Cxx deps. |
 | `AmgiReaderDictionary` (./AmgiReader) | Cxx-mode wrapper around `hoshidicts` (Yomitan-compatible offline dictionary). Isolated so importing `AmgiReader` stays Cxx-free. |
 | `AmgiReaderEPUB` (./AmgiReader) | EPUB parsing built on the vendored EPUBKit. |
@@ -110,37 +112,15 @@ The four C symbols (in `anki-bridge-rs/src/lib.rs`) are stable: `anki_open_backe
 symbols unless absolutely necessary — prefer routing through `anki_run_method`
 with a new service/method pair.
 
-## Build & Run — Xcode MCP, not shell
+## Build & Run — prefer Xcode MCP
 
-All builds, previews, and tests go through the Xcode MCP server. Do NOT use
-`xcodebuild` or `swift build` to verify changes — the only shell steps are the
-Rust/proto scripts and `xcodegen` below.
+Day-to-day builds, previews, and tests go through the Xcode MCP server, not the
+shell. The shell invocations below are a fallback for CI / when MCP is
+unavailable.
 
-### Build flow
-1. If `AmgiApp/project.yml` changed: `cd AmgiApp && xcodegen generate` (shell).
-2. `XcodeListWindows` — get the `tabIdentifier` for AmgiApp.xcodeproj
-   (open the project in Xcode first if no window is listed).
-3. `BuildProject` with that tab — compiles the AmgiApp scheme, resolves SPM
-   deps, returns structured errors. This is the ground truth for "it builds".
-4. On failure, `GetBuildLog` for detail beyond the returned error summary.
-
-**Gotcha — `xcodegen generate` resets the run destination.** Regenerating the
-project recreates the scheme, which can leave the active run destination unset;
-`BuildProject` then fails with a spurious "requires a development team" signing
-error (no team is configured — this repo builds for the simulator). Fix by
-re-selecting a simulator, either in Xcode's toolbar or headlessly:
-```bash
-osascript -e 'tell application "Xcode"
-  set ws to first workspace document
-  repeat with d in run destinations of ws
-    if (name of d) is "iPhone 17 Pro" then set active run destination of ws to d
-  end repeat
-end tell'
-```
-Then rerun `BuildProject`. A signing error right after regeneration is this,
-not a real signing problem.
-
-### Other Xcode MCP tools
+### Xcode MCP (preferred)
+- `BuildProject` — compile the AmgiApp scheme. Use this instead of
+  `xcodebuild build`; it resolves SPM deps and surfaces structured diagnostics.
 - `RenderPreview` — render a SwiftUI `#Preview` without launching the simulator.
 - `RunAllTests` / `RunSomeTests` — run XCTest targets. Use the latter when you
   know the suite name (see `Tests/README.md`). Note: SPM tests are
@@ -149,7 +129,7 @@ not a real signing problem.
   guessing API shapes.
 - `mcpbridge` — escape hatch for less common Xcode MCP calls.
 
-### Shell (scripts only — not for build verification)
+### Shell fallback
 ```bash
 # Rebuild the Rust XCFramework. Required when:
 #   - anki-bridge-rs/ changes
@@ -160,14 +140,16 @@ not a real signing problem.
 # Regenerate Swift protobuf types from anki-upstream/proto/anki/*.proto
 ./scripts/generate-protos.sh
 
-# Regenerate the Xcode project after project.yml changes
-cd AmgiApp && xcodegen generate
-```
+# SPM build — verifies individual macOS-safe targets only.
+# AnkiBackend / AnkiClients will NOT build here (iOS-only XCFramework).
+swift build --target AnkiKit
+swift build --target AnkiProtoBridge
 
-macOS SPM builds are NOT a verification path: `AnkiProtoBridge` pulls in
-`AnkiBackend` (iOS-only `AnkiRustLib`) and `AmgiUI` uses UIKit types, so both
-fail on macOS. Only `swift build --target AnkiKit` works, and it proves little —
-use `BuildProject`.
+# Full iOS build (use only when Xcode MCP can't)
+cd AmgiApp && xcodegen generate && cd ..
+xcodebuild build -project AmgiApp/AmgiApp.xcodeproj -scheme AmgiApp \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max'
+```
 
 ## Key Patterns
 

@@ -10,31 +10,33 @@ extension ImageOcclusionClient: DependencyKey {
 
         return Self(
             addNote: { imageURL, occlusions, header, backExtra, tags, deckID, notetypeID in
-                try await backendOffload {
-                    // 1. Ensure the notetype exists.
-                    try backend.invoke(.addImageOcclusionNotetype)
+                // 1. Ensure the notetype exists.
+                try backend.invoke(.addImageOcclusionNotetype)
 
-                    // 2. IO note creation saves into the backend's current deck.
-                    try backend.invoke(.setCurrentDeck(deckId: deckID))
+                // 2. IO note creation saves into the backend's current deck.
+                try backend.invoke(.setCurrentDeck(deckId: deckID))
 
-                    // 3. Let the backend import the selected source file into media.
-                    try backend.invoke(.addImageOcclusionNote(
-                        imagePath: imageURL.path,
-                        occlusions: occlusions,
-                        header: header,
-                        backExtra: backExtra,
-                        tags: tags,
-                        notetypeId: notetypeID
-                    ))
-                }
+                // 3. Let the backend import the selected source file into media.
+                try backend.invoke(.addImageOcclusionNote(
+                    imagePath: imageURL.path,
+                    occlusions: occlusions,
+                    header: header,
+                    backExtra: backExtra,
+                    tags: tags,
+                    notetypeId: notetypeID
+                ))
+            },
+
+            ensureNotetype: {
+                try backend.invoke(.addImageOcclusionNotetype)
             },
 
             getNote: { noteId in
-                try await backend.invoke(.getImageOcclusionNote(noteId: noteId))
+                try backend.invoke(.getImageOcclusionNote(noteId: noteId))
             },
 
             updateNote: { noteId, occlusions, header, backExtra, tags in
-                try await backend.invoke(.updateImageOcclusionNote(
+                try backend.invoke(.updateImageOcclusionNote(
                     noteId: noteId,
                     occlusions: occlusions,
                     header: header,

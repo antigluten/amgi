@@ -17,10 +17,10 @@ final class ThemeRegistryTests: XCTestCase {
         XCTAssertNotEqual(palette.accent, palette.background)
     }
 
-    func testPaletteFallsBackToMinimalWhenIDUnknown() {
+    func testPaletteFallsBackToVividWhenIDUnknown() {
         let unknown = ThemeID(rawValue: "no-such-theme")
         let palette = ThemeRegistry.shared.palette(id: unknown, scheme: .light)
-        XCTAssertEqual(palette.accent, ThemeRegistry.shared.palette(id: .minimal, scheme: .light).accent)
+        XCTAssertEqual(palette.accent, ThemeRegistry.shared.palette(id: .vivid, scheme: .light).accent)
     }
 
     func testSepiaDarkSchemeReadsFromJSON() {

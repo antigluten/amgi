@@ -1,6 +1,5 @@
 import SwiftUI
 import AmgiTheme
-import AmgiUI
 import AnkiKit
 
 struct PeriodStatsCard: View {
@@ -62,18 +61,6 @@ struct PeriodStatsCard: View {
     }
 
     var body: some View {
-        AmgiCard(
-            background: .surfaceElevated,
-            shadow: palette.shadows.md,
-            cornerRadius: AmgiRadius.inset,
-            contentInsets: EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
-        ) {
-            statsContent
-        }
-    }
-
-    @ViewBuilder
-    private var statsContent: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(periodTitle)
                 .amgiFont(.captionBold)
@@ -82,47 +69,48 @@ struct PeriodStatsCard: View {
 
             if period == .day {
                 HStack {
-                    statItem(title: "Reviewed", value: "\(today.answerCount)", color: palette.textPrimary)
+                    statItem(title: "Reviewed", value: "\(today.answerCount)", color: .primary)
                     Spacer()
-                    statItem(title: "Time", value: formatMillis(UInt64(today.answerMillis)), color: palette.textPrimary)
+                    statItem(title: "Time", value: formatMillis(UInt64(today.answerMillis)), color: .primary)
                     Spacer()
-                    statItem(title: "Correct", value: todayAccuracy, color: palette.positive)
+                    statItem(title: "Correct", value: todayAccuracy, color: .green)
                     Spacer()
-                    statItem(title: "Mature%", value: todayMatureAccuracy, color: palette.cardStateMature)
+                    statItem(title: "Mature%", value: todayMatureAccuracy, color: .purple)
                 }
                 Divider()
                 HStack {
-                    statBadge("New", count: today.learnCount, color: palette.cardStateNew)
+                    statBadge("New", count: today.learnCount, color: .cyan)
                     Spacer()
-                    statBadge("Relearn", count: today.relearnCount, color: palette.cardStateRelearn)
+                    statBadge("Relearn", count: today.relearnCount, color: .orange)
                     Spacer()
-                    statBadge("Review", count: today.reviewCount, color: palette.cardStateLearning)
+                    statBadge("Review", count: today.reviewCount, color: .green)
                     Spacer()
-                    statBadge("Again", count: today.answerCount - today.correctCount, color: palette.danger)
+                    statBadge("Again", count: today.answerCount - today.correctCount, color: .red)
                 }
             } else {
                 let agg = aggregated
                 HStack {
-                    statItem(title: "Reviewed", value: "\(agg.total)", color: palette.textPrimary)
+                    statItem(title: "Reviewed", value: "\(agg.total)", color: .primary)
                     Spacer()
-                    statItem(title: "Time", value: formatMillis(agg.timeMillis), color: palette.textPrimary)
+                    statItem(title: "Time", value: formatMillis(agg.timeMillis), color: .primary)
                     Spacer()
-                    statItem(title: "Young", value: "\(agg.young)", color: palette.cardStateLearning)
+                    statItem(title: "Young", value: "\(agg.young)", color: .green)
                     Spacer()
-                    statItem(title: "Mature", value: "\(agg.mature)", color: palette.cardStateMature)
+                    statItem(title: "Mature", value: "\(agg.mature)", color: .purple)
                 }
                 Divider()
                 HStack {
-                    statBadge("New", count: agg.learn, color: palette.cardStateNew)
+                    statBadge("New", count: agg.learn, color: .cyan)
                     Spacer()
-                    statBadge("Relearn", count: agg.relearn, color: palette.cardStateRelearn)
+                    statBadge("Relearn", count: agg.relearn, color: .orange)
                     Spacer()
-                    statBadge("Young", count: agg.young, color: palette.cardStateLearning)
+                    statBadge("Young", count: agg.young, color: .green)
                     Spacer()
-                    statBadge("Mature", count: agg.mature, color: palette.cardStateMature)
+                    statBadge("Mature", count: agg.mature, color: .purple)
                 }
             }
         }
+        .amgiCard(elevated: true)
     }
 }
 

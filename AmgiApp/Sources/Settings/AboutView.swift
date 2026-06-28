@@ -1,9 +1,6 @@
 import SwiftUI
-import AmgiTheme
 
 struct AboutView: View {
-    @Environment(\.palette) private var palette
-
     private var appVersion: String {
         let bundle = Bundle.main
         let short = bundle.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
@@ -25,8 +22,8 @@ struct AboutView: View {
 
             Section {
                 Text("Amgi uses the official Anki Rust backend. The backend code is licensed under AGPL-3.0 and remains the work of its authors.")
-                    .amgiFont(.caption)
-                    .foregroundStyle(palette.textSecondary)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
         .navigationTitle("About")

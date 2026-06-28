@@ -1,14 +1,14 @@
-import AnkiBackend
-import AnkiProtoBridge
+import AnkiServices
 public import Dependencies
+import DependenciesMacros
 
 extension StatsClient: DependencyKey {
     public static let liveValue: Self = {
-        @Dependency(\.ankiBackend) var backend
+        @Dependency(\.statsService) var stats
 
         return Self(
             fetchGraphs: { search, days in
-                try await backendOffload { try backend.invoke(.graphs(search: search, days: days)) }
+                try stats.fetchGraphs(search, days)
             }
         )
     }()

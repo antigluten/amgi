@@ -14,6 +14,7 @@ struct CardWebView: UIViewRepresentable {
     let cardOrdinal: UInt32
     let replayRequestID: Int
     let stopAudioRequestID: Int
+    let typedAnswerRequestID: Int
     let replayMode: CardWebViewReplayMode
     let showInlineAudioReplayButtons: Bool
     let openLinksExternally: Bool
@@ -21,6 +22,7 @@ struct CardWebView: UIViewRepresentable {
     let prefetchHTML: String?
     let contentAlignment: CardWebViewContentAlignment
     let bottomContentInset: CGFloat
+    let onTypedAnswerSubmitted: ((String?) -> Void)?
     let onAudioStateChange: ((Bool) -> Void)?
     let onCardBackgroundColorChange: ((UIColor, Bool) -> Void)?
     let onLookupRequested: ((String?, String?, CGPoint) -> Void)?
@@ -33,6 +35,7 @@ struct CardWebView: UIViewRepresentable {
         cardOrdinal: UInt32 = 0,
         replayRequestID: Int = 0,
         stopAudioRequestID: Int = 0,
+        typedAnswerRequestID: Int = 0,
         replayMode: CardWebViewReplayMode = .question,
         showInlineAudioReplayButtons: Bool = true,
         openLinksExternally: Bool = true,
@@ -40,6 +43,7 @@ struct CardWebView: UIViewRepresentable {
         prefetchHTML: String? = nil,
         contentAlignment: CardWebViewContentAlignment = .center,
         bottomContentInset: CGFloat = 0,
+        onTypedAnswerSubmitted: ((String?) -> Void)? = nil,
         onAudioStateChange: ((Bool) -> Void)? = nil,
         onCardBackgroundColorChange: ((UIColor, Bool) -> Void)? = nil,
         onLookupRequested: ((String?, String?, CGPoint) -> Void)? = nil
@@ -51,6 +55,7 @@ struct CardWebView: UIViewRepresentable {
         self.cardOrdinal = cardOrdinal
         self.replayRequestID = replayRequestID
         self.stopAudioRequestID = stopAudioRequestID
+        self.typedAnswerRequestID = typedAnswerRequestID
         self.replayMode = replayMode
         self.showInlineAudioReplayButtons = showInlineAudioReplayButtons
         self.openLinksExternally = openLinksExternally
@@ -58,6 +63,7 @@ struct CardWebView: UIViewRepresentable {
         self.prefetchHTML = prefetchHTML
         self.contentAlignment = contentAlignment
         self.bottomContentInset = bottomContentInset
+        self.onTypedAnswerSubmitted = onTypedAnswerSubmitted
         self.onAudioStateChange = onAudioStateChange
         self.onCardBackgroundColorChange = onCardBackgroundColorChange
         self.onLookupRequested = onLookupRequested
@@ -65,6 +71,7 @@ struct CardWebView: UIViewRepresentable {
 
     func makeCoordinator() -> CardWebViewCoordinator {
         CardWebViewCoordinator(
+            onTypedAnswerSubmitted: onTypedAnswerSubmitted,
             onAudioStateChange: onAudioStateChange,
             onCardBackgroundColorChange: onCardBackgroundColorChange,
             onLookupRequested: onLookupRequested
@@ -79,6 +86,7 @@ struct CardWebView: UIViewRepresentable {
         config.userContentController.add(context.coordinator, name: "amgiOpenLink")
         config.userContentController.add(context.coordinator, name: "amgiSpeakTts")
         config.userContentController.add(context.coordinator, name: "amgiStopTts")
+        config.userContentController.add(context.coordinator, name: "amgiSubmitTypedAnswer")
         config.userContentController.add(context.coordinator, name: "amgiCardTheme")
         config.userContentController.add(context.coordinator, name: "amgiLookupText")
 
@@ -113,6 +121,7 @@ struct CardWebView: UIViewRepresentable {
         webView.configuration.userContentController.removeScriptMessageHandler(forName: "amgiOpenLink")
         webView.configuration.userContentController.removeScriptMessageHandler(forName: "amgiSpeakTts")
         webView.configuration.userContentController.removeScriptMessageHandler(forName: "amgiStopTts")
+        webView.configuration.userContentController.removeScriptMessageHandler(forName: "amgiSubmitTypedAnswer")
         webView.configuration.userContentController.removeScriptMessageHandler(forName: "amgiCardTheme")
         webView.configuration.userContentController.removeScriptMessageHandler(forName: "amgiLookupText")
         coordinator.stopTTS()
@@ -133,9 +142,10 @@ struct CardWebView: UIViewRepresentable {
                 showReplayButtons: showInlineAudioReplayButtons
             )
         )
-        let bodyPaddingBottom = 16
-        let cardPaddingBottom = 0
-        let alignTop = contentAlignment == .top
+        let hasTypedAnswerInput = !isAnswerSide && processedHTML.contains("id=\"typeans\"")
+        let bodyPaddingBottom = hasTypedAnswerInput ? 148 : 16
+        let cardPaddingBottom = hasTypedAnswerInput ? 96 : 0
+        let alignTop = hasTypedAnswerInput || contentAlignment == .top
         let bodyClass = Self.bodyClasses(cardOrdinal: cardOrdinal, isDarkMode: isDarkMode)
         let pageSignature = "\(isDarkMode)"
         let cssSignature = "\(cardCSS.hashValue)"
@@ -200,6 +210,19 @@ struct CardWebView: UIViewRepresentable {
         if stopAudioRequestID != context.coordinator.lastStopAudioRequestID {
             context.coordinator.lastStopAudioRequestID = stopAudioRequestID
             webView.evaluateJavaScript("window.amgiStopAllAudio && window.amgiStopAllAudio();", completionHandler: nil)
+        }
+
+        if typedAnswerRequestID != context.coordinator.lastTypedAnswerRequestID {
+            context.coordinator.lastTypedAnswerRequestID = typedAnswerRequestID
+            webView.evaluateJavaScript("window.amgiGetTypedAnswer ? window.amgiGetTypedAnswer() : null") { value, _ in
+                let typedAnswer: String?
+                if let string = value as? String {
+                    typedAnswer = string
+                } else {
+                    typedAnswer = nil
+                }
+                context.coordinator.onTypedAnswerSubmitted?(typedAnswer)
+            }
         }
 
         // Force bottom content inset so card content can always scroll above the floating

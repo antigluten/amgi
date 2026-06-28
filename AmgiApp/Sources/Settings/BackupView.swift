@@ -72,7 +72,7 @@ struct BackupView: View {
             .disabled(isCreating)
         } footer: {
             Text("Backups live in this device's Documents folder for the current profile. Use Share to copy a backup to Files, iCloud Drive, or another device.")
-                .amgiFont(.caption)
+                .font(.caption)
                 .foregroundStyle(palette.textSecondary)
         }
     }
@@ -144,6 +144,7 @@ private extension BackupView {
     func createBackup() async {
         isCreating = true
         defer { isCreating = false }
+        let user = username
         do {
             guard let dir = backupsDirectory() else {
                 throw NSError(
@@ -158,6 +159,7 @@ private extension BackupView {
             formatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"
             let timestamp = formatter.string(from: .now)
             let destURL = dir.appendingPathComponent("\(timestamp).anki2")
+            _ = user // keep param meaningful for future per-user override paths
             try await Task.detached(priority: .userInitiated) {
                 try FileManager.default.copyItem(at: sourceURL, to: destURL)
             }.value
@@ -188,7 +190,7 @@ private struct BackupRow: View {
                 Text(entry.formattedDate)
                     .foregroundStyle(palette.textPrimary)
                 Text(entry.fileSize)
-                    .amgiFont(.caption)
+                    .font(.caption)
                     .foregroundStyle(palette.textSecondary)
             }
             Spacer()

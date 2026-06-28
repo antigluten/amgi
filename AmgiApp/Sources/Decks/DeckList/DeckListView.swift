@@ -11,7 +11,6 @@ import Dependencies
 /// delegated to `LibraryListContent` (AmgiUI); data assembly lives in the
 /// model. The View is intentionally thin — presentation wiring only.
 struct DeckListView: View {
-    @Dependency(\.collectionStore) private var store
     @State private var model: DeckListModel
     @State private var showCreateSheet = false
     @State private var renameTarget: DeckRowViewData?
@@ -38,17 +37,18 @@ struct DeckListView: View {
         .sheet(isPresented: $showCreateSheet) {
             CreateDeckSheet {
                 showCreateSheet = false
+                Task { await model.load() }
             }
         }
         .sheet(item: $renameTarget) { row in
             RenameDeckSheet(deckId: DeckID(row.id), currentName: row.fullName) {
                 renameTarget = nil
+                Task { await model.load() }
             }
         }
-        // Keyed on the store's generation: any Invalidation (deck mutation,
-        // sync, import, review-end) re-runs the load; `.task` still cancels
-        // on disappear.
-        .task(id: store.generation) { await model.load() }
+        // `.task` ties the load to the view's lifetime and cancels it
+        // automatically on disappear — no manual Task bookkeeping needed.
+        .task { await model.load() }
     }
 
     @ToolbarContentBuilder
@@ -111,45 +111,5 @@ struct DeckListView: View {
         DeckListView(model: model)
     }
     .environment(\.palette, .vividLight)
-}
-
-#Preview("Minimal") {
-    // Same seeded state as the default preview — mirrors it but pins the
-    // minimal theme's light palette to eyeball ring elevation + monogram
-    // tiles + cobalt accent.
-    let model = withDependencies {
-        $0.deckClient = .previewValue
-        $0.statsClient = .previewValue
-    } operation: {
-        DeckListModel()
-    }
-    model.state = .loaded(
-        rows: [
-            DeckRowViewData(
-                id: 1, name: "한국어", fullName: "한국어",
-                newCount: 20, learnCount: 93, reviewCount: 74,
-                isFiltered: false, subdeckCount: 4
-            ),
-            DeckRowViewData(
-                id: 2, name: "English", fullName: "English",
-                newCount: 0, learnCount: 67, reviewCount: 200,
-                isFiltered: false, subdeckCount: 0
-            ),
-            DeckRowViewData(
-                id: 3, name: "Hardest cards", fullName: "Hardest cards",
-                newCount: 0, learnCount: 0, reviewCount: 24,
-                isFiltered: true, subdeckCount: 0
-            ),
-        ],
-        hero: HeroData(
-            totalDue: 478, deckCount: 3, streak: 36,
-            last14Days: [3, 5, 2, 7, 6, 9, 4, 8, 6, 5, 7, 3, 8, 5]
-        ),
-        heatmap: .empty
-    )
-    return NavigationStack {
-        DeckListView(model: model)
-    }
-    .environment(\.palette, ThemeRegistry.shared.palette(id: .minimal, scheme: .light))
 }
 #endif

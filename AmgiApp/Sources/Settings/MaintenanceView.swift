@@ -1,11 +1,8 @@
 import SwiftUI
-import AmgiTheme
 
 struct MaintenanceView: View {
     @State private var model = MaintenanceModel()
     @State private var showResetConfirm = false
-
-    @Environment(\.palette) private var palette
 
     var body: some View {
         Form {
@@ -26,8 +23,8 @@ struct MaintenanceView: View {
             if !model.statusMessage.isEmpty {
                 Section("Status") {
                     Text(model.statusMessage)
-                        .amgiFont(.caption)
-                        .foregroundStyle(palette.textSecondary)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
             }
         }

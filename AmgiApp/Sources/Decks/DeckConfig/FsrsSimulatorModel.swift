@@ -41,7 +41,7 @@ final class FsrsSimulatorModel {
         do {
             switch context.mode {
             case .review:
-                let result = try await deckClient.simulateFsrsReview(request)
+                let result = try deckClient.simulateFsrsReview(request)
                 let totalNew = result.dailyNewCount.reduce(0, +)
                 let totalReview = result.dailyReviewCount.reduce(0, +)
                 let totalTime = result.dailyTimeCost.reduce(0, +)
@@ -56,7 +56,7 @@ final class FsrsSimulatorModel {
                 ]
                 workloadRows = []
             case .workload:
-                let result = try await deckClient.simulateFsrsWorkload(request)
+                let result = try deckClient.simulateFsrsWorkload(request)
                 let sorted = result.cost.keys.sorted()
                 workloadRows = sorted.map { retention in
                     let cost = result.cost[retention] ?? 0

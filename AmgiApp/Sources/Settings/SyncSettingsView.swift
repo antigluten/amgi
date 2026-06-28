@@ -11,8 +11,6 @@ struct SyncSettingsView: View {
     @State private var showServerSetup = false
     @State private var showDisableConfirm = false
 
-    @Environment(\.palette) private var palette
-
     var body: some View {
         Form {
             if let endpoint {
@@ -29,11 +27,11 @@ struct SyncSettingsView: View {
                 Section("Account") {
                     LabeledContent("Username") {
                         Text(username ?? "Not signed in")
-                            .foregroundStyle(username == nil ? palette.textSecondary : palette.textPrimary)
+                            .foregroundStyle(username == nil ? .secondary : .primary)
                     }
                     LabeledContent("Credentials") {
                         Text(isLoggedIn ? "Stored" : "Not signed in")
-                            .foregroundStyle(palette.textSecondary)
+                            .foregroundStyle(.secondary)
                     }
                 }
 
@@ -53,7 +51,7 @@ struct SyncSettingsView: View {
             } else {
                 Section {
                     Label("Sync is disabled", systemImage: "iphone")
-                        .foregroundStyle(palette.textSecondary)
+                        .foregroundStyle(.secondary)
                     Button("Set Up Server") { showServerSetup = true }
                 }
             }

@@ -54,3 +54,20 @@ struct AlertImporterModifier: ViewModifier {
     }
 }
 
+/// Wraps `UIActivityViewController` so the deck export `.apkg` can be shared
+/// (AirDrop, Files, Mail, etc.). Dismisses via `onDismiss` when the activity
+/// view completes or is cancelled.
+struct DeckExportShareSheet: UIViewControllerRepresentable {
+    let url: URL
+    let onDismiss: () -> Void
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        let controller = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+        controller.completionWithItemsHandler = { _, _, _, _ in
+            onDismiss()
+        }
+        return controller
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+}

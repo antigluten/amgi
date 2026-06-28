@@ -62,6 +62,10 @@ public struct ReaderProgressStore: @unchecked Sendable {
         userDefaults.set(data, forKey: storageKey(for: bookID))
     }
 
+    public func clear(bookID: String) {
+        userDefaults.removeObject(forKey: storageKey(for: bookID))
+    }
+
     private func storageKey(for bookID: String) -> String {
         "\(keyNamespace).\(Self.sanitize(bookID))"
     }

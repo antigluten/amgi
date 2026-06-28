@@ -23,8 +23,6 @@ public struct Palette: Sendable, Equatable {
     public let cardStateMature: Color
     public let cardStateSuspended: Color
     public let cardStateRelearn: Color
-    public let elevation: ElevationStyle
-    public let deckGlyph: DeckGlyphStyle
     public let shadows: ShadowSet
 
     public init(
@@ -50,8 +48,6 @@ public struct Palette: Sendable, Equatable {
         cardStateMature: Color,
         cardStateSuspended: Color,
         cardStateRelearn: Color,
-        elevation: ElevationStyle = .shadow,
-        deckGlyph: DeckGlyphStyle = .emoji,
         shadows: ShadowSet
     ) {
         self.background = background
@@ -76,9 +72,19 @@ public struct Palette: Sendable, Equatable {
         self.cardStateMature = cardStateMature
         self.cardStateSuspended = cardStateSuspended
         self.cardStateRelearn = cardStateRelearn
-        self.elevation = elevation
-        self.deckGlyph = deckGlyph
         self.shadows = shadows
+    }
+
+    public static func resolve(theme: ThemeID, scheme: ColorScheme) -> Palette {
+        if theme == .vivid {
+            return scheme == .dark ? .vividDark : .vividLight
+        } else if theme == .muted {
+            return scheme == .dark ? .mutedDark : .mutedLight
+        } else if theme == .sepia {
+            return scheme == .dark ? .sepiaDark : .sepiaLight
+        } else {
+            return scheme == .dark ? .vividDark : .vividLight
+        }
     }
 }
 

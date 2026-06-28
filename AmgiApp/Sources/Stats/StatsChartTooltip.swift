@@ -22,18 +22,12 @@ struct StatsChartTooltip: View {
         .padding(.horizontal, AmgiSpacing.sm)
         .padding(.vertical, AmgiSpacing.xs)
         .background(palette.surfaceElevated)
-        .overlay {
-            // Under `.ring` elevation, `amgiChromeShadow` below already draws the
-            // single hairline ring (in `palette.separator`) — adding this border
-            // too would double it up. Only draw it under `.shadow` elevation,
-            // where `amgiChromeShadow` draws a drop shadow instead of a ring.
-            if palette.elevation != .ring {
-                RoundedRectangle(cornerRadius: AmgiRadius.inset)
-                    .stroke(palette.border.opacity(0.3), lineWidth: 1)
-            }
-        }
-        .clipShape(RoundedRectangle(cornerRadius: AmgiRadius.inset))
-        .amgiChromeShadow(RoundedRectangle(cornerRadius: AmgiRadius.inset), radius: 12, y: 6, opacity: 0.12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(palette.border.opacity(0.3), lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .shadow(color: .black.opacity(0.12), radius: 12, y: 6)
     }
 }
 

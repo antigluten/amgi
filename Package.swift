@@ -66,13 +66,12 @@ let package = Package(
     // Pinned to iOS 18 / macOS 15 because the sibling AmgiReader package
     // depends on hoshidicts, which requires macOS 15+. The app target
     // already deploys iOS 18 so this is a no-op for users.
-    // watchOS 11 added for the AmgiWatchApp target (PR #14); matches the app's
-    // watchOS deployment target and the sibling AmgiReader package's floor
-    // (AnkiClients depends on AmgiReader, which requires watchOS 11).
-    platforms: [.iOS(.v18), .macOS(.v15), .watchOS(.v11)],
+    platforms: [.iOS(.v18), .macOS(.v15)],
     products: [
         .library(name: "AnkiKit", targets: ["AnkiKit"]),
+        .library(name: "AnkiProto", targets: ["AnkiProto"]),
         .library(name: "AnkiBackend", targets: ["AnkiBackend"]),
+        .library(name: "AnkiProtoBridge", targets: ["AnkiProtoBridge"]),
         .library(name: "AnkiServices", targets: ["AnkiServices"]),
         .library(name: "AnkiClients", targets: ["AnkiClients"]),
         .library(name: "AnkiSync", targets: ["AnkiSync"]),
@@ -137,6 +136,7 @@ let package = Package(
                 "AnkiKit",
                 "AnkiBackend",
                 "AnkiProtoBridge",
+                "AnkiProto",
                 "AnkiSync",
                 .product(name: "SwiftProtobuf", package: "swift-protobuf"),
                 .product(name: "Dependencies", package: "swift-dependencies"),
@@ -150,6 +150,7 @@ let package = Package(
             dependencies: [
                 "AnkiKit",
                 "AnkiBackend",
+                "AnkiProto",
                 "AnkiServices",
                 "AnkiSync",
                 .product(name: "AmgiReader", package: "AmgiReader"),

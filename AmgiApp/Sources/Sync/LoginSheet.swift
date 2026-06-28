@@ -1,11 +1,8 @@
 import SwiftUI
-import AmgiTheme
 import AnkiClients
 import AnkiSync
 
 struct LoginSheet: View {
-    @Environment(\.palette) private var palette
-
     @Binding var isPresented: Bool
     let onSuccess: () -> Void
 
@@ -26,8 +23,8 @@ struct LoginSheet: View {
                 if let errorMessage {
                     Section {
                         Text(errorMessage)
-                            .foregroundStyle(palette.danger)
-                            .amgiFont(.caption)
+                            .foregroundStyle(.red)
+                            .font(.caption)
                     }
                 }
                 Section {

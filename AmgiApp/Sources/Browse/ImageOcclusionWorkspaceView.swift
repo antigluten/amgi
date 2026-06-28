@@ -2119,10 +2119,10 @@ private extension ImageOcclusionWorkspaceView {
                 .minimumScaleFactor(0.65)
                 .multilineTextAlignment(.center)
         }
-        .foregroundStyle(isSelected ? Color.white : palette.textPrimary)
+        .foregroundStyle(isSelected ? Color.white : Color.primary)
         .frame(maxWidth: .infinity, minHeight: 42)
         .padding(.horizontal, 2)
-        .background(isSelected ? palette.accent : palette.surfaceElevated, in: RoundedRectangle(cornerRadius: AmgiRadius.inset, style: .continuous))
+        .background(isSelected ? palette.accent : palette.surfaceElevated, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 
     @ViewBuilder

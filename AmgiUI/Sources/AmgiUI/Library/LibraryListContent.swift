@@ -1,5 +1,3 @@
-// iOS-only component — Menu/popover/listRowSeparator APIs are unavailable on watchOS.
-#if !os(watchOS)
 public import SwiftUI
 import AmgiTheme
 
@@ -199,4 +197,3 @@ private extension HeroData {
     .environment(\.palette, .vividLight)
 }
 #endif
-#endif  // !os(watchOS)

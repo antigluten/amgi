@@ -16,7 +16,7 @@ final class BatchTagModel {
     @ObservationIgnored @Dependency(\.tagClient) private var tagClient
 
     func loadTags() async {
-        if let tags = try? await tagClient.getAllTags() {
+        if let tags = try? tagClient.getAllTags() {
             allTags = tags.sorted()
         }
     }
@@ -25,7 +25,7 @@ final class BatchTagModel {
         isApplying = true
         let ids = Array(noteIDs)
         for tag in tags {
-            try? await tagClient.addTagToNotes(tag, ids)
+            try? tagClient.addTagToNotes(tag, ids)
         }
         isApplying = false
     }

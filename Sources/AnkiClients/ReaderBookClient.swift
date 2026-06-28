@@ -4,8 +4,8 @@ import DependenciesMacros
 
 @DependencyClient
 public struct ReaderBookClient: Sendable {
-    public var loadBooks: @Sendable (_ configuration: ReaderLibraryConfiguration) async throws -> [ReaderBook]
-    public var loadBook: @Sendable (_ bookID: String, _ configuration: ReaderLibraryConfiguration) async throws -> ReaderBook?
+    public var loadBooks: @Sendable (_ configuration: ReaderLibraryConfiguration) throws -> [ReaderBook]
+    public var loadBook: @Sendable (_ bookID: String, _ configuration: ReaderLibraryConfiguration) throws -> ReaderBook?
 }
 
 extension ReaderBookClient: TestDependencyKey {

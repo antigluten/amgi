@@ -17,9 +17,6 @@ final class ReaderLibraryModel {
     private(set) var books: [ReaderBook] = []
     private var bookIndex: [String: ReaderBook] = [:]
     private var epubCoverURLs: [String: URL] = [:]
-    /// Saved-progress snapshot taken during `reload` so the synchronous
-    /// `rebuildViewData` (search/sort onChange) never awaits the engine.
-    private var progressByBook: [String: ReaderSavedProgress] = [:]
 
     @ObservationIgnored @Dependency(\.readerBookClient) private var readerBookClient
     @ObservationIgnored @Dependency(\.epubLibraryClient) private var epubLibraryClient
@@ -53,7 +50,7 @@ final class ReaderLibraryModel {
         var firstError: String?
         if let configuration = ReaderConfigurationLoader.loadConfiguration() {
             do {
-                ankiBooks = try await readerBookClient.loadBooks(configuration)
+                ankiBooks = try readerBookClient.loadBooks(configuration)
             } catch {
                 firstError = error.localizedDescription
             }
@@ -85,15 +82,6 @@ final class ReaderLibraryModel {
         if Task.isCancelled { return }
         epubCoverURLs = resolved
 
-        var progressSnapshot: [String: ReaderSavedProgress] = [:]
-        for book in merged {
-            if let saved = await progress.resolved(bookID: book.id) {
-                progressSnapshot[book.id] = saved
-            }
-        }
-        if Task.isCancelled { return }
-        progressByBook = progressSnapshot
-
         if merged.isEmpty {
             if let firstError {
                 state = .error(firstError)
@@ -113,7 +101,7 @@ final class ReaderLibraryModel {
         let coverURLs = epubCoverURLs
         let data = ReaderLibraryViewDataBuilder.build(
             books: books,
-            progressFor: { [progressByBook] in progressByBook[$0] },
+            progressFor: { [progress] in progress.resolved(bookID: $0) },
             epubCoverURLFor: { coverURLs[$0] },
             searchText: searchText,
             sortMode: sortMode,

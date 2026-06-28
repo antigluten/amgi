@@ -1,5 +1,4 @@
 // AmgiApp/Sources/Reader/Library/ContinueReadingCard.swift
-import AmgiTheme
 import AmgiUI
 import SwiftUI
 
@@ -9,22 +8,20 @@ struct ContinueReadingCard: View {
     private static let coverWidth: CGFloat = 220
     private static let coverAspect: CGFloat = 100.0 / 136.0
 
-    @Environment(\.palette) private var palette
-
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             cover
             Text(item.title)
-                .amgiFont(.cardTitle)
+                .font(.headline)
                 .lineLimit(2)
-                .foregroundStyle(palette.textPrimary)
+                .foregroundStyle(.primary)
             Text(subtitle)
-                .amgiFont(.body)
-                .foregroundStyle(palette.textSecondary)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
                 .lineLimit(1)
             ProgressView(value: item.progress)
                 .progressViewStyle(.linear)
-                .tint(palette.accent)
+                .tint(.accentColor)
         }
         .frame(width: Self.coverWidth, alignment: .leading)
     }
@@ -37,7 +34,7 @@ struct ContinueReadingCard: View {
             seed: item.id
         )
         .aspectRatio(Self.coverAspect, contentMode: .fit)
-        .clipShape(RoundedRectangle(cornerRadius: AmgiRadius.control))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
         .overlay(alignment: .topTrailing) {
             Image(systemName: "bookmark.fill")
                 .font(.system(size: 18, weight: .semibold))

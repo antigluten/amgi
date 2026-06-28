@@ -61,13 +61,13 @@ public struct DeckDetailScreen<HeatmapSlot: View>: View {
     private var heroSection: some View {
         switch state {
         case .loading:
-            DeckHero(title: "…", subtitle: "Loading…", tone: palette.border, deckName: "📚", isFiltered: false)
+            DeckHero(title: "…", subtitle: "Loading…", tone: palette.border, glyph: "📚", isFiltered: false)
         case .loaded(let data):
             DeckHero(
                 title: data.title,
                 subtitle: data.subtitle,
                 tone: data.tone,
-                deckName: data.deckName,
+                glyph: data.glyph,
                 isFiltered: data.isFiltered
             )
         }
@@ -163,7 +163,7 @@ private let _krDefault = DeckDetailViewData(
     title: "한국어",
     subtitle: "Last studied today · 32-day streak",
     tone: .red,
-    deckName: "🇰🇷 한국어",
+    glyph: "🇰🇷",
     tileCounts: DeckDetailTileData(newCount: 20, learnCount: 93, reviewCount: 74),
     isFiltered: false,
     isEmpty: false,
@@ -176,7 +176,7 @@ private let _krFiltered = DeckDetailViewData(
     title: "한국어 (Filtered)",
     subtitle: "Last studied today · 32-day streak",
     tone: .red,
-    deckName: "🇰🇷 한국어",
+    glyph: "🇰🇷",
     tileCounts: DeckDetailTileData(newCount: 20, learnCount: 93, reviewCount: 74),
     isFiltered: true,
     isEmpty: false,
@@ -189,7 +189,7 @@ private let _krEmpty = DeckDetailViewData(
     title: "한국어",
     subtitle: "No cards yet · Add some to start studying",
     tone: .red,
-    deckName: "🇰🇷 한국어",
+    glyph: "🇰🇷",
     tileCounts: .zero,
     isFiltered: false,
     isEmpty: true,
@@ -260,7 +260,7 @@ private let _krEmpty = DeckDetailViewData(
             state: .loaded(_krDefault),
             heatmapSlot: {
                 Rectangle()
-                    .fill(Palette.vividLight.accentSoft)
+                    .fill(Color.blue.opacity(0.10))
                     .frame(height: 80)
                     .overlay(Text("heatmap (R03)").font(.caption).foregroundStyle(.secondary))
             },

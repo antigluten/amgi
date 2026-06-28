@@ -1,5 +1,4 @@
 import SwiftUI
-import AmgiTheme
 import AnkiBackend
 import AnkiServices
 import AnkiSync
@@ -10,7 +9,6 @@ struct DebugView: View {
     @Dependency(\.ankiBackend) var backend
     @Dependency(\.collectionService) var collectionService
     @Dependency(\.decksService) var decksService
-    @Environment(\.palette) private var palette
     @State private var statusMessage = ""
     @State private var showResetConfirm = false
     @State private var exportedFileURL: URL?
@@ -23,13 +21,13 @@ struct DebugView: View {
                     Text("Username")
                     Spacer()
                     Text(KeychainHelper.loadUsername() ?? "Not logged in")
-                        .foregroundStyle(palette.textSecondary)
+                        .foregroundStyle(.secondary)
                 }
                 HStack {
                     Text("Host Key")
                     Spacer()
                     Text(KeychainHelper.loadHostKey() != nil ? "Stored ✓" : "None")
-                        .foregroundStyle(palette.textSecondary)
+                        .foregroundStyle(.secondary)
                 }
                 Button("Logout (clear credentials)", role: .destructive) {
                     KeychainHelper.deleteHostKey()
@@ -73,8 +71,8 @@ struct DebugView: View {
             if !statusMessage.isEmpty {
                 Section("Status") {
                     Text(statusMessage)
-                        .amgiFont(.caption)
-                        .foregroundStyle(palette.textSecondary)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
             }
 

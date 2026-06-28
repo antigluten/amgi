@@ -3,7 +3,6 @@ options:
   bundleIdPrefix: com.amgiapp
   deploymentTarget:
     iOS: "18.0"
-    watchOS: "11.0"
   defaultSourceDirectoryType: syncedFolder
   # Nest the Resources/* folder references under a single "Resources" group in
   # the navigator instead of scattering them at the project root. Each entry
@@ -67,12 +66,6 @@ schemes:
       config: Debug
       targets:
         - AmgiAppTests
-  AmgiWatchApp:
-    build:
-      targets:
-        AmgiWatchApp: all
-    run:
-      config: Debug
 targets:
   AmgiApp:
     type: application
@@ -82,7 +75,6 @@ targets:
         type: group
         excludes:
           - "Widgets"
-          - "Watch"
       - path: Resources/Assets.xcassets
       - path: Resources/mathjax
         type: folder
@@ -104,6 +96,8 @@ targets:
       - package: AnkiBridge
         product: AnkiBackend
       - package: AnkiBridge
+        product: AnkiProto
+      - package: AnkiBridge
         product: AmgiCardWeb
       - package: AmgiReader
         product: AmgiReader
@@ -117,6 +111,8 @@ targets:
         product: SwiftNavigation
       - package: swift-navigation
         product: SwiftUINavigation
+      - package: swift-navigation
+        product: UIKitNavigation
       - package: swift-sharing
         product: Sharing
       - sdk: WidgetKit.framework
@@ -134,10 +130,6 @@ targets:
         # standard alongside SWIFT_CXX_INTEROPERABILITY_MODE — without
         # the language-standard hint Clang's dependency scanner rejects
         # the CHoshiDicts modulemap's `requires cplusplus`.
-        # The OTHER_SWIFT_FLAGS copy of the same switch looks redundant
-        # but is required: the build setting alone doesn't reach the
-        # dependency scanner (verified 2026-07: removing it fails with
-        # "module 'CHoshiDicts' requires feature 'cplusplus'").
         SWIFT_CXX_INTEROPERABILITY_MODE: default
         CLANG_CXX_LANGUAGE_STANDARD: "c++20"
         CLANG_CXX_LIBRARY: "libc++"
@@ -163,63 +155,6 @@ targets:
         INFOPLIST_FILE: Sources/Widgets/Info.plist
         CODE_SIGN_ENTITLEMENTS: AmgiWidget.entitlements
 
-  AmgiWatchApp:
-    type: application
-    platform: watchOS
-    sources:
-      - path: Sources/Watch
-        type: group
-      - path: Sources/Shared
-        type: group
-        excludes:
-          - ShareSheet.swift
-          - CardContextMenu.swift
-          - TagsView.swift
-      # Review engine only — the WebKit host, flip chrome, and render-mode UI
-      # are iOS-only; the watch renders stripped text via ReviewSession.
-      - path: Sources/Review/ReviewSession.swift
-      - path: Sources/Review/ReviewAudioSession.swift
-      - path: Sources/Review/RenderEngine/TemplateRenderOverrides.swift
-      - path: Sources/Settings/ReviewPreferences.swift
-      - path: Sources/Stats/PeriodPicker.swift
-      - path: Sources/Stats/TodayStatsCard.swift
-      - path: Sources/Stats/FutureDueChart.swift
-      - path: Sources/Stats/ReviewsChart.swift
-      - path: Sources/Stats/CardCountsChart.swift
-      - path: Sources/Stats/IntervalsChart.swift
-      - path: Sources/Stats/EaseChart.swift
-      - path: Sources/Stats/HourlyChart.swift
-      - path: Sources/Stats/ButtonsChart.swift
-      - path: Sources/Stats/AddedChart.swift
-      - path: Sources/Stats/RetentionChart.swift
-    dependencies:
-      - package: AnkiBridge
-        product: AnkiKit
-      - package: AmgiUI
-        product: AmgiTheme
-      - package: AmgiUI
-        product: AmgiUI
-      - package: AnkiBridge
-        product: AnkiServices
-      - package: AnkiBridge
-        product: AnkiClients
-      - package: AnkiBridge
-        product: AnkiSync
-      - package: AnkiBridge
-        product: AnkiBackend
-      - package: AnkiBridge
-        product: AmgiCardWeb
-      - package: swift-navigation
-        product: SwiftNavigation
-      - package: swift-sharing
-        product: Sharing
-    settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.amgiapp.AmgiApp.watch
-        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-        GENERATE_INFOPLIST_FILE: YES
-        INFOPLIST_KEY_WKCompanionAppBundleIdentifier: com.amgiapp.AmgiApp
-
   AmgiAppTests:
     type: bundle.unit-test
     platform: iOS
@@ -235,8 +170,7 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
         # Tests inherit @testable AmgiApp's transitive Cxx-mode import
         # of AmgiReaderDictionary, so they need the same Clang+Swift
-        # interop flags as the app target (incl. the OTHER_SWIFT_FLAGS
-        # copy — see the app target's comment).
+        # interop flags as the app target.
         SWIFT_CXX_INTEROPERABILITY_MODE: default
         CLANG_CXX_LANGUAGE_STANDARD: "c++20"
         CLANG_CXX_LIBRARY: "libc++"

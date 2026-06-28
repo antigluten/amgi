@@ -53,6 +53,7 @@ public struct BackendError: Error, LocalizedError, CustomStringConvertible, Send
     }
 
     public var isSyncAuthError: Bool { kind == .syncAuthError }
+    public var isNetworkError: Bool { kind == .networkError }
 
     /// Lets `error.localizedDescription` and SwiftUI's default error
     /// presenters surface the actual Rust-side message instead of

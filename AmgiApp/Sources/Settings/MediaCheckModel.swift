@@ -25,7 +25,7 @@ final class MediaCheckModel {
         let capturedClient = mediaClient
         do {
             let result = try await Task.detached {
-                try await capturedClient.checkMedia()
+                try capturedClient.checkMedia()
             }.value
             currentResult = result
         } catch {
@@ -40,8 +40,8 @@ final class MediaCheckModel {
         let capturedClient = mediaClient
         Task.detached {
             do {
-                try await capturedClient.trashMediaFiles(filenames)
-                let latestResult = try await capturedClient.checkMedia()
+                try capturedClient.trashMediaFiles(filenames)
+                let latestResult = try capturedClient.checkMedia()
                 await MainActor.run {
                     self.currentResult = latestResult
                     self.isTrashingUnused = false
@@ -63,8 +63,8 @@ final class MediaCheckModel {
         let capturedClient = mediaClient
         Task.detached {
             do {
-                try await capturedClient.emptyTrash()
-                let latestResult = try await capturedClient.checkMedia()
+                try capturedClient.emptyTrash()
+                let latestResult = try capturedClient.checkMedia()
                 await MainActor.run {
                     self.currentResult = latestResult
                     self.isDeletingTrash = false
@@ -86,8 +86,8 @@ final class MediaCheckModel {
         let capturedClient = mediaClient
         Task.detached {
             do {
-                try await capturedClient.restoreTrash()
-                let latestResult = try await capturedClient.checkMedia()
+                try capturedClient.restoreTrash()
+                let latestResult = try capturedClient.checkMedia()
                 await MainActor.run {
                     self.currentResult = latestResult
                     self.isRestoringTrash = false

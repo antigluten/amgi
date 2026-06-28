@@ -116,16 +116,16 @@ private extension StatsDashboardView {
     func filterCapsule(icon: String, label: String) -> some View {
         HStack(spacing: 4) {
             Image(systemName: icon)
-                .amgiFont(.caption)
+                .font(.caption2)
             Text(label)
                 .fontWeight(.medium)
             Image(systemName: "chevron.up.chevron.down")
                 .font(.system(size: 8))
         }
-        .amgiFont(.body)
+        .font(.subheadline)
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
-        .background(palette.surface)
+        .background(Color(.secondarySystemFill))
         .clipShape(Capsule())
     }
 

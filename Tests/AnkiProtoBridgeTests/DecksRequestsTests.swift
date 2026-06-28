@@ -7,7 +7,7 @@ import AnkiProto
 private import SwiftProtobuf
 
 @Suite struct DecksRequestsTests {
-    // MARK: - setCurrentDeck (Void) / renameDeck / removeDecks (CollectionChanges)
+    // MARK: - setCurrentDeck / renameDeck / removeDecks (Void)
 
     @Test func setCurrentDeck_dispatches_and_encodes_deckId() throws {
         let envelope: Request<Void> = .setCurrentDeck(deckId: DeckID(42))
@@ -18,7 +18,7 @@ private import SwiftProtobuf
     }
 
     @Test func renameDeck_dispatches_and_encodes_fields() throws {
-        let envelope: Request<CollectionChanges> = .renameDeck(deckId: DeckID(7), newName: "Korean::Verbs")
+        let envelope: Request<Void> = .renameDeck(deckId: DeckID(7), newName: "Korean::Verbs")
         #expect(envelope.serviceId == ServiceID.decks)
         #expect(envelope.methodId == DecksMethod.renameDeck)
         let proto = try Anki_Decks_RenameDeckRequest(serializedBytes: envelope.body)
@@ -26,32 +26,12 @@ private import SwiftProtobuf
         #expect(proto.newName == "Korean::Verbs")
     }
 
-    @Test func renameDeck_decodes_OpChanges_into_CollectionChanges() throws {
-        var opChanges = Anki_Collection_OpChanges()
-        opChanges.deck = true
-        opChanges.studyQueues = true
-        let bytes = try opChanges.serializedData()
-
-        let envelope: Request<CollectionChanges> = .renameDeck(deckId: DeckID(7), newName: "Korean::Verbs")
-        #expect(try envelope.decode(bytes) == CollectionChanges(deck: true, studyQueues: true))
-    }
-
     @Test func removeDecks_dispatches_and_encodes_id_list() throws {
-        let envelope: Request<CollectionChanges> = .removeDecks(deckIds: [DeckID(1), DeckID(2), DeckID(3)])
+        let envelope: Request<Void> = .removeDecks(deckIds: [DeckID(1), DeckID(2), DeckID(3)])
         #expect(envelope.serviceId == ServiceID.decks)
         #expect(envelope.methodId == DecksMethod.removeDecks)
         let proto = try Anki_Decks_DeckIds(serializedBytes: envelope.body)
         #expect(proto.dids == [1, 2, 3])
-    }
-
-    @Test func removeDecks_decodes_OpChangesWithCount_into_CollectionChanges() throws {
-        var resp = Anki_Collection_OpChangesWithCount()
-        resp.changes.deck = true
-        resp.changes.card = true
-        let bytes = try resp.serializedData()
-
-        let envelope: Request<CollectionChanges> = .removeDecks(deckIds: [DeckID(1)])
-        #expect(try envelope.decode(bytes) == CollectionChanges(card: true, deck: true))
     }
 
     // MARK: - getCurrentDeck
@@ -101,24 +81,21 @@ private import SwiftProtobuf
         let templateBytes = try deck.serializedData()
         let template = DeckTemplate(bytes: templateBytes)
 
-        let envelope: Request<DeckCreation> = .addDeck(template: template, name: "Korean")
+        let envelope: Request<DeckID> = .addDeck(template: template, name: "Korean")
         #expect(envelope.serviceId == ServiceID.decks)
         #expect(envelope.methodId == DecksMethod.addDeck)
         let proto = try Anki_Decks_Deck(serializedBytes: envelope.body)
         #expect(proto.name == "Korean")
     }
 
-    @Test func addDeck_decodes_OpChangesWithId_into_DeckCreation() throws {
+    @Test func addDeck_decodes_OpChangesWithId_into_DeckID() throws {
         var resp = Anki_Collection_OpChangesWithId()
         resp.id = 12345
-        resp.changes.deck = true
         let bytes = try resp.serializedData()
 
         let template = DeckTemplate(bytes: Data())
-        let envelope: Request<DeckCreation> = .addDeck(template: template, name: "x")
-        let decoded = try envelope.decode(bytes)
-        #expect(decoded.id == DeckID(12345))
-        #expect(decoded.changes == CollectionChanges(deck: true))
+        let envelope: Request<DeckID> = .addDeck(template: template, name: "x")
+        #expect(try envelope.decode(bytes) == DeckID(12345))
     }
 
     // MARK: - existing deckNames coverage

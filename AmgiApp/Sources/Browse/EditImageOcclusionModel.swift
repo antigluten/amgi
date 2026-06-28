@@ -35,7 +35,7 @@ final class EditImageOcclusionModel {
         isLoading = true
         loadError = nil
         do {
-            let data = try await client.getNote(noteId)
+            let data = try client.getNote(noteId)
 
             if let img = UIImage(data: data.imageData) {
                 uiImage = img
@@ -65,7 +65,7 @@ final class EditImageOcclusionModel {
         let tags = tagsText.split(separator: " ").map(String.init).filter { !$0.isEmpty }
 
         do {
-            try await client.updateNote(noteId, occlusions, header, backExtra, tags)
+            try client.updateNote(noteId, occlusions, header, backExtra, tags)
             return true
         } catch {
             saveError = error.localizedDescription

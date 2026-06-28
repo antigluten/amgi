@@ -1,7 +1,7 @@
 public import SwiftUI
 
 public enum AmgiFont: Sendable {
-    case displayHero       // 34pt semibold, -0.6 tracking
+    case displayHero       // 34pt semibold, -0.4 tracking
     case sectionHeading    // 24pt semibold, -0.3 tracking
     case cardTitle         // 20pt bold, 0.2 tracking
     case body              // 17pt regular, -0.4 tracking
@@ -48,7 +48,7 @@ public enum AmgiFont: Sendable {
 
     public var tracking: CGFloat {
         switch self {
-        case .displayHero:                    -0.6
+        case .displayHero:                    -0.4
         case .sectionHeading:                 -0.3
         case .cardTitle:                       0.2
         case .serifTitle:                     -0.2

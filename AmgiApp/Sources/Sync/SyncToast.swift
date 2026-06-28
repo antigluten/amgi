@@ -1,5 +1,4 @@
 import SwiftUI
-import AmgiTheme
 import AnkiKit
 
 struct SyncToast: View {
@@ -7,8 +6,6 @@ struct SyncToast: View {
         case progress(String)
         case success(String)
     }
-
-    @Environment(\.palette) private var palette
 
     let kind: Kind
 
@@ -21,16 +18,16 @@ struct SyncToast: View {
                 Text(message)
             case .success(let message):
                 Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(palette.positive)
+                    .foregroundStyle(.green)
                 Text(message)
             }
         }
-        .amgiFont(.body)
+        .font(.subheadline)
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
         .background(.thinMaterial, in: Capsule())
         .overlay(Capsule().stroke(.quaternary, lineWidth: 0.5))
-        .amgiChromeShadow(Capsule(), radius: 8, y: 2, opacity: 0.12)
+        .shadow(color: .black.opacity(0.12), radius: 8, y: 2)
         .padding(.bottom, 12)
     }
 }

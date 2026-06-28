@@ -1,12 +1,11 @@
 import AmgiReader
-import AmgiTheme
 import SwiftUI
 
 struct ChapterListView: View {
     let book: ReaderBook
     let progress: ReaderProgressCoordinator
 
-    @State private var savedProgress: ReaderSavedProgress?
+    private var savedProgress: ReaderSavedProgress? { progress.resolved(bookID: book.id) }
 
     var body: some View {
         List(book.chapters) { chapter in
@@ -21,7 +20,6 @@ struct ChapterListView: View {
         }
         .navigationTitle(book.title)
         .navigationBarTitleDisplayMode(.inline)
-        .task { savedProgress = await progress.resolved(bookID: book.id) }
         .toolbar {
             if let savedProgress, let chapter = book.chapters.first(where: { $0.id == savedProgress.chapterID }) {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -40,17 +38,15 @@ private struct ChapterRow: View {
     let chapter: ReaderChapter
     let savedProgress: ReaderSavedProgress?
 
-    @Environment(\.palette) private var palette
-
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(chapter.title).amgiFont(.body)
+            Text(chapter.title).font(.body)
             if let order = chapter.order {
-                Text("Chapter \(order)").amgiFont(.caption).foregroundStyle(palette.textSecondary)
+                Text("Chapter \(order)").font(.caption).foregroundStyle(.secondary)
             }
             if let savedProgress {
                 ProgressView(value: savedProgress.progress)
-                    .tint(palette.accent)
+                    .tint(.accentColor)
                     .padding(.top, 2)
             }
         }

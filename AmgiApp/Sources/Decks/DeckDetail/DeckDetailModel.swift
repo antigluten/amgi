@@ -29,7 +29,6 @@ final class DeckDetailModel {
 
     @ObservationIgnored @Dependency(\.deckClient) private var deckClient
     @ObservationIgnored @Dependency(\.statsClient) private var statsClient
-    @ObservationIgnored @Dependency(\.collectionStore) private var store
     @ObservationIgnored private var statsTask: Task<Void, Never>?
 
     enum ImportOutcome {
@@ -48,7 +47,7 @@ final class DeckDetailModel {
 
     func loadCounts() async {
         do {
-            counts = try await deckClient.countsForDeck(deck.id)
+            counts = try deckClient.countsForDeck(deck.id)
         } catch {
             print("[DeckDetail] Error loading counts for '\(deck.name)': \(error)")
             counts = .zero
@@ -58,7 +57,7 @@ final class DeckDetailModel {
 
     func loadChildren() async {
         do {
-            let tree = try await store.tree()
+            let tree = try deckClient.fetchTree()
             childDecks = Self.findChildren(in: tree, parentId: deck.id)
         } catch {
             childDecks = []
@@ -75,7 +74,9 @@ final class DeckDetailModel {
         statsTask = Task { [weak self, statsClient] in
             // search syntax matches the Anki desktop "deck:" filter.
             let search = "deck:\"\(deckName)\""
-            let graphs = try? await statsClient.fetchGraphs(search, 30)
+            let graphs = try? await Task.detached(priority: .userInitiated) {
+                try statsClient.fetchGraphs(search, 30)
+            }.value
             guard !Task.isCancelled, let self else { return }
             if let graphs {
                 self.statsSnapshot = DeckDetailStats.project(graphs: graphs, isEmpty: isEmpty)
@@ -93,10 +94,9 @@ final class DeckDetailModel {
         actionInFlight = true
         defer { actionInFlight = false }
         do {
-            let count = try await deckClient.rebuildFilteredDeck(deck.id)
+            let count = try deckClient.rebuildFilteredDeck(deck.id)
             rebuildFeedback = "Rebuilt — \(count) cards"
-            // Rebuild's request only decodes a count — invalidate conservatively.
-            store.apply(CollectionChanges(card: true, deck: true, studyQueues: true))
+            await loadCounts()
             try? await Task.sleep(for: .seconds(2))
             rebuildFeedback = nil
             return nil
@@ -110,8 +110,8 @@ final class DeckDetailModel {
         actionInFlight = true
         defer { actionInFlight = false }
         do {
-            try await deckClient.emptyFilteredDeck(deck.id)
-            store.apply(CollectionChanges(card: true, deck: true, studyQueues: true))
+            try deckClient.emptyFilteredDeck(deck.id)
+            await loadCounts()
             return nil
         } catch {
             return error.localizedDescription
@@ -155,8 +155,8 @@ final class DeckDetailModel {
         let leafName = trimmed.replacingOccurrences(of: "::", with: "_")
         let fullName = "\(deck.name)::\(leafName)"
         do {
-            let creation = try await deckClient.create(fullName)
-            store.apply(creation.changes)
+            _ = try deckClient.create(fullName)
+            await loadChildren()
             return nil
         } catch {
             return "Failed to create subdeck: \(error.localizedDescription)"
@@ -181,9 +181,8 @@ private extension DeckDetailModel {
             let summary = try await Task.detached {
                 try ImportHelper.importPackage(from: url)
             }.value
-            // Import can touch anything; the generation bump reloads this
-            // screen and the Library behind it.
-            store.apply(.all)
+            await loadCounts()
+            await loadChildren()
             return .success(summary)
         } catch {
             return .failure("Import failed: \(error.localizedDescription)")

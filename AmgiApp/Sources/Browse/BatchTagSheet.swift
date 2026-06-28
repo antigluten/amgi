@@ -2,14 +2,12 @@ import SwiftUI
 import AnkiClients
 import AnkiKit
 import Dependencies
-import AmgiTheme
 
 struct BatchTagSheet: View {
     let noteIDs: Set<NoteID>
     let onApplied: () -> Void
 
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.palette) private var palette
 
     @State private var model = BatchTagModel()
     @State private var checkedTags: Set<String> = []
@@ -39,7 +37,7 @@ struct BatchTagSheet: View {
 
                 Section("Existing tags") {
                     if model.allTags.isEmpty {
-                        Text("No tags yet").foregroundStyle(palette.textSecondary)
+                        Text("No tags yet").foregroundStyle(.secondary)
                     } else {
                         ForEach(model.allTags, id: \.self) { tag in
                             Button {
@@ -51,8 +49,8 @@ struct BatchTagSheet: View {
                             } label: {
                                 HStack {
                                     Image(systemName: checkedTags.contains(tag) ? "checkmark.square.fill" : "square")
-                                        .foregroundStyle(checkedTags.contains(tag) ? palette.accent : palette.textSecondary)
-                                    Text(tag).foregroundStyle(palette.textPrimary)
+                                        .foregroundStyle(checkedTags.contains(tag) ? Color.accentColor : Color.secondary)
+                                    Text(tag).foregroundStyle(.primary)
                                     Spacer()
                                 }
                             }

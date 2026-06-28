@@ -1,27 +1,9 @@
 import SwiftUI
-#if canImport(UIKit)
 import UIKit
-#endif
-import AmgiCardWeb
-import AnkiClients
 import AnkiKit
 import AnkiServices
 import Dependencies
 import Foundation
-
-/// How the current card is rendered (R11): parsed native content or the
-/// sandboxed WebView. Resolved per card in `prepareCard`.
-enum ResolvedRenderMode: Equatable {
-    case native(front: NativeCardContent, back: NativeCardContent)
-    case html
-}
-
-/// Feedback toast shown after rating a card ("Good · next in 10m") while the
-/// next card is prepared (R11 answer flow).
-struct RatingToast: Equatable {
-    let rating: Rating
-    let interval: String
-}
 
 @Observable @MainActor
 final class ReviewSession {
@@ -33,7 +15,6 @@ final class ReviewSession {
     @ObservationIgnored @Dependency(\.collectionService) var collection
     @ObservationIgnored @Dependency(\.notesService) var notes
     @ObservationIgnored @Dependency(\.notetypesService) var notetypes
-    @ObservationIgnored @Dependency(\.notetypesClient) var notetypesClient
 
     private(set) var frontHTML: String = ""
     private(set) var backHTML: String = ""
@@ -41,20 +22,16 @@ final class ReviewSession {
     private(set) var showAnswer: Bool = false
     private(set) var sessionStats: SessionStats = .init()
     private(set) var remainingCounts: DeckCounts = .zero
-    private(set) var deckName: String = ""
     private(set) var isFinished: Bool = false
     private(set) var canUndo: Bool = false
     private(set) var nextIntervals: [Rating: String] = [:]
+    private(set) var typedAnswerRequestID: Int = 0
     private(set) var replayRequestID: Int = 0       // plumbed; consumer is PR 1b
     private(set) var stopAudioRequestID: Int = 0    // plumbed; consumer is PR 1b
     private(set) var isAudioPlaying: Bool = false
     private(set) var currentNote: NoteRecord?
     private(set) var cardChromeColor: Color = .clear
     private(set) var cardChromeIsDark: Bool = false
-    private(set) var resolvedMode: ResolvedRenderMode = .html
-    private(set) var resolvedByAuto: Bool = false
-    private(set) var templateName: String?
-    private(set) var pendingToast: RatingToast?
 
     /// True while a card transition (start / answer / undo) has backend work
     /// in flight off the main actor. The view disables the answer + reveal
@@ -63,9 +40,6 @@ final class ReviewSession {
 
     private var reviewStartTime: Date = .now
     private var cardQueue: [QueuedReviewCard] = []
-    /// Full notetypes fetched for template names; keyed by notetype id and
-    /// kept for the session so each notetype is fetched once.
-    private var notetypeCache: [NotetypeID: Notetype] = [:]
     private var currentQueuedCard: QueuedReviewCard?
     private var lastRating: Rating? = nil
 
@@ -73,15 +47,15 @@ final class ReviewSession {
     private var renderedFrontHTML: String = ""
     private var renderedBackHTML: String = ""
     private var typedAnswerState: TypedAnswerState?
-    /// Bound to the native typed-answer field in ReviewView. Native (not an
-    /// in-card HTML input) so keyboard traits fully apply — the predictive
-    /// bar would otherwise offer the answer as a suggestion.
-    var typedAnswer: String = ""
+    private var typedAnswerContinuation: CheckedContinuation<String?, Never>?
+    /// Monotonic token identifying the in-flight typed-answer read, so a
+    /// stale timeout task can't drain a *later* cycle's continuation.
+    private var typedAnswerGeneration: Int = 0
 
     // MARK: - Computed
 
     var requiresTypedAnswerInput: Bool {
-        typedAnswerState?.expected.isEmpty == false && !showAnswer
+        typedAnswerState != nil && !showAnswer
     }
 
     var currentCardOrdinal: UInt32 {
@@ -131,26 +105,23 @@ final class ReviewSession {
         let scheduler = self.scheduler
         let notes = self.notes
         let notetypes = self.notetypes
-        let notetypesClient = self.notetypesClient
         let cardRendering = self.cardRendering
         let deckId = self.deckId
         Task {
             defer { isAdvancing = false }
             do {
-                let (queue, name) = try await Task.detached { () -> (QueuedCardsResult, String) in
+                let queue = try await Task.detached {
                     try decks.setCurrentDeck(deckId)
-                    let name = (try? decks.getCurrentDeck().name) ?? ""
-                    return (try scheduler.getQueuedCards(200), name)
+                    return try scheduler.getQueuedCards(200)
                 }.value
                 cardQueue = queue.cards
-                deckName = name
                 remainingCounts = DeckCounts(
                     newCount: queue.newCount,
                     learnCount: queue.learningCount,
                     reviewCount: queue.reviewCount
                 )
                 print("[ReviewSession] Started with \(cardQueue.count) cards, counts: new=\(queue.newCount) learn=\(queue.learningCount) review=\(queue.reviewCount)")
-                await advanceToNextCard(notes: notes, notetypes: notetypes, notetypesClient: notetypesClient, cardRendering: cardRendering)
+                await advanceToNextCard(notes: notes, notetypes: notetypes, cardRendering: cardRendering)
             } catch {
                 print("[ReviewSession] Start failed: \(error)")
                 isFinished = true
@@ -158,13 +129,28 @@ final class ReviewSession {
         }
     }
 
-    func revealAnswer() {
+    func revealAnswer() async {
+        if typedAnswerState == nil {
+            backHTML = strippingTypedAnswerPlaceholders(from: renderedBackHTML)
+            showAnswer = true
+            return
+        }
+
+        typedAnswerRequestID += 1  // triggers JS to read <input> via updateUIView
+
+        let typed = await readTypedAnswerWithTimeout()
         if let state = typedAnswerState {
-            backHTML = makeTypedAnswerBackHTML(state: state, typedAnswer: typedAnswer)
+            backHTML = makeTypedAnswerBackHTML(state: state, typedAnswer: typed ?? "")
         } else {
             backHTML = strippingTypedAnswerPlaceholders(from: renderedBackHTML)
         }
         showAnswer = true
+    }
+
+    /// Called by CardWebViewCoordinator when JS delivers the typed answer.
+    func submitTypedAnswer(_ typed: String?) {
+        typedAnswerContinuation?.resume(returning: typed)
+        typedAnswerContinuation = nil
     }
 
     func answer(rating: Rating) {
@@ -177,19 +163,10 @@ final class ReviewSession {
         let scheduler = self.scheduler
         let notes = self.notes
         let notetypes = self.notetypes
-        let notetypesClient = self.notetypesClient
         let cardRendering = self.cardRendering
 
-        pendingToast = RatingToast(rating: rating, interval: queued.nextIntervals[rating] ?? "")
-
         Task {
-            defer {
-                isAdvancing = false
-                pendingToast = nil
-            }
-            // The toast stays up at least this long; the next card appears
-            // after max(backend round-trip, toast display).
-            let minToastDisplay = Task { try? await Task.sleep(for: .milliseconds(450)) }
+            defer { isAdvancing = false }
             do {
                 let queue = try await Task.detached {
                     try scheduler.answerReviewCard(cardId, rating, timeSpent, states)
@@ -208,13 +185,11 @@ final class ReviewSession {
                     learnCount: queue.learningCount,
                     reviewCount: queue.reviewCount
                 )
-                await minToastDisplay.value
-                await advanceToNextCard(notes: notes, notetypes: notetypes, notetypesClient: notetypesClient, cardRendering: cardRendering)
+                await advanceToNextCard(notes: notes, notetypes: notetypes, cardRendering: cardRendering)
             } catch {
                 print("[ReviewSession] Answer failed: \(error)")
                 if !cardQueue.isEmpty { cardQueue.removeFirst() }
-                await minToastDisplay.value
-                await advanceToNextCard(notes: notes, notetypes: notetypes, notetypesClient: notetypesClient, cardRendering: cardRendering)
+                await advanceToNextCard(notes: notes, notetypes: notetypes, cardRendering: cardRendering)
             }
         }
     }
@@ -222,13 +197,11 @@ final class ReviewSession {
     func undo() {
         guard canUndo, !isAdvancing else { return }
         isAdvancing = true
-        pendingToast = nil
 
         let collection = self.collection
         let scheduler = self.scheduler
         let notes = self.notes
         let notetypes = self.notetypes
-        let notetypesClient = self.notetypesClient
         let cardRendering = self.cardRendering
 
         Task {
@@ -254,7 +227,7 @@ final class ReviewSession {
                     learnCount: queue.learningCount,
                     reviewCount: queue.reviewCount
                 )
-                await advanceToNextCard(notes: notes, notetypes: notetypes, notetypesClient: notetypesClient, cardRendering: cardRendering)
+                await advanceToNextCard(notes: notes, notetypes: notetypes, cardRendering: cardRendering)
             } catch {
                 print("[ReviewSession] Undo failed: \(error)")
             }
@@ -265,12 +238,10 @@ final class ReviewSession {
         isAudioPlaying = playing
     }
 
-#if canImport(UIKit)
     func updateCardChrome(color: UIColor, isDark: Bool) {
         cardChromeColor = Color(uiColor: color)
         cardChromeIsDark = isDark
     }
-#endif
 
     func bumpReplayRequest() {
         replayRequestID += 1
@@ -302,36 +273,18 @@ final class ReviewSession {
                 notetypes: notetypes,
                 cardRendering: cardRendering
             )
-            frontHTML = strippingTypedAnswerPlaceholders(from: renderedFrontHTML)
+            frontHTML = makeTypedAnswerFrontHTML(state: typedAnswerState, raw: renderedFrontHTML)
 
             if showAnswer, let state = typedAnswerState {
-                // Re-substitute back placeholder with the diff; the typed text
-                // survives the sheet round-trip in `typedAnswer`.
-                backHTML = makeTypedAnswerBackHTML(state: state, typedAnswer: typedAnswer)
+                // Re-substitute back placeholder with diff using empty typed value.
+                // We don't have the user's original typed text after a sheet round-trip.
+                backHTML = makeTypedAnswerBackHTML(state: state, typedAnswer: "")
             } else {
                 backHTML = renderedBackHTML
             }
         } catch {
             print("[ReviewSession] refreshAfterEdit render failed: \(error)")
         }
-        reresolveCurrentCard()
-    }
-
-    /// Re-runs render-mode resolution for the current card against the
-    /// latest engine preference / overrides (RenderModeSheet writes).
-    /// Cheap: reuses the already-rendered HTML.
-    func reresolveCurrentCard() {
-        guard let queued = currentQueuedCard else { return }
-        let prefs = currentRenderEnginePreferences(mid: currentNote?.mid, ord: Int(queued.card.ord))
-        let resolution = resolveRenderMode(
-            renderedFront: renderedFrontHTML,
-            renderedBack: renderedBackHTML,
-            css: cardCSS,
-            override: prefs.override,
-            global: prefs.global
-        )
-        resolvedMode = resolution.mode
-        resolvedByAuto = resolution.byAuto
     }
 }
 
@@ -345,7 +298,6 @@ private extension ReviewSession {
     func advanceToNextCard(
         notes: NotesService,
         notetypes: NotetypesService,
-        notetypesClient: NotetypesClient,
         cardRendering: CardRenderingService
     ) async {
         guard let next = cardQueue.first else {
@@ -355,31 +307,16 @@ private extension ReviewSession {
             return
         }
 
-        let cache = notetypeCache
         let prepared = await Task.detached {
-            await prepareCard(
-                for: next,
-                notes: notes,
-                notetypes: notetypes,
-                cardRendering: cardRendering,
-                notetypesClient: notetypesClient,
-                notetypeCache: cache
-            )
+            prepareCard(for: next, notes: notes, notetypes: notetypes, cardRendering: cardRendering)
         }.value
 
         currentQueuedCard = next
         currentNote = prepared.note
-        if let notetype = prepared.notetype {
-            notetypeCache[notetype.id] = notetype
-        }
-        resolvedMode = prepared.resolvedMode
-        resolvedByAuto = prepared.resolvedByAuto
-        templateName = prepared.templateName
         renderedFrontHTML = prepared.renderedFrontHTML
         renderedBackHTML = prepared.renderedBackHTML
         cardCSS = prepared.cardCSS
         typedAnswerState = prepared.typedAnswerState
-        typedAnswer = ""
         frontHTML = prepared.frontHTML
         backHTML = prepared.renderedBackHTML  // back substitution happens at reveal
         nextIntervals = next.nextIntervals
@@ -407,6 +344,26 @@ private extension ReviewSession {
         }
     }
 
+    // MARK: - Typed-answer async read
+
+    func readTypedAnswerWithTimeout() async -> String? {
+        // Suspend until JS calls submitTypedAnswer or 100 ms elapses.
+        // The generation token guards against a stale timeout task draining
+        // a continuation registered by a *later* reveal cycle.
+        typedAnswerGeneration += 1
+        let generation = typedAnswerGeneration
+        return await withCheckedContinuation { (cont: CheckedContinuation<String?, Never>) in
+            typedAnswerContinuation = cont
+            Task { @MainActor [weak self] in
+                try? await Task.sleep(for: .milliseconds(100))
+                guard let self,
+                      self.typedAnswerGeneration == generation,
+                      let pending = self.typedAnswerContinuation else { return }
+                pending.resume(returning: nil)
+                self.typedAnswerContinuation = nil
+            }
+        }
+    }
 }
 
 // MARK: - Off-main card preparation
@@ -424,48 +381,6 @@ private struct PreparedCard: Sendable {
     let cardCSS: String
     let typedAnswerState: TypedAnswerState?
     let frontHTML: String
-    let resolvedMode: ResolvedRenderMode
-    let resolvedByAuto: Bool
-    let templateName: String?
-    /// Freshly fetched notetype for the session cache; nil on cache hit
-    /// or fetch failure.
-    let notetype: Notetype?
-}
-
-/// Applies the R11 resolution order — template override → global preference
-/// → complexity auto-detect — to one rendered card. `alwaysNative` still
-/// yields `.html` when the card fails the simplicity check, so native
-/// rendering is never lossy.
-func resolveRenderMode(
-    renderedFront: String,
-    renderedBack: String,
-    css: String,
-    override: CardRenderEngine?,
-    global: CardRenderEngine
-) -> (mode: ResolvedRenderMode, byAuto: Bool) {
-    let effective = override ?? global
-    let simple = CardComplexity.isSimple(
-        renderedFront: renderedFront,
-        renderedBack: renderedBack,
-        css: css
-    )
-    let wantNative = effective != .alwaysHTML && simple
-    let mode: ResolvedRenderMode = wantNative
-        ? .native(front: .parse(html: renderedFront), back: .parse(html: renderedBack))
-        : .html
-    return (mode, effective == .auto)
-}
-
-/// Reads the R11 engine preference + per-template override for one card.
-/// UserDefaults is thread-safe, so this is callable from the off-actor
-/// prepare path as well as main-actor re-resolution.
-func currentRenderEnginePreferences(mid: NotetypeID?, ord: Int) -> (global: CardRenderEngine, override: CardRenderEngine?) {
-    let defaults = UserDefaults.standard
-    let global = defaults.string(forKey: ReviewPreferences.Keys.cardRenderEngine)
-        .flatMap(CardRenderEngine.init(rawValue:)) ?? .auto
-    let overridesRaw = defaults.string(forKey: ReviewPreferences.Keys.templateRenderOverrides) ?? "{}"
-    let override = mid.flatMap { TemplateRenderOverrides.engine(for: $0, ord: ord, in: overridesRaw) }
-    return (global, override)
 }
 
 private struct TypedAnswerPlaceholder {
@@ -479,34 +394,14 @@ private func prepareCard(
     for queued: QueuedReviewCard,
     notes: NotesService,
     notetypes: NotetypesService,
-    cardRendering: CardRenderingService,
-    notetypesClient: NotetypesClient,
-    notetypeCache: [NotetypeID: Notetype]
-) async -> PreparedCard {
+    cardRendering: CardRenderingService
+) -> PreparedCard {
     let note: NoteRecord?
     do {
         note = try notes.getNote(queued.card.nid)
     } catch {
         print("[ReviewSession] getNote failed: \(error)")
         note = nil
-    }
-
-    // Template name comes from the full notetype (cached per session);
-    // fetch failure only costs the chip-row label.
-    var fetchedNotetype: Notetype?
-    var templateName: String?
-    if let mid = note?.mid {
-        let notetype: Notetype?
-        if let cached = notetypeCache[mid] {
-            notetype = cached
-        } else {
-            fetchedNotetype = try? await notetypesClient.get(mid)
-            notetype = fetchedNotetype
-        }
-        let ord = Int(queued.card.ord)
-        if let notetype, notetype.templates.indices.contains(ord) {
-            templateName = notetype.templates[ord].name
-        }
     }
 
     do {
@@ -518,33 +413,13 @@ private func prepareCard(
             notetypes: notetypes,
             cardRendering: cardRendering
         )
-        let prefs = currentRenderEnginePreferences(mid: note?.mid, ord: Int(queued.card.ord))
-        let resolution = resolveRenderMode(
-            renderedFront: rendered.frontHTML,
-            renderedBack: rendered.backHTML,
-            css: rendered.cardCSS,
-            override: prefs.override,
-            global: prefs.global
-        )
-        if case .html = resolution.mode {
-            let issue = CardComplexity.complexityIssue(
-                renderedFront: rendered.frontHTML,
-                renderedBack: rendered.backHTML,
-                css: rendered.cardCSS
-            ) ?? "engine preference (global: \(prefs.global.rawValue), override: \(prefs.override?.rawValue ?? "none"))"
-            print("[ReviewSession] card \(queued.card.id.rawValue) → HTML: \(issue); front=\(String(rendered.frontHTML.prefix(200)))")
-        }
         return PreparedCard(
             note: note,
             renderedFrontHTML: rendered.frontHTML,
             renderedBackHTML: rendered.backHTML,
             cardCSS: rendered.cardCSS,
             typedAnswerState: typedState,
-            frontHTML: strippingTypedAnswerPlaceholders(from: rendered.frontHTML),
-            resolvedMode: resolution.mode,
-            resolvedByAuto: resolution.byAuto,
-            templateName: templateName,
-            notetype: fetchedNotetype
+            frontHTML: makeTypedAnswerFrontHTML(state: typedState, raw: rendered.frontHTML)
         )
     } catch {
         print("[ReviewSession] Render failed for card \(queued.card.id): \(error)")
@@ -554,11 +429,7 @@ private func prepareCard(
             renderedBackHTML: "<p>Error rendering card</p>",
             cardCSS: "",
             typedAnswerState: nil,
-            frontHTML: "<p>Error rendering card</p>",
-            resolvedMode: .html,
-            resolvedByAuto: false,
-            templateName: templateName,
-            notetype: fetchedNotetype
+            frontHTML: "<p>Error rendering card</p>"
         )
     }
 }
@@ -658,6 +529,21 @@ private func firstTypedAnswerPlaceholder(in html: String, cardOrdinal: UInt32) -
     )
 }
 
+private func makeTypedAnswerFrontHTML(state: TypedAnswerState?, raw: String) -> String {
+    guard let state, raw.contains(state.placeholder) else {
+        return strippingTypedAnswerPlaceholders(from: raw)
+    }
+    if state.expected.isEmpty {
+        return raw.replacingOccurrences(of: state.placeholder, with: "")
+    }
+    let inputHTML = """
+    <center>
+    <input type="text" id="typeans" autocapitalize="none" autocomplete="off" autocorrect="off" spellcheck="false" onkeypress="return amgiHandleTypeAnswerKey(event);" style="font-family: '\(state.fontName)'; font-size: \(state.fontSize)px;">
+    </center>
+    """
+    return raw.replacingOccurrences(of: state.placeholder, with: inputHTML)
+}
+
 private func strippingTypedAnswerPlaceholders(from html: String) -> String {
     guard let regex = try? NSRegularExpression(pattern: #"\[\[type:.+?\]\]"#) else {
         return html
@@ -691,10 +577,8 @@ extension ReviewSession {
         session.isFinished = isFinished
         session.sessionStats = SessionStats(reviewed: reviewed, correct: 6, totalTimeMs: 42_000)
         session.remainingCounts = counts
-        session.deckName = "한국어 · Vocab Typing"
         session.nextIntervals = [.again: "<1m", .hard: "8m", .good: "1d", .easy: "4d"]
         session.canUndo = reviewed > 0
-        session.templateName = "Card 1"
         return session
     }
 }

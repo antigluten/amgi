@@ -1,12 +1,8 @@
 import SwiftUI
-import AmgiTheme
-import AmgiUI
 import AnkiKit
 
 struct RetentionChart: View {
     let trueRetention: TrueRetentionStats
-
-    @Environment(\.palette) private var palette
 
     private struct RetentionRow: Identifiable {
         let id: String
@@ -41,48 +37,41 @@ struct RetentionChart: View {
     }
 
     var body: some View {
-        AmgiCard(
-            background: .surface,
-            shadow: palette.shadows.sm,
-            cornerRadius: AmgiRadius.inset,
-            contentInsets: EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
-        ) {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("True Retention").amgiFont(.bodyEmphasis)
+        VStack(alignment: .leading, spacing: 8) {
+            Text("True Retention").amgiFont(.bodyEmphasis)
 
-                Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 6) {
+            Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 6) {
+                GridRow {
+                    Text("Period").font(.caption2.weight(.semibold)).foregroundStyle(.secondary)
+                    Text("Young").font(.caption2.weight(.semibold)).foregroundStyle(.secondary)
+                    Text("Mature").font(.caption2.weight(.semibold)).foregroundStyle(.secondary)
+                }
+                Divider()
+                ForEach(rows) { row in
                     GridRow {
-                        Text("Period").amgiFont(.captionBold).foregroundStyle(palette.textSecondary)
-                        Text("Young").amgiFont(.captionBold).foregroundStyle(palette.textSecondary)
-                        Text("Mature").amgiFont(.captionBold).foregroundStyle(palette.textSecondary)
-                    }
-                    Divider()
-                    ForEach(rows) { row in
-                        GridRow {
-                            Text(row.label).amgiFont(.caption)
-                            retentionBadge(row.youngRate)
-                            retentionBadge(row.matureRate)
-                        }
+                        Text(row.label).font(.caption)
+                        retentionBadge(row.youngRate)
+                        retentionBadge(row.matureRate)
                     }
                 }
             }
         }
+        .amgiCard()
     }
 }
 
 private extension RetentionChart {
     func retentionBadge(_ rate: Double) -> some View {
         Text(rate > 0 ? "\(Int(rate * 100))%" : "---")
-            .amgiFont(.captionBold)
-            .monospacedDigit()
+            .font(.caption.monospacedDigit().weight(.medium))
             .foregroundStyle(retentionColor(rate))
     }
 
     func retentionColor(_ rate: Double) -> Color {
-        if rate <= 0 { return palette.textSecondary }
-        if rate >= 0.9 { return palette.positive }
-        if rate >= 0.8 { return palette.warning }
-        return palette.danger
+        if rate <= 0 { return .secondary }
+        if rate >= 0.9 { return .green }
+        if rate >= 0.8 { return .orange }
+        return .red
     }
 }
 

@@ -366,9 +366,7 @@ import AnkiServices
             #expect(s.currentNote == note1)
 
             s.answer(rating: .good)
-            // answer() holds the card until the rating toast's 450ms minimum
-            // display elapses, so the settle wait must outlast it.
-            try await Task.sleep(for: .milliseconds(700))
+            try await Task.sleep(for: .milliseconds(50))
 
             #expect(s.sessionStats.reviewed == 1)
             #expect(s.sessionStats.correct == 1, "Good counts as correct")

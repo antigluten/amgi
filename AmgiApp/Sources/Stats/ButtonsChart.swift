@@ -1,14 +1,10 @@
 import SwiftUI
-import AmgiTheme
-import AmgiUI
 import Charts
 import AnkiKit
 
 struct ButtonsChart: View {
     let buttons: ButtonsBuckets
     let period: StatsPeriod
-
-    @Environment(\.palette) private var palette
 
     private var buttonCounts: ButtonsBuckets.ButtonCounts {
         switch period {
@@ -52,34 +48,28 @@ struct ButtonsChart: View {
     }
 
     var body: some View {
-        AmgiCard(
-            background: .surface,
-            shadow: palette.shadows.sm,
-            cornerRadius: AmgiRadius.inset,
-            contentInsets: EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
-        ) {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Answer Buttons").amgiFont(.bodyEmphasis)
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Answer Buttons").amgiFont(.bodyEmphasis)
 
-                if entries.isEmpty {
-                    Text("No button data").foregroundStyle(palette.textSecondary).frame(height: 180)
-                } else {
-                    Chart(entries) { entry in
-                        BarMark(
-                            x: .value("Button", entry.button),
-                            y: .value("Count", entry.count)
-                        )
-                        .foregroundStyle(by: .value("Type", entry.cardType))
-                    }
-                    .chartForegroundStyleScale([
-                        "Learning": palette.cardStateNew,
-                        "Young": palette.cardStateLearning,
-                        "Mature": palette.cardStateMature,
-                    ])
-                    .frame(height: 180)
+            if entries.isEmpty {
+                Text("No button data").foregroundStyle(.secondary).frame(height: 180)
+            } else {
+                Chart(entries) { entry in
+                    BarMark(
+                        x: .value("Button", entry.button),
+                        y: .value("Count", entry.count)
+                    )
+                    .foregroundStyle(by: .value("Type", entry.cardType))
                 }
+                .chartForegroundStyleScale([
+                    "Learning": Color.blue,
+                    "Young": Color.green,
+                    "Mature": Color.purple,
+                ])
+                .frame(height: 180)
             }
         }
+        .amgiCard()
     }
 }
 

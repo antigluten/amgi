@@ -15,6 +15,9 @@ extension DictionaryLookupClient: DependencyKey {
             lookup: { text, maxResults, scanLength in
                 try await runtime.lookup(text, maxResults: maxResults, scanLength: scanLength)
             },
+            loadStyles: {
+                await runtime.loadStyles()
+            },
             mediaFile: { dictionary, mediaPath in
                 try await runtime.mediaFile(dictionary: dictionary, mediaPath: mediaPath)
             },
@@ -23,6 +26,12 @@ extension DictionaryLookupClient: DependencyKey {
             },
             importArchives: { urls, kind in
                 try await runtime.importArchives(urls, kind: kind)
+            },
+            importRecommended: {
+                try await runtime.importRecommended()
+            },
+            updateDictionaries: {
+                try await runtime.updateDictionaries()
             },
             setEnabled: { kind, dictionaryID, enabled in
                 try await runtime.setEnabled(kind: kind, dictionaryID: dictionaryID, enabled: enabled)

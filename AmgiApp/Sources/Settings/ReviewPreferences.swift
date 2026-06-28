@@ -15,9 +15,8 @@ enum ReviewPreferences {
         static let showContextMenuButton = "review_pref_show_context_menu_button"
         static let showAudioReplayButton = "review_pref_show_audio_replay_button"
         static let showCorrectnessSymbols = "review_pref_show_correctness_symbols"
+        static let disperseAnswerButtons = "review_pref_disperse_answer_buttons"
         static let showAnswerButtons = "review_pref_show_answer_buttons"
-        static let cardRenderEngine = "review_pref_card_render_engine"
-        static let templateRenderOverrides = "review_pref_template_render_overrides"
         static let showRemainingDays = "review_pref_show_remaining_days"
         static let showNextReviewTime = "review_pref_show_next_review_time"
         static let openLinksExternally = "review_pref_open_links_externally"
@@ -85,6 +84,16 @@ enum ReaderPreferences {
         static let lookupNoteTemplate = "reader_pref_lookup_note_template"
         static let popupSearchHistory = "reader_pref_popup_search_history"
         static let popupCollapsedDictionaries = "reader_pref_popup_collapsed_dictionaries"
+    }
+}
+
+enum DebugPreferences {
+    enum Keys {
+        static let cardRenderDiagnosticsEnabled = "debug_pref_card_render_enabled"
+        static let cardRenderForceFrameReload = "debug_pref_card_render_force_reload"
+        static let cardRenderUseNilBaseURL = "debug_pref_card_render_nil_base_url"
+        static let cardRenderRedFrameBackground = "debug_pref_card_render_red_frame"
+        static let cardRenderShowJSErrorOverlay = "debug_pref_card_render_js_error_overlay"
     }
 }
 

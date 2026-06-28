@@ -64,7 +64,7 @@ final class NoteEditorModel {
         updatedNote.tags = " \(tags) "
 
         do {
-            try await noteClient.save(updatedNote)
+            try noteClient.save(updatedNote)
             return true
         } catch {
             return false

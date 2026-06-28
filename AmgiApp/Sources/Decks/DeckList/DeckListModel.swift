@@ -16,17 +16,16 @@ final class DeckListModel {
 
     @ObservationIgnored @Dependency(\.deckClient) private var deckClient
     @ObservationIgnored @Dependency(\.statsClient) private var statsClient
-    @ObservationIgnored @Dependency(\.collectionStore) private var store
 
     func load() async {
         do {
-            let tree = try await store.tree()
+            let tree = try deckClient.fetchTree()
             if tree.isEmpty {
                 state = .empty
                 return
             }
             let rows = tree.map(DeckListRow.init(node:))
-            let (hero, heatmap) = await buildHeroAndHeatmap(rows: rows)
+            let (hero, heatmap) = buildHeroAndHeatmap(rows: rows)
             state = .loaded(rows: rows.map(\.viewData), hero: hero, heatmap: heatmap)
         } catch {
             print("[DeckListModel] Error loading decks: \(error)")
@@ -36,12 +35,11 @@ final class DeckListModel {
 
     func delete(_ id: DeckID) async {
         do {
-            let changes = try await deckClient.delete(id)
-            store.apply(changes)   // generation bump → the view's .task(id:) reloads
+            try deckClient.delete(id)
         } catch {
             print("[DeckListModel] Delete failed: \(error)")
-            await load()           // error path: no invalidation happened, reload manually
         }
+        await load()
     }
 
     /// First loaded deck that has cards waiting, projected to a `DeckInfo`
@@ -68,10 +66,10 @@ final class DeckListModel {
 }
 
 private extension DeckListModel {
-    func buildHeroAndHeatmap(rows: [DeckListRow]) async -> (HeroData, HeatmapCardData) {
+    func buildHeroAndHeatmap(rows: [DeckListRow]) -> (HeroData, HeatmapCardData) {
         let totalDue = rows.reduce(0) { $0 + $1.counts.total }
         let deckCount = rows.count
-        guard let graphs = try? await statsClient.fetchGraphs("", 365) else {
+        guard let graphs = try? statsClient.fetchGraphs("", 365) else {
             return (
                 HeroData(
                     totalDue: totalDue,

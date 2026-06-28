@@ -1,5 +1,4 @@
 import AmgiReader
-import AmgiTheme
 import SwiftUI
 
 /// Font sizes + layout toggles shared by every dictionary-entry view in
@@ -30,7 +29,6 @@ struct LookupEntryHeaderView: View {
     let onMakeNote: () -> Void
 
     @State private var isResolvingAudio = false
-    @Environment(\.palette) private var palette
 
     var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: 8) {
@@ -39,14 +37,14 @@ struct LookupEntryHeaderView: View {
             if let reading, !reading.isEmpty, reading != term {
                 Text(reading)
                     .font(.system(size: styling.readingFontSize))
-                    .foregroundStyle(palette.textSecondary)
+                    .foregroundStyle(.secondary)
             }
             Spacer()
             if let frequency, !frequency.isEmpty {
                 Text(frequency)
                     .font(.system(size: styling.frequencyFontSize))
                     .padding(.horizontal, 6).padding(.vertical, 2)
-                    .background(palette.separator, in: Capsule())
+                    .background(Color.secondary.opacity(0.15), in: Capsule())
             }
             Button {
                 Task { await playAudio() }
@@ -54,7 +52,7 @@ struct LookupEntryHeaderView: View {
                 if isResolvingAudio {
                     ProgressView().controlSize(.small)
                 } else {
-                    Image(systemName: "speaker.wave.2.fill").amgiFont(.cardTitle)
+                    Image(systemName: "speaker.wave.2.fill").font(.title3)
                 }
             }
             .buttonStyle(.plain)
@@ -63,7 +61,7 @@ struct LookupEntryHeaderView: View {
             Button {
                 ReaderTTS.shared.speak(term, languageHint: languageHint)
             } label: {
-                Image(systemName: "waveform.badge.mic").amgiFont(.cardTitle)
+                Image(systemName: "waveform.badge.mic").font(.title3)
             }
             .buttonStyle(.plain)
             .accessibilityLabel("Speak with TTS")
@@ -71,7 +69,7 @@ struct LookupEntryHeaderView: View {
                 onMakeNote()
             } label: {
                 Image(systemName: "plus.circle")
-                    .amgiFont(.cardTitle)
+                    .font(.title3)
             }
             .buttonStyle(.plain)
             .accessibilityLabel("Make note from this entry")
@@ -113,8 +111,6 @@ struct LookupEntryView: View {
     let onMakeNote: () -> Void
     let onLookupRequested: ((String) -> Void)?
 
-    @Environment(\.palette) private var palette
-
     var body: some View {
         VStack(alignment: .leading, spacing: styling.compactGlossaries ? 2 : 6) {
             LookupEntryHeaderView(
@@ -130,18 +126,18 @@ struct LookupEntryView: View {
 
             if !entry.deinflectionTrace.isEmpty {
                 HStack(spacing: 4) {
-                    Image(systemName: "arrow.triangle.2.circlepath").amgiFont(.micro)
+                    Image(systemName: "arrow.triangle.2.circlepath").font(.caption2)
                     Text(entry.deinflectionTrace.map(\.name).joined(separator: " → "))
-                        .amgiFont(.caption)
-                        .foregroundStyle(palette.textSecondary)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
             }
 
             if let pitch = entry.pitch, !pitch.isEmpty {
                 HStack(spacing: 4) {
-                    Image(systemName: "waveform").amgiFont(.micro)
-                    Text(pitch).amgiFont(.caption).foregroundStyle(palette.textSecondary)
+                    Image(systemName: "waveform").font(.caption2)
+                    Text(pitch).font(.caption).foregroundStyle(.secondary)
                 }
             }
 
@@ -211,14 +207,14 @@ private extension LookupEntryView {
             } label: {
                 Text(group.dictionary.isEmpty ? "Definitions" : group.dictionary)
                     .font(.system(size: styling.dictionaryNameFontSize))
-                    .foregroundStyle(palette.textSecondary)
+                    .foregroundStyle(.secondary)
             }
         } else {
             VStack(alignment: .leading, spacing: styling.compactGlossaries ? 1 : 4) {
                 if !group.dictionary.isEmpty {
                     Text(group.dictionary)
                         .font(.system(size: styling.dictionaryNameFontSize))
-                        .foregroundStyle(palette.textSecondary)
+                        .foregroundStyle(.secondary)
                 }
                 inner
             }

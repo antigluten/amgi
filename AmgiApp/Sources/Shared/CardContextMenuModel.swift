@@ -27,45 +27,45 @@ final class CardContextMenuModel {
 
     // MARK: - Actions (return shouldAdvance on success, nil on failure)
 
-    func suspend(_ cardId: CardID) async -> Bool? {
-        await run("Suspend failed") { try await cardClient.suspend(cardId); return true }
+    func suspend(_ cardId: CardID) -> Bool? {
+        run("Suspend failed") { try cardClient.suspend(cardId); return true }
     }
 
-    func bury(_ cardId: CardID) async -> Bool? {
-        await run("Bury failed") { try await cardClient.bury(cardId); return true }
+    func bury(_ cardId: CardID) -> Bool? {
+        run("Bury failed") { try cardClient.bury(cardId); return true }
     }
 
-    func resetToNew(_ cardId: CardID) async -> Bool? {
-        await run("Forget failed") { try await cardClient.resetToNew(cardId); return true }
+    func resetToNew(_ cardId: CardID) -> Bool? {
+        run("Forget failed") { try cardClient.resetToNew(cardId); return true }
     }
 
-    func deleteNote(_ noteId: NoteID) async -> Bool? {
-        await run("Delete note failed") { try await noteClient.delete(noteId); return true }
+    func deleteNote(_ noteId: NoteID) -> Bool? {
+        run("Delete note failed") { try noteClient.delete(noteId); return true }
     }
 
-    func toggleMarked(_ noteId: NoteID) async -> Bool? {
-        await run("Mark note failed") {
+    func toggleMarked(_ noteId: NoteID) -> Bool? {
+        run("Mark note failed") {
             if isMarkedNote {
-                try await tagClient.removeTagFromNotes(markedTag, [noteId])
+                try tagClient.removeTagFromNotes(markedTag, [noteId])
             } else {
-                try await tagClient.addTagToNotes(markedTag, [noteId])
+                try tagClient.addTagToNotes(markedTag, [noteId])
             }
             isMarkedNote.toggle()
             return false
         }
     }
 
-    func suspendNote(_ noteId: NoteID) async -> Bool? {
-        await noteAction(noteId, "Suspend note failed") { try await cardClient.suspend($0) }
+    func suspendNote(_ noteId: NoteID) -> Bool? {
+        noteAction(noteId, "Suspend note failed") { try cardClient.suspend($0) }
     }
 
-    func buryNote(_ noteId: NoteID) async -> Bool? {
-        await noteAction(noteId, "Bury note failed") { try await cardClient.bury($0) }
+    func buryNote(_ noteId: NoteID) -> Bool? {
+        noteAction(noteId, "Bury note failed") { try cardClient.bury($0) }
     }
 
-    func flag(_ cardId: CardID, _ value: UInt32) async -> Bool? {
-        await run("Flag failed") {
-            try await cardClient.flag(cardId, value)
+    func flag(_ cardId: CardID, _ value: UInt32) -> Bool? {
+        run("Flag failed") {
+            try cardClient.flag(cardId, value)
             currentFlag = value
             return false
         }
@@ -76,7 +76,7 @@ final class CardContextMenuModel {
         isUndoing = true
         defer { isUndoing = false }
         do {
-            try await cardClient.undoLast()
+            try cardClient.undoLast()
             return true
         } catch {
             setError("Undo failed: \(error.localizedDescription)")
@@ -89,26 +89,26 @@ final class CardContextMenuModel {
 
     func load(cardId: CardID, noteId: NoteID?) async {
         await loadMarkedState(noteId)
-        currentFlag = (try? await cardClient.getCardFlags(cardId)) ?? 0
+        currentFlag = (try? cardClient.getCardFlags(cardId)) ?? 0
         await refreshUndoAvailability()
     }
 
     // MARK: - Helpers
 
-    private func run(_ prefix: String, _ body: () async throws -> Bool) async -> Bool? {
+    private func run(_ prefix: String, _ body: () throws -> Bool) -> Bool? {
         do {
-            return try await body()
+            return try body()
         } catch {
             setError("\(prefix): \(error.localizedDescription)")
             return nil
         }
     }
 
-    private func noteAction(_ noteId: NoteID, _ prefix: String, _ action: (CardID) async throws -> Void) async -> Bool? {
-        await run(prefix) {
-            let cards = try await cardClient.fetchByNote(noteId)
+    private func noteAction(_ noteId: NoteID, _ prefix: String, _ action: (CardID) throws -> Void) -> Bool? {
+        run(prefix) {
+            let cards = try cardClient.fetchByNote(noteId)
             for card in cards {
-                try await action(card.id)
+                try action(card.id)
             }
             return true
         }
@@ -120,7 +120,7 @@ final class CardContextMenuModel {
             return
         }
         do {
-            let note = try await noteClient.fetch(noteId)
+            let note = try noteClient.fetch(noteId)
             isMarkedNote = note.map {
                 $0.tags
                     .split(separator: " ")
@@ -132,7 +132,7 @@ final class CardContextMenuModel {
     }
 
     private func refreshUndoAvailability() async {
-        canUndo = (try? await cardClient.hasUndoableAction()) ?? false
+        canUndo = (try? cardClient.hasUndoableAction()) ?? false
     }
 
     private func setError(_ message: String) {

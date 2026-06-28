@@ -90,13 +90,19 @@ public actor EPUBLibraryStore {
             }
         }
 
+        let chapters = parsed.book.chapters
         let entry = EPUBLibraryIndexEntry(
             bookID: bookID,
             title: parsed.book.title,
             author: parsed.book.author,
             coverRelativePath: coverRelative,
             language: parsed.language,
-            pageCount: parsed.pageCount
+            pageCount: parsed.pageCount,
+            chapterIDs: chapters.map(\.id),
+            chapterTitles: chapters.map(\.title),
+            spineHrefs: chapters.map { $0.order ?? "" },
+            importedAt: Date(),
+            originalFilename: sourceURL.lastPathComponent
         )
 
         if let existing = index.entries.firstIndex(where: { $0.bookID == bookID }) {

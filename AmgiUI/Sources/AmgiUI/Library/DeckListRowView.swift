@@ -103,13 +103,10 @@ private struct DeckTile: View {
         case .letter(let tint):
             fill = tint
             glyphColor = .white
-        case .monogram(let tint):
-            fill = tint.opacity(0.11)
-            glyphColor = tint
         }
 
         return ZStack(alignment: .bottomTrailing) {
-            RoundedRectangle(cornerRadius: AmgiRadius.control, style: .continuous)
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .fill(fill)
                 .frame(width: 40, height: 40)
                 .overlay(

@@ -16,7 +16,6 @@ struct DeckDetailView: View {
     let deck: DeckInfo
 
     @Environment(\.palette) private var palette
-    @Dependency(\.collectionStore) private var store
     @State private var model: DeckDetailModel
     @State private var destination: DeckDetailDestination?
     @State private var newSubdeckName = ""
@@ -28,15 +27,7 @@ struct DeckDetailView: View {
     }
 
     private var shortTitle: String {
-        Self.leafName(from: deck.name)
-    }
-
-    /// Leaf segment of a "Parent::Child" deck path — must be passed to
-    /// `DeckTileGlyph.resolve` (see `deckName:` below) instead of the full
-    /// path, or emoji detection/letter abbreviation/tint hash all break for
-    /// subdecks. Extracted for direct testing (AmgiAppTests).
-    static func leafName(from fullName: String) -> String {
-        String(fullName.split(separator: "::", omittingEmptySubsequences: true).last ?? Substring(fullName))
+        String(deck.name.split(separator: "::", omittingEmptySubsequences: true).last ?? Substring(deck.name))
     }
 
     private var currentAlert: DeckDetailAlert? {
@@ -68,14 +59,7 @@ struct DeckDetailView: View {
             title: shortTitle,
             subtitle: subtitle,
             tone: DeckTonePalette.tone(for: deck.name),
-            // Leaf-only name — must match what Library passes to
-            // DeckTileGlyph.resolve (DeckRowViewData.name) so the glyph
-            // and tint agree for the same deck. `deck.name` here is the
-            // full "Parent::Child" path for subdecks; DeckTileGlyph does
-            // no "::" stripping of its own (it operates on a deck *name*,
-            // not a path), so passing the full path breaks emoji
-            // detection, the letter abbreviation, and the tint hash.
-            deckName: shortTitle,
+            glyph: DeckGlyph.from(name: deck.name),
             tileCounts: DeckDetailTileData(
                 newCount: model.counts.newCount,
                 learnCount: model.counts.learnCount,
@@ -96,10 +80,10 @@ struct DeckDetailView: View {
                 deckId: deck.id,
                 onReviewDismiss: {
                     destination = nil
-                    // Review-end from this screen's own cover: invalidate so
-                    // the generation-keyed loads here AND in Library/Study
-                    // behind us all refresh (answers mutate the queues).
-                    store.invalidateAll()
+                    Task {
+                        await model.loadCounts()
+                        model.loadStats()
+                    }
                 },
                 sheetContent: { sheet in AnyView(sheetContent(for: sheet)) }
             ))
@@ -115,9 +99,7 @@ struct DeckDetailView: View {
             .overlay(alignment: .bottom) { RebuildFeedbackBanner(feedback: model.rebuildFeedback) }
             .animation(.easeInOut(duration: 0.2), value: model.rebuildFeedback)
             .animation(.easeInOut(duration: 0.2), value: model.importInProgress)
-            // Keyed on the store's generation so mutations (subdeck create,
-            // rebuild/empty, import) reload this screen via Invalidation.
-            .task(id: store.generation) {
+            .task {
                 await model.loadCounts()
                 await model.loadChildren()
                 model.loadStats()
@@ -218,19 +200,25 @@ private extension DeckDetailView {
     func sheetContent(for sheet: DeckDetailSheet) -> some View {
         switch sheet {
         case .addNote:
-            // AddNoteModel invalidates the store on save; the generation-keyed
-            // .task reloads this screen. Nothing extra to do here.
-            AddNoteView(preselectedDeckId: deck.id) {}
+            AddNoteView(preselectedDeckId: deck.id) {
+                Task {
+                    await model.loadCounts()
+                    await model.loadChildren()
+                    model.loadStats()
+                }
+            }
         case .showDeckOptions:
             NavigationStack {
                 DeckConfigView(deckId: deck.id, deckName: deck.name) {
                     destination = nil
-                    // Limits/config changes reshape due counts everywhere.
-                    store.apply(CollectionChanges(deck: true, studyQueues: true))
+                    Task {
+                        await model.loadCounts()
+                        model.loadStats()
+                    }
                 }
             }
         case .exportFile(let url):
-            ShareSheet(items: [url]) {
+            DeckExportShareSheet(url: url) {
                 destination = nil
             }
         }
@@ -275,17 +263,19 @@ private extension DeckDetailView {
 
     // MARK: Action bridges (model results → destination state)
 
-    // Rebuild/empty already invalidate in the model; the generation-keyed
-    // .task reloads counts, children, and stats — no manual chaining here.
     func runRebuild() async {
         if let err = await model.rebuild() {
             destination = .alert(.error(err))
+        } else {
+            model.loadStats()
         }
     }
 
     func runEmpty() async {
         if let err = await model.empty() {
             destination = .alert(.error(err))
+        } else {
+            model.loadStats()
         }
     }
 
@@ -302,6 +292,7 @@ private extension DeckDetailView {
         switch await model.handleImport(result) {
         case .success(let summary):
             destination = .alert(.info(summary))
+            model.loadStats()
         case .failure(let msg):
             destination = .alert(.error(msg))
         }

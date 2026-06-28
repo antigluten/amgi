@@ -26,6 +26,7 @@ final class CardWebViewCoordinator: NSObject, WKNavigationDelegate, WKScriptMess
     var lastContentSignature: String?
     var lastReplayRequestID: Int = 0
     var lastStopAudioRequestID: Int = 0
+    var lastTypedAnswerRequestID: Int = 0
     var isPageLoaded = false
     var pendingUpdateScript: String?
     var openLinksExternally: Bool = true
@@ -33,6 +34,7 @@ final class CardWebViewCoordinator: NSObject, WKNavigationDelegate, WKScriptMess
 
     // MARK: Callbacks (injected by makeCoordinator)
 
+    let onTypedAnswerSubmitted: ((String?) -> Void)?
     private let onAudioStateChange: ((Bool) -> Void)?
     private let onCardBackgroundColorChange: ((UIColor, Bool) -> Void)?
     private let onLookupRequested: ((String?, String?, CGPoint) -> Void)?
@@ -45,10 +47,12 @@ final class CardWebViewCoordinator: NSObject, WKNavigationDelegate, WKScriptMess
     // MARK: Init
 
     init(
+        onTypedAnswerSubmitted: ((String?) -> Void)? = nil,
         onAudioStateChange: ((Bool) -> Void)? = nil,
         onCardBackgroundColorChange: ((UIColor, Bool) -> Void)? = nil,
         onLookupRequested: ((String?, String?, CGPoint) -> Void)? = nil
     ) {
+        self.onTypedAnswerSubmitted = onTypedAnswerSubmitted
         self.onAudioStateChange = onAudioStateChange
         self.onCardBackgroundColorChange = onCardBackgroundColorChange
         self.onLookupRequested = onLookupRequested
@@ -78,6 +82,16 @@ final class CardWebViewCoordinator: NSObject, WKNavigationDelegate, WKScriptMess
             return
         }
 
+        if message.name == "amgiSubmitTypedAnswer" {
+            if let string = message.body as? String {
+                onTypedAnswerSubmitted?(string)
+            } else if message.body is NSNull {
+                onTypedAnswerSubmitted?(nil)
+            } else {
+                onTypedAnswerSubmitted?(nil)
+            }
+            return
+        }
 
         if message.name == "amgiCardTheme" {
             guard let body = message.body as? [String: Any] else { return }

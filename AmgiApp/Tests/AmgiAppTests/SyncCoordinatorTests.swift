@@ -33,7 +33,7 @@ struct SyncCoordinatorTests {
         try await withDependencies {
             $0.appStorageKeyFormatWarningEnabled = false
             $0.syncClient.sync = {
-                throw SyncError(message: "Network unreachable")
+                throw SyncError(message: "Network unreachable", isRetryable: true)
             }
         } operation: {
             let coordinator = SyncCoordinator()
@@ -84,8 +84,8 @@ struct SyncCoordinatorTests {
     }
 
     @Test @MainActor
-    func logEntriesCappedAt100() {
-        withDependencies {
+    func logEntriesCappedAt100() async throws {
+        try await withDependencies {
             $0.appStorageKeyFormatWarningEnabled = false
         } operation: {
             let coordinator = SyncCoordinator()
@@ -136,8 +136,8 @@ struct SyncCoordinatorTests {
     }
 
     @Test @MainActor
-    func appendLogIncrementsAndOrders() {
-        withDependencies {
+    func appendLogIncrementsAndOrders() async throws {
+        try await withDependencies {
             $0.appStorageKeyFormatWarningEnabled = false
         } operation: {
             let coordinator = SyncCoordinator()

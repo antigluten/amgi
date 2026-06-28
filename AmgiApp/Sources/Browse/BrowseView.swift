@@ -229,7 +229,6 @@ struct BrowseView: View {
 /// state from the model and drives mutations through it, but owns no I/O of
 /// its own — so it renders in a `#Preview` from a seeded model.
 struct BrowseContent: View {
-    @Environment(\.palette) private var palette
     @Bindable var model: BrowseModel
     @Binding var selectionState: BrowseSelectionState
     let onSwipeDelete: (NoteRecord) -> Void
@@ -294,7 +293,7 @@ struct BrowseContent: View {
         HStack {
             if selectionState.isSelectMode {
                 Image(systemName: selectionState.contains(note.id) ? "checkmark.circle.fill" : "circle")
-                    .foregroundStyle(selectionState.contains(note.id) ? palette.accent : palette.textSecondary)
+                    .foregroundStyle(selectionState.contains(note.id) ? Color.accentColor : Color.secondary)
                 NoteRowView(note: note, notetypeName: model.notetypeNames[note.mid])
                     .contentShape(Rectangle())
                     .onTapGesture {
@@ -423,11 +422,11 @@ private extension BrowseContent {
     ) -> some View {
         Button(action: action) {
             Text(label)
-                .amgiFont(small ? .caption : .body)
+                .font(small ? .caption : .subheadline)
                 .padding(.horizontal, small ? 10 : 12)
                 .padding(.vertical, small ? 4 : 6)
-                .background(isSelected ? palette.accent : palette.surface)
-                .foregroundStyle(isSelected ? .white : palette.textPrimary)
+                .background(isSelected ? Color.accentColor : Color(.secondarySystemFill))
+                .foregroundStyle(isSelected ? .white : .primary)
                 .clipShape(Capsule())
         }
         .buttonStyle(.plain)
@@ -465,7 +464,7 @@ struct NoteContextMenuButton: View {
         }
         .task(id: noteId) {
             guard firstCardId == nil else { return }
-            firstCardId = (try? await cardClient.fetchByNote(noteId))?.first?.id
+            firstCardId = (try? cardClient.fetchByNote(noteId))?.first?.id
         }
     }
 }
@@ -473,19 +472,18 @@ struct NoteContextMenuButton: View {
 // MARK: - NoteRowView
 
 struct NoteRowView: View {
-    @Environment(\.palette) private var palette
     let note: NoteRecord
     let notetypeName: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(note.sfld)
-                .amgiFont(.body)
+                .font(.body)
                 .lineLimit(1)
             if let subtitle = composeNoteSubtitle(notetypeName: notetypeName, tags: note.tags) {
                 Text(subtitle)
-                    .amgiFont(.caption)
-                    .foregroundStyle(palette.textSecondary)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                     .lineLimit(1)
                     .truncationMode(.tail)
             }

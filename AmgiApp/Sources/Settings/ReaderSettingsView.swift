@@ -1,6 +1,5 @@
 import Sharing
 import SwiftUI
-import AmgiTheme
 
 /// Tight subset of DreamAfar's reader display preferences. Keys are
 /// already declared in `ReaderPreferences.Keys`; this view binds the
@@ -92,8 +91,6 @@ struct ReaderSettingsView: View {
     @Shared(.appStorage(ReaderPreferences.Keys.popupDictionaryNameFontSize))
     private var popupDictionaryNameFontSize: Double = 11
 
-    @Environment(\.palette) private var palette
-
     var body: some View {
         Form {
             Section("Reader Tab") {
@@ -155,7 +152,7 @@ struct ReaderSettingsView: View {
                     )
                     ColorPicker(
                         "Background colour",
-                        selection: hexBinding(for: $customBackgroundColorHex, fallback: palette.background),
+                        selection: hexBinding(for: $customBackgroundColorHex, fallback: Color(.systemBackground)),
                         supportsOpacity: false
                     )
                     if !hideFurigana {

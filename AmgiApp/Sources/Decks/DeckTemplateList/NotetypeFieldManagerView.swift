@@ -1,5 +1,4 @@
 import SwiftUI
-import AmgiTheme
 import AnkiKit
 
 /// Placeholder view for the notetype field manager.
@@ -10,12 +9,11 @@ struct NotetypeFieldManagerView: View {
     var onSaved: (@Sendable () async -> Void)? = nil
 
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.palette) private var palette
 
     var body: some View {
         VStack(spacing: 16) {
             Text("Field editor coming soon.")
-                .foregroundStyle(palette.textSecondary)
+                .foregroundStyle(.secondary)
             Button("Done") { dismiss() }
         }
         .navigationTitle(preferredName)

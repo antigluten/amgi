@@ -1,9 +1,6 @@
 import SwiftUI
-import AmgiCardWeb
 import AmgiTheme
-import AnkiBackend
 import AnkiKit
-import Dependencies
 import Sharing
 
 /// Container: owns the `ReviewSession`, the review preferences, the sheet
@@ -36,6 +33,9 @@ struct ReviewView: View {
     @Shared(.appStorage(ReviewPreferences.Keys.showNextReviewTime))
     private var showNextReviewTime: Bool = true
 
+    @Shared(.appStorage(ReviewPreferences.Keys.disperseAnswerButtons))
+    private var disperseAnswerButtons: Bool = false
+
     @Shared(.appStorage(ReaderPreferences.Keys.tapLookup))
     private var tapLookup: Bool = true
 
@@ -63,6 +63,7 @@ struct ReviewView: View {
             openLinksExternally: openLinksExternally,
             cardContentAlignment: cardContentAlignment,
             tapLookup: tapLookup,
+            disperseAnswerButtons: disperseAnswerButtons,
             showNextReviewTime: showNextReviewTime,
             editingNote: $editingNote,
             editingTemplate: $editingTemplate,
@@ -97,6 +98,7 @@ private struct ReviewContent: View {
     let openLinksExternally: Bool
     let cardContentAlignment: String
     let tapLookup: Bool
+    let disperseAnswerButtons: Bool
     let showNextReviewTime: Bool
     @Binding var editingNote: NoteRecord?
     @Binding var editingTemplate: ReviewSession.TemplateTarget?
@@ -109,59 +111,98 @@ private struct ReviewContent: View {
         NavigationStack {
             VStack(spacing: 0) {
                 if showRemainingDays {
-                    progressBar
+                    HStack(spacing: 12) {
+                        DeckCountsView(counts: session.remainingCounts)
+                        Spacer()
+                        Text("\(session.sessionStats.reviewed) reviewed")
+                            .amgiFont(.caption)
+                            .foregroundStyle(palette.textSecondary)
+                    }
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
                 }
 
                 if session.isFinished {
                     finishedView
                 } else {
-                    ReviewCardArea(
-                        session: session,
-                        openLinksExternally: openLinksExternally,
-                        cardContentAlignment: cardContentAlignment,
-                        tapLookup: tapLookup,
-                        showNextReviewTime: showNextReviewTime,
-                        lookupQuery: $lookupQuery
-                    )
+                    cardView
                 }
             }
             .background(palette.background)
-            .overlay {
-                // Scope the fade to the toast subtree only. Attaching
-                // `.animation(value:)` to the whole VStack also animated the
-                // card swap on advance (content lands in the same transaction
-                // as `pendingToast → nil`), producing a jumpy cross-fade.
-                toastOverlay
-                    .animation(.easeInOut(duration: 0.15), value: session.pendingToast)
-            }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        onDismiss()
-                    } label: {
-                        Image(systemName: "xmark")
-                    }
-                    .accessibilityLabel("Close")
-                }
-                ToolbarItem(placement: .principal) {
-                    Text(session.deckName)
-                        .amgiFont(.bodyEmphasis)
-                        .foregroundStyle(palette.textPrimary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                }
-                if showRemainingDays {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Text("\(cardPosition)/\(max(sessionTotal, 1))")
-                            .amgiFont(.caption)
-                            .monospacedDigit()
-                            .foregroundStyle(palette.textSecondary)
-                            .accessibilityLabel("Card \(cardPosition) of \(max(sessionTotal, 1))")
-                    }
+                    Button("Done") { onDismiss() }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    cardActionsMenu
+                    Button {
+                        session.undo()
+                    } label: {
+                        Image(systemName: "arrow.uturn.backward")
+                    }
+                    .disabled(!session.canUndo)
+                    .accessibilityLabel("Undo")
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        editingNote = session.currentNote
+                    } label: {
+                        Image(systemName: "pencil")
+                    }
+                    .disabled(session.currentNote == nil)
+                    .accessibilityLabel("Edit note")
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        // Empty initial query opens the popup focused
+                        // for typing. Future enhancement: forward
+                        // CardWebView text-selection so the query is
+                        // pre-populated.
+                        lookupQuery = ""
+                    } label: {
+                        Image(systemName: "character.book.closed")
+                    }
+                    .accessibilityLabel("Look up word")
+                }
+                if showAudioReplayButton {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            if session.isAudioPlaying {
+                                session.bumpStopAudioRequest()
+                            } else {
+                                session.bumpReplayRequest()
+                            }
+                        } label: {
+                            Image(systemName: session.isAudioPlaying ? "pause.circle" : "play.circle")
+                        }
+                        .disabled(session.currentNote == nil)
+                        .accessibilityLabel(session.isAudioPlaying ? "Stop audio" : "Replay audio")
+                    }
+                }
+                if showContextMenuButton {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Menu {
+                            if let cardId = session.currentCardId {
+                                CardContextMenu(cardId: cardId, noteId: session.currentNote?.id)
+                            }
+                            Divider()
+                            Button {
+                                editingTemplate = session.currentTemplateTarget
+                            } label: {
+                                Label("Edit Template", systemImage: "square.and.pencil")
+                            }
+                            .disabled(session.currentTemplateTarget == nil)
+                        } label: {
+                            if session.currentFlag != 0 {
+                                Image(systemName: "flag.fill")
+                                    .foregroundStyle(flagColor(for: session.currentFlag))
+                            } else {
+                                Image(systemName: "ellipsis.circle")
+                            }
+                        }
+                        .disabled(session.currentNote == nil)
+                        .accessibilityLabel("Card options")
+                    }
                 }
             }
             .toolbarBackground(
@@ -205,119 +246,57 @@ private struct ReviewContent: View {
     }
 
     @ViewBuilder
-    private var toastOverlay: some View {
-        if let toast = session.pendingToast {
-            RatingToastView(toast: toast)
-                .transition(.opacity.combined(with: .scale(scale: 0.9)))
-        }
-    }
+    private var cardView: some View {
+        VStack(spacing: 0) {
+            CardWebView(
+                html: session.showAnswer ? session.backHTML : session.frontHTML,
+                cardCSS: session.cardCSS,
+                isAnswerSide: session.showAnswer,
+                cardOrdinal: session.currentCardOrdinal,
+                replayRequestID: session.replayRequestID,
+                stopAudioRequestID: session.stopAudioRequestID,
+                typedAnswerRequestID: session.typedAnswerRequestID,
+                openLinksExternally: openLinksExternally,
+                contentAlignment: CardWebViewContentAlignment(rawValue: cardContentAlignment) ?? .center,
+                onTypedAnswerSubmitted: { typed in session.submitTypedAnswer(typed) },
+                onAudioStateChange: { playing in session.updateAudioPlaying(playing) },
+                onCardBackgroundColorChange: { color, isDark in
+                    session.updateCardChrome(color: color, isDark: isDark)
+                },
+                onLookupRequested: tapLookup ? { text, _, _ in
+                    if let text, !text.isEmpty { lookupQuery = text }
+                } : nil
+            )
 
-    // MARK: - Progress
+            Spacer()
 
-    /// Total cards in this session = already reviewed + still queued. The
-    /// queued total shifts as learning cards re-enter the queue, so this
-    /// tracks the session rather than a fixed count.
-    private var sessionTotal: Int {
-        session.sessionStats.reviewed + session.remainingCounts.total
-    }
-
-    /// 1-indexed position of the current card, clamped so it never exceeds
-    /// the (moving) total.
-    private var cardPosition: Int {
-        min(session.sessionStats.reviewed + 1, max(sessionTotal, 1))
-    }
-
-    private var progressFraction: Double {
-        sessionTotal > 0 ? Double(session.sessionStats.reviewed) / Double(sessionTotal) : 0
-    }
-
-    /// Thin session-progress bar under the navigation bar (replaces the old
-    /// counts row). The numeric position lives in the toolbar.
-    private var progressBar: some View {
-        GeometryReader { geo in
-            ZStack(alignment: .leading) {
-                Capsule().fill(palette.separator)
-                Capsule()
-                    .fill(palette.accent)
-                    .frame(width: max(0, geo.size.width * progressFraction))
-            }
-        }
-        .frame(height: 3)
-        .padding(.horizontal)
-        .padding(.top, 6)
-        .padding(.bottom, 2)
-        .animation(.easeInOut(duration: 0.3), value: progressFraction)
-    }
-
-    // MARK: - Card actions
-
-    /// The single overflow menu that replaces the row of toolbar icons:
-    /// undo, edit note, look up, replay audio, and card/template options.
-    /// Individual items carry their own disabled state so undo stays
-    /// reachable even when there's no current note (e.g. finished screen).
-    @ViewBuilder
-    private var cardActionsMenu: some View {
-        Menu {
-            Button {
-                session.undo()
-            } label: {
-                Label("Undo", systemImage: "arrow.uturn.backward")
-            }
-            .disabled(!session.canUndo)
-
-            Button {
-                editingNote = session.currentNote
-            } label: {
-                Label("Edit Note", systemImage: "pencil")
-            }
-            .disabled(session.currentNote == nil)
-
-            Button {
-                // Empty initial query opens the popup focused for typing.
-                // Future enhancement: forward CardWebView text-selection so
-                // the query is pre-populated.
-                lookupQuery = ""
-            } label: {
-                Label("Look Up", systemImage: "character.book.closed")
-            }
-
-            if showAudioReplayButton {
-                Button {
-                    if session.isAudioPlaying {
-                        session.bumpStopAudioRequest()
-                    } else {
-                        session.bumpReplayRequest()
-                    }
-                } label: {
-                    Label(
-                        session.isAudioPlaying ? "Stop Audio" : "Replay Audio",
-                        systemImage: session.isAudioPlaying ? "pause.circle" : "play.circle"
-                    )
-                }
-                .disabled(session.currentNote == nil)
-            }
-
-            if showContextMenuButton {
-                Divider()
-                if let cardId = session.currentCardId {
-                    CardContextMenu(cardId: cardId, noteId: session.currentNote?.id)
-                }
-                Button {
-                    editingTemplate = session.currentTemplateTarget
-                } label: {
-                    Label("Edit Template", systemImage: "square.and.pencil")
-                }
-                .disabled(session.currentTemplateTarget == nil)
-            }
-        } label: {
-            if session.currentFlag != 0 {
-                Image(systemName: "flag.fill")
-                    .foregroundStyle(flagColor(for: session.currentFlag))
+            if session.showAnswer {
+                answerButtons
             } else {
-                Image(systemName: "ellipsis.circle")
+                Button {
+                    Task { await session.revealAnswer() }
+                } label: {
+                    Text("Show Answer")
+                        .amgiFont(.bodyEmphasis)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(session.isAdvancing)
+                .padding()
             }
         }
-        .accessibilityLabel("Card options")
+    }
+
+    private var answerButtons: some View {
+        HStack(spacing: disperseAnswerButtons ? 16 : 8) {
+            ratingButton(.again, color: .red)
+            ratingButton(.hard, color: .orange)
+            ratingButton(.good, color: .green)
+            ratingButton(.easy, color: .blue)
+        }
+        .padding(.horizontal, disperseAnswerButtons ? 20 : 16)
+        .padding(.vertical, 16)
     }
 
     private var finishedView: some View {
@@ -325,7 +304,7 @@ private struct ReviewContent: View {
             Spacer()
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 64))
-                .foregroundStyle(palette.positive)
+                .foregroundStyle(.green)
             Text("Congratulations!")
                 .amgiFont(.sectionHeading)
                 .foregroundStyle(palette.textPrimary)
@@ -346,6 +325,35 @@ private struct ReviewContent: View {
 }
 
 private extension ReviewContent {
+    func ratingButton(_ rating: Rating, color: Color) -> some View {
+        Button {
+            session.answer(rating: rating)
+        } label: {
+            VStack(spacing: 4) {
+                if showNextReviewTime {
+                    Text(session.nextIntervals[rating] ?? "")
+                        .font(.caption2)
+                }
+                Text(ratingLabel(rating))
+                    .font(.subheadline.weight(.medium))
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 10)
+        }
+        .buttonStyle(.bordered)
+        .tint(color)
+        .disabled(session.isAdvancing)
+    }
+
+    func ratingLabel(_ rating: Rating) -> String {
+        switch rating {
+        case .again: "Again"
+        case .hard: "Hard"
+        case .good: "Good"
+        case .easy: "Easy"
+        }
+    }
+
     func flagColor(for value: UInt32) -> Color {
         switch value & 0b111 {
         case 1: return .red
@@ -357,220 +365,6 @@ private extension ReviewContent {
         case 7: return .purple
         default: return .secondary
         }
-    }
-}
-
-// MARK: - Card Area
-
-/// The card region of the reviewer: render-mode chip, the flip surface, and
-/// the reveal/rating controls. Extracted from `ReviewContent` so that session
-/// mutations it doesn't read (audio-playing toggles, toast, deck counts) skip
-/// its body — otherwise every such change re-runs `CardWebView.updateUIView`
-/// and its regex HTML processing. Owns the render-mode sheet flag and the
-/// native audio player, which are only relevant here.
-private struct ReviewCardArea: View {
-    let session: ReviewSession
-    let openLinksExternally: Bool
-    let cardContentAlignment: String
-    let tapLookup: Bool
-    let showNextReviewTime: Bool
-    @Binding var lookupQuery: String?
-
-    @Environment(\.palette) private var palette
-    @State private var showRenderModeSheet = false
-    @State private var nativeAudioPlayer = NativeCardAudioPlayer()
-
-    var body: some View {
-        VStack(spacing: 0) {
-            RenderModeChipRow(
-                isNative: isNativeMode,
-                isAuto: session.resolvedByAuto,
-                templateName: session.templateName,
-                onTap: { showRenderModeSheet = true }
-            )
-            .padding(.horizontal)
-            .padding(.vertical, 4)
-
-            cardFlipRegion
-            .onChange(of: session.stopAudioRequestID) { _, _ in
-                if isNativeMode { nativeAudioPlayer.stop() }
-            }
-            .onChange(of: session.currentCardId) { _, _ in playNativeAudio() }
-            .onChange(of: session.showAnswer) { _, shown in
-                if shown { playNativeAudio() }
-            }
-            .onChange(of: session.replayRequestID) { _, _ in playNativeAudio() }
-            .onChange(of: nativeAudioPlayer.isPlaying) { _, playing in
-                if isNativeMode { session.updateAudioPlaying(playing) }
-            }
-            .onDisappear { nativeAudioPlayer.stop() }
-            .sheet(isPresented: $showRenderModeSheet) { renderModeSheet }
-
-            Spacer()
-
-            if session.requiresTypedAnswerInput {
-                TypedAnswerField(session: session)
-            }
-
-            if session.showAnswer {
-                answerButtons
-            } else {
-                Button {
-                    session.revealAnswer()
-                } label: {
-                    Text("Show Answer")
-                        .amgiFont(.bodyEmphasis)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                }
-                .buttonStyle(.borderedProminent)
-                .disabled(session.isAdvancing)
-                .padding()
-            }
-        }
-    }
-
-    private var isNativeMode: Bool {
-        if case .native = session.resolvedMode { return true }
-        return false
-    }
-
-    /// The reveal region. Native cards get the 3D flip (pure SwiftUI, crisp);
-    /// WebView cards swap sides without rotation, because 3D-rotating a live
-    /// `WKWebView` rasterizes to a blurred frame mid-flip.
-    @ViewBuilder
-    private var cardFlipRegion: some View {
-        if isNativeMode {
-            FlipContainer(showBack: session.showAnswer) { isBack in
-                cardSurface(isBack: isBack)
-            }
-        } else {
-            cardSurface(isBack: session.showAnswer)
-        }
-    }
-
-    private var renderModeSheet: some View {
-        RenderModeSheet(
-            explainer: renderModeExplainer,
-            template: session.currentTemplateTarget,
-            templateName: session.templateName,
-            onChanged: { session.reresolveCurrentCard() }
-        )
-    }
-
-    private var mediaFolder: URL? {
-        @Dependency(\.ankiBackend) var backend
-        guard let path = backend.currentMediaFolderPath else { return nil }
-        return URL(fileURLWithPath: path)
-    }
-
-    private var renderModeExplainer: String {
-        switch session.resolvedMode {
-        case .native:
-            return "rendered natively — passes the simplicity check."
-        case .html:
-            let prefs = currentRenderEnginePreferences(
-                mid: session.currentNote?.mid,
-                ord: Int(session.currentCardOrdinal)
-            )
-            if (prefs.override ?? prefs.global) == .alwaysHTML {
-                return "rendered as HTML — selected for this card."
-            }
-            return "rendered as HTML — uses features the native renderer doesn't support."
-        }
-    }
-
-    @ViewBuilder
-    private func cardSurface(isBack: Bool) -> some View {
-        switch session.resolvedMode {
-        case .native(let front, let back):
-            NativeCardView(
-                content: isBack ? back : front,
-                isAnswerSide: isBack,
-                mediaFolder: mediaFolder
-            )
-        case .html:
-            VStack(spacing: 0) {
-                webChromeStrip
-                CardWebView(
-                    html: isBack ? session.backHTML : session.frontHTML,
-                    cardCSS: session.cardCSS,
-                    isAnswerSide: isBack,
-                    cardOrdinal: session.currentCardOrdinal,
-                    replayRequestID: session.replayRequestID,
-                    stopAudioRequestID: session.stopAudioRequestID,
-                    openLinksExternally: openLinksExternally,
-                    contentAlignment: CardWebViewContentAlignment(rawValue: cardContentAlignment) ?? .center,
-                    onAudioStateChange: { playing in session.updateAudioPlaying(playing) },
-                    onCardBackgroundColorChange: { color, isDark in
-                        session.updateCardChrome(color: color, isDark: isDark)
-                    },
-                    // No tap-lookup while the typed-answer input is up — the
-                    // dictionary would hand over the answer to be typed.
-                    onLookupRequested: tapLookup && !session.requiresTypedAnswerInput ? { text, _, _ in
-                        if let text, !text.isEmpty { lookupQuery = text }
-                    } : nil
-                )
-            }
-        }
-    }
-
-    /// Slim chrome above the sandboxed WebView card (R11): HTML badge ·
-    /// template name · "sandboxed".
-    private var webChromeStrip: some View {
-        HStack(spacing: 8) {
-            Text("HTML")
-                .amgiFont(.caption)
-                .fontWeight(.semibold)
-                .foregroundStyle(palette.warning)
-            if let name = session.templateName {
-                Text(name)
-                    .font(.caption.monospaced())
-                    .foregroundStyle(palette.textTertiary)
-            }
-            Spacer()
-            Text("sandboxed")
-                .amgiFont(.caption)
-                .foregroundStyle(palette.textTertiary)
-        }
-        .padding(.horizontal)
-        .padding(.vertical, 4)
-    }
-
-    private func playNativeAudio() {
-        guard case .native(let front, let back) = session.resolvedMode else { return }
-        let files = session.showAnswer ? back.audioFiles : front.audioFiles
-        guard !files.isEmpty else { return }
-        nativeAudioPlayer.play(files: files, mediaFolder: mediaFolder)
-    }
-
-    private var answerButtons: some View {
-        RatingBar(
-            intervals: session.nextIntervals,
-            showIntervals: showNextReviewTime,
-            isDisabled: session.isAdvancing,
-            onRate: { rating in session.answer(rating: rating) }
-        )
-    }
-}
-
-/// Native input for typed-answer (`{{type:}}`) cards. Native rather than an
-/// in-card HTML input because WKWebView ignores web keyboard attributes and
-/// the predictive bar would offer the answer as a suggestion.
-private struct TypedAnswerField: View {
-    @Bindable var session: ReviewSession
-    @FocusState private var focused: Bool
-
-    var body: some View {
-        TextField("Type the answer", text: $session.typedAnswer)
-            .textFieldStyle(.roundedBorder)
-            .autocorrectionDisabled()
-            .textInputAutocapitalization(.never)
-            .submitLabel(.done)
-            .onSubmit { session.revealAnswer() }
-            .focused($focused)
-            .padding(.horizontal)
-            .onAppear { focused = true }
     }
 }
 
@@ -595,6 +389,7 @@ private struct ReviewLookupQuery: Identifiable {
         openLinksExternally: true,
         cardContentAlignment: CardWebViewContentAlignment.center.rawValue,
         tapLookup: true,
+        disperseAnswerButtons: false,
         showNextReviewTime: true,
         editingNote: .constant(nil),
         editingTemplate: .constant(nil),
@@ -613,6 +408,7 @@ private struct ReviewLookupQuery: Identifiable {
         openLinksExternally: true,
         cardContentAlignment: CardWebViewContentAlignment.center.rawValue,
         tapLookup: true,
+        disperseAnswerButtons: false,
         showNextReviewTime: true,
         editingNote: .constant(nil),
         editingTemplate: .constant(nil),
@@ -631,6 +427,7 @@ private struct ReviewLookupQuery: Identifiable {
         openLinksExternally: true,
         cardContentAlignment: CardWebViewContentAlignment.center.rawValue,
         tapLookup: true,
+        disperseAnswerButtons: false,
         showNextReviewTime: true,
         editingNote: .constant(nil),
         editingTemplate: .constant(nil),

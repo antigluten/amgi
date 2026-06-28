@@ -1,5 +1,3 @@
-// iOS-only component — Menu/popover/listRowSeparator APIs are unavailable on watchOS.
-#if !os(watchOS)
 public import SwiftUI
 import AmgiTheme
 
@@ -442,4 +440,3 @@ private struct HeatmapLegend: View {
         .preferredColorScheme(.dark)
 }
 #endif
-#endif  // !os(watchOS)

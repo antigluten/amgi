@@ -1,5 +1,4 @@
 import SwiftUI
-import AmgiTheme
 import AnkiKit
 import AnkiClients
 import Dependencies
@@ -18,8 +17,6 @@ struct DeckConfigView: View {
     let onDismiss: () -> Void
 
     @State private var model: DeckConfigModel
-
-    @Environment(\.palette) private var palette
 
     init(deckId: DeckID, deckName: String, onDismiss: @escaping () -> Void) {
         self.deckId = deckId
@@ -67,7 +64,7 @@ struct DeckConfigView: View {
                 Section { ProgressView().frame(maxWidth: .infinity) }
             } else if let loadError = model.loadError {
                 Section {
-                    Text(loadError).foregroundStyle(palette.danger)
+                    Text(loadError).foregroundStyle(.red)
                     Button("Retry") { Task { await model.loadConfig() } }
                 }
             } else {

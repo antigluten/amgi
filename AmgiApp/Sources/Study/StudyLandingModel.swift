@@ -17,13 +17,13 @@ final class StudyLandingModel {
 
     let progressCoordinator = ReaderProgressCoordinator()
 
+    @ObservationIgnored @Dependency(\.deckClient) private var deckClient
     @ObservationIgnored @Dependency(\.readerBookClient) private var readerBookClient
-    @ObservationIgnored @Dependency(\.collectionStore) private var store
 
     func load() async {
         do {
             // 1. Deck tree → flatten → filter due > 0 → sort desc
-            let tree = try await store.tree()
+            let tree = try deckClient.fetchTree()
             guard !tree.isEmpty else {
                 contentState = .empty
                 return
@@ -54,7 +54,9 @@ final class StudyLandingModel {
             let deckCount = dueDecks.count
 
             // 3. Build subtitle label from current weekday + deck count
-            let weekday = Date().formatted(.dateTime.weekday(.wide))
+            let formatter = DateFormatter()
+            formatter.dateFormat = "EEEE"
+            let weekday = formatter.string(from: Date())
             let subtitleLabel: String
             if deckCount == 0 {
                 subtitleLabel = weekday
@@ -73,7 +75,7 @@ final class StudyLandingModel {
             )
 
             // 4. Books → sort by lastRead desc → take 8 → map to DTO
-            let readingRecs = await loadReadingRecs()
+            let readingRecs = loadReadingRecs()
 
             contentState = .loaded(summary: summary, decks: deckRows, readingRecs: readingRecs)
         } catch {
@@ -85,26 +87,23 @@ final class StudyLandingModel {
     func selectBook(_ bookID: String) {
         guard let configuration = ReaderConfigurationLoader.loadConfiguration() else { return }
         Task {
-            if let book = try? await readerBookClient.loadBook(bookID, configuration) {
+            if let book = try? readerBookClient.loadBook(bookID, configuration) {
                 selectedBook = book
             }
         }
     }
 
-    private func loadReadingRecs() async -> [StudyReadingRecData] {
+    private func loadReadingRecs() -> [StudyReadingRecData] {
         guard let configuration = ReaderConfigurationLoader.loadConfiguration(),
-              let books = try? await readerBookClient.loadBooks(configuration) else {
+              let books = try? readerBookClient.loadBooks(configuration) else {
             return []
-        }
-
-        var lastRead: [String: Date] = [:]
-        for book in books {
-            lastRead[book.id] = await progressCoordinator.resolved(bookID: book.id)?.updatedAt
         }
 
         return books
             .sorted { lhs, rhs in
-                (lastRead[lhs.id] ?? .distantPast) > (lastRead[rhs.id] ?? .distantPast)
+                let lDate = progressCoordinator.resolved(bookID: lhs.id)?.updatedAt ?? .distantPast
+                let rDate = progressCoordinator.resolved(bookID: rhs.id)?.updatedAt ?? .distantPast
+                return lDate > rDate
             }
             .prefix(8)
             .map { book in

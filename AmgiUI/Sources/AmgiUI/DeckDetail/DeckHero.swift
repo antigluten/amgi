@@ -7,7 +7,7 @@ public struct DeckHero: View {
     public let title: String
     public let subtitle: String
     public let tone: Color
-    public let deckName: String
+    public let glyph: String
     public let isFiltered: Bool
 
     @Environment(\.palette) private var palette
@@ -16,19 +16,19 @@ public struct DeckHero: View {
         title: String,
         subtitle: String,
         tone: Color,
-        deckName: String,
+        glyph: String,
         isFiltered: Bool
     ) {
         self.title = title
         self.subtitle = subtitle
         self.tone = tone
-        self.deckName = deckName
+        self.glyph = glyph
         self.isFiltered = isFiltered
     }
 
     public var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            DeckHeroTile(tone: tone, deckName: deckName)
+            DeckHeroTile(tone: tone, glyph: glyph)
                 .padding(.bottom, 8)
             titleRow
             subtitleText
@@ -78,7 +78,7 @@ public struct DeckHero: View {
         title: "한국어",
         subtitle: "Last studied today · 32-day streak",
         tone: .red,
-        deckName: "🇰🇷 한국어",
+        glyph: "🇰🇷",
         isFiltered: false
     )
     .padding()
@@ -90,7 +90,7 @@ public struct DeckHero: View {
         title: "한국어",
         subtitle: "Last studied today · 32-day streak",
         tone: .red,
-        deckName: "🇰🇷 한국어",
+        glyph: "🇰🇷",
         isFiltered: true
     )
     .padding()
@@ -102,7 +102,7 @@ public struct DeckHero: View {
         title: "Fresh deck",
         subtitle: "No cards yet · Add some to start studying",
         tone: .blue,
-        deckName: "📚 Fresh deck",
+        glyph: "📚",
         isFiltered: false
     )
     .padding()

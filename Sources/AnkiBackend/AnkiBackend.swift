@@ -7,7 +7,10 @@ public final class AnkiBackend: Sendable {
     private let backendPtr: Int64
     private let lock = NSLock()
 
+    /// Stored collection paths for close/reopen after full sync.
+    private nonisolated(unsafe) var collectionPath: String?
     private nonisolated(unsafe) var mediaFolderPath: String?
+    private nonisolated(unsafe) var mediaDbPath: String?
 
     /// Absolute path of the open collection's media folder, or nil if no
     /// collection is currently open. Backed by `nonisolated(unsafe)` storage
@@ -16,7 +19,12 @@ public final class AnkiBackend: Sendable {
     /// must not assume stability across `close` / `openCollection` cycles.
     public var currentMediaFolderPath: String? { mediaFolderPath }
 
-    public init(preferredLangs: [String] = ["en"]) throws {
+    /// Optional observer fired once per `invoke(_:)` call. Captured at
+    /// init; immutable thereafter so the closure can run safely from
+    /// any dispatch thread without locking.
+    private let observer: RPCObserver?
+
+    public init(preferredLangs: [String] = ["en"], observer: RPCObserver? = nil) throws {
         var initMsg = Anki_Backend_BackendInit()
         initMsg.preferredLangs = preferredLangs
         initMsg.server = false
@@ -36,6 +44,7 @@ public final class AnkiBackend: Sendable {
             throw BackendError(kind: .ioError, message: "Failed to initialize Anki backend")
         }
         self.backendPtr = ptr
+        self.observer = observer
     }
 
     deinit {
@@ -88,13 +97,36 @@ public final class AnkiBackend: Sendable {
         mediaFolderPath: String,
         mediaDbPath: String
     ) throws {
+        // Store paths for reopen after full sync
+        self.collectionPath = collectionPath
         self.mediaFolderPath = mediaFolderPath
+        self.mediaDbPath = mediaDbPath
 
         var req = Anki_Collection_OpenCollectionRequest()
         req.collectionPath = collectionPath
         req.mediaFolderPath = mediaFolderPath
         req.mediaDbPath = mediaDbPath
         try callVoid(service: Service.collection, method: CollectionMethod.open, request: req)
+    }
+
+    /// Reopen the collection after a full sync (which replaces the DB file).
+    /// The Rust backend internally reopens, but we call close+open at our layer
+    /// to ensure consistency (same pattern as AnkiDroid).
+    public func reopenAfterFullSync() throws {
+        guard let path = collectionPath,
+              let media = mediaFolderPath,
+              let mediaDb = mediaDbPath
+        else { return }
+
+        // Close our side (Rust may already have reopened internally)
+        try? closeCollection()
+
+        // Reopen with the same paths
+        try openCollection(
+            collectionPath: path,
+            mediaFolderPath: media,
+            mediaDbPath: mediaDb
+        )
     }
 
     public func closeCollection(downgradeToSchema11: Bool = false) throws {
@@ -113,7 +145,10 @@ public final class AnkiBackend: Sendable {
     /// Fetches a JSON-encoded value from the Anki collection config under
     /// `key` and decodes it as `T`. Returns nil if the key has never been
     /// set (`notFoundError` from the backend).
-    public func getConfigJSONValue<T: Decodable>(for key: String) throws -> T? {
+    public func getConfigJSONValue<T: Decodable>(
+        for key: String,
+        decoder: JSONDecoder = JSONDecoder()
+    ) throws -> T? {
         var req = Anki_Generic_String()
         req.val = key
         do {
@@ -122,7 +157,7 @@ public final class AnkiBackend: Sendable {
                 method: ConfigMethod.getConfigJson,
                 request: req
             )
-            return try JSONDecoder().decode(T.self, from: response.json)
+            return try decoder.decode(T.self, from: response.json)
         } catch let error as BackendError where error.kind == .notFoundError {
             return nil
         }
@@ -131,10 +166,14 @@ public final class AnkiBackend: Sendable {
     /// Encodes `value` as JSON and writes it under `key` in the collection
     /// config. Uses the no-undo variant — config writes are not part of
     /// the user-visible undo stack.
-    public func setConfigJSONValue<T: Encodable>(_ value: T, for key: String) throws {
+    public func setConfigJSONValue<T: Encodable>(
+        _ value: T,
+        for key: String,
+        encoder: JSONEncoder = JSONEncoder()
+    ) throws {
         var req = Anki_Config_SetConfigJsonRequest()
         req.key = key
-        req.valueJson = try JSONEncoder().encode(value)
+        req.valueJson = try encoder.encode(value)
         req.undoable = false
         try callVoid(
             service: Service.config,
@@ -223,7 +262,21 @@ public final class AnkiBackend: Sendable {
     // MARK: - Typed Request invocation (public — preferred entry point)
 
     public func invoke<R>(_ request: Request<R>) throws(BackendError) -> R {
-        switch Self.runInvoke(backend: self, request: request) {
+        let started = ContinuousClock.now
+        let serviceId = request.serviceId
+        let methodId = request.methodId
+        let result: Result<R, BackendError> = Self.runInvoke(
+            backend: self,
+            request: request
+        )
+        let failure: BackendError? = if case .failure(let e) = result { e } else { nil }
+        observer?(RPCEvent(
+            serviceId: serviceId,
+            methodId: methodId,
+            duration: ContinuousClock.now - started,
+            error: failure
+        ))
+        switch result {
         case .success(let value): return value
         case .failure(let error): throw error
         }

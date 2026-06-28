@@ -7,22 +7,22 @@ struct AnkiMobileAttributionView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Label("Sync provided by AnkiWeb", systemImage: "icloud.and.arrow.up.fill")
-                .amgiFont(.bodyEmphasis)
+                .font(.subheadline.weight(.semibold))
                 .foregroundStyle(palette.textPrimary)
             Text("AnkiWeb is supported by sales of AnkiMobile. Please consider purchasing a copy to support the sync servers.")
-                .amgiFont(.caption)
+                .font(.footnote)
                 .foregroundStyle(palette.textSecondary)
             Button {
                 openAnkiMobile()
             } label: {
                 Label("View AnkiMobile in App Store", systemImage: "apps.iphone")
             }
-            .amgiFont(.captionBold)
+            .font(.footnote.weight(.medium))
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(palette.surface.opacity(0.5))
-        .clipShape(RoundedRectangle(cornerRadius: AmgiRadius.inset))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
 

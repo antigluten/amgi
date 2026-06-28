@@ -136,6 +136,16 @@ public struct ReaderLookupNoteTemplate: Codable, Hashable, Sendable {
         self.rulesField = rulesField
     }
 
+    public var hasMappedFields: Bool {
+        let fields = [
+            termField, readingField, sentenceField,
+            definition1Field, definition2Field, definition3Field,
+            dictionariesField, frequencyField, pitchField,
+            deinflectionField, matchedField, sourceField, rulesField
+        ]
+        return fields.contains { !$0.isEmpty }
+    }
+
     enum CodingKeys: String, CodingKey {
         case deckID, notetypeID
         case termField, readingField, sentenceField

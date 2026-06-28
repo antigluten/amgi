@@ -1,4 +1,3 @@
-import AmgiTheme
 import Sharing
 import SwiftUI
 
@@ -7,7 +6,6 @@ import SwiftUI
 /// so the chapter VC's `styleTokens` recomputation fires immediately.
 struct ReaderTypographySettingsView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.palette) private var palette
 
     @Shared(.appStorage(ReaderTypographyPreferences.Keys.fontFamily))
     private var fontFamilyRaw: String = ReaderTypographyPreferences.FontFamily.system.rawValue
@@ -62,19 +60,19 @@ struct ReaderTypographySettingsView: View {
             HStack {
                 Button { decreaseFontSize() } label: {
                     Image(systemName: "textformat.size.smaller")
-                        .amgiFont(.cardTitle)
+                        .font(.title3)
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.bordered)
                 .disabled(fontSize <= 12)
 
                 Text("\(fontSize) pt")
-                    .font(.system(size: AmgiFont.body.size, weight: AmgiFont.body.weight).monospacedDigit())
+                    .font(.body.monospacedDigit())
                     .frame(width: 64)
 
                 Button { increaseFontSize() } label: {
                     Image(systemName: "textformat.size.larger")
-                        .amgiFont(.cardTitle)
+                        .font(.title3)
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.bordered)
@@ -105,8 +103,8 @@ struct ReaderTypographySettingsView: View {
                     Text("Line Height")
                     Spacer()
                     Text(String(format: "%.1f", lineHeight))
-                        .font(.system(size: AmgiFont.body.size, weight: AmgiFont.body.weight).monospacedDigit())
-                        .foregroundStyle(palette.textSecondary)
+                        .font(.body.monospacedDigit())
+                        .foregroundStyle(.secondary)
                 }
             }
         } header: {
@@ -181,15 +179,13 @@ private struct ThemeSwatchButton: View {
     let isSelected: Bool
     let action: () -> Void
 
-    @Environment(\.palette) private var palette
-
     var body: some View {
         Button(action: action) {
             VStack(spacing: 6) {
                 swatch
                 Text(theme.label)
-                    .amgiFont(.caption)
-                    .foregroundStyle(palette.textPrimary)
+                    .font(.caption)
+                    .foregroundStyle(.primary)
             }
         }
         .buttonStyle(.plain)
@@ -204,13 +200,13 @@ private struct ThemeSwatchButton: View {
                 .frame(width: 44, height: 44)
                 .overlay(
                     Circle().strokeBorder(
-                        isSelected ? palette.accent : palette.textSecondary.opacity(0.3),
+                        isSelected ? Color.accentColor : Color.secondary.opacity(0.3),
                         lineWidth: isSelected ? 2 : 1
                     )
                 )
             Text("Aa")
-                .amgiFont(.bodyEmphasis)
-                .foregroundStyle(Color(hex: theme.foregroundHex) ?? palette.textPrimary)
+                .font(.callout.weight(.semibold))
+                .foregroundStyle(Color(hex: theme.foregroundHex) ?? .black)
         }
     }
 }

@@ -23,6 +23,9 @@ struct ReviewSettingsView: View {
     @Shared(.appStorage(ReviewPreferences.Keys.showNextReviewTime))
     private var showNextReviewTime: Bool = true
 
+    @Shared(.appStorage(ReviewPreferences.Keys.disperseAnswerButtons))
+    private var disperseAnswerButtons: Bool = false
+
     @Shared(.appStorage(ReviewPreferences.Keys.playAudioInSilentMode))
     private var playAudioInSilentMode: Bool = false
 
@@ -45,6 +48,7 @@ struct ReviewSettingsView: View {
             Section("Answer Buttons") {
                 Toggle("Show remaining counts", isOn: Binding($showRemainingDays))
                 Toggle("Show next review time", isOn: Binding($showNextReviewTime))
+                Toggle("Spread answer buttons", isOn: Binding($disperseAnswerButtons))
             }
 
             Section("Audio") {

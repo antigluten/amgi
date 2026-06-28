@@ -9,9 +9,9 @@ extension DeckClient {
         fetchAll: { DeckTreeNode.sampleTree.flattened() },
         fetchTree: { DeckTreeNode.sampleTree },
         countsForDeck: { _ in .sampleLight },
-        create: { _ in DeckCreation(id: DeckID(999), changes: CollectionChanges()) },
-        rename: { _, _ in CollectionChanges() },
-        delete: { _ in CollectionChanges() },
+        create: { _ in DeckID(999) },
+        rename: { _, _ in },
+        delete: { _ in },
         rebuildFilteredDeck: { _ in 0 },
         emptyFilteredDeck: { _ in },
         fetchDeckConfigContext: { _ in

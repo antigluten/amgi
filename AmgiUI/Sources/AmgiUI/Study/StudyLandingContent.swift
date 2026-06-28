@@ -126,7 +126,7 @@ public struct StudyLandingContent: View {
             .padding(.vertical, 14)
             .background(
                 totalDue > 0 ? palette.accent : palette.accentSoft,
-                in: RoundedRectangle(cornerRadius: AmgiRadius.control, style: .continuous)
+                in: RoundedRectangle(cornerRadius: 14, style: .continuous)
             )
         }
         .disabled(totalDue == 0)
@@ -165,21 +165,12 @@ public struct StudyLandingContent: View {
                         }
                     }
                 }
-                .clipShape(RoundedRectangle(cornerRadius: AmgiRadius.inset, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                 .background(
-                    RoundedRectangle(cornerRadius: AmgiRadius.inset, style: .continuous)
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
                         .fill(palette.surfaceElevated)
-                        .shadow(
-                            color: palette.elevation == .ring ? .clear : .black.opacity(0.06),
-                            radius: 4, x: 0, y: 2
-                        )
+                        .shadow(color: .black.opacity(0.06), radius: 4, x: 0, y: 2)
                 )
-                .overlay {
-                    if palette.elevation == .ring {
-                        RoundedRectangle(cornerRadius: AmgiRadius.inset, style: .continuous)
-                            .strokeBorder(palette.separator, lineWidth: 1)
-                    }
-                }
             }
             .padding(.top, 20)
         }

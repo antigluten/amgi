@@ -12,7 +12,7 @@ private let logger = Logger(label: "com.amgiapp.reader.cardcount")
 public struct ReaderCardCountClient: Sendable {
     /// Counts notes carrying the given Anki tag. Returns 0 on any backend
     /// error — UI treats the count as best-effort.
-    public var cardsAdded: @Sendable (_ tag: String) async throws -> Int
+    public var cardsAdded: @Sendable (_ tag: String) throws -> Int
 }
 
 extension ReaderCardCountClient: TestDependencyKey {
@@ -34,7 +34,7 @@ extension ReaderCardCountClient: DependencyKey {
                 let trimmed = tag.trimmingCharacters(in: .whitespacesAndNewlines)
                 guard !trimmed.isEmpty else { return 0 }
                 do {
-                    let ids = try await backend.invoke(.searchNoteIds(query: "tag:\(trimmed)"))
+                    let ids = try backend.invoke(.searchNoteIds(query: "tag:\(trimmed)"))
                     return ids.count
                 } catch {
                     logger.debug("cardsAdded(\(trimmed)) failed: \(error)")

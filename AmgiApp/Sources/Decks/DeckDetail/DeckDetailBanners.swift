@@ -10,7 +10,7 @@ struct ImportInProgressBanner: View {
         if visible {
             HStack(spacing: 8) {
                 ProgressView().controlSize(.small)
-                Text("Importing…").amgiFont(.caption)
+                Text("Importing…").font(.caption)
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
@@ -31,7 +31,7 @@ struct RebuildFeedbackBanner: View {
     var body: some View {
         if let feedback {
             Text(feedback)
-                .amgiFont(.bodyEmphasis)
+                .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.white)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 10)

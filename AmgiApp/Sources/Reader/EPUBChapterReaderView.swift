@@ -1,5 +1,4 @@
 import AmgiReader
-import AmgiTheme
 import Sharing
 import SwiftUI
 
@@ -21,7 +20,6 @@ struct EPUBChapterReaderView: View {
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.palette) private var palette
 
     @State private var model = EPUBChapterReaderModel()
 
@@ -179,10 +177,10 @@ struct EPUBChapterReaderView: View {
         } label: {
             Image(systemName: "xmark")
                 .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(palette.textSecondary)
+                .foregroundStyle(.secondary)
                 .frame(width: 44, height: 44)
                 .background(.regularMaterial, in: Circle())
-                .amgiChromeShadow(Circle())
+                .shadow(color: .black.opacity(0.08), radius: 4, y: 2)
         }
         .accessibilityLabel("Close")
         .padding(.top, 8)
@@ -194,12 +192,12 @@ struct EPUBChapterReaderView: View {
     @ViewBuilder
     private var pagesLeftCapsule: some View {
         Text(pagesLeftText)
-            .amgiFont(.captionBold)
-            .foregroundStyle(palette.textSecondary)
+            .font(.footnote.weight(.medium))
+            .foregroundStyle(.secondary)
             .padding(.horizontal, 14)
             .padding(.vertical, 6)
             .background(.regularMaterial, in: Capsule())
-            .amgiChromeShadow(Capsule())
+            .shadow(color: .black.opacity(0.08), radius: 4, y: 2)
             .padding(.top, 8)
             .opacity(chromeVisible ? 1 : 0)
             .allowsHitTesting(false)
@@ -208,12 +206,12 @@ struct EPUBChapterReaderView: View {
     @ViewBuilder
     private var pageNumberCapsule: some View {
         Text("\(pageIndex + 1) of \(pageCount)")
-            .font(.system(size: AmgiFont.caption.size, weight: AmgiFont.caption.weight).monospacedDigit())
-            .foregroundStyle(palette.textSecondary)
+            .font(.caption.monospacedDigit())
+            .foregroundStyle(.secondary)
             .padding(.horizontal, 12)
             .padding(.vertical, 4)
             .background(.regularMaterial, in: Capsule())
-            .amgiChromeShadow(Capsule())
+            .shadow(color: .black.opacity(0.08), radius: 4, y: 2)
             .allowsHitTesting(false)
     }
 
@@ -224,10 +222,10 @@ struct EPUBChapterReaderView: View {
         } label: {
             Image(systemName: "line.3.horizontal")
                 .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(palette.textPrimary)
+                .foregroundStyle(.primary)
                 .frame(width: 44, height: 44)
                 .background(.regularMaterial, in: Circle())
-                .amgiChromeShadow(Circle())
+                .shadow(color: .black.opacity(0.08), radius: 4, y: 2)
         }
         .accessibilityLabel("Reading Style")
         .opacity(chromeVisible ? 1 : 0)
@@ -256,7 +254,7 @@ struct EPUBChapterReaderView: View {
     private var endOfBookToast: some View {
         if endOfBookToastVisible {
             Text("End of book")
-                .amgiFont(.captionBold)
+                .font(.footnote.weight(.medium))
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
                 .background(.thinMaterial, in: Capsule())
@@ -293,7 +291,7 @@ private extension EPUBChapterReaderView {
     func prepareRestoreIfNeeded() async {
         guard let chapter = currentChapter else { return }
         if !didRequestInitialRestore,
-           let saved = await progressCoordinator.resolved(bookID: book.id),
+           let saved = progressCoordinator.resolved(bookID: book.id),
            saved.chapterID == chapter.id,
            saved.progress > 0.01 {
             pendingRestoreFraction = saved.progress

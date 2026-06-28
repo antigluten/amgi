@@ -18,6 +18,11 @@ actor DictionaryLookupRuntime {
         var path: URL
     }
 
+    private struct RecommendedArchive {
+        var metadataURL: String
+        var kind: AppDictionaryKind
+    }
+
     private struct SyncedConfig: Codable {
         var updatedAt: Date
         var config: AppDictionaryConfig
@@ -31,6 +36,7 @@ actor DictionaryLookupRuntime {
     enum RuntimeError: LocalizedError {
         case importFailed([String])
         case dictionaryNotFound(String)
+        case noUpdatableDictionaries
 
         var errorDescription: String? {
             switch self {
@@ -40,11 +46,23 @@ actor DictionaryLookupRuntime {
                     : "Failed to import: \(files.joined(separator: ", "))."
             case let .dictionaryNotFound(id):
                 return "Dictionary not found: \(id)"
+            case .noUpdatableDictionaries:
+                return "No updatable dictionaries found."
             }
         }
     }
 
     private static let collectionConfigKey = "amgi.reader.dictionaryConfig"
+    private static let recommendedArchives: [RecommendedArchive] = [
+        RecommendedArchive(
+            metadataURL: "https://github.com/yomidevs/jmdict-yomitan/releases/latest/download/JMdict_english.json",
+            kind: .term
+        ),
+        RecommendedArchive(
+            metadataURL: "https://api.jiten.moe/api/frequency-list/index",
+            kind: .frequency
+        ),
+    ]
 
     private let configStore: DictionaryConfigStore
     private var activeProfileID: String?
@@ -97,6 +115,10 @@ actor DictionaryLookupRuntime {
         )
     }
 
+    func loadStyles() async -> [String: String] {
+        loadStylesSync()
+    }
+
     func mediaFile(dictionary: String, mediaPath: String) async throws -> Data {
         try await ensureLoaded()
         let bytes = dictQuery?.get_media_file(std.string(dictionary), std.string(mediaPath)) ?? []
@@ -123,6 +145,62 @@ actor DictionaryLookupRuntime {
         }
 
         guard didImport else { throw RuntimeError.importFailed(failed) }
+
+        try await reloadState(for: currentProfileID())
+        return libraryState()
+    }
+
+    func importRecommended() async throws -> AppDictionaryLibraryState {
+        try await ensureLoaded()
+
+        var temporaries: [URL] = []
+        defer {
+            for file in temporaries { try? FileManager.default.removeItem(at: file) }
+        }
+
+        for archive in Self.recommendedArchives {
+            guard let metadataURL = URL(string: archive.metadataURL) else { continue }
+            let (data, _) = try await URLSession.shared.data(from: metadataURL)
+            let remoteIndex = try JSONDecoder().decode(AppDictionaryIndex.self, from: data)
+            guard let downloadURL = URL(string: remoteIndex.downloadURL) else { continue }
+            let (file, _) = try await URLSession.shared.download(from: downloadURL)
+            temporaries.append(file)
+            _ = try importArchive(at: file, kind: archive.kind, requiresSecurityScope: false)
+        }
+
+        try await reloadState(for: currentProfileID())
+        return libraryState()
+    }
+
+    func updateDictionaries() async throws -> AppDictionaryLibraryState {
+        try await ensureLoaded()
+
+        let candidates = allDictionariesForUpdate()
+        guard !candidates.isEmpty else { throw RuntimeError.noUpdatableDictionaries }
+
+        var temporaries: [URL] = []
+        defer {
+            for file in temporaries { try? FileManager.default.removeItem(at: file) }
+        }
+
+        for candidate in candidates {
+            let index = candidate.dictionary.info.index
+            guard index.isUpdatable, let metadataURL = URL(string: index.indexURL) else { continue }
+
+            let (data, _) = try await URLSession.shared.data(from: metadataURL)
+            let remoteIndex = try JSONDecoder().decode(AppDictionaryIndex.self, from: data)
+            guard remoteIndex.revision != index.revision,
+                  let downloadURL = URL(string: remoteIndex.downloadURL) else { continue }
+
+            let oldPath = candidate.dictionary.path
+            let oldTitle = index.title
+            let (file, _) = try await URLSession.shared.download(from: downloadURL)
+            temporaries.append(file)
+            let importedTitle = try importArchive(at: file, kind: candidate.kind, requiresSecurityScope: false)
+            if importedTitle != oldTitle {
+                try? FileManager.default.removeItem(at: oldPath)
+            }
+        }
 
         try await reloadState(for: currentProfileID())
         return libraryState()
@@ -296,6 +374,12 @@ actor DictionaryLookupRuntime {
             frequencyDictionaries: frequencyDictionaries.map(\.info),
             pitchDictionaries: pitchDictionaries.map(\.info)
         )
+    }
+
+    private func allDictionariesForUpdate() -> [(dictionary: ManagedDictionary, kind: AppDictionaryKind)] {
+        termDictionaries.map { ($0, .term) }
+            + frequencyDictionaries.map { ($0, .frequency) }
+            + pitchDictionaries.map { ($0, .pitch) }
     }
 
     private func collect(

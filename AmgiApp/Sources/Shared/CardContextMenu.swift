@@ -33,15 +33,15 @@ struct CardContextMenu: View {
 
     var body: some View {
         Menu {
-            Button { Task { forward(await model.suspend(cardId)) } } label: {
+            Button { forward(model.suspend(cardId)) } label: {
                 Label("Suspend", systemImage: "pause.circle")
             }
 
-            Button { Task { forward(await model.bury(cardId)) } } label: {
+            Button { forward(model.bury(cardId)) } label: {
                 Label("Bury until tomorrow", systemImage: "books.vertical")
             }
 
-            Button { Task { forward(await model.resetToNew(cardId)) } } label: {
+            Button { forward(model.resetToNew(cardId)) } label: {
                 Label("Forget", systemImage: "arrow.counterclockwise")
             }
 
@@ -55,18 +55,18 @@ struct CardContextMenu: View {
 
             if let noteId {
                 Menu {
-                    Button { Task { forward(await model.toggleMarked(noteId)) } } label: {
+                    Button { forward(model.toggleMarked(noteId)) } label: {
                         Label(
                             model.isMarkedNote ? "Unmark note" : "Mark note",
                             systemImage: model.isMarkedNote ? "star.slash" : "star"
                         )
                     }
 
-                    Button { Task { forward(await model.suspendNote(noteId)) } } label: {
+                    Button { forward(model.suspendNote(noteId)) } label: {
                         Label("Suspend note", systemImage: "pause.circle.fill")
                     }
 
-                    Button { Task { forward(await model.buryNote(noteId)) } } label: {
+                    Button { forward(model.buryNote(noteId)) } label: {
                         Label("Bury note", systemImage: "books.vertical.fill")
                     }
 
@@ -117,7 +117,7 @@ struct CardContextMenu: View {
         }
         .confirmationDialog("Delete this note?", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
             Button("Delete", role: .destructive) {
-                if let noteId { Task { forward(await model.deleteNote(noteId)) } }
+                if let noteId { forward(model.deleteNote(noteId)) }
             }
             Button("Cancel", role: .cancel) { }
         } message: {
@@ -141,7 +141,7 @@ private extension CardContextMenu {
 
     func flagButton(_ value: UInt32) -> some View {
         let tint = flagColor(for: value)
-        return Button(action: { Task { forward(await model.flag(cardId, value)) } }) {
+        return Button(action: { forward(model.flag(cardId, value)) }) {
             Label {
                 Text(flagDisplayName(for: value))
                     .foregroundStyle(tint)

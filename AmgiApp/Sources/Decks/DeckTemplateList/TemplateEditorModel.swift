@@ -31,7 +31,7 @@ final class TemplateEditorModel {
         defer { isLoading = false }
 
         do {
-            notetype = try await notetypesClient.get(notetypeId)
+            notetype = try notetypesClient.get(notetypeId)
             originalNotetype = notetype
             normalizeTemplateIndex(preferred: preferred)
             errorMessage = nil
@@ -48,7 +48,7 @@ final class TemplateEditorModel {
         defer { isSaving = false }
 
         do {
-            try await notetypesClient.update(notetype)
+            try notetypesClient.update(notetype)
             if let onSaved {
                 await onSaved()
             }
@@ -64,10 +64,10 @@ final class TemplateEditorModel {
         let fieldCount = notetype.fields.count
         return try await Task.detached(priority: .userInitiated) {
             if let previewNoteId,
-               let currentNote = try await noteClient.fetch(previewNoteId) {
+               let currentNote = try noteClient.fetch(previewNoteId) {
                 return buildSampleFields(from: currentNote)
             }
-            if let sampleNote = try await noteClient.search("mid:\(notetypeId.rawValue)", 1).first {
+            if let sampleNote = try noteClient.search("mid:\(notetypeId.rawValue)", 1).first {
                 return buildSampleFields(from: sampleNote)
             }
             return makeEmptySampleFields(fieldCount: fieldCount)
