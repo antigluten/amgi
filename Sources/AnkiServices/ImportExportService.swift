@@ -2,7 +2,7 @@ import AnkiBackend
 import AnkiProto
 public import Dependencies
 import DependenciesMacros
-public import Foundation
+import Foundation
 
 @DependencyClient
 public struct ImportExportService: Sendable {
@@ -68,6 +68,12 @@ extension ImportExportService: DependencyKey {
                 limit.deckID = deckId
                 req.limit = limit
                 let response: Anki_Generic_UInt32 = try backend.invoke(
+                    service: AnkiBackend.Service.importExport,
+                    method: AnkiBackend.ImportExportMethod.exportAnkiPackage,
+                    request: req
+                )
+                return response.val
+            },
             exportApkgForMerge: { outPath in
                 var options = Anki_ImportExport_ExportAnkiPackageOptions()
                 options.withScheduling = true
