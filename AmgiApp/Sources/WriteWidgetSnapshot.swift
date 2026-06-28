@@ -11,6 +11,16 @@ import WidgetKit
 /// App Group container, then signals WidgetKit to reload all timelines.
 /// Safe to call from any async context.
 func writeWidgetSnapshot() async {
+    // Skip during XCTest runs — the lifecycle hooks that call this run inside
+    // the host app's scene phase / didFinishLaunching, which fire even when
+    // the app is hosting a test bundle. Calling unimplemented dependency stubs
+    // there registers as a test failure even though the caller catches the
+    // error. Tests that genuinely need widget-snapshot behavior can call this
+    // directly inside their own withDependencies overrides.
+    if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil {
+        return
+    }
+
     @Dependency(\.deckClient) var deckClient
     @Dependency(\.statsClient) var statsClient
 

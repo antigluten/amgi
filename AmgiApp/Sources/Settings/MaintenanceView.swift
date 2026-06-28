@@ -37,6 +37,7 @@ struct MaintenanceView: View {
             }
         }
         .navigationTitle("Maintenance")
+        .navigationBarTitleDisplayMode(.inline)
         .confirmationDialog(
             "Reset Everything?",
             isPresented: $showResetConfirm,

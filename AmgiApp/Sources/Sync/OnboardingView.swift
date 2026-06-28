@@ -29,6 +29,9 @@ struct OnboardingView: View {
             VStack(spacing: AmgiSpacing.md) {
                 if showServerSetup {
                     VStack(spacing: AmgiSpacing.md) {
+                        AnkiMobileAttributionView()
+                            .padding(.horizontal)
+
                         TextField("Server URL", text: $serverURL)
                             .textFieldStyle(.roundedBorder)
                             .autocorrectionDisabled()

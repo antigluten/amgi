@@ -8,6 +8,14 @@ public import Foundation
 public struct ImportExportService: Sendable {
     public var importAnkiPackage: @Sendable (_ path: String) throws -> String
     public var exportCollectionPackage: @Sendable (_ outPath: String, _ includeMedia: Bool) throws -> Void
+    public var exportDeckPackage: @Sendable (
+        _ deckId: Int64,
+        _ outPath: String,
+        _ withScheduling: Bool,
+        _ withDeckConfigs: Bool,
+        _ withMedia: Bool,
+        _ legacy: Bool
+    ) throws -> UInt32
 
     /// Export the entire current collection as an .apkg suitable for the merge
     /// flow (re-importable into another collection). Always includes media,
@@ -47,6 +55,19 @@ extension ImportExportService: DependencyKey {
                     request: req
                 )
             },
+            exportDeckPackage: { deckId, outPath, withScheduling, withDeckConfigs, withMedia, legacy in
+                var req = Anki_ImportExport_ExportAnkiPackageRequest()
+                req.outPath = outPath
+                var options = Anki_ImportExport_ExportAnkiPackageOptions()
+                options.withScheduling = withScheduling
+                options.withDeckConfigs = withDeckConfigs
+                options.withMedia = withMedia
+                options.legacy = legacy
+                req.options = options
+                var limit = Anki_ImportExport_ExportLimit()
+                limit.deckID = deckId
+                req.limit = limit
+                let response: Anki_Generic_UInt32 = try backend.invoke(
             exportApkgForMerge: { outPath in
                 var options = Anki_ImportExport_ExportAnkiPackageOptions()
                 options.withScheduling = true

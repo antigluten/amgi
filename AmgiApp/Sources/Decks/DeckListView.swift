@@ -22,6 +22,12 @@ struct DeckListView: View {
                 )
             } else {
                 List {
+                    Section {
+                        DecksReviewsChart()
+                            .listRowInsets(.init(top: 4, leading: 0, bottom: 8, trailing: 0))
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
+                    }
                     ForEach(tree) { node in
                         DeckRowView(node: node, onMutated: {
                             await loadDecks()

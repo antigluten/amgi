@@ -1,11 +1,11 @@
-import Foundation
+public import Foundation
 
 public enum SyncDirection: Sendable {
     case upload
     case download
 }
 
-public struct SyncError: Error, Sendable, Equatable {
+public struct SyncError: Error, LocalizedError, Sendable, Equatable {
     public let message: String
     public let isRetryable: Bool
     /// When set, an in-progress merge failed and the local-collection backup
@@ -17,6 +17,8 @@ public struct SyncError: Error, Sendable, Equatable {
         self.isRetryable = isRetryable
         self.recoveryBackupPath = recoveryBackupPath
     }
+
+    public var errorDescription: String? { message }
 
     public static let authFailed = SyncError(message: "Authentication failed", isRetryable: false)
     public static let networkUnavailable = SyncError(message: "Network unavailable", isRetryable: true)

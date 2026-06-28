@@ -52,7 +52,7 @@ struct CardContextMenu: View {
             }
 
             Button(action: performResetToNew) {
-                Label("Reset to new", systemImage: "arrow.counterclockwise")
+                Label("Forget", systemImage: "arrow.counterclockwise")
             }
 
             if let onRequestSetDueDate {
@@ -179,7 +179,7 @@ struct CardContextMenu: View {
             onSuccess?()
             onActionSuccess?(true)
         } catch {
-            errorMessage = "Reset to new failed: \(error.localizedDescription)"
+            errorMessage = "Forget failed: \(error.localizedDescription)"
             showError = true
         }
     }

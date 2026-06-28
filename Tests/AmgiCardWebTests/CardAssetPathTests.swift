@@ -3,25 +3,34 @@ import Foundation
 @testable import AmgiCardWeb
 
 @Suite struct CardAssetPathTests {
-    let mediaRoot = "/tmp/amgi-media"
-    let bundleRoot = "/tmp/amgi-bundle"
+    let mediaRoot = URL(fileURLWithPath: "/tmp/amgi-media")
+    let bundleRoot = URL(fileURLWithPath: "/tmp/amgi-bundle")
 
     @Test func resolvesMediaFile() {
         let url = URL(string: "amgi-asset://media/hello.mp3")!
         let resolved = CardAssetPath.resolve(url: url, mediaRoot: mediaRoot, bundleRoot: bundleRoot)
-        #expect(resolved == "/tmp/amgi-media/hello.mp3")
+        #expect(resolved?.path == "/tmp/amgi-media/hello.mp3")
     }
 
-    @Test func resolvesBundleAsset() {
+    @Test func resolvesBundleAsset() throws {
+        // Fork's resolvedMathJaxAsset checks file existence on disk,
+        // so we pre-create the file under the bundleRoot.
+        let fm = FileManager.default
+        let assetDir = bundleRoot.appendingPathComponent("mathjax")
+        try fm.createDirectory(at: assetDir, withIntermediateDirectories: true)
+        let assetFile = assetDir.appendingPathComponent("tex-svg.js")
+        try Data("// test".utf8).write(to: assetFile)
+        defer { try? fm.removeItem(at: assetFile) }
+
         let url = URL(string: "amgi-asset://assets/mathjax/tex-svg.js")!
         let resolved = CardAssetPath.resolve(url: url, mediaRoot: mediaRoot, bundleRoot: bundleRoot)
-        #expect(resolved == "/tmp/amgi-bundle/mathjax/tex-svg.js")
+        #expect(resolved?.path == "/tmp/amgi-bundle/mathjax/tex-svg.js")
     }
 
     @Test func percentDecodesFilename() {
         let url = URL(string: "amgi-asset://media/my%20sound.mp3")!
         let resolved = CardAssetPath.resolve(url: url, mediaRoot: mediaRoot, bundleRoot: bundleRoot)
-        #expect(resolved == "/tmp/amgi-media/my sound.mp3")
+        #expect(resolved?.path == "/tmp/amgi-media/my sound.mp3")
     }
 
     @Test func rejectsPathTraversalInMedia() {
@@ -65,31 +74,35 @@ import Foundation
         let url = URL(string: "amgi-asset://media/escape/secret.txt")!
         let resolved = CardAssetPath.resolve(
             url: url,
-            mediaRoot: mediaDir.path,
-            bundleRoot: "/tmp/irrelevant"
+            mediaRoot: mediaDir,
+            bundleRoot: nil
         )
         #expect(resolved == nil, "Symlink escape should be rejected after resolvingSymlinksInPath")
     }
 }
 
 @Suite struct CardAssetMimeTests {
-    @Test func mp3() { #expect(CardAssetPath.mimeType(for: "a.mp3") == "audio/mpeg") }
-    @Test func mp4() { #expect(CardAssetPath.mimeType(for: "a.mp4") == "video/mp4") }
-    @Test func wav() { #expect(CardAssetPath.mimeType(for: "a.wav") == "audio/wav") }
-    @Test func ogg() { #expect(CardAssetPath.mimeType(for: "a.ogg") == "audio/ogg") }
-    @Test func jpg() { #expect(CardAssetPath.mimeType(for: "a.jpg") == "image/jpeg") }
-    @Test func jpeg() { #expect(CardAssetPath.mimeType(for: "a.jpeg") == "image/jpeg") }
-    @Test func png() { #expect(CardAssetPath.mimeType(for: "a.png") == "image/png") }
-    @Test func gif() { #expect(CardAssetPath.mimeType(for: "a.gif") == "image/gif") }
-    @Test func svg() { #expect(CardAssetPath.mimeType(for: "a.svg") == "image/svg+xml") }
-    @Test func js() { #expect(CardAssetPath.mimeType(for: "a.js") == "application/javascript") }
-    @Test func flac() { #expect(CardAssetPath.mimeType(for: "a.flac") == "audio/flac") }
-    @Test func opus() { #expect(CardAssetPath.mimeType(for: "a.opus") == "audio/ogg") }
-    @Test func aac() { #expect(CardAssetPath.mimeType(for: "a.aac") == "audio/aac") }
-    @Test func bmp() { #expect(CardAssetPath.mimeType(for: "a.bmp") == "image/bmp") }
-    @Test func heic() { #expect(CardAssetPath.mimeType(for: "a.heic") == "image/heic") }
-    @Test func tiff() { #expect(CardAssetPath.mimeType(for: "a.tiff") == "image/tiff") }
-    @Test func tif() { #expect(CardAssetPath.mimeType(for: "a.tif") == "image/tiff") }
-    @Test func unknown() { #expect(CardAssetPath.mimeType(for: "a.xyz") == "application/octet-stream") }
-    @Test func noExtension() { #expect(CardAssetPath.mimeType(for: "noext") == "application/octet-stream") }
+    // mimeType(for:) takes a URL in the fork's API; use URL(fileURLWithPath:) for bare filename tests.
+    // Where UTType has a preferred MIME, that value is returned (may differ from legacy string-switch).
+    @Test func mp3() { #expect(CardAssetPath.mimeType(for: URL(fileURLWithPath: "a.mp3")) == "audio/mpeg") }
+    @Test func mp4() { #expect(CardAssetPath.mimeType(for: URL(fileURLWithPath: "a.mp4")) == "video/mp4") }
+    // UTType("wav").preferredMIMEType == "audio/vnd.wave" on Apple platforms.
+    @Test func wav() { #expect(CardAssetPath.mimeType(for: URL(fileURLWithPath: "a.wav")) == "audio/vnd.wave") }
+    @Test func ogg() { #expect(CardAssetPath.mimeType(for: URL(fileURLWithPath: "a.ogg")) == "audio/ogg") }
+    @Test func jpg() { #expect(CardAssetPath.mimeType(for: URL(fileURLWithPath: "a.jpg")) == "image/jpeg") }
+    @Test func jpeg() { #expect(CardAssetPath.mimeType(for: URL(fileURLWithPath: "a.jpeg")) == "image/jpeg") }
+    @Test func png() { #expect(CardAssetPath.mimeType(for: URL(fileURLWithPath: "a.png")) == "image/png") }
+    @Test func gif() { #expect(CardAssetPath.mimeType(for: URL(fileURLWithPath: "a.gif")) == "image/gif") }
+    @Test func svg() { #expect(CardAssetPath.mimeType(for: URL(fileURLWithPath: "a.svg")) == "image/svg+xml") }
+    // UTType("js").preferredMIMEType == "text/javascript"; fork's fallback only fires when UTType returns nil.
+    @Test func js() { #expect(CardAssetPath.mimeType(for: URL(fileURLWithPath: "a.js")) == "text/javascript") }
+    @Test func flac() { #expect(CardAssetPath.mimeType(for: URL(fileURLWithPath: "a.flac")) == "audio/flac") }
+    @Test func opus() { #expect(CardAssetPath.mimeType(for: URL(fileURLWithPath: "a.opus")) == "audio/ogg") }
+    @Test func aac() { #expect(CardAssetPath.mimeType(for: URL(fileURLWithPath: "a.aac")) == "audio/aac") }
+    @Test func bmp() { #expect(CardAssetPath.mimeType(for: URL(fileURLWithPath: "a.bmp")) == "image/bmp") }
+    @Test func heic() { #expect(CardAssetPath.mimeType(for: URL(fileURLWithPath: "a.heic")) == "image/heic") }
+    @Test func tiff() { #expect(CardAssetPath.mimeType(for: URL(fileURLWithPath: "a.tiff")) == "image/tiff") }
+    @Test func tif() { #expect(CardAssetPath.mimeType(for: URL(fileURLWithPath: "a.tif")) == "image/tiff") }
+    @Test func unknown() { #expect(CardAssetPath.mimeType(for: URL(fileURLWithPath: "a.xyz")) == "application/octet-stream") }
+    @Test func noExtension() { #expect(CardAssetPath.mimeType(for: URL(fileURLWithPath: "noext")) == "application/octet-stream") }
 }

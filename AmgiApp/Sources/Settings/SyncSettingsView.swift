@@ -14,6 +14,10 @@ struct SyncSettingsView: View {
     var body: some View {
         Form {
             if let endpoint {
+                Section {
+                    AnkiMobileAttributionView()
+                }
+
                 Section("Server") {
                     LabeledContent("URL") {
                         Text(endpoint).truncationMode(.middle).lineLimit(1)
@@ -53,6 +57,7 @@ struct SyncSettingsView: View {
             }
         }
         .navigationTitle("Sync Server")
+        .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showServerSetup) {
             ServerSetupView {
                 endpoint = KeychainHelper.loadEndpoint()

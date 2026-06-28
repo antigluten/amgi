@@ -8,6 +8,9 @@ import DependenciesMacros
 public struct NotetypesService: Sendable {
     public var getNotetypeNames: @Sendable () throws -> [(id: Int64, name: String)]
     public var getNotetype: @Sendable (_ id: Int64) throws -> NotetypeInfo
+    /// Returns full per-field info (name, ordinal, font, size) for a notetype.
+    /// Used by typed-answer rendering in ReviewSession.
+    public var getNotetypeFields: @Sendable (_ id: Int64) throws -> [NotetypeFieldInfo]
 }
 
 extension NotetypesService: DependencyKey {
@@ -34,6 +37,23 @@ extension NotetypesService: DependencyKey {
                     name: notetype.name,
                     fieldNames: notetype.fields.map(\.name)
                 )
+            },
+            getNotetypeFields: { id in
+                var req = Anki_Notetypes_NotetypeId()
+                req.ntid = id
+                let notetype: Anki_Notetypes_Notetype = try backend.invoke(
+                    service: AnkiBackend.Service.notetypes,
+                    method: AnkiBackend.NotetypesMethod.getNotetype,
+                    request: req
+                )
+                return notetype.fields.map { field in
+                    NotetypeFieldInfo(
+                        name: field.name,
+                        ordinal: Int(field.ord.val),
+                        fontName: field.config.fontName.isEmpty ? "-apple-system" : field.config.fontName,
+                        fontSize: field.config.fontSize == 0 ? 18 : Int(field.config.fontSize)
+                    )
+                }
             }
         )
     }()

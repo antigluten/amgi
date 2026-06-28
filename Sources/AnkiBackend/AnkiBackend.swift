@@ -134,6 +134,85 @@ public final class AnkiBackend: Sendable {
         _ = try callRaw(service: Service.collectionOps, method: CollectionOpsMethod.checkDatabase, input: Data())
     }
 
+    // MARK: - Collection Config (typed JSON helpers)
+
+    /// Fetches a JSON-encoded value from the Anki collection config under
+    /// `key` and decodes it as `T`. Returns nil if the key has never been
+    /// set (`notFoundError` from the backend).
+    public func getConfigJSONValue<T: Decodable>(
+        for key: String,
+        decoder: JSONDecoder = JSONDecoder()
+    ) throws -> T? {
+        var req = Anki_Generic_String()
+        req.val = key
+        do {
+            let response: Anki_Generic_Json = try invoke(
+                service: Service.config,
+                method: ConfigMethod.getConfigJson,
+                request: req
+            )
+            return try decoder.decode(T.self, from: response.json)
+        } catch let error as BackendError where error.kind == .notFoundError {
+            return nil
+        }
+    }
+
+    /// Encodes `value` as JSON and writes it under `key` in the collection
+    /// config. Uses the no-undo variant — config writes are not part of
+    /// the user-visible undo stack.
+    public func setConfigJSONValue<T: Encodable>(
+        _ value: T,
+        for key: String,
+        encoder: JSONEncoder = JSONEncoder()
+    ) throws {
+        var req = Anki_Config_SetConfigJsonRequest()
+        req.key = key
+        req.valueJson = try encoder.encode(value)
+        req.undoable = false
+        try callVoid(
+            service: Service.config,
+            method: ConfigMethod.setConfigJsonNoUndo,
+            request: req
+        )
+    }
+
+    /// Removes a collection-config key. No-op if the key was never set.
+    public func removeConfigValue(for key: String) throws {
+        var req = Anki_Generic_String()
+        req.val = key
+        try callVoid(service: Service.config, method: ConfigMethod.removeConfig, request: req)
+    }
+
+    /// Raw `Data?` accessors for the collection-config store. Used by
+    /// abstraction layers that want to shuttle opaque JSON bytes without
+    /// committing to a specific Codable type at the boundary.
+    public func getConfigRawJSON(for key: String) throws -> Data? {
+        var req = Anki_Generic_String()
+        req.val = key
+        do {
+            let response: Anki_Generic_Json = try invoke(
+                service: Service.config,
+                method: ConfigMethod.getConfigJson,
+                request: req
+            )
+            return response.json
+        } catch let error as BackendError where error.kind == .notFoundError {
+            return nil
+        }
+    }
+
+    public func setConfigRawJSON(_ json: Data, for key: String) throws {
+        var req = Anki_Config_SetConfigJsonRequest()
+        req.key = key
+        req.valueJson = json
+        req.undoable = false
+        try callVoid(
+            service: Service.config,
+            method: ConfigMethod.setConfigJsonNoUndo,
+            request: req
+        )
+    }
+
     // MARK: - Raw FFI
 
     private func callRaw(service: UInt32, method: UInt32, input: Data) throws -> Data {
@@ -187,6 +266,8 @@ extension AnkiBackend {
         package static let scheduler: UInt32 = 13
         package static let notetypes: UInt32 = 23
         package static let notes: UInt32 = 25
+        package static let config: UInt32 = 9
+        package static let deckConfig: UInt32 = 11
         package static let cardRendering: UInt32 = 27
         package static let search: UInt32 = 29
         package static let imageOcclusion: UInt32 = 35
@@ -206,6 +287,15 @@ extension AnkiBackend {
         package static let open: UInt32 = 0
         package static let close: UInt32 = 1
         package static let latestProgress: UInt32 = 4
+    }
+
+    // BackendConfigService (service 9). Method indices verified against
+    // the DreamAfar fork's AnkiBackend dispatch table.
+    package enum ConfigMethod {
+        package static let getConfigJson: UInt32 = 0
+        package static let setConfigJson: UInt32 = 1
+        package static let setConfigJsonNoUndo: UInt32 = 2
+        package static let removeConfig: UInt32 = 3
     }
 
     package enum SyncMethod {
@@ -228,6 +318,21 @@ extension AnkiBackend {
         package static let emptyFilteredDeck: UInt32 = 15
         package static let rebuildFilteredDeck: UInt32 = 16
         package static let scheduleCardsAsNew: UInt32 = 17
+        // Backend-only methods at the front of the dispatch table; verified
+        // against ankitects/anki rslib/src/services/scheduler.rs and the
+        // DreamAfar fork (matches Collection indices + 3 offset).
+        package static let computeFsrsParams: UInt32 = 30
+        package static let simulateFsrsReview: UInt32 = 33
+        package static let simulateFsrsWorkload: UInt32 = 34
+    }
+
+    // BackendDeckConfigService (service 11). Method indices verified against
+    // the DreamAfar fork's AnkiBackend dispatch table.
+    package enum DeckConfigMethod {
+        package static let getDeckConfig: UInt32 = 1
+        package static let getDeckConfigsForUpdate: UInt32 = 6
+        package static let updateDeckConfigs: UInt32 = 7
+        package static let getRetentionWorkload: UInt32 = 11
     }
 
     package enum NotesMethod {
@@ -294,6 +399,8 @@ extension AnkiBackend {
         package static let getEmptyCards: UInt32 = 5
         package static let renderExistingCard: UInt32 = 6
         package static let renderUncommittedCard: UInt32 = 7
+        package static let compareAnswer: UInt32 = 15
+        package static let extractClozeForTyping: UInt32 = 16
     }
 
     package enum CardsMethod {
@@ -313,6 +420,9 @@ extension AnkiBackend {
         package static let importCollectionPackage: UInt32 = 0
         package static let exportCollectionPackage: UInt32 = 1
         package static let importAnkiPackage: UInt32 = 2
+        // Collection-level ExportAnkiPackage is index 2; backend offset is +2
+        // (the two BackendImportExportService methods above precede it),
+        // matching the same offset pattern as importAnkiPackage above.
         package static let exportAnkiPackage: UInt32 = 4
     }
 
