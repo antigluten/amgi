@@ -20,7 +20,7 @@ public struct SyncClient: Sendable {
     /// Reports progress via the optional callback (e.g. "Backing up local...",
     /// "Downloading from server...", "Merging...", "Uploading merged
     /// collection..."). On partial failure, the temporary .apkg is left on disk
-    /// and its path is surfaced in `SyncError.partialMerge`.
+    /// and its path is surfaced in `SyncError.recoveryBackupPath`.
     public var merge: @Sendable (_ progress: (@Sendable (String) -> Void)?) async throws -> Void
 }
 

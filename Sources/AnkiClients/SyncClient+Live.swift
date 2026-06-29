@@ -8,6 +8,11 @@ import Logging
 
 private let logger = Logger(label: "com.ankiapp.sync.client")
 
+/// How long a merge-flow backup is kept before it's considered stale. A failed
+/// merge deliberately leaves its backup on disk for recovery; this window is
+/// generous enough to cover that while preventing indefinite accumulation.
+private let mergeBackupRetention: TimeInterval = 7 * 24 * 60 * 60
+
 /// Path for a merge-flow backup .apkg. Lives in Documents/MergeBackups/ so
 /// it survives across app launches if the merge fails partway.
 private func makeMergeBackupURL() throws -> URL {
@@ -20,8 +25,36 @@ private func makeMergeBackupURL() throws -> URL {
     let folder = documents.appendingPathComponent("MergeBackups", isDirectory: true)
     try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
 
+    sweepStaleMergeBackups(in: folder)
+
     let stamp = Int(Date().timeIntervalSince1970)
     return folder.appendingPathComponent("merge-backup-\(stamp).apkg")
+}
+
+/// Removes merge-backup-*.apkg files older than `mergeBackupRetention` so failed
+/// merges don't pile up tens-of-MB files in the user's Documents. Best-effort:
+/// any error sweeping a single file is logged and skipped.
+private func sweepStaleMergeBackups(in folder: URL) {
+    let fileManager = FileManager.default
+    guard let entries = try? fileManager.contentsOfDirectory(
+        at: folder,
+        includingPropertiesForKeys: [.contentModificationDateKey],
+        options: [.skipsHiddenFiles]
+    ) else { return }
+
+    let cutoff = Date().addingTimeInterval(-mergeBackupRetention)
+    for entry in entries where entry.lastPathComponent.hasPrefix("merge-backup-")
+        && entry.pathExtension == "apkg" {
+        let modified = (try? entry.resourceValues(forKeys: [.contentModificationDateKey]))?
+            .contentModificationDate
+        guard let modified, modified < cutoff else { continue }
+        do {
+            try fileManager.removeItem(at: entry)
+            logger.info("Swept stale merge backup \(entry.lastPathComponent)")
+        } catch {
+            logger.warning("Failed to sweep stale merge backup \(entry.lastPathComponent): \(error.localizedDescription)")
+        }
+    }
 }
 
 extension SyncClient: DependencyKey {
