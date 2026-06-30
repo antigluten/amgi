@@ -7,9 +7,13 @@ public enum SyncDirection: Sendable {
 
 public struct SyncError: Error, LocalizedError, Sendable, Equatable {
     public let message: String
+    /// When set, an in-progress merge failed and the local-collection backup
+    /// .apkg has been left on disk at this path so the user can recover.
+    public let recoveryBackupPath: String?
 
-    public init(message: String) {
+    public init(message: String, recoveryBackupPath: String? = nil) {
         self.message = message
+        self.recoveryBackupPath = recoveryBackupPath
     }
 
     public var errorDescription: String? { message }

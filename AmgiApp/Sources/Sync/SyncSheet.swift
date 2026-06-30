@@ -52,7 +52,8 @@ struct SyncSheet: View {
             onSetUpServer: { showServerSetup = true },
             onRetryFooter: { Task { await coordinator.startSync() } },
             onStartSync: { Task { await startSync() } },
-            onFullSync: { direction in Task { await fullSync(direction) } }
+            onFullSync: { direction in Task { await fullSync(direction) } },
+            onMerge: { Task { await mergeFullSync() } }
         )
         .sheet(isPresented: $showLogin) {
             LoginSheet(isPresented: $showLogin) {
@@ -110,6 +111,7 @@ private extension SyncSheet {
     func logout() {
         KeychainHelper.deleteHostKey()
         KeychainHelper.deleteUsername()
+        KeychainHelper.deleteCurrentEndpoint()
         syncState = .idle
     }
 
@@ -119,6 +121,20 @@ private extension SyncSheet {
         )
         do {
             try await syncClient.fullSync(direction)
+            syncState = .success(SyncSummary())
+        } catch {
+            syncState = .error(error.localizedDescription)
+        }
+    }
+
+    func mergeFullSync() async {
+        syncState = .syncing("Preparing merge...")
+        do {
+            try await syncClient.merge { message in
+                Task { @MainActor in
+                    syncState = .syncing(message)
+                }
+            }
             syncState = .success(SyncSummary())
         } catch {
             syncState = .error(error.localizedDescription)
@@ -149,6 +165,10 @@ private struct SyncSheetContent: View {
     let onRetryFooter: () -> Void
     let onStartSync: () -> Void
     let onFullSync: (SyncDirection) -> Void
+    let onMerge: () -> Void
+
+    /// Direction awaiting the user's "this cannot be undone" confirmation.
+    @State private var pendingDestructiveChoice: SyncDirection?
 
     var body: some View {
         NavigationStack {
@@ -320,28 +340,83 @@ private struct SyncSheetContent: View {
                 .foregroundStyle(palette.warning)
             Text("Full Sync Required")
                 .amgiFont(.sectionHeading)
-            Text("Your collection has changed in a way that requires replacing one copy entirely.")
+            Text("Your local and server collections have diverged. Choose how to reconcile them — Merge is the safest option.")
                 .amgiFont(.caption)
                 .foregroundStyle(palette.textSecondary)
                 .multilineTextAlignment(.center)
 
             VStack(spacing: 8) {
                 Button {
-                    onFullSync(.download)
+                    onMerge()
                 } label: {
-                    Label("Download from Server", systemImage: "arrow.down.circle")
-                        .frame(maxWidth: .infinity)
+                    VStack(spacing: 2) {
+                        Label("Merge (combine both)", systemImage: "arrow.triangle.merge")
+                            .frame(maxWidth: .infinity)
+                        Text("Keeps cards from both sides; conflicts use newest")
+                            .font(.caption2)
+                            .foregroundStyle(.white.opacity(0.85))
+                    }
                 }
                 .buttonStyle(.borderedProminent)
 
-                Button {
-                    onFullSync(.upload)
+                Button(role: .destructive) {
+                    pendingDestructiveChoice = .download
                 } label: {
-                    Label("Upload to Server", systemImage: "arrow.up.circle")
-                        .frame(maxWidth: .infinity)
+                    VStack(spacing: 2) {
+                        Label("Replace local with server", systemImage: "arrow.down.circle")
+                            .frame(maxWidth: .infinity)
+                        Text("Local-only changes will be lost")
+                            .font(.caption2)
+                            .foregroundStyle(palette.textSecondary)
+                    }
+                }
+                .buttonStyle(.bordered)
+
+                Button(role: .destructive) {
+                    pendingDestructiveChoice = .upload
+                } label: {
+                    VStack(spacing: 2) {
+                        Label("Replace server with local", systemImage: "arrow.up.circle")
+                            .frame(maxWidth: .infinity)
+                        Text("Server-only changes will be lost")
+                            .font(.caption2)
+                            .foregroundStyle(palette.textSecondary)
+                    }
                 }
                 .buttonStyle(.bordered)
             }
+        }
+        .confirmationDialog(
+            "This cannot be undone",
+            isPresented: Binding(
+                get: { pendingDestructiveChoice != nil },
+                set: { if !$0 { pendingDestructiveChoice = nil } }
+            ),
+            titleVisibility: .visible,
+            presenting: pendingDestructiveChoice
+        ) { choice in
+            Button(destructiveButtonLabel(choice), role: .destructive) {
+                onFullSync(choice)
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { choice in
+            Text(destructiveDialogMessage(choice))
+        }
+    }
+
+    private func destructiveButtonLabel(_ choice: SyncDirection) -> String {
+        switch choice {
+        case .download: return "Replace Local"
+        case .upload: return "Replace Server"
+        }
+    }
+
+    private func destructiveDialogMessage(_ choice: SyncDirection) -> String {
+        switch choice {
+        case .download:
+            return "Your local collection will be permanently overwritten with the server's copy. Any cards or reviews that exist only locally will be lost."
+        case .upload:
+            return "The server's collection will be permanently overwritten with your local copy. Any cards or reviews that exist only on the server will be lost."
         }
     }
 
@@ -446,6 +521,7 @@ private extension ServerSetupSheet {
         $syncMode.withLock { $0 = .custom }
         // Clear existing auth since server changed
         KeychainHelper.deleteHostKey()
+        KeychainHelper.deleteCurrentEndpoint()
         isPresented = false
         onComplete()
     }
@@ -470,7 +546,8 @@ private extension ServerSetupSheet {
         onSetUpServer: {},
         onRetryFooter: {},
         onStartSync: {},
-        onFullSync: { _ in }
+        onFullSync: { _ in },
+        onMerge: {}
     )
 }
 
@@ -490,7 +567,8 @@ private extension ServerSetupSheet {
         onSetUpServer: {},
         onRetryFooter: {},
         onStartSync: {},
-        onFullSync: { _ in }
+        onFullSync: { _ in },
+        onMerge: {}
     )
 }
 
@@ -510,7 +588,8 @@ private extension ServerSetupSheet {
         onSetUpServer: {},
         onRetryFooter: {},
         onStartSync: {},
-        onFullSync: { _ in }
+        onFullSync: { _ in },
+        onMerge: {}
     )
 }
 #endif
