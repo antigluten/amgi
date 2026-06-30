@@ -16,6 +16,16 @@ public struct ImportExportService: Sendable {
         _ withMedia: Bool,
         _ legacy: Bool
     ) throws -> UInt32
+
+    /// Export the entire current collection as an .apkg suitable for the merge
+    /// flow (re-importable into another collection). Always includes media,
+    /// scheduling, and deck configs.
+    public var exportApkgForMerge: @Sendable (_ outPath: String) throws -> Void
+
+    /// Import an .apkg into the current collection using merge-friendly
+    /// options (merge notetypes, update notes/notetypes if newer). Returns
+    /// the import log summary string.
+    public var importApkgForMerge: @Sendable (_ path: String) throws -> String
 }
 
 extension ImportExportService: DependencyKey {
@@ -38,6 +48,13 @@ extension ImportExportService: DependencyKey {
                     withMedia: withMedia,
                     legacy: legacy
                 ))
+            },
+            exportApkgForMerge: { outPath in
+                try backend.invoke(.exportAnkiPackageForMerge(outPath: outPath))
+            },
+            importApkgForMerge: { path in
+                let log = try backend.invoke(.importAnkiPackageForMerge(path: path))
+                return "Merged: \(log.newCount) new, \(log.updatedCount) updated, \(log.duplicateCount) duplicates"
             }
         )
     }()
