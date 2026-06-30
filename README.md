@@ -87,7 +87,7 @@ cd amgi
 ```bash
 # Rust toolchain
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-rustup target add aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios-simulator
+rustup target add aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios
 
 # Protobuf compiler and Swift plugin
 brew install protobuf swift-protobuf
@@ -113,8 +113,8 @@ This cross-compiles the Rust bridge for iOS device and simulator, then packages 
 ### 5. Open in Xcode
 
 ```bash
-cd AnkiApp && xcodegen generate && cd ..
-open AnkiApp/AnkiApp.xcodeproj
+cd AmgiApp && xcodegen generate && cd ..
+open AmgiApp/AmgiApp.xcodeproj
 ```
 
 ### 6. Build and Run
