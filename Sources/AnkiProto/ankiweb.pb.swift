@@ -18,12 +18,12 @@ public import SwiftProtobuf
 // incompatible with the version of SwiftProtobuf to which you are linking.
 // Please ensure that you are building against the same version of the API
 // that was used to generate this file.
-fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
+fileprivate nonisolated struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
   struct _2: SwiftProtobuf.ProtobufAPIVersion_2 {}
   typealias Version = _2
 }
 
-public struct Anki_Ankiweb_GetAddonInfoRequest: Sendable {
+public nonisolated struct Anki_Ankiweb_GetAddonInfoRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -37,7 +37,7 @@ public struct Anki_Ankiweb_GetAddonInfoRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Ankiweb_GetAddonInfoResponse: Sendable {
+public nonisolated struct Anki_Ankiweb_GetAddonInfoResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -49,7 +49,7 @@ public struct Anki_Ankiweb_GetAddonInfoResponse: Sendable {
   public init() {}
 }
 
-public struct Anki_Ankiweb_AddonInfo: Sendable {
+public nonisolated struct Anki_Ankiweb_AddonInfo: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -67,7 +67,7 @@ public struct Anki_Ankiweb_AddonInfo: Sendable {
   public init() {}
 }
 
-public struct Anki_Ankiweb_CheckForUpdateRequest: Sendable {
+public nonisolated struct Anki_Ankiweb_CheckForUpdateRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -87,7 +87,7 @@ public struct Anki_Ankiweb_CheckForUpdateRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Ankiweb_CheckForUpdateResponse: Sendable {
+public nonisolated struct Anki_Ankiweb_CheckForUpdateResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -124,9 +124,9 @@ public struct Anki_Ankiweb_CheckForUpdateResponse: Sendable {
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
-fileprivate let _protobuf_package = "anki.ankiweb"
+fileprivate nonisolated let _protobuf_package = "anki.ankiweb"
 
-extension Anki_Ankiweb_GetAddonInfoRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Ankiweb_GetAddonInfoRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".GetAddonInfoRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}client_version\0\u{3}addon_ids\0")
 
@@ -161,7 +161,7 @@ extension Anki_Ankiweb_GetAddonInfoRequest: SwiftProtobuf.Message, SwiftProtobuf
   }
 }
 
-extension Anki_Ankiweb_GetAddonInfoResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Ankiweb_GetAddonInfoResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".GetAddonInfoResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}info\0")
 
@@ -191,7 +191,7 @@ extension Anki_Ankiweb_GetAddonInfoResponse: SwiftProtobuf.Message, SwiftProtobu
   }
 }
 
-extension Anki_Ankiweb_AddonInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Ankiweb_AddonInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".AddonInfo"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{1}modified\0\u{3}min_version\0\u{3}max_version\0")
 
@@ -236,7 +236,7 @@ extension Anki_Ankiweb_AddonInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageI
   }
 }
 
-extension Anki_Ankiweb_CheckForUpdateRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Ankiweb_CheckForUpdateRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".CheckForUpdateRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}version\0\u{1}buildhash\0\u{1}os\0\u{3}install_id\0\u{3}last_message_id\0")
 
@@ -286,7 +286,7 @@ extension Anki_Ankiweb_CheckForUpdateRequest: SwiftProtobuf.Message, SwiftProtob
   }
 }
 
-extension Anki_Ankiweb_CheckForUpdateResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Ankiweb_CheckForUpdateResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".CheckForUpdateResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}new_version\0\u{3}current_time\0\u{1}message\0\u{3}last_message_id\0")
 

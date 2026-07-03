@@ -18,12 +18,12 @@ public import SwiftProtobuf
 // incompatible with the version of SwiftProtobuf to which you are linking.
 // Please ensure that you are building against the same version of the API
 // that was used to generate this file.
-fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
+fileprivate nonisolated struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
   struct _2: SwiftProtobuf.ProtobufAPIVersion_2 {}
   typealias Version = _2
 }
 
-public struct Anki_Backend_BackendInit: Sendable {
+public nonisolated struct Anki_Backend_BackendInit: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -39,7 +39,7 @@ public struct Anki_Backend_BackendInit: Sendable {
   public init() {}
 }
 
-public struct Anki_Backend_I18nBackendInit: Sendable {
+public nonisolated struct Anki_Backend_I18nBackendInit: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -53,7 +53,7 @@ public struct Anki_Backend_I18nBackendInit: Sendable {
   public init() {}
 }
 
-public struct Anki_Backend_BackendError: Sendable {
+public nonisolated struct Anki_Backend_BackendError: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -82,7 +82,7 @@ public struct Anki_Backend_BackendError: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum Kind: SwiftProtobuf.Enum, Swift.CaseIterable {
+  public nonisolated enum Kind: SwiftProtobuf.Enum, Swift.CaseIterable {
     public typealias RawValue = Int
     case invalidInput // = 0
     case undoEmpty // = 1
@@ -213,9 +213,9 @@ public struct Anki_Backend_BackendError: Sendable {
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
-fileprivate let _protobuf_package = "anki.backend"
+fileprivate nonisolated let _protobuf_package = "anki.backend"
 
-extension Anki_Backend_BackendInit: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Backend_BackendInit: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".BackendInit"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}preferred_langs\0\u{3}locale_folder_path\0\u{1}server\0")
 
@@ -255,7 +255,7 @@ extension Anki_Backend_BackendInit: SwiftProtobuf.Message, SwiftProtobuf._Messag
   }
 }
 
-extension Anki_Backend_I18nBackendInit: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Backend_I18nBackendInit: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".I18nBackendInit"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{4}\u{4}preferred_langs\0\u{3}locale_folder_path\0")
 
@@ -290,7 +290,7 @@ extension Anki_Backend_I18nBackendInit: SwiftProtobuf.Message, SwiftProtobuf._Me
   }
 }
 
-extension Anki_Backend_BackendError: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Backend_BackendError: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".BackendError"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}message\0\u{1}kind\0\u{3}help_page\0\u{1}context\0\u{1}backtrace\0")
 
@@ -344,6 +344,6 @@ extension Anki_Backend_BackendError: SwiftProtobuf.Message, SwiftProtobuf._Messa
   }
 }
 
-extension Anki_Backend_BackendError.Kind: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Backend_BackendError.Kind: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0INVALID_INPUT\0\u{1}UNDO_EMPTY\0\u{1}INTERRUPTED\0\u{1}TEMPLATE_PARSE\0\u{1}IO_ERROR\0\u{1}DB_ERROR\0\u{1}NETWORK_ERROR\0\u{1}SYNC_AUTH_ERROR\0\u{1}SYNC_OTHER_ERROR\0\u{1}JSON_ERROR\0\u{1}PROTO_ERROR\0\u{1}NOT_FOUND_ERROR\0\u{1}EXISTS\0\u{1}FILTERED_DECK_ERROR\0\u{1}SEARCH_ERROR\0\u{1}CUSTOM_STUDY_ERROR\0\u{1}IMPORT_ERROR\0\u{1}DELETED\0\u{1}CARD_TYPE_ERROR\0\u{1}ANKIDROID_PANIC_ERROR\0\u{1}OS_ERROR\0\u{1}SCHEDULER_UPGRADE_REQUIRED\0\u{1}INVALID_CERTIFICATE_FORMAT\0\u{1}SYNC_SERVER_MESSAGE\0")
 }

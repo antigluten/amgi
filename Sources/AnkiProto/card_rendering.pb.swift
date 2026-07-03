@@ -23,12 +23,12 @@ public import SwiftProtobuf
 // incompatible with the version of SwiftProtobuf to which you are linking.
 // Please ensure that you are building against the same version of the API
 // that was used to generate this file.
-fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
+fileprivate nonisolated struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
   struct _2: SwiftProtobuf.ProtobufAPIVersion_2 {}
   typealias Version = _2
 }
 
-public struct Anki_CardRendering_ExtractAvTagsRequest: Sendable {
+public nonisolated struct Anki_CardRendering_ExtractAvTagsRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -42,7 +42,7 @@ public struct Anki_CardRendering_ExtractAvTagsRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_CardRendering_ExtractAvTagsResponse: Sendable {
+public nonisolated struct Anki_CardRendering_ExtractAvTagsResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -56,7 +56,7 @@ public struct Anki_CardRendering_ExtractAvTagsResponse: Sendable {
   public init() {}
 }
 
-public struct Anki_CardRendering_AVTag: Sendable {
+public nonisolated struct Anki_CardRendering_AVTag: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -81,7 +81,7 @@ public struct Anki_CardRendering_AVTag: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum OneOf_Value: Equatable, Sendable {
+  public nonisolated enum OneOf_Value: Equatable, Sendable {
     case soundOrVideo(String)
     case tts(Anki_CardRendering_TTSTag)
 
@@ -90,7 +90,7 @@ public struct Anki_CardRendering_AVTag: Sendable {
   public init() {}
 }
 
-public struct Anki_CardRendering_TTSTag: Sendable {
+public nonisolated struct Anki_CardRendering_TTSTag: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -110,7 +110,7 @@ public struct Anki_CardRendering_TTSTag: Sendable {
   public init() {}
 }
 
-public struct Anki_CardRendering_ExtractLatexRequest: Sendable {
+public nonisolated struct Anki_CardRendering_ExtractLatexRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -126,7 +126,7 @@ public struct Anki_CardRendering_ExtractLatexRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_CardRendering_ExtractLatexResponse: Sendable {
+public nonisolated struct Anki_CardRendering_ExtractLatexResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -140,7 +140,7 @@ public struct Anki_CardRendering_ExtractLatexResponse: Sendable {
   public init() {}
 }
 
-public struct Anki_CardRendering_ExtractedLatex: Sendable {
+public nonisolated struct Anki_CardRendering_ExtractedLatex: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -154,7 +154,7 @@ public struct Anki_CardRendering_ExtractedLatex: Sendable {
   public init() {}
 }
 
-public struct Anki_CardRendering_EmptyCardsReport: Sendable {
+public nonisolated struct Anki_CardRendering_EmptyCardsReport: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -165,7 +165,7 @@ public struct Anki_CardRendering_EmptyCardsReport: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public struct NoteWithEmptyCards: Sendable {
+  public nonisolated struct NoteWithEmptyCards: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -184,7 +184,7 @@ public struct Anki_CardRendering_EmptyCardsReport: Sendable {
   public init() {}
 }
 
-public struct Anki_CardRendering_RenderExistingCardRequest: Sendable {
+public nonisolated struct Anki_CardRendering_RenderExistingCardRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -203,7 +203,7 @@ public struct Anki_CardRendering_RenderExistingCardRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_CardRendering_RenderUncommittedCardRequest: @unchecked Sendable {
+public nonisolated struct Anki_CardRendering_RenderUncommittedCardRequest: @unchecked Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -251,7 +251,7 @@ public struct Anki_CardRendering_RenderUncommittedCardRequest: @unchecked Sendab
   fileprivate var _storage = _StorageClass.defaultInstance
 }
 
-public struct Anki_CardRendering_RenderUncommittedCardLegacyRequest: Sendable {
+public nonisolated struct Anki_CardRendering_RenderUncommittedCardLegacyRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -283,7 +283,7 @@ public struct Anki_CardRendering_RenderUncommittedCardLegacyRequest: Sendable {
   fileprivate var _note: Anki_Notes_Note? = nil
 }
 
-public struct Anki_CardRendering_RenderCardResponse: Sendable {
+public nonisolated struct Anki_CardRendering_RenderCardResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -303,7 +303,7 @@ public struct Anki_CardRendering_RenderCardResponse: Sendable {
   public init() {}
 }
 
-public struct Anki_CardRendering_RenderedTemplateNode: Sendable {
+public nonisolated struct Anki_CardRendering_RenderedTemplateNode: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -328,7 +328,7 @@ public struct Anki_CardRendering_RenderedTemplateNode: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum OneOf_Value: Equatable, Sendable {
+  public nonisolated enum OneOf_Value: Equatable, Sendable {
     case text(String)
     case replacement(Anki_CardRendering_RenderedTemplateReplacement)
 
@@ -337,7 +337,7 @@ public struct Anki_CardRendering_RenderedTemplateNode: Sendable {
   public init() {}
 }
 
-public struct Anki_CardRendering_RenderedTemplateReplacement: Sendable {
+public nonisolated struct Anki_CardRendering_RenderedTemplateReplacement: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -353,7 +353,7 @@ public struct Anki_CardRendering_RenderedTemplateReplacement: Sendable {
   public init() {}
 }
 
-public struct Anki_CardRendering_RenderMarkdownRequest: Sendable {
+public nonisolated struct Anki_CardRendering_RenderMarkdownRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -367,7 +367,7 @@ public struct Anki_CardRendering_RenderMarkdownRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_CardRendering_StripHtmlRequest: Sendable {
+public nonisolated struct Anki_CardRendering_StripHtmlRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -378,7 +378,7 @@ public struct Anki_CardRendering_StripHtmlRequest: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum Mode: SwiftProtobuf.Enum, Swift.CaseIterable {
+  public nonisolated enum Mode: SwiftProtobuf.Enum, Swift.CaseIterable {
     public typealias RawValue = Int
     case normal // = 0
     case preserveMediaFilenames // = 1
@@ -415,7 +415,7 @@ public struct Anki_CardRendering_StripHtmlRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_CardRendering_HtmlToTextLineRequest: Sendable {
+public nonisolated struct Anki_CardRendering_HtmlToTextLineRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -429,7 +429,7 @@ public struct Anki_CardRendering_HtmlToTextLineRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_CardRendering_CompareAnswerRequest: Sendable {
+public nonisolated struct Anki_CardRendering_CompareAnswerRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -445,7 +445,7 @@ public struct Anki_CardRendering_CompareAnswerRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_CardRendering_ExtractClozeForTypingRequest: Sendable {
+public nonisolated struct Anki_CardRendering_ExtractClozeForTypingRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -459,7 +459,7 @@ public struct Anki_CardRendering_ExtractClozeForTypingRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_CardRendering_AllTtsVoicesRequest: Sendable {
+public nonisolated struct Anki_CardRendering_AllTtsVoicesRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -471,7 +471,7 @@ public struct Anki_CardRendering_AllTtsVoicesRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_CardRendering_AllTtsVoicesResponse: Sendable {
+public nonisolated struct Anki_CardRendering_AllTtsVoicesResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -480,7 +480,7 @@ public struct Anki_CardRendering_AllTtsVoicesResponse: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public struct TtsVoice: Sendable {
+  public nonisolated struct TtsVoice: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -510,7 +510,7 @@ public struct Anki_CardRendering_AllTtsVoicesResponse: Sendable {
   public init() {}
 }
 
-public struct Anki_CardRendering_WriteTtsStreamRequest: Sendable {
+public nonisolated struct Anki_CardRendering_WriteTtsStreamRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -530,9 +530,9 @@ public struct Anki_CardRendering_WriteTtsStreamRequest: Sendable {
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
-fileprivate let _protobuf_package = "anki.card_rendering"
+fileprivate nonisolated let _protobuf_package = "anki.card_rendering"
 
-extension Anki_CardRendering_ExtractAvTagsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_CardRendering_ExtractAvTagsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ExtractAvTagsRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}text\0\u{3}question_side\0")
 
@@ -567,7 +567,7 @@ extension Anki_CardRendering_ExtractAvTagsRequest: SwiftProtobuf.Message, SwiftP
   }
 }
 
-extension Anki_CardRendering_ExtractAvTagsResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_CardRendering_ExtractAvTagsResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ExtractAvTagsResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}text\0\u{3}av_tags\0")
 
@@ -602,7 +602,7 @@ extension Anki_CardRendering_ExtractAvTagsResponse: SwiftProtobuf.Message, Swift
   }
 }
 
-extension Anki_CardRendering_AVTag: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_CardRendering_AVTag: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".AVTag"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}sound_or_video\0\u{1}tts\0")
 
@@ -664,7 +664,7 @@ extension Anki_CardRendering_AVTag: SwiftProtobuf.Message, SwiftProtobuf._Messag
   }
 }
 
-extension Anki_CardRendering_TTSTag: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_CardRendering_TTSTag: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".TTSTag"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}field_text\0\u{1}lang\0\u{1}voices\0\u{1}speed\0\u{3}other_args\0")
 
@@ -714,7 +714,7 @@ extension Anki_CardRendering_TTSTag: SwiftProtobuf.Message, SwiftProtobuf._Messa
   }
 }
 
-extension Anki_CardRendering_ExtractLatexRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_CardRendering_ExtractLatexRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ExtractLatexRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}text\0\u{1}svg\0\u{3}expand_clozes\0")
 
@@ -754,7 +754,7 @@ extension Anki_CardRendering_ExtractLatexRequest: SwiftProtobuf.Message, SwiftPr
   }
 }
 
-extension Anki_CardRendering_ExtractLatexResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_CardRendering_ExtractLatexResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ExtractLatexResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}text\0\u{1}latex\0")
 
@@ -789,7 +789,7 @@ extension Anki_CardRendering_ExtractLatexResponse: SwiftProtobuf.Message, SwiftP
   }
 }
 
-extension Anki_CardRendering_ExtractedLatex: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_CardRendering_ExtractedLatex: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ExtractedLatex"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}filename\0\u{3}latex_body\0")
 
@@ -824,7 +824,7 @@ extension Anki_CardRendering_ExtractedLatex: SwiftProtobuf.Message, SwiftProtobu
   }
 }
 
-extension Anki_CardRendering_EmptyCardsReport: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_CardRendering_EmptyCardsReport: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".EmptyCardsReport"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}report\0\u{1}notes\0")
 
@@ -859,7 +859,7 @@ extension Anki_CardRendering_EmptyCardsReport: SwiftProtobuf.Message, SwiftProto
   }
 }
 
-extension Anki_CardRendering_EmptyCardsReport.NoteWithEmptyCards: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_CardRendering_EmptyCardsReport.NoteWithEmptyCards: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_CardRendering_EmptyCardsReport.protoMessageName + ".NoteWithEmptyCards"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}note_id\0\u{3}card_ids\0\u{3}will_delete_note\0")
 
@@ -899,7 +899,7 @@ extension Anki_CardRendering_EmptyCardsReport.NoteWithEmptyCards: SwiftProtobuf.
   }
 }
 
-extension Anki_CardRendering_RenderExistingCardRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_CardRendering_RenderExistingCardRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".RenderExistingCardRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}card_id\0\u{1}browser\0\u{3}partial_render\0")
 
@@ -939,7 +939,7 @@ extension Anki_CardRendering_RenderExistingCardRequest: SwiftProtobuf.Message, S
   }
 }
 
-extension Anki_CardRendering_RenderUncommittedCardRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_CardRendering_RenderUncommittedCardRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".RenderUncommittedCardRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}note\0\u{3}card_ord\0\u{1}template\0\u{3}fill_empty\0\u{3}partial_render\0")
 
@@ -1037,7 +1037,7 @@ extension Anki_CardRendering_RenderUncommittedCardRequest: SwiftProtobuf.Message
   }
 }
 
-extension Anki_CardRendering_RenderUncommittedCardLegacyRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_CardRendering_RenderUncommittedCardLegacyRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".RenderUncommittedCardLegacyRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}note\0\u{3}card_ord\0\u{1}template\0\u{3}fill_empty\0\u{3}partial_render\0")
 
@@ -1091,7 +1091,7 @@ extension Anki_CardRendering_RenderUncommittedCardLegacyRequest: SwiftProtobuf.M
   }
 }
 
-extension Anki_CardRendering_RenderCardResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_CardRendering_RenderCardResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".RenderCardResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}question_nodes\0\u{3}answer_nodes\0\u{1}css\0\u{3}latex_svg\0\u{3}is_empty\0")
 
@@ -1141,7 +1141,7 @@ extension Anki_CardRendering_RenderCardResponse: SwiftProtobuf.Message, SwiftPro
   }
 }
 
-extension Anki_CardRendering_RenderedTemplateNode: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_CardRendering_RenderedTemplateNode: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".RenderedTemplateNode"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}text\0\u{1}replacement\0")
 
@@ -1203,7 +1203,7 @@ extension Anki_CardRendering_RenderedTemplateNode: SwiftProtobuf.Message, SwiftP
   }
 }
 
-extension Anki_CardRendering_RenderedTemplateReplacement: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_CardRendering_RenderedTemplateReplacement: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".RenderedTemplateReplacement"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}field_name\0\u{3}current_text\0\u{1}filters\0")
 
@@ -1243,7 +1243,7 @@ extension Anki_CardRendering_RenderedTemplateReplacement: SwiftProtobuf.Message,
   }
 }
 
-extension Anki_CardRendering_RenderMarkdownRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_CardRendering_RenderMarkdownRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".RenderMarkdownRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}markdown\0\u{1}sanitize\0")
 
@@ -1278,7 +1278,7 @@ extension Anki_CardRendering_RenderMarkdownRequest: SwiftProtobuf.Message, Swift
   }
 }
 
-extension Anki_CardRendering_StripHtmlRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_CardRendering_StripHtmlRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".StripHtmlRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}text\0\u{1}mode\0")
 
@@ -1313,11 +1313,11 @@ extension Anki_CardRendering_StripHtmlRequest: SwiftProtobuf.Message, SwiftProto
   }
 }
 
-extension Anki_CardRendering_StripHtmlRequest.Mode: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_CardRendering_StripHtmlRequest.Mode: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0NORMAL\0\u{1}PRESERVE_MEDIA_FILENAMES\0")
 }
 
-extension Anki_CardRendering_HtmlToTextLineRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_CardRendering_HtmlToTextLineRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".HtmlToTextLineRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}text\0\u{3}preserve_media_filenames\0")
 
@@ -1352,7 +1352,7 @@ extension Anki_CardRendering_HtmlToTextLineRequest: SwiftProtobuf.Message, Swift
   }
 }
 
-extension Anki_CardRendering_CompareAnswerRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_CardRendering_CompareAnswerRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".CompareAnswerRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}expected\0\u{1}provided\0\u{1}combining\0")
 
@@ -1392,7 +1392,7 @@ extension Anki_CardRendering_CompareAnswerRequest: SwiftProtobuf.Message, SwiftP
   }
 }
 
-extension Anki_CardRendering_ExtractClozeForTypingRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_CardRendering_ExtractClozeForTypingRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ExtractClozeForTypingRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}text\0\u{1}ordinal\0")
 
@@ -1427,7 +1427,7 @@ extension Anki_CardRendering_ExtractClozeForTypingRequest: SwiftProtobuf.Message
   }
 }
 
-extension Anki_CardRendering_AllTtsVoicesRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_CardRendering_AllTtsVoicesRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".AllTtsVoicesRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}validate\0")
 
@@ -1457,7 +1457,7 @@ extension Anki_CardRendering_AllTtsVoicesRequest: SwiftProtobuf.Message, SwiftPr
   }
 }
 
-extension Anki_CardRendering_AllTtsVoicesResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_CardRendering_AllTtsVoicesResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".AllTtsVoicesResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}voices\0")
 
@@ -1487,7 +1487,7 @@ extension Anki_CardRendering_AllTtsVoicesResponse: SwiftProtobuf.Message, SwiftP
   }
 }
 
-extension Anki_CardRendering_AllTtsVoicesResponse.TtsVoice: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_CardRendering_AllTtsVoicesResponse.TtsVoice: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_CardRendering_AllTtsVoicesResponse.protoMessageName + ".TtsVoice"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{1}name\0\u{1}language\0\u{1}available\0")
 
@@ -1536,7 +1536,7 @@ extension Anki_CardRendering_AllTtsVoicesResponse.TtsVoice: SwiftProtobuf.Messag
   }
 }
 
-extension Anki_CardRendering_WriteTtsStreamRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_CardRendering_WriteTtsStreamRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".WriteTtsStreamRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}path\0\u{3}voice_id\0\u{1}speed\0\u{1}text\0")
 

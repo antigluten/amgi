@@ -18,12 +18,12 @@ public import SwiftProtobuf
 // incompatible with the version of SwiftProtobuf to which you are linking.
 // Please ensure that you are building against the same version of the API
 // that was used to generate this file.
-fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
+fileprivate nonisolated struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
   struct _2: SwiftProtobuf.ProtobufAPIVersion_2 {}
   typealias Version = _2
 }
 
-public struct Anki_I18n_TranslateStringRequest: Sendable {
+public nonisolated struct Anki_I18n_TranslateStringRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -39,7 +39,7 @@ public struct Anki_I18n_TranslateStringRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_I18n_TranslateArgValue: Sendable {
+public nonisolated struct Anki_I18n_TranslateArgValue: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -64,7 +64,7 @@ public struct Anki_I18n_TranslateArgValue: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum OneOf_Value: Equatable, Sendable {
+  public nonisolated enum OneOf_Value: Equatable, Sendable {
     case str(String)
     case number(Double)
 
@@ -73,7 +73,7 @@ public struct Anki_I18n_TranslateArgValue: Sendable {
   public init() {}
 }
 
-public struct Anki_I18n_FormatTimespanRequest: Sendable {
+public nonisolated struct Anki_I18n_FormatTimespanRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -84,7 +84,7 @@ public struct Anki_I18n_FormatTimespanRequest: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum Context: SwiftProtobuf.Enum, Swift.CaseIterable {
+  public nonisolated enum Context: SwiftProtobuf.Enum, Swift.CaseIterable {
     public typealias RawValue = Int
     case precise // = 0
     case answerButtons // = 1
@@ -125,7 +125,7 @@ public struct Anki_I18n_FormatTimespanRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_I18n_I18nResourcesRequest: Sendable {
+public nonisolated struct Anki_I18n_I18nResourcesRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -139,9 +139,9 @@ public struct Anki_I18n_I18nResourcesRequest: Sendable {
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
-fileprivate let _protobuf_package = "anki.i18n"
+fileprivate nonisolated let _protobuf_package = "anki.i18n"
 
-extension Anki_I18n_TranslateStringRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_I18n_TranslateStringRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".TranslateStringRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}module_index\0\u{3}message_index\0\u{1}args\0")
 
@@ -181,7 +181,7 @@ extension Anki_I18n_TranslateStringRequest: SwiftProtobuf.Message, SwiftProtobuf
   }
 }
 
-extension Anki_I18n_TranslateArgValue: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_I18n_TranslateArgValue: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".TranslateArgValue"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}str\0\u{1}number\0")
 
@@ -238,7 +238,7 @@ extension Anki_I18n_TranslateArgValue: SwiftProtobuf.Message, SwiftProtobuf._Mes
   }
 }
 
-extension Anki_I18n_FormatTimespanRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_I18n_FormatTimespanRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".FormatTimespanRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}seconds\0\u{1}context\0")
 
@@ -273,11 +273,11 @@ extension Anki_I18n_FormatTimespanRequest: SwiftProtobuf.Message, SwiftProtobuf.
   }
 }
 
-extension Anki_I18n_FormatTimespanRequest.Context: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_I18n_FormatTimespanRequest.Context: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0PRECISE\0\u{1}ANSWER_BUTTONS\0\u{1}INTERVALS\0")
 }
 
-extension Anki_I18n_I18nResourcesRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_I18n_I18nResourcesRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".I18nResourcesRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}modules\0")
 

@@ -23,12 +23,12 @@ public import SwiftProtobuf
 // incompatible with the version of SwiftProtobuf to which you are linking.
 // Please ensure that you are building against the same version of the API
 // that was used to generate this file.
-fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
+fileprivate nonisolated struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
   struct _2: SwiftProtobuf.ProtobufAPIVersion_2 {}
   typealias Version = _2
 }
 
-public struct Anki_Media_CheckMediaResponse: Sendable {
+public nonisolated struct Anki_Media_CheckMediaResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -48,7 +48,7 @@ public struct Anki_Media_CheckMediaResponse: Sendable {
   public init() {}
 }
 
-public struct Anki_Media_TrashMediaFilesRequest: Sendable {
+public nonisolated struct Anki_Media_TrashMediaFilesRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -60,7 +60,7 @@ public struct Anki_Media_TrashMediaFilesRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Media_AddMediaFileRequest: Sendable {
+public nonisolated struct Anki_Media_AddMediaFileRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -76,9 +76,9 @@ public struct Anki_Media_AddMediaFileRequest: Sendable {
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
-fileprivate let _protobuf_package = "anki.media"
+fileprivate nonisolated let _protobuf_package = "anki.media"
 
-extension Anki_Media_CheckMediaResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Media_CheckMediaResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".CheckMediaResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}unused\0\u{1}missing\0\u{3}missing_media_notes\0\u{1}report\0\u{3}have_trash\0")
 
@@ -128,7 +128,7 @@ extension Anki_Media_CheckMediaResponse: SwiftProtobuf.Message, SwiftProtobuf._M
   }
 }
 
-extension Anki_Media_TrashMediaFilesRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Media_TrashMediaFilesRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".TrashMediaFilesRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}fnames\0")
 
@@ -158,7 +158,7 @@ extension Anki_Media_TrashMediaFilesRequest: SwiftProtobuf.Message, SwiftProtobu
   }
 }
 
-extension Anki_Media_AddMediaFileRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Media_AddMediaFileRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".AddMediaFileRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}desired_name\0\u{1}data\0")
 

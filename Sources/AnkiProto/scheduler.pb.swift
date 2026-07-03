@@ -18,12 +18,12 @@ public import SwiftProtobuf
 // incompatible with the version of SwiftProtobuf to which you are linking.
 // Please ensure that you are building against the same version of the API
 // that was used to generate this file.
-fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
+fileprivate nonisolated struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
   struct _2: SwiftProtobuf.ProtobufAPIVersion_2 {}
   typealias Version = _2
 }
 
-public struct Anki_Scheduler_SchedulingState: Sendable {
+public nonisolated struct Anki_Scheduler_SchedulingState: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -60,13 +60,13 @@ public struct Anki_Scheduler_SchedulingState: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum OneOf_Kind: Equatable, Sendable {
+  public nonisolated enum OneOf_Kind: Equatable, Sendable {
     case normal(Anki_Scheduler_SchedulingState.Normal)
     case filtered(Anki_Scheduler_SchedulingState.Filtered)
 
   }
 
-  public struct New: Sendable {
+  public nonisolated struct New: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -78,7 +78,7 @@ public struct Anki_Scheduler_SchedulingState: Sendable {
     public init() {}
   }
 
-  public struct Learning: Sendable {
+  public nonisolated struct Learning: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -105,7 +105,7 @@ public struct Anki_Scheduler_SchedulingState: Sendable {
     fileprivate var _memoryState: Anki_Cards_FsrsMemoryState? = nil
   }
 
-  public struct Review: Sendable {
+  public nonisolated struct Review: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -136,7 +136,7 @@ public struct Anki_Scheduler_SchedulingState: Sendable {
     fileprivate var _memoryState: Anki_Cards_FsrsMemoryState? = nil
   }
 
-  public struct Relearning: Sendable {
+  public nonisolated struct Relearning: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -167,7 +167,7 @@ public struct Anki_Scheduler_SchedulingState: Sendable {
     fileprivate var _learning: Anki_Scheduler_SchedulingState.Learning? = nil
   }
 
-  public struct Normal: Sendable {
+  public nonisolated struct Normal: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -208,7 +208,7 @@ public struct Anki_Scheduler_SchedulingState: Sendable {
 
     public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-    public enum OneOf_Kind: Equatable, Sendable {
+    public nonisolated enum OneOf_Kind: Equatable, Sendable {
       case new(Anki_Scheduler_SchedulingState.New)
       case learning(Anki_Scheduler_SchedulingState.Learning)
       case review(Anki_Scheduler_SchedulingState.Review)
@@ -219,7 +219,7 @@ public struct Anki_Scheduler_SchedulingState: Sendable {
     public init() {}
   }
 
-  public struct Preview: Sendable {
+  public nonisolated struct Preview: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -233,7 +233,7 @@ public struct Anki_Scheduler_SchedulingState: Sendable {
     public init() {}
   }
 
-  public struct ReschedulingFilter: Sendable {
+  public nonisolated struct ReschedulingFilter: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -254,7 +254,7 @@ public struct Anki_Scheduler_SchedulingState: Sendable {
     fileprivate var _originalState: Anki_Scheduler_SchedulingState.Normal? = nil
   }
 
-  public struct Filtered: Sendable {
+  public nonisolated struct Filtered: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -279,7 +279,7 @@ public struct Anki_Scheduler_SchedulingState: Sendable {
 
     public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-    public enum OneOf_Kind: Equatable, Sendable {
+    public nonisolated enum OneOf_Kind: Equatable, Sendable {
       case preview(Anki_Scheduler_SchedulingState.Preview)
       case rescheduling(Anki_Scheduler_SchedulingState.ReschedulingFilter)
 
@@ -293,7 +293,7 @@ public struct Anki_Scheduler_SchedulingState: Sendable {
   fileprivate var _customData: String? = nil
 }
 
-public struct Anki_Scheduler_QueuedCards: Sendable {
+public nonisolated struct Anki_Scheduler_QueuedCards: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -308,7 +308,7 @@ public struct Anki_Scheduler_QueuedCards: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum Queue: SwiftProtobuf.Enum, Swift.CaseIterable {
+  public nonisolated enum Queue: SwiftProtobuf.Enum, Swift.CaseIterable {
     public typealias RawValue = Int
     case new // = 0
     case learning // = 1
@@ -346,7 +346,7 @@ public struct Anki_Scheduler_QueuedCards: Sendable {
 
   }
 
-  public struct QueuedCard: Sendable {
+  public nonisolated struct QueuedCard: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -392,7 +392,7 @@ public struct Anki_Scheduler_QueuedCards: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_GetQueuedCardsRequest: Sendable {
+public nonisolated struct Anki_Scheduler_GetQueuedCardsRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -406,7 +406,7 @@ public struct Anki_Scheduler_GetQueuedCardsRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_SchedTimingTodayResponse: Sendable {
+public nonisolated struct Anki_Scheduler_SchedTimingTodayResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -420,7 +420,7 @@ public struct Anki_Scheduler_SchedTimingTodayResponse: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_StudiedTodayMessageRequest: Sendable {
+public nonisolated struct Anki_Scheduler_StudiedTodayMessageRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -434,7 +434,7 @@ public struct Anki_Scheduler_StudiedTodayMessageRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_UpdateStatsRequest: Sendable {
+public nonisolated struct Anki_Scheduler_UpdateStatsRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -452,7 +452,7 @@ public struct Anki_Scheduler_UpdateStatsRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_ExtendLimitsRequest: Sendable {
+public nonisolated struct Anki_Scheduler_ExtendLimitsRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -468,7 +468,7 @@ public struct Anki_Scheduler_ExtendLimitsRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_CountsForDeckTodayResponse: Sendable {
+public nonisolated struct Anki_Scheduler_CountsForDeckTodayResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -482,7 +482,7 @@ public struct Anki_Scheduler_CountsForDeckTodayResponse: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_CongratsInfoResponse: Sendable {
+public nonisolated struct Anki_Scheduler_CongratsInfoResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -510,7 +510,7 @@ public struct Anki_Scheduler_CongratsInfoResponse: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_UnburyDeckRequest: Sendable {
+public nonisolated struct Anki_Scheduler_UnburyDeckRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -521,7 +521,7 @@ public struct Anki_Scheduler_UnburyDeckRequest: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum Mode: SwiftProtobuf.Enum, Swift.CaseIterable {
+  public nonisolated enum Mode: SwiftProtobuf.Enum, Swift.CaseIterable {
     public typealias RawValue = Int
     case all // = 0
     case schedOnly // = 1
@@ -562,7 +562,7 @@ public struct Anki_Scheduler_UnburyDeckRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_BuryOrSuspendCardsRequest: Sendable {
+public nonisolated struct Anki_Scheduler_BuryOrSuspendCardsRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -575,7 +575,7 @@ public struct Anki_Scheduler_BuryOrSuspendCardsRequest: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum Mode: SwiftProtobuf.Enum, Swift.CaseIterable {
+  public nonisolated enum Mode: SwiftProtobuf.Enum, Swift.CaseIterable {
     public typealias RawValue = Int
     case suspend // = 0
     case burySched // = 1
@@ -616,7 +616,7 @@ public struct Anki_Scheduler_BuryOrSuspendCardsRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_ScheduleCardsAsNewRequest: Sendable {
+public nonisolated struct Anki_Scheduler_ScheduleCardsAsNewRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -640,7 +640,7 @@ public struct Anki_Scheduler_ScheduleCardsAsNewRequest: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum Context: SwiftProtobuf.Enum, Swift.CaseIterable {
+  public nonisolated enum Context: SwiftProtobuf.Enum, Swift.CaseIterable {
     public typealias RawValue = Int
     case browser // = 0
     case reviewer // = 1
@@ -679,7 +679,7 @@ public struct Anki_Scheduler_ScheduleCardsAsNewRequest: Sendable {
   fileprivate var _context: Anki_Scheduler_ScheduleCardsAsNewRequest.Context? = nil
 }
 
-public struct Anki_Scheduler_ScheduleCardsAsNewDefaultsRequest: Sendable {
+public nonisolated struct Anki_Scheduler_ScheduleCardsAsNewDefaultsRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -691,7 +691,7 @@ public struct Anki_Scheduler_ScheduleCardsAsNewDefaultsRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_ScheduleCardsAsNewDefaultsResponse: Sendable {
+public nonisolated struct Anki_Scheduler_ScheduleCardsAsNewDefaultsResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -705,7 +705,7 @@ public struct Anki_Scheduler_ScheduleCardsAsNewDefaultsResponse: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_SetDueDateRequest: Sendable {
+public nonisolated struct Anki_Scheduler_SetDueDateRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -730,7 +730,7 @@ public struct Anki_Scheduler_SetDueDateRequest: Sendable {
   fileprivate var _configKey: Anki_Config_OptionalStringConfigKey? = nil
 }
 
-public struct Anki_Scheduler_GradeNowRequest: Sendable {
+public nonisolated struct Anki_Scheduler_GradeNowRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -744,7 +744,7 @@ public struct Anki_Scheduler_GradeNowRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_SortCardsRequest: Sendable {
+public nonisolated struct Anki_Scheduler_SortCardsRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -764,7 +764,7 @@ public struct Anki_Scheduler_SortCardsRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_SortDeckRequest: Sendable {
+public nonisolated struct Anki_Scheduler_SortDeckRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -778,7 +778,7 @@ public struct Anki_Scheduler_SortDeckRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_SchedulingStates: @unchecked Sendable {
+public nonisolated struct Anki_Scheduler_SchedulingStates: @unchecked Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -835,7 +835,7 @@ public struct Anki_Scheduler_SchedulingStates: @unchecked Sendable {
   fileprivate var _storage = _StorageClass.defaultInstance
 }
 
-public struct Anki_Scheduler_CardAnswer: @unchecked Sendable {
+public nonisolated struct Anki_Scheduler_CardAnswer: @unchecked Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -880,7 +880,7 @@ public struct Anki_Scheduler_CardAnswer: @unchecked Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum Rating: SwiftProtobuf.Enum, Swift.CaseIterable {
+  public nonisolated enum Rating: SwiftProtobuf.Enum, Swift.CaseIterable {
     public typealias RawValue = Int
     case again // = 0
     case hard // = 1
@@ -927,7 +927,7 @@ public struct Anki_Scheduler_CardAnswer: @unchecked Sendable {
   fileprivate var _storage = _StorageClass.defaultInstance
 }
 
-public struct Anki_Scheduler_CustomStudyRequest: Sendable {
+public nonisolated struct Anki_Scheduler_CustomStudyRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -991,7 +991,7 @@ public struct Anki_Scheduler_CustomStudyRequest: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum OneOf_Value: Equatable, Sendable {
+  public nonisolated enum OneOf_Value: Equatable, Sendable {
     /// increase new limit by x
     case newLimitDelta(Int32)
     /// increase review limit by x
@@ -1006,7 +1006,7 @@ public struct Anki_Scheduler_CustomStudyRequest: Sendable {
 
   }
 
-  public struct Cram: Sendable {
+  public nonisolated struct Cram: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -1024,7 +1024,7 @@ public struct Anki_Scheduler_CustomStudyRequest: Sendable {
 
     public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-    public enum CramKind: SwiftProtobuf.Enum, Swift.CaseIterable {
+    public nonisolated enum CramKind: SwiftProtobuf.Enum, Swift.CaseIterable {
       public typealias RawValue = Int
 
       /// due cards in due order
@@ -1080,7 +1080,7 @@ public struct Anki_Scheduler_CustomStudyRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_SchedulingContext: Sendable {
+public nonisolated struct Anki_Scheduler_SchedulingContext: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -1094,7 +1094,7 @@ public struct Anki_Scheduler_SchedulingContext: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_CustomStudyDefaultsRequest: Sendable {
+public nonisolated struct Anki_Scheduler_CustomStudyDefaultsRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -1106,7 +1106,7 @@ public struct Anki_Scheduler_CustomStudyDefaultsRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_CustomStudyDefaultsResponse: Sendable {
+public nonisolated struct Anki_Scheduler_CustomStudyDefaultsResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -1128,7 +1128,7 @@ public struct Anki_Scheduler_CustomStudyDefaultsResponse: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public struct Tag: Sendable {
+  public nonisolated struct Tag: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -1147,7 +1147,7 @@ public struct Anki_Scheduler_CustomStudyDefaultsResponse: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_RepositionDefaultsResponse: Sendable {
+public nonisolated struct Anki_Scheduler_RepositionDefaultsResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -1161,7 +1161,7 @@ public struct Anki_Scheduler_RepositionDefaultsResponse: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_ComputeFsrsParamsRequest: Sendable {
+public nonisolated struct Anki_Scheduler_ComputeFsrsParamsRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -1182,7 +1182,7 @@ public struct Anki_Scheduler_ComputeFsrsParamsRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_ComputeFsrsParamsResponse: Sendable {
+public nonisolated struct Anki_Scheduler_ComputeFsrsParamsResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -1207,7 +1207,7 @@ public struct Anki_Scheduler_ComputeFsrsParamsResponse: Sendable {
   fileprivate var _healthCheckPassed: Bool? = nil
 }
 
-public struct Anki_Scheduler_ComputeFsrsParamsFromItemsRequest: Sendable {
+public nonisolated struct Anki_Scheduler_ComputeFsrsParamsFromItemsRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -1219,7 +1219,7 @@ public struct Anki_Scheduler_ComputeFsrsParamsFromItemsRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_FsrsBenchmarkRequest: Sendable {
+public nonisolated struct Anki_Scheduler_FsrsBenchmarkRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -1231,7 +1231,7 @@ public struct Anki_Scheduler_FsrsBenchmarkRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_FsrsBenchmarkResponse: Sendable {
+public nonisolated struct Anki_Scheduler_FsrsBenchmarkResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -1243,7 +1243,7 @@ public struct Anki_Scheduler_FsrsBenchmarkResponse: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_ExportDatasetRequest: Sendable {
+public nonisolated struct Anki_Scheduler_ExportDatasetRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -1257,7 +1257,7 @@ public struct Anki_Scheduler_ExportDatasetRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_FsrsItem: Sendable {
+public nonisolated struct Anki_Scheduler_FsrsItem: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -1269,7 +1269,7 @@ public struct Anki_Scheduler_FsrsItem: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_FsrsReview: Sendable {
+public nonisolated struct Anki_Scheduler_FsrsReview: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -1283,7 +1283,7 @@ public struct Anki_Scheduler_FsrsReview: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_SimulateFsrsReviewRequest: Sendable {
+public nonisolated struct Anki_Scheduler_SimulateFsrsReviewRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -1332,7 +1332,7 @@ public struct Anki_Scheduler_SimulateFsrsReviewRequest: Sendable {
   fileprivate var _suspendAfterLapseCount: UInt32? = nil
 }
 
-public struct Anki_Scheduler_SimulateFsrsReviewResponse: Sendable {
+public nonisolated struct Anki_Scheduler_SimulateFsrsReviewResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -1350,7 +1350,7 @@ public struct Anki_Scheduler_SimulateFsrsReviewResponse: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_SimulateFsrsWorkloadResponse: Sendable {
+public nonisolated struct Anki_Scheduler_SimulateFsrsWorkloadResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -1366,7 +1366,7 @@ public struct Anki_Scheduler_SimulateFsrsWorkloadResponse: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_ComputeOptimalRetentionResponse: Sendable {
+public nonisolated struct Anki_Scheduler_ComputeOptimalRetentionResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -1378,7 +1378,7 @@ public struct Anki_Scheduler_ComputeOptimalRetentionResponse: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_GetOptimalRetentionParametersRequest: Sendable {
+public nonisolated struct Anki_Scheduler_GetOptimalRetentionParametersRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -1390,7 +1390,7 @@ public struct Anki_Scheduler_GetOptimalRetentionParametersRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_GetOptimalRetentionParametersResponse: Sendable {
+public nonisolated struct Anki_Scheduler_GetOptimalRetentionParametersResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -1428,7 +1428,7 @@ public struct Anki_Scheduler_GetOptimalRetentionParametersResponse: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_EvaluateParamsRequest: Sendable {
+public nonisolated struct Anki_Scheduler_EvaluateParamsRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -1444,7 +1444,7 @@ public struct Anki_Scheduler_EvaluateParamsRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_EvaluateParamsLegacyRequest: Sendable {
+public nonisolated struct Anki_Scheduler_EvaluateParamsLegacyRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -1460,7 +1460,7 @@ public struct Anki_Scheduler_EvaluateParamsLegacyRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_EvaluateParamsResponse: Sendable {
+public nonisolated struct Anki_Scheduler_EvaluateParamsResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -1474,7 +1474,7 @@ public struct Anki_Scheduler_EvaluateParamsResponse: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_ComputeMemoryStateResponse: Sendable {
+public nonisolated struct Anki_Scheduler_ComputeMemoryStateResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -1499,7 +1499,7 @@ public struct Anki_Scheduler_ComputeMemoryStateResponse: Sendable {
   fileprivate var _state: Anki_Cards_FsrsMemoryState? = nil
 }
 
-public struct Anki_Scheduler_FuzzDeltaRequest: Sendable {
+public nonisolated struct Anki_Scheduler_FuzzDeltaRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -1513,7 +1513,7 @@ public struct Anki_Scheduler_FuzzDeltaRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Scheduler_FuzzDeltaResponse: Sendable {
+public nonisolated struct Anki_Scheduler_FuzzDeltaResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -1527,9 +1527,9 @@ public struct Anki_Scheduler_FuzzDeltaResponse: Sendable {
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
-fileprivate let _protobuf_package = "anki.scheduler"
+fileprivate nonisolated let _protobuf_package = "anki.scheduler"
 
-extension Anki_Scheduler_SchedulingState: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_SchedulingState: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SchedulingState"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}normal\0\u{1}filtered\0\u{3}custom_data\0")
 
@@ -1601,7 +1601,7 @@ extension Anki_Scheduler_SchedulingState: SwiftProtobuf.Message, SwiftProtobuf._
   }
 }
 
-extension Anki_Scheduler_SchedulingState.New: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_SchedulingState.New: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Scheduler_SchedulingState.protoMessageName + ".New"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}position\0")
 
@@ -1631,7 +1631,7 @@ extension Anki_Scheduler_SchedulingState.New: SwiftProtobuf.Message, SwiftProtob
   }
 }
 
-extension Anki_Scheduler_SchedulingState.Learning: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_SchedulingState.Learning: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Scheduler_SchedulingState.protoMessageName + ".Learning"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}remaining_steps\0\u{3}scheduled_secs\0\u{3}elapsed_secs\0\u{4}\u{3}memory_state\0")
 
@@ -1680,7 +1680,7 @@ extension Anki_Scheduler_SchedulingState.Learning: SwiftProtobuf.Message, SwiftP
   }
 }
 
-extension Anki_Scheduler_SchedulingState.Review: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_SchedulingState.Review: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Scheduler_SchedulingState.protoMessageName + ".Review"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}scheduled_days\0\u{3}elapsed_days\0\u{3}ease_factor\0\u{1}lapses\0\u{1}leeched\0\u{3}memory_state\0")
 
@@ -1739,7 +1739,7 @@ extension Anki_Scheduler_SchedulingState.Review: SwiftProtobuf.Message, SwiftPro
   }
 }
 
-extension Anki_Scheduler_SchedulingState.Relearning: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_SchedulingState.Relearning: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Scheduler_SchedulingState.protoMessageName + ".Relearning"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}review\0\u{1}learning\0")
 
@@ -1778,7 +1778,7 @@ extension Anki_Scheduler_SchedulingState.Relearning: SwiftProtobuf.Message, Swif
   }
 }
 
-extension Anki_Scheduler_SchedulingState.Normal: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_SchedulingState.Normal: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Scheduler_SchedulingState.protoMessageName + ".Normal"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}new\0\u{1}learning\0\u{1}review\0\u{1}relearning\0")
 
@@ -1879,7 +1879,7 @@ extension Anki_Scheduler_SchedulingState.Normal: SwiftProtobuf.Message, SwiftPro
   }
 }
 
-extension Anki_Scheduler_SchedulingState.Preview: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_SchedulingState.Preview: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Scheduler_SchedulingState.protoMessageName + ".Preview"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}scheduled_secs\0\u{1}finished\0")
 
@@ -1914,7 +1914,7 @@ extension Anki_Scheduler_SchedulingState.Preview: SwiftProtobuf.Message, SwiftPr
   }
 }
 
-extension Anki_Scheduler_SchedulingState.ReschedulingFilter: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_SchedulingState.ReschedulingFilter: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Scheduler_SchedulingState.protoMessageName + ".ReschedulingFilter"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}original_state\0")
 
@@ -1948,7 +1948,7 @@ extension Anki_Scheduler_SchedulingState.ReschedulingFilter: SwiftProtobuf.Messa
   }
 }
 
-extension Anki_Scheduler_SchedulingState.Filtered: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_SchedulingState.Filtered: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Scheduler_SchedulingState.protoMessageName + ".Filtered"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}preview\0\u{1}rescheduling\0")
 
@@ -2015,7 +2015,7 @@ extension Anki_Scheduler_SchedulingState.Filtered: SwiftProtobuf.Message, SwiftP
   }
 }
 
-extension Anki_Scheduler_QueuedCards: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_QueuedCards: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".QueuedCards"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}cards\0\u{3}new_count\0\u{3}learning_count\0\u{3}review_count\0")
 
@@ -2060,11 +2060,11 @@ extension Anki_Scheduler_QueuedCards: SwiftProtobuf.Message, SwiftProtobuf._Mess
   }
 }
 
-extension Anki_Scheduler_QueuedCards.Queue: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_QueuedCards.Queue: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0NEW\0\u{1}LEARNING\0\u{1}REVIEW\0")
 }
 
-extension Anki_Scheduler_QueuedCards.QueuedCard: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_QueuedCards.QueuedCard: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Scheduler_QueuedCards.protoMessageName + ".QueuedCard"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}card\0\u{1}queue\0\u{1}states\0\u{1}context\0")
 
@@ -2113,7 +2113,7 @@ extension Anki_Scheduler_QueuedCards.QueuedCard: SwiftProtobuf.Message, SwiftPro
   }
 }
 
-extension Anki_Scheduler_GetQueuedCardsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_GetQueuedCardsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".GetQueuedCardsRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}fetch_limit\0\u{3}intraday_learning_only\0")
 
@@ -2148,7 +2148,7 @@ extension Anki_Scheduler_GetQueuedCardsRequest: SwiftProtobuf.Message, SwiftProt
   }
 }
 
-extension Anki_Scheduler_SchedTimingTodayResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_SchedTimingTodayResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SchedTimingTodayResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}days_elapsed\0\u{3}next_day_at\0")
 
@@ -2183,7 +2183,7 @@ extension Anki_Scheduler_SchedTimingTodayResponse: SwiftProtobuf.Message, SwiftP
   }
 }
 
-extension Anki_Scheduler_StudiedTodayMessageRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_StudiedTodayMessageRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".StudiedTodayMessageRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}cards\0\u{1}seconds\0")
 
@@ -2218,7 +2218,7 @@ extension Anki_Scheduler_StudiedTodayMessageRequest: SwiftProtobuf.Message, Swif
   }
 }
 
-extension Anki_Scheduler_UpdateStatsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_UpdateStatsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".UpdateStatsRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}deck_id\0\u{3}new_delta\0\u{4}\u{2}review_delta\0\u{3}millisecond_delta\0")
 
@@ -2263,7 +2263,7 @@ extension Anki_Scheduler_UpdateStatsRequest: SwiftProtobuf.Message, SwiftProtobu
   }
 }
 
-extension Anki_Scheduler_ExtendLimitsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_ExtendLimitsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ExtendLimitsRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}deck_id\0\u{3}new_delta\0\u{3}review_delta\0")
 
@@ -2303,7 +2303,7 @@ extension Anki_Scheduler_ExtendLimitsRequest: SwiftProtobuf.Message, SwiftProtob
   }
 }
 
-extension Anki_Scheduler_CountsForDeckTodayResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_CountsForDeckTodayResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".CountsForDeckTodayResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}new\0\u{1}review\0")
 
@@ -2338,7 +2338,7 @@ extension Anki_Scheduler_CountsForDeckTodayResponse: SwiftProtobuf.Message, Swif
   }
 }
 
-extension Anki_Scheduler_CongratsInfoResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_CongratsInfoResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".CongratsInfoResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}learn_remaining\0\u{3}secs_until_next_learn\0\u{3}review_remaining\0\u{3}new_remaining\0\u{3}have_sched_buried\0\u{3}have_user_buried\0\u{3}is_filtered_deck\0\u{3}bridge_commands_supported\0\u{3}deck_description\0")
 
@@ -2408,7 +2408,7 @@ extension Anki_Scheduler_CongratsInfoResponse: SwiftProtobuf.Message, SwiftProto
   }
 }
 
-extension Anki_Scheduler_UnburyDeckRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_UnburyDeckRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".UnburyDeckRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}deck_id\0\u{1}mode\0")
 
@@ -2443,11 +2443,11 @@ extension Anki_Scheduler_UnburyDeckRequest: SwiftProtobuf.Message, SwiftProtobuf
   }
 }
 
-extension Anki_Scheduler_UnburyDeckRequest.Mode: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_UnburyDeckRequest.Mode: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0ALL\0\u{1}SCHED_ONLY\0\u{1}USER_ONLY\0")
 }
 
-extension Anki_Scheduler_BuryOrSuspendCardsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_BuryOrSuspendCardsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".BuryOrSuspendCardsRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}card_ids\0\u{3}note_ids\0\u{1}mode\0")
 
@@ -2487,11 +2487,11 @@ extension Anki_Scheduler_BuryOrSuspendCardsRequest: SwiftProtobuf.Message, Swift
   }
 }
 
-extension Anki_Scheduler_BuryOrSuspendCardsRequest.Mode: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_BuryOrSuspendCardsRequest.Mode: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0SUSPEND\0\u{1}BURY_SCHED\0\u{1}BURY_USER\0")
 }
 
-extension Anki_Scheduler_ScheduleCardsAsNewRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_ScheduleCardsAsNewRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ScheduleCardsAsNewRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}card_ids\0\u{1}log\0\u{3}restore_position\0\u{3}reset_counts\0\u{1}context\0")
 
@@ -2545,11 +2545,11 @@ extension Anki_Scheduler_ScheduleCardsAsNewRequest: SwiftProtobuf.Message, Swift
   }
 }
 
-extension Anki_Scheduler_ScheduleCardsAsNewRequest.Context: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_ScheduleCardsAsNewRequest.Context: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0BROWSER\0\u{1}REVIEWER\0")
 }
 
-extension Anki_Scheduler_ScheduleCardsAsNewDefaultsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_ScheduleCardsAsNewDefaultsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ScheduleCardsAsNewDefaultsRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}context\0")
 
@@ -2579,7 +2579,7 @@ extension Anki_Scheduler_ScheduleCardsAsNewDefaultsRequest: SwiftProtobuf.Messag
   }
 }
 
-extension Anki_Scheduler_ScheduleCardsAsNewDefaultsResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_ScheduleCardsAsNewDefaultsResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ScheduleCardsAsNewDefaultsResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}restore_position\0\u{3}reset_counts\0")
 
@@ -2614,7 +2614,7 @@ extension Anki_Scheduler_ScheduleCardsAsNewDefaultsResponse: SwiftProtobuf.Messa
   }
 }
 
-extension Anki_Scheduler_SetDueDateRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_SetDueDateRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SetDueDateRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}card_ids\0\u{1}days\0\u{3}config_key\0")
 
@@ -2658,7 +2658,7 @@ extension Anki_Scheduler_SetDueDateRequest: SwiftProtobuf.Message, SwiftProtobuf
   }
 }
 
-extension Anki_Scheduler_GradeNowRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_GradeNowRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".GradeNowRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}card_ids\0\u{1}rating\0")
 
@@ -2693,7 +2693,7 @@ extension Anki_Scheduler_GradeNowRequest: SwiftProtobuf.Message, SwiftProtobuf._
   }
 }
 
-extension Anki_Scheduler_SortCardsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_SortCardsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SortCardsRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}card_ids\0\u{3}starting_from\0\u{3}step_size\0\u{1}randomize\0\u{3}shift_existing\0")
 
@@ -2743,7 +2743,7 @@ extension Anki_Scheduler_SortCardsRequest: SwiftProtobuf.Message, SwiftProtobuf.
   }
 }
 
-extension Anki_Scheduler_SortDeckRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_SortDeckRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SortDeckRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}deck_id\0\u{1}randomize\0")
 
@@ -2778,7 +2778,7 @@ extension Anki_Scheduler_SortDeckRequest: SwiftProtobuf.Message, SwiftProtobuf._
   }
 }
 
-extension Anki_Scheduler_SchedulingStates: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_SchedulingStates: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SchedulingStates"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}current\0\u{1}again\0\u{1}hard\0\u{1}good\0\u{1}easy\0")
 
@@ -2876,7 +2876,7 @@ extension Anki_Scheduler_SchedulingStates: SwiftProtobuf.Message, SwiftProtobuf.
   }
 }
 
-extension Anki_Scheduler_CardAnswer: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_CardAnswer: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".CardAnswer"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}card_id\0\u{3}current_state\0\u{3}new_state\0\u{1}rating\0\u{3}answered_at_millis\0\u{3}milliseconds_taken\0")
 
@@ -2981,11 +2981,11 @@ extension Anki_Scheduler_CardAnswer: SwiftProtobuf.Message, SwiftProtobuf._Messa
   }
 }
 
-extension Anki_Scheduler_CardAnswer.Rating: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_CardAnswer.Rating: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0AGAIN\0\u{1}HARD\0\u{1}GOOD\0\u{1}EASY\0")
 }
 
-extension Anki_Scheduler_CustomStudyRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_CustomStudyRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".CustomStudyRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}deck_id\0\u{3}new_limit_delta\0\u{3}review_limit_delta\0\u{3}forgot_days\0\u{3}review_ahead_days\0\u{3}preview_days\0\u{1}cram\0")
 
@@ -3100,7 +3100,7 @@ extension Anki_Scheduler_CustomStudyRequest: SwiftProtobuf.Message, SwiftProtobu
   }
 }
 
-extension Anki_Scheduler_CustomStudyRequest.Cram: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_CustomStudyRequest.Cram: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Scheduler_CustomStudyRequest.protoMessageName + ".Cram"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}kind\0\u{3}card_limit\0\u{3}tags_to_include\0\u{3}tags_to_exclude\0")
 
@@ -3145,11 +3145,11 @@ extension Anki_Scheduler_CustomStudyRequest.Cram: SwiftProtobuf.Message, SwiftPr
   }
 }
 
-extension Anki_Scheduler_CustomStudyRequest.Cram.CramKind: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_CustomStudyRequest.Cram.CramKind: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0CRAM_KIND_DUE\0\u{1}CRAM_KIND_NEW\0\u{1}CRAM_KIND_REVIEW\0\u{1}CRAM_KIND_ALL\0")
 }
 
-extension Anki_Scheduler_SchedulingContext: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_SchedulingContext: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SchedulingContext"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}deck_name\0\u{1}seed\0")
 
@@ -3184,7 +3184,7 @@ extension Anki_Scheduler_SchedulingContext: SwiftProtobuf.Message, SwiftProtobuf
   }
 }
 
-extension Anki_Scheduler_CustomStudyDefaultsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_CustomStudyDefaultsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".CustomStudyDefaultsRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}deck_id\0")
 
@@ -3214,7 +3214,7 @@ extension Anki_Scheduler_CustomStudyDefaultsRequest: SwiftProtobuf.Message, Swif
   }
 }
 
-extension Anki_Scheduler_CustomStudyDefaultsResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_CustomStudyDefaultsResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".CustomStudyDefaultsResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}tags\0\u{3}extend_new\0\u{3}extend_review\0\u{3}available_new\0\u{3}available_review\0\u{3}available_new_in_children\0\u{3}available_review_in_children\0")
 
@@ -3274,7 +3274,7 @@ extension Anki_Scheduler_CustomStudyDefaultsResponse: SwiftProtobuf.Message, Swi
   }
 }
 
-extension Anki_Scheduler_CustomStudyDefaultsResponse.Tag: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_CustomStudyDefaultsResponse.Tag: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Scheduler_CustomStudyDefaultsResponse.protoMessageName + ".Tag"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}name\0\u{1}include\0\u{1}exclude\0")
 
@@ -3314,7 +3314,7 @@ extension Anki_Scheduler_CustomStudyDefaultsResponse.Tag: SwiftProtobuf.Message,
   }
 }
 
-extension Anki_Scheduler_RepositionDefaultsResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_RepositionDefaultsResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".RepositionDefaultsResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}random\0\u{1}shift\0")
 
@@ -3349,7 +3349,7 @@ extension Anki_Scheduler_RepositionDefaultsResponse: SwiftProtobuf.Message, Swif
   }
 }
 
-extension Anki_Scheduler_ComputeFsrsParamsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_ComputeFsrsParamsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ComputeFsrsParamsRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}search\0\u{3}current_params\0\u{3}ignore_revlogs_before_ms\0\u{3}num_of_relearning_steps\0\u{3}health_check\0")
 
@@ -3399,7 +3399,7 @@ extension Anki_Scheduler_ComputeFsrsParamsRequest: SwiftProtobuf.Message, SwiftP
   }
 }
 
-extension Anki_Scheduler_ComputeFsrsParamsResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_ComputeFsrsParamsResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ComputeFsrsParamsResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}params\0\u{3}fsrs_items\0\u{3}health_check_passed\0")
 
@@ -3443,7 +3443,7 @@ extension Anki_Scheduler_ComputeFsrsParamsResponse: SwiftProtobuf.Message, Swift
   }
 }
 
-extension Anki_Scheduler_ComputeFsrsParamsFromItemsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_ComputeFsrsParamsFromItemsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ComputeFsrsParamsFromItemsRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}items\0")
 
@@ -3473,7 +3473,7 @@ extension Anki_Scheduler_ComputeFsrsParamsFromItemsRequest: SwiftProtobuf.Messag
   }
 }
 
-extension Anki_Scheduler_FsrsBenchmarkRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_FsrsBenchmarkRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".FsrsBenchmarkRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}train_set\0")
 
@@ -3503,7 +3503,7 @@ extension Anki_Scheduler_FsrsBenchmarkRequest: SwiftProtobuf.Message, SwiftProto
   }
 }
 
-extension Anki_Scheduler_FsrsBenchmarkResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_FsrsBenchmarkResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".FsrsBenchmarkResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}params\0")
 
@@ -3533,7 +3533,7 @@ extension Anki_Scheduler_FsrsBenchmarkResponse: SwiftProtobuf.Message, SwiftProt
   }
 }
 
-extension Anki_Scheduler_ExportDatasetRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_ExportDatasetRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ExportDatasetRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}min_entries\0\u{3}target_path\0")
 
@@ -3568,7 +3568,7 @@ extension Anki_Scheduler_ExportDatasetRequest: SwiftProtobuf.Message, SwiftProto
   }
 }
 
-extension Anki_Scheduler_FsrsItem: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_FsrsItem: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".FsrsItem"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}reviews\0")
 
@@ -3598,7 +3598,7 @@ extension Anki_Scheduler_FsrsItem: SwiftProtobuf.Message, SwiftProtobuf._Message
   }
 }
 
-extension Anki_Scheduler_FsrsReview: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_FsrsReview: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".FsrsReview"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}rating\0\u{3}delta_t\0")
 
@@ -3633,7 +3633,7 @@ extension Anki_Scheduler_FsrsReview: SwiftProtobuf.Message, SwiftProtobuf._Messa
   }
 }
 
-extension Anki_Scheduler_SimulateFsrsReviewRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_SimulateFsrsReviewRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SimulateFsrsReviewRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}params\0\u{3}desired_retention\0\u{3}deck_size\0\u{3}days_to_simulate\0\u{3}new_limit\0\u{3}review_limit\0\u{3}max_interval\0\u{1}search\0\u{3}new_cards_ignore_review_limit\0\u{3}easy_days_percentages\0\u{3}review_order\0\u{3}suspend_after_lapse_count\0\u{3}historical_retention\0\u{3}learning_step_count\0\u{3}relearning_step_count\0")
 
@@ -3737,7 +3737,7 @@ extension Anki_Scheduler_SimulateFsrsReviewRequest: SwiftProtobuf.Message, Swift
   }
 }
 
-extension Anki_Scheduler_SimulateFsrsReviewResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_SimulateFsrsReviewResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SimulateFsrsReviewResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}accumulated_knowledge_acquisition\0\u{3}daily_review_count\0\u{3}daily_new_count\0\u{3}daily_time_cost\0")
 
@@ -3782,7 +3782,7 @@ extension Anki_Scheduler_SimulateFsrsReviewResponse: SwiftProtobuf.Message, Swif
   }
 }
 
-extension Anki_Scheduler_SimulateFsrsWorkloadResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_SimulateFsrsWorkloadResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SimulateFsrsWorkloadResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}cost\0\u{1}memorized\0\u{3}review_count\0")
 
@@ -3822,7 +3822,7 @@ extension Anki_Scheduler_SimulateFsrsWorkloadResponse: SwiftProtobuf.Message, Sw
   }
 }
 
-extension Anki_Scheduler_ComputeOptimalRetentionResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_ComputeOptimalRetentionResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ComputeOptimalRetentionResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}optimal_retention\0")
 
@@ -3852,7 +3852,7 @@ extension Anki_Scheduler_ComputeOptimalRetentionResponse: SwiftProtobuf.Message,
   }
 }
 
-extension Anki_Scheduler_GetOptimalRetentionParametersRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_GetOptimalRetentionParametersRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".GetOptimalRetentionParametersRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}search\0")
 
@@ -3882,7 +3882,7 @@ extension Anki_Scheduler_GetOptimalRetentionParametersRequest: SwiftProtobuf.Mes
   }
 }
 
-extension Anki_Scheduler_GetOptimalRetentionParametersResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_GetOptimalRetentionParametersResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".GetOptimalRetentionParametersResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}deck_size\0\u{3}learn_span\0\u{3}max_cost_perday\0\u{3}max_ivl\0\u{3}first_rating_prob\0\u{3}review_rating_prob\0\u{3}loss_aversion\0\u{3}learn_limit\0\u{3}review_limit\0\u{3}learning_step_transitions\0\u{3}relearning_step_transitions\0\u{3}state_rating_costs\0\u{3}learning_step_count\0\u{3}relearning_step_count\0")
 
@@ -3977,7 +3977,7 @@ extension Anki_Scheduler_GetOptimalRetentionParametersResponse: SwiftProtobuf.Me
   }
 }
 
-extension Anki_Scheduler_EvaluateParamsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_EvaluateParamsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".EvaluateParamsRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}search\0\u{3}ignore_revlogs_before_ms\0\u{3}num_of_relearning_steps\0")
 
@@ -4017,7 +4017,7 @@ extension Anki_Scheduler_EvaluateParamsRequest: SwiftProtobuf.Message, SwiftProt
   }
 }
 
-extension Anki_Scheduler_EvaluateParamsLegacyRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_EvaluateParamsLegacyRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".EvaluateParamsLegacyRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}params\0\u{1}search\0\u{3}ignore_revlogs_before_ms\0")
 
@@ -4057,7 +4057,7 @@ extension Anki_Scheduler_EvaluateParamsLegacyRequest: SwiftProtobuf.Message, Swi
   }
 }
 
-extension Anki_Scheduler_EvaluateParamsResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_EvaluateParamsResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".EvaluateParamsResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}log_loss\0\u{3}rmse_bins\0")
 
@@ -4092,7 +4092,7 @@ extension Anki_Scheduler_EvaluateParamsResponse: SwiftProtobuf.Message, SwiftPro
   }
 }
 
-extension Anki_Scheduler_ComputeMemoryStateResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_ComputeMemoryStateResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ComputeMemoryStateResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}state\0\u{3}desired_retention\0\u{1}decay\0")
 
@@ -4136,7 +4136,7 @@ extension Anki_Scheduler_ComputeMemoryStateResponse: SwiftProtobuf.Message, Swif
   }
 }
 
-extension Anki_Scheduler_FuzzDeltaRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_FuzzDeltaRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".FuzzDeltaRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}card_id\0\u{1}interval\0")
 
@@ -4171,7 +4171,7 @@ extension Anki_Scheduler_FuzzDeltaRequest: SwiftProtobuf.Message, SwiftProtobuf.
   }
 }
 
-extension Anki_Scheduler_FuzzDeltaResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Scheduler_FuzzDeltaResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".FuzzDeltaResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}delta_days\0")
 

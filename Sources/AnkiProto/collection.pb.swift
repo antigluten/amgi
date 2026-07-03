@@ -18,12 +18,12 @@ public import SwiftProtobuf
 // incompatible with the version of SwiftProtobuf to which you are linking.
 // Please ensure that you are building against the same version of the API
 // that was used to generate this file.
-fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
+fileprivate nonisolated struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
   struct _2: SwiftProtobuf.ProtobufAPIVersion_2 {}
   typealias Version = _2
 }
 
-public struct Anki_Collection_OpenCollectionRequest: Sendable {
+public nonisolated struct Anki_Collection_OpenCollectionRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -39,7 +39,7 @@ public struct Anki_Collection_OpenCollectionRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Collection_CloseCollectionRequest: Sendable {
+public nonisolated struct Anki_Collection_CloseCollectionRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -51,7 +51,7 @@ public struct Anki_Collection_CloseCollectionRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Collection_CheckDatabaseResponse: Sendable {
+public nonisolated struct Anki_Collection_CheckDatabaseResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -63,7 +63,7 @@ public struct Anki_Collection_CheckDatabaseResponse: Sendable {
   public init() {}
 }
 
-public struct Anki_Collection_OpChanges: Sendable {
+public nonisolated struct Anki_Collection_OpChanges: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -101,7 +101,7 @@ public struct Anki_Collection_OpChanges: Sendable {
 
 /// Allows frontend code to extract changes from other messages like
 /// ImportResponse without decoding other potentially large fields.
-public struct Anki_Collection_OpChangesOnly: Sendable {
+public nonisolated struct Anki_Collection_OpChangesOnly: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -122,7 +122,7 @@ public struct Anki_Collection_OpChangesOnly: Sendable {
   fileprivate var _changes: Anki_Collection_OpChanges? = nil
 }
 
-public struct Anki_Collection_OpChangesWithCount: Sendable {
+public nonisolated struct Anki_Collection_OpChangesWithCount: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -145,7 +145,7 @@ public struct Anki_Collection_OpChangesWithCount: Sendable {
   fileprivate var _changes: Anki_Collection_OpChanges? = nil
 }
 
-public struct Anki_Collection_OpChangesWithId: Sendable {
+public nonisolated struct Anki_Collection_OpChangesWithId: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -168,7 +168,7 @@ public struct Anki_Collection_OpChangesWithId: Sendable {
   fileprivate var _changes: Anki_Collection_OpChanges? = nil
 }
 
-public struct Anki_Collection_UndoStatus: Sendable {
+public nonisolated struct Anki_Collection_UndoStatus: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -184,7 +184,7 @@ public struct Anki_Collection_UndoStatus: Sendable {
   public init() {}
 }
 
-public struct Anki_Collection_OpChangesAfterUndo: @unchecked Sendable {
+public nonisolated struct Anki_Collection_OpChangesAfterUndo: @unchecked Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -229,7 +229,7 @@ public struct Anki_Collection_OpChangesAfterUndo: @unchecked Sendable {
   fileprivate var _storage = _StorageClass.defaultInstance
 }
 
-public struct Anki_Collection_Progress: Sendable {
+public nonisolated struct Anki_Collection_Progress: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -326,7 +326,7 @@ public struct Anki_Collection_Progress: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum OneOf_Value: Equatable, Sendable {
+  public nonisolated enum OneOf_Value: Equatable, Sendable {
     case none(Anki_Generic_Empty)
     case mediaSync(Anki_Sync_MediaSyncProgress)
     case mediaCheck(String)
@@ -341,7 +341,7 @@ public struct Anki_Collection_Progress: Sendable {
 
   }
 
-  public struct FullSync: Sendable {
+  public nonisolated struct FullSync: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -355,7 +355,7 @@ public struct Anki_Collection_Progress: Sendable {
     public init() {}
   }
 
-  public struct NormalSync: Sendable {
+  public nonisolated struct NormalSync: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -371,7 +371,7 @@ public struct Anki_Collection_Progress: Sendable {
     public init() {}
   }
 
-  public struct DatabaseCheck: Sendable {
+  public nonisolated struct DatabaseCheck: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -390,7 +390,7 @@ public struct Anki_Collection_Progress: Sendable {
   public init() {}
 }
 
-public struct Anki_Collection_ComputeParamsProgress: Sendable {
+public nonisolated struct Anki_Collection_ComputeParamsProgress: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -414,7 +414,7 @@ public struct Anki_Collection_ComputeParamsProgress: Sendable {
   public init() {}
 }
 
-public struct Anki_Collection_ComputeRetentionProgress: Sendable {
+public nonisolated struct Anki_Collection_ComputeRetentionProgress: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -428,7 +428,7 @@ public struct Anki_Collection_ComputeRetentionProgress: Sendable {
   public init() {}
 }
 
-public struct Anki_Collection_ComputeMemoryProgress: Sendable {
+public nonisolated struct Anki_Collection_ComputeMemoryProgress: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -444,7 +444,7 @@ public struct Anki_Collection_ComputeMemoryProgress: Sendable {
   public init() {}
 }
 
-public struct Anki_Collection_CreateBackupRequest: Sendable {
+public nonisolated struct Anki_Collection_CreateBackupRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -463,9 +463,9 @@ public struct Anki_Collection_CreateBackupRequest: Sendable {
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
-fileprivate let _protobuf_package = "anki.collection"
+fileprivate nonisolated let _protobuf_package = "anki.collection"
 
-extension Anki_Collection_OpenCollectionRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Collection_OpenCollectionRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".OpenCollectionRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}collection_path\0\u{3}media_folder_path\0\u{3}media_db_path\0")
 
@@ -505,7 +505,7 @@ extension Anki_Collection_OpenCollectionRequest: SwiftProtobuf.Message, SwiftPro
   }
 }
 
-extension Anki_Collection_CloseCollectionRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Collection_CloseCollectionRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".CloseCollectionRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}downgrade_to_schema11\0")
 
@@ -535,7 +535,7 @@ extension Anki_Collection_CloseCollectionRequest: SwiftProtobuf.Message, SwiftPr
   }
 }
 
-extension Anki_Collection_CheckDatabaseResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Collection_CheckDatabaseResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".CheckDatabaseResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}problems\0")
 
@@ -565,7 +565,7 @@ extension Anki_Collection_CheckDatabaseResponse: SwiftProtobuf.Message, SwiftPro
   }
 }
 
-extension Anki_Collection_OpChanges: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Collection_OpChanges: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".OpChanges"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}card\0\u{1}note\0\u{1}deck\0\u{1}tag\0\u{1}notetype\0\u{1}config\0\u{3}browser_table\0\u{3}browser_sidebar\0\u{3}note_text\0\u{3}study_queues\0\u{3}deck_config\0\u{1}mtime\0")
 
@@ -650,7 +650,7 @@ extension Anki_Collection_OpChanges: SwiftProtobuf.Message, SwiftProtobuf._Messa
   }
 }
 
-extension Anki_Collection_OpChangesOnly: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Collection_OpChangesOnly: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".OpChangesOnly"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}changes\0")
 
@@ -684,7 +684,7 @@ extension Anki_Collection_OpChangesOnly: SwiftProtobuf.Message, SwiftProtobuf._M
   }
 }
 
-extension Anki_Collection_OpChangesWithCount: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Collection_OpChangesWithCount: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".OpChangesWithCount"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}changes\0\u{1}count\0")
 
@@ -723,7 +723,7 @@ extension Anki_Collection_OpChangesWithCount: SwiftProtobuf.Message, SwiftProtob
   }
 }
 
-extension Anki_Collection_OpChangesWithId: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Collection_OpChangesWithId: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".OpChangesWithId"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}changes\0\u{1}id\0")
 
@@ -762,7 +762,7 @@ extension Anki_Collection_OpChangesWithId: SwiftProtobuf.Message, SwiftProtobuf.
   }
 }
 
-extension Anki_Collection_UndoStatus: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Collection_UndoStatus: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".UndoStatus"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}undo\0\u{1}redo\0\u{3}last_step\0")
 
@@ -802,7 +802,7 @@ extension Anki_Collection_UndoStatus: SwiftProtobuf.Message, SwiftProtobuf._Mess
   }
 }
 
-extension Anki_Collection_OpChangesAfterUndo: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Collection_OpChangesAfterUndo: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".OpChangesAfterUndo"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}changes\0\u{1}operation\0\u{3}reverted_to_timestamp\0\u{3}new_status\0\u{1}counter\0")
 
@@ -900,7 +900,7 @@ extension Anki_Collection_OpChangesAfterUndo: SwiftProtobuf.Message, SwiftProtob
   }
 }
 
-extension Anki_Collection_Progress: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Collection_Progress: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".Progress"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}none\0\u{3}media_sync\0\u{3}media_check\0\u{3}full_sync\0\u{3}normal_sync\0\u{3}database_check\0\u{1}importing\0\u{1}exporting\0\u{3}compute_params\0\u{3}compute_retention\0\u{3}compute_memory\0")
 
@@ -1105,7 +1105,7 @@ extension Anki_Collection_Progress: SwiftProtobuf.Message, SwiftProtobuf._Messag
   }
 }
 
-extension Anki_Collection_Progress.FullSync: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Collection_Progress.FullSync: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Collection_Progress.protoMessageName + ".FullSync"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}transferred\0\u{1}total\0")
 
@@ -1140,7 +1140,7 @@ extension Anki_Collection_Progress.FullSync: SwiftProtobuf.Message, SwiftProtobu
   }
 }
 
-extension Anki_Collection_Progress.NormalSync: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Collection_Progress.NormalSync: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Collection_Progress.protoMessageName + ".NormalSync"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}stage\0\u{1}added\0\u{1}removed\0")
 
@@ -1180,7 +1180,7 @@ extension Anki_Collection_Progress.NormalSync: SwiftProtobuf.Message, SwiftProto
   }
 }
 
-extension Anki_Collection_Progress.DatabaseCheck: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Collection_Progress.DatabaseCheck: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Collection_Progress.protoMessageName + ".DatabaseCheck"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}stage\0\u{3}stage_total\0\u{3}stage_current\0")
 
@@ -1220,7 +1220,7 @@ extension Anki_Collection_Progress.DatabaseCheck: SwiftProtobuf.Message, SwiftPr
   }
 }
 
-extension Anki_Collection_ComputeParamsProgress: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Collection_ComputeParamsProgress: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ComputeParamsProgress"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}current\0\u{1}total\0\u{1}reviews\0\u{3}current_preset\0\u{3}total_presets\0")
 
@@ -1270,7 +1270,7 @@ extension Anki_Collection_ComputeParamsProgress: SwiftProtobuf.Message, SwiftPro
   }
 }
 
-extension Anki_Collection_ComputeRetentionProgress: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Collection_ComputeRetentionProgress: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ComputeRetentionProgress"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}current\0\u{1}total\0")
 
@@ -1305,7 +1305,7 @@ extension Anki_Collection_ComputeRetentionProgress: SwiftProtobuf.Message, Swift
   }
 }
 
-extension Anki_Collection_ComputeMemoryProgress: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Collection_ComputeMemoryProgress: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ComputeMemoryProgress"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}current_cards\0\u{3}total_cards\0\u{1}label\0")
 
@@ -1345,7 +1345,7 @@ extension Anki_Collection_ComputeMemoryProgress: SwiftProtobuf.Message, SwiftPro
   }
 }
 
-extension Anki_Collection_CreateBackupRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Collection_CreateBackupRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".CreateBackupRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}backup_folder\0\u{1}force\0\u{3}wait_for_completion\0")
 

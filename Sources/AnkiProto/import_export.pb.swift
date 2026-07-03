@@ -23,12 +23,12 @@ public import SwiftProtobuf
 // incompatible with the version of SwiftProtobuf to which you are linking.
 // Please ensure that you are building against the same version of the API
 // that was used to generate this file.
-fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
+fileprivate nonisolated struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
   struct _2: SwiftProtobuf.ProtobufAPIVersion_2 {}
   typealias Version = _2
 }
 
-public enum Anki_ImportExport_ImportAnkiPackageUpdateCondition: SwiftProtobuf.Enum, Swift.CaseIterable {
+public nonisolated enum Anki_ImportExport_ImportAnkiPackageUpdateCondition: SwiftProtobuf.Enum, Swift.CaseIterable {
   public typealias RawValue = Int
   case ifNewer // = 0
   case always // = 1
@@ -66,7 +66,7 @@ public enum Anki_ImportExport_ImportAnkiPackageUpdateCondition: SwiftProtobuf.En
 
 }
 
-public struct Anki_ImportExport_ImportCollectionPackageRequest: Sendable {
+public nonisolated struct Anki_ImportExport_ImportCollectionPackageRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -84,7 +84,7 @@ public struct Anki_ImportExport_ImportCollectionPackageRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_ImportExport_ExportCollectionPackageRequest: Sendable {
+public nonisolated struct Anki_ImportExport_ExportCollectionPackageRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -100,7 +100,7 @@ public struct Anki_ImportExport_ExportCollectionPackageRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_ImportExport_ImportAnkiPackageOptions: Sendable {
+public nonisolated struct Anki_ImportExport_ImportAnkiPackageOptions: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -120,7 +120,7 @@ public struct Anki_ImportExport_ImportAnkiPackageOptions: Sendable {
   public init() {}
 }
 
-public struct Anki_ImportExport_ImportAnkiPackageRequest: Sendable {
+public nonisolated struct Anki_ImportExport_ImportAnkiPackageRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -143,7 +143,7 @@ public struct Anki_ImportExport_ImportAnkiPackageRequest: Sendable {
   fileprivate var _options: Anki_ImportExport_ImportAnkiPackageOptions? = nil
 }
 
-public struct Anki_ImportExport_ImportResponse: @unchecked Sendable {
+public nonisolated struct Anki_ImportExport_ImportResponse: @unchecked Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -168,7 +168,7 @@ public struct Anki_ImportExport_ImportResponse: @unchecked Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public struct Note: Sendable {
+  public nonisolated struct Note: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -191,7 +191,7 @@ public struct Anki_ImportExport_ImportResponse: @unchecked Sendable {
     fileprivate var _id: Anki_Notes_NoteId? = nil
   }
 
-  public struct Log: Sendable {
+  public nonisolated struct Log: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -226,7 +226,7 @@ public struct Anki_ImportExport_ImportResponse: @unchecked Sendable {
   fileprivate var _storage = _StorageClass.defaultInstance
 }
 
-public struct Anki_ImportExport_ExportAnkiPackageRequest: Sendable {
+public nonisolated struct Anki_ImportExport_ExportAnkiPackageRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -259,7 +259,7 @@ public struct Anki_ImportExport_ExportAnkiPackageRequest: Sendable {
   fileprivate var _limit: Anki_ImportExport_ExportLimit? = nil
 }
 
-public struct Anki_ImportExport_ExportAnkiPackageOptions: Sendable {
+public nonisolated struct Anki_ImportExport_ExportAnkiPackageOptions: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -277,7 +277,7 @@ public struct Anki_ImportExport_ExportAnkiPackageOptions: Sendable {
   public init() {}
 }
 
-public struct Anki_ImportExport_PackageMetadata: Sendable {
+public nonisolated struct Anki_ImportExport_PackageMetadata: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -286,7 +286,7 @@ public struct Anki_ImportExport_PackageMetadata: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum Version: SwiftProtobuf.Enum, Swift.CaseIterable {
+  public nonisolated enum Version: SwiftProtobuf.Enum, Swift.CaseIterable {
     public typealias RawValue = Int
     case unknown // = 0
 
@@ -338,7 +338,7 @@ public struct Anki_ImportExport_PackageMetadata: Sendable {
   public init() {}
 }
 
-public struct Anki_ImportExport_MediaEntries: Sendable {
+public nonisolated struct Anki_ImportExport_MediaEntries: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -347,7 +347,7 @@ public struct Anki_ImportExport_MediaEntries: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public struct MediaEntry: Sendable {
+  public nonisolated struct MediaEntry: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -380,7 +380,7 @@ public struct Anki_ImportExport_MediaEntries: Sendable {
   public init() {}
 }
 
-public struct Anki_ImportExport_ImportCsvRequest: Sendable {
+public nonisolated struct Anki_ImportExport_ImportCsvRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -403,7 +403,7 @@ public struct Anki_ImportExport_ImportCsvRequest: Sendable {
   fileprivate var _metadata: Anki_ImportExport_CsvMetadata? = nil
 }
 
-public struct Anki_ImportExport_CsvMetadataRequest: Sendable {
+public nonisolated struct Anki_ImportExport_CsvMetadataRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -458,7 +458,7 @@ public struct Anki_ImportExport_CsvMetadataRequest: Sendable {
 
 /// Column indices are 1-based to make working with them in TS easier, where
 /// unset numerical fields default to 0.
-public struct Anki_ImportExport_CsvMetadata: Sendable {
+public nonisolated struct Anki_ImportExport_CsvMetadata: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -542,7 +542,7 @@ public struct Anki_ImportExport_CsvMetadata: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum OneOf_Deck: Equatable, Sendable {
+  public nonisolated enum OneOf_Deck: Equatable, Sendable {
     /// id of an existing deck
     case deckID(Int64)
     /// One-based. 0 means n/a.
@@ -552,7 +552,7 @@ public struct Anki_ImportExport_CsvMetadata: Sendable {
 
   }
 
-  public enum OneOf_Notetype: Equatable, Sendable {
+  public nonisolated enum OneOf_Notetype: Equatable, Sendable {
     /// One notetype for all rows with given column mapping.
     case globalNotetype(Anki_ImportExport_CsvMetadata.MappedNotetype)
     /// Row-specific notetypes with automatic mapping by index.
@@ -561,7 +561,7 @@ public struct Anki_ImportExport_CsvMetadata: Sendable {
 
   }
 
-  public enum DupeResolution: SwiftProtobuf.Enum, Swift.CaseIterable {
+  public nonisolated enum DupeResolution: SwiftProtobuf.Enum, Swift.CaseIterable {
     public typealias RawValue = Int
     case update // = 0
     case preserve // = 1
@@ -604,7 +604,7 @@ public struct Anki_ImportExport_CsvMetadata: Sendable {
   /// Order roughly in ascending expected frequency in note text, because the
   /// delimiter detection algorithm is stupidly picking the first one it
   /// encounters.
-  public enum Delimiter: SwiftProtobuf.Enum, Swift.CaseIterable {
+  public nonisolated enum Delimiter: SwiftProtobuf.Enum, Swift.CaseIterable {
     public typealias RawValue = Int
     case tab // = 0
     case pipe // = 1
@@ -654,7 +654,7 @@ public struct Anki_ImportExport_CsvMetadata: Sendable {
 
   }
 
-  public enum MatchScope: SwiftProtobuf.Enum, Swift.CaseIterable {
+  public nonisolated enum MatchScope: SwiftProtobuf.Enum, Swift.CaseIterable {
     public typealias RawValue = Int
     case notetype // = 0
     case notetypeAndDeck // = 1
@@ -688,7 +688,7 @@ public struct Anki_ImportExport_CsvMetadata: Sendable {
 
   }
 
-  public struct MappedNotetype: Sendable {
+  public nonisolated struct MappedNotetype: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -706,7 +706,7 @@ public struct Anki_ImportExport_CsvMetadata: Sendable {
   public init() {}
 }
 
-public struct Anki_ImportExport_ExportCardCsvRequest: Sendable {
+public nonisolated struct Anki_ImportExport_ExportCardCsvRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -731,7 +731,7 @@ public struct Anki_ImportExport_ExportCardCsvRequest: Sendable {
   fileprivate var _limit: Anki_ImportExport_ExportLimit? = nil
 }
 
-public struct Anki_ImportExport_ExportNoteCsvRequest: Sendable {
+public nonisolated struct Anki_ImportExport_ExportNoteCsvRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -764,7 +764,7 @@ public struct Anki_ImportExport_ExportNoteCsvRequest: Sendable {
   fileprivate var _limit: Anki_ImportExport_ExportLimit? = nil
 }
 
-public struct Anki_ImportExport_ExportLimit: Sendable {
+public nonisolated struct Anki_ImportExport_ExportLimit: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -805,7 +805,7 @@ public struct Anki_ImportExport_ExportLimit: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum OneOf_Limit: Equatable, Sendable {
+  public nonisolated enum OneOf_Limit: Equatable, Sendable {
     case wholeCollection(Anki_Generic_Empty)
     case deckID(Int64)
     case noteIds(Anki_Notes_NoteIds)
@@ -818,13 +818,13 @@ public struct Anki_ImportExport_ExportLimit: Sendable {
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
-fileprivate let _protobuf_package = "anki.import_export"
+fileprivate nonisolated let _protobuf_package = "anki.import_export"
 
-extension Anki_ImportExport_ImportAnkiPackageUpdateCondition: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImportExport_ImportAnkiPackageUpdateCondition: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0IMPORT_ANKI_PACKAGE_UPDATE_CONDITION_IF_NEWER\0\u{1}IMPORT_ANKI_PACKAGE_UPDATE_CONDITION_ALWAYS\0\u{1}IMPORT_ANKI_PACKAGE_UPDATE_CONDITION_NEVER\0")
 }
 
-extension Anki_ImportExport_ImportCollectionPackageRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImportExport_ImportCollectionPackageRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ImportCollectionPackageRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}col_path\0\u{3}backup_path\0\u{3}media_folder\0\u{3}media_db\0")
 
@@ -869,7 +869,7 @@ extension Anki_ImportExport_ImportCollectionPackageRequest: SwiftProtobuf.Messag
   }
 }
 
-extension Anki_ImportExport_ExportCollectionPackageRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImportExport_ExportCollectionPackageRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ExportCollectionPackageRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}out_path\0\u{3}include_media\0\u{1}legacy\0")
 
@@ -909,7 +909,7 @@ extension Anki_ImportExport_ExportCollectionPackageRequest: SwiftProtobuf.Messag
   }
 }
 
-extension Anki_ImportExport_ImportAnkiPackageOptions: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImportExport_ImportAnkiPackageOptions: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ImportAnkiPackageOptions"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}merge_notetypes\0\u{3}update_notes\0\u{3}update_notetypes\0\u{3}with_scheduling\0\u{3}with_deck_configs\0")
 
@@ -959,7 +959,7 @@ extension Anki_ImportExport_ImportAnkiPackageOptions: SwiftProtobuf.Message, Swi
   }
 }
 
-extension Anki_ImportExport_ImportAnkiPackageRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImportExport_ImportAnkiPackageRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ImportAnkiPackageRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}package_path\0\u{1}options\0")
 
@@ -998,7 +998,7 @@ extension Anki_ImportExport_ImportAnkiPackageRequest: SwiftProtobuf.Message, Swi
   }
 }
 
-extension Anki_ImportExport_ImportResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImportExport_ImportResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ImportResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}changes\0\u{1}log\0")
 
@@ -1075,7 +1075,7 @@ extension Anki_ImportExport_ImportResponse: SwiftProtobuf.Message, SwiftProtobuf
   }
 }
 
-extension Anki_ImportExport_ImportResponse.Note: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImportExport_ImportResponse.Note: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_ImportExport_ImportResponse.protoMessageName + ".Note"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{1}fields\0")
 
@@ -1114,7 +1114,7 @@ extension Anki_ImportExport_ImportResponse.Note: SwiftProtobuf.Message, SwiftPro
   }
 }
 
-extension Anki_ImportExport_ImportResponse.Log: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImportExport_ImportResponse.Log: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_ImportExport_ImportResponse.protoMessageName + ".Log"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}new\0\u{1}updated\0\u{1}duplicate\0\u{1}conflicting\0\u{3}first_field_match\0\u{3}missing_notetype\0\u{3}missing_deck\0\u{3}empty_first_field\0\u{3}dupe_resolution\0\u{3}found_notes\0")
 
@@ -1189,7 +1189,7 @@ extension Anki_ImportExport_ImportResponse.Log: SwiftProtobuf.Message, SwiftProt
   }
 }
 
-extension Anki_ImportExport_ExportAnkiPackageRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImportExport_ExportAnkiPackageRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ExportAnkiPackageRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}out_path\0\u{1}options\0\u{1}limit\0")
 
@@ -1233,7 +1233,7 @@ extension Anki_ImportExport_ExportAnkiPackageRequest: SwiftProtobuf.Message, Swi
   }
 }
 
-extension Anki_ImportExport_ExportAnkiPackageOptions: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImportExport_ExportAnkiPackageOptions: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ExportAnkiPackageOptions"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}with_scheduling\0\u{3}with_deck_configs\0\u{3}with_media\0\u{1}legacy\0")
 
@@ -1278,7 +1278,7 @@ extension Anki_ImportExport_ExportAnkiPackageOptions: SwiftProtobuf.Message, Swi
   }
 }
 
-extension Anki_ImportExport_PackageMetadata: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImportExport_PackageMetadata: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".PackageMetadata"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}version\0")
 
@@ -1308,11 +1308,11 @@ extension Anki_ImportExport_PackageMetadata: SwiftProtobuf.Message, SwiftProtobu
   }
 }
 
-extension Anki_ImportExport_PackageMetadata.Version: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImportExport_PackageMetadata.Version: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0VERSION_UNKNOWN\0\u{1}VERSION_LEGACY_1\0\u{1}VERSION_LEGACY_2\0\u{1}VERSION_LATEST\0")
 }
 
-extension Anki_ImportExport_MediaEntries: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImportExport_MediaEntries: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".MediaEntries"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}entries\0")
 
@@ -1342,7 +1342,7 @@ extension Anki_ImportExport_MediaEntries: SwiftProtobuf.Message, SwiftProtobuf._
   }
 }
 
-extension Anki_ImportExport_MediaEntries.MediaEntry: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImportExport_MediaEntries.MediaEntry: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_ImportExport_MediaEntries.protoMessageName + ".MediaEntry"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}name\0\u{1}size\0\u{1}sha1\0\u{4}|\u{3}legacy_zip_filename\0")
 
@@ -1391,7 +1391,7 @@ extension Anki_ImportExport_MediaEntries.MediaEntry: SwiftProtobuf.Message, Swif
   }
 }
 
-extension Anki_ImportExport_ImportCsvRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImportExport_ImportCsvRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ImportCsvRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}path\0\u{1}metadata\0")
 
@@ -1430,7 +1430,7 @@ extension Anki_ImportExport_ImportCsvRequest: SwiftProtobuf.Message, SwiftProtob
   }
 }
 
-extension Anki_ImportExport_CsvMetadataRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImportExport_CsvMetadataRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".CsvMetadataRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}path\0\u{1}delimiter\0\u{3}notetype_id\0\u{3}deck_id\0\u{3}is_html\0")
 
@@ -1484,7 +1484,7 @@ extension Anki_ImportExport_CsvMetadataRequest: SwiftProtobuf.Message, SwiftProt
   }
 }
 
-extension Anki_ImportExport_CsvMetadata: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImportExport_CsvMetadata: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".CsvMetadata"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}delimiter\0\u{3}is_html\0\u{3}global_tags\0\u{3}updated_tags\0\u{3}column_labels\0\u{3}deck_id\0\u{3}deck_column\0\u{3}global_notetype\0\u{3}notetype_column\0\u{3}tags_column\0\u{3}force_delimiter\0\u{3}force_is_html\0\u{1}preview\0\u{3}guid_column\0\u{3}dupe_resolution\0\u{3}match_scope\0\u{3}deck_name\0")
 
@@ -1645,19 +1645,19 @@ extension Anki_ImportExport_CsvMetadata: SwiftProtobuf.Message, SwiftProtobuf._M
   }
 }
 
-extension Anki_ImportExport_CsvMetadata.DupeResolution: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImportExport_CsvMetadata.DupeResolution: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0UPDATE\0\u{1}PRESERVE\0\u{1}DUPLICATE\0")
 }
 
-extension Anki_ImportExport_CsvMetadata.Delimiter: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImportExport_CsvMetadata.Delimiter: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0TAB\0\u{1}PIPE\0\u{1}SEMICOLON\0\u{1}COLON\0\u{1}COMMA\0\u{1}SPACE\0")
 }
 
-extension Anki_ImportExport_CsvMetadata.MatchScope: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImportExport_CsvMetadata.MatchScope: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0NOTETYPE\0\u{1}NOTETYPE_AND_DECK\0")
 }
 
-extension Anki_ImportExport_CsvMetadata.MappedNotetype: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImportExport_CsvMetadata.MappedNotetype: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_ImportExport_CsvMetadata.protoMessageName + ".MappedNotetype"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{3}field_columns\0")
 
@@ -1692,7 +1692,7 @@ extension Anki_ImportExport_CsvMetadata.MappedNotetype: SwiftProtobuf.Message, S
   }
 }
 
-extension Anki_ImportExport_ExportCardCsvRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImportExport_ExportCardCsvRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ExportCardCsvRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}out_path\0\u{3}with_html\0\u{1}limit\0")
 
@@ -1736,7 +1736,7 @@ extension Anki_ImportExport_ExportCardCsvRequest: SwiftProtobuf.Message, SwiftPr
   }
 }
 
-extension Anki_ImportExport_ExportNoteCsvRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImportExport_ExportNoteCsvRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ExportNoteCsvRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}out_path\0\u{3}with_html\0\u{3}with_tags\0\u{3}with_deck\0\u{3}with_notetype\0\u{3}with_guid\0\u{1}limit\0")
 
@@ -1800,7 +1800,7 @@ extension Anki_ImportExport_ExportNoteCsvRequest: SwiftProtobuf.Message, SwiftPr
   }
 }
 
-extension Anki_ImportExport_ExportLimit: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImportExport_ExportLimit: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ExportLimit"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}whole_collection\0\u{3}deck_id\0\u{3}note_ids\0\u{3}card_ids\0")
 

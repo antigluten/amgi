@@ -18,12 +18,12 @@ public import SwiftProtobuf
 // incompatible with the version of SwiftProtobuf to which you are linking.
 // Please ensure that you are building against the same version of the API
 // that was used to generate this file.
-fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
+fileprivate nonisolated struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
   struct _2: SwiftProtobuf.ProtobufAPIVersion_2 {}
   typealias Version = _2
 }
 
-public struct Anki_Cards_CardId: Sendable {
+public nonisolated struct Anki_Cards_CardId: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -35,7 +35,7 @@ public struct Anki_Cards_CardId: Sendable {
   public init() {}
 }
 
-public struct Anki_Cards_CardIds: Sendable {
+public nonisolated struct Anki_Cards_CardIds: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -47,7 +47,7 @@ public struct Anki_Cards_CardIds: Sendable {
   public init() {}
 }
 
-public struct Anki_Cards_Card: @unchecked Sendable {
+public nonisolated struct Anki_Cards_Card: @unchecked Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -194,7 +194,7 @@ public struct Anki_Cards_Card: @unchecked Sendable {
   fileprivate var _storage = _StorageClass.defaultInstance
 }
 
-public struct Anki_Cards_FsrsMemoryState: Sendable {
+public nonisolated struct Anki_Cards_FsrsMemoryState: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -208,7 +208,7 @@ public struct Anki_Cards_FsrsMemoryState: Sendable {
   public init() {}
 }
 
-public struct Anki_Cards_UpdateCardsRequest: Sendable {
+public nonisolated struct Anki_Cards_UpdateCardsRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -222,7 +222,7 @@ public struct Anki_Cards_UpdateCardsRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Cards_RemoveCardsRequest: Sendable {
+public nonisolated struct Anki_Cards_RemoveCardsRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -234,7 +234,7 @@ public struct Anki_Cards_RemoveCardsRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Cards_SetDeckRequest: Sendable {
+public nonisolated struct Anki_Cards_SetDeckRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -248,7 +248,7 @@ public struct Anki_Cards_SetDeckRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Cards_SetFlagRequest: Sendable {
+public nonisolated struct Anki_Cards_SetFlagRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -264,9 +264,9 @@ public struct Anki_Cards_SetFlagRequest: Sendable {
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
-fileprivate let _protobuf_package = "anki.cards"
+fileprivate nonisolated let _protobuf_package = "anki.cards"
 
-extension Anki_Cards_CardId: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Cards_CardId: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".CardId"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}cid\0")
 
@@ -296,7 +296,7 @@ extension Anki_Cards_CardId: SwiftProtobuf.Message, SwiftProtobuf._MessageImplem
   }
 }
 
-extension Anki_Cards_CardIds: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Cards_CardIds: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".CardIds"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}cids\0")
 
@@ -326,7 +326,7 @@ extension Anki_Cards_CardIds: SwiftProtobuf.Message, SwiftProtobuf._MessageImple
   }
 }
 
-extension Anki_Cards_Card: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Cards_Card: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".Card"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{3}note_id\0\u{3}deck_id\0\u{3}template_idx\0\u{3}mtime_secs\0\u{1}usn\0\u{1}ctype\0\u{1}queue\0\u{1}due\0\u{1}interval\0\u{3}ease_factor\0\u{1}reps\0\u{1}lapses\0\u{3}remaining_steps\0\u{3}original_due\0\u{3}original_deck_id\0\u{1}flags\0\u{3}original_position\0\u{3}custom_data\0\u{3}memory_state\0\u{3}desired_retention\0\u{1}decay\0\u{3}last_review_time_secs\0")
 
@@ -550,7 +550,7 @@ extension Anki_Cards_Card: SwiftProtobuf.Message, SwiftProtobuf._MessageImplemen
   }
 }
 
-extension Anki_Cards_FsrsMemoryState: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Cards_FsrsMemoryState: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".FsrsMemoryState"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}stability\0\u{1}difficulty\0")
 
@@ -585,7 +585,7 @@ extension Anki_Cards_FsrsMemoryState: SwiftProtobuf.Message, SwiftProtobuf._Mess
   }
 }
 
-extension Anki_Cards_UpdateCardsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Cards_UpdateCardsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".UpdateCardsRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}cards\0\u{3}skip_undo_entry\0")
 
@@ -620,7 +620,7 @@ extension Anki_Cards_UpdateCardsRequest: SwiftProtobuf.Message, SwiftProtobuf._M
   }
 }
 
-extension Anki_Cards_RemoveCardsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Cards_RemoveCardsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".RemoveCardsRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}card_ids\0")
 
@@ -650,7 +650,7 @@ extension Anki_Cards_RemoveCardsRequest: SwiftProtobuf.Message, SwiftProtobuf._M
   }
 }
 
-extension Anki_Cards_SetDeckRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Cards_SetDeckRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SetDeckRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}card_ids\0\u{3}deck_id\0")
 
@@ -685,7 +685,7 @@ extension Anki_Cards_SetDeckRequest: SwiftProtobuf.Message, SwiftProtobuf._Messa
   }
 }
 
-extension Anki_Cards_SetFlagRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Cards_SetFlagRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SetFlagRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}card_ids\0\u{1}flag\0")
 
