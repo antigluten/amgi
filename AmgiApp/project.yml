@@ -9,8 +9,6 @@ settings:
   base:
     SWIFT_VERSION: "6.0"
     SWIFT_STRICT_CONCURRENCY: complete
-    ONLY_ACTIVE_ARCH: true
-    ARCHS: arm64
 packages:
   AnkiBridge:
     path: ..
@@ -163,7 +161,6 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.amgiapp.AmgiApp.watch
-        CODE_SIGN_ENTITLEMENTS: AmgiWatchApp.entitlements
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_WKCompanionAppBundleIdentifier: com.amgiapp.AmgiApp
