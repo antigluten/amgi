@@ -44,7 +44,19 @@ struct WatchReviewView: View {
         .ignoresSafeArea(edges: .top)
         .onTapGesture { playAudio(from: session.showAnswer ? session.backHTML : session.frontHTML) }
         .onTapGesture(count: 2) { dismiss() }
-        .task { session.start() }
+        .task {
+            do {
+                try await AVAudioSession.sharedInstance().setCategory(
+                    .playback,
+                    mode: .default,
+                    policy: .longFormAudio
+                )
+                try await AVAudioSession.sharedInstance().activate(options: [])
+            } catch {
+                // Audio may fail silently on watchOS if session setup errors.
+            }
+            await session.start()
+        }
         .onChange(of: session.frontHTML) { _, new in playAudio(from: new) }
         .onChange(of: session.showAnswer) { _, show in if show { playAudio(from: session.backHTML) } }
     }

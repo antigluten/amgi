@@ -7,7 +7,7 @@ struct WatchDeckDetailView: View {
     let deck: DeckInfo
     @Dependency(\.deckClient) var deckClient
     @State private var counts: DeckCounts = .zero
-    @State private var showReview = false
+    @Environment(\.dismiss) private var dismiss
     var body: some View {
         ScrollView {
             VStack(spacing: 10) {
@@ -20,8 +20,14 @@ struct WatchDeckDetailView: View {
                     countItem(label: "Due", count: counts.reviewCount, color: .green)
                 }
                 .padding(.horizontal)
-                Button {
-                    showReview = true
+                NavigationLink {
+                    WatchReviewView(
+                        deckId: deck.id,
+                        onDismiss: {
+                            dismiss()
+                            Task { await loadCounts() }
+                        }
+                    )
                 } label: {
                     Label("Study", systemImage: "play.fill")
                         .frame(maxWidth: .infinity)
@@ -32,12 +38,6 @@ struct WatchDeckDetailView: View {
             }
         }
         .navigationTitle(deck.name.split(separator: "::").last ?? "")
-        .fullScreenCover(isPresented: $showReview) {
-            WatchReviewView(deckId: deck.id) {
-                showReview = false
-                Task { await loadCounts() }
-            }
-        }
         .task {
             await loadCounts()
         }
