@@ -47,7 +47,7 @@ final class DeckDetailModel {
 
     func loadCounts() async {
         do {
-            counts = try deckClient.countsForDeck(deck.id)
+            counts = try await deckClient.countsForDeck(deck.id)
         } catch {
             print("[DeckDetail] Error loading counts for '\(deck.name)': \(error)")
             counts = .zero
@@ -57,7 +57,7 @@ final class DeckDetailModel {
 
     func loadChildren() async {
         do {
-            let tree = try deckClient.fetchTree()
+            let tree = try await deckClient.fetchTree()
             childDecks = Self.findChildren(in: tree, parentId: deck.id)
         } catch {
             childDecks = []
@@ -74,9 +74,7 @@ final class DeckDetailModel {
         statsTask = Task { [weak self, statsClient] in
             // search syntax matches the Anki desktop "deck:" filter.
             let search = "deck:\"\(deckName)\""
-            let graphs = try? await Task.detached(priority: .userInitiated) {
-                try statsClient.fetchGraphs(search, 30)
-            }.value
+            let graphs = try? await statsClient.fetchGraphs(search, 30)
             guard !Task.isCancelled, let self else { return }
             if let graphs {
                 self.statsSnapshot = DeckDetailStats.project(graphs: graphs, isEmpty: isEmpty)
@@ -94,7 +92,7 @@ final class DeckDetailModel {
         actionInFlight = true
         defer { actionInFlight = false }
         do {
-            let count = try deckClient.rebuildFilteredDeck(deck.id)
+            let count = try await deckClient.rebuildFilteredDeck(deck.id)
             rebuildFeedback = "Rebuilt — \(count) cards"
             await loadCounts()
             try? await Task.sleep(for: .seconds(2))
@@ -110,7 +108,7 @@ final class DeckDetailModel {
         actionInFlight = true
         defer { actionInFlight = false }
         do {
-            try deckClient.emptyFilteredDeck(deck.id)
+            try await deckClient.emptyFilteredDeck(deck.id)
             await loadCounts()
             return nil
         } catch {
@@ -155,7 +153,7 @@ final class DeckDetailModel {
         let leafName = trimmed.replacingOccurrences(of: "::", with: "_")
         let fullName = "\(deck.name)::\(leafName)"
         do {
-            _ = try deckClient.create(fullName)
+            _ = try await deckClient.create(fullName)
             await loadChildren()
             return nil
         } catch {

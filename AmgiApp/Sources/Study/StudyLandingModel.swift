@@ -23,7 +23,7 @@ final class StudyLandingModel {
     func load() async {
         do {
             // 1. Deck tree → flatten → filter due > 0 → sort desc
-            let tree = try deckClient.fetchTree()
+            let tree = try await deckClient.fetchTree()
             guard !tree.isEmpty else {
                 contentState = .empty
                 return

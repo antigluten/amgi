@@ -19,13 +19,13 @@ final class DeckListModel {
 
     func load() async {
         do {
-            let tree = try deckClient.fetchTree()
+            let tree = try await deckClient.fetchTree()
             if tree.isEmpty {
                 state = .empty
                 return
             }
             let rows = tree.map(DeckListRow.init(node:))
-            let (hero, heatmap) = buildHeroAndHeatmap(rows: rows)
+            let (hero, heatmap) = await buildHeroAndHeatmap(rows: rows)
             state = .loaded(rows: rows.map(\.viewData), hero: hero, heatmap: heatmap)
         } catch {
             print("[DeckListModel] Error loading decks: \(error)")
@@ -35,7 +35,7 @@ final class DeckListModel {
 
     func delete(_ id: DeckID) async {
         do {
-            _ = try deckClient.delete(id)
+            _ = try await deckClient.delete(id)
         } catch {
             print("[DeckListModel] Delete failed: \(error)")
         }
@@ -66,10 +66,10 @@ final class DeckListModel {
 }
 
 private extension DeckListModel {
-    func buildHeroAndHeatmap(rows: [DeckListRow]) -> (HeroData, HeatmapCardData) {
+    func buildHeroAndHeatmap(rows: [DeckListRow]) async -> (HeroData, HeatmapCardData) {
         let totalDue = rows.reduce(0) { $0 + $1.counts.total }
         let deckCount = rows.count
-        guard let graphs = try? statsClient.fetchGraphs("", 365) else {
+        guard let graphs = try? await statsClient.fetchGraphs("", 365) else {
             return (
                 HeroData(
                     totalDue: totalDue,

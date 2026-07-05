@@ -41,7 +41,7 @@ final class AddImageOcclusionModel {
     }
 
     func loadDecks() async {
-        decks = (try? deckClient.fetchAll()) ?? []
+        decks = (try? await deckClient.fetchAll()) ?? []
 
         if let preselectedDeckId, decks.contains(where: { $0.id == preselectedDeckId }) {
             selectedDeckId = preselectedDeckId

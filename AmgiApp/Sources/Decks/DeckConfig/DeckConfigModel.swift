@@ -152,8 +152,8 @@ final class DeckConfigModel {
         isLoading = true
         loadError = nil
         do {
-            let config = try deckClient.getDeckConfig(deckId)
-            let context = (try? deckClient.fetchDeckConfigContext(deckId)) ?? fallbackContext(from: config)
+            let config = try await deckClient.getDeckConfig(deckId)
+            let context = (try? await deckClient.fetchDeckConfigContext(deckId)) ?? fallbackContext(from: config)
             apply(config: config, context: context)
             isLoading = false
         } catch {
@@ -292,7 +292,7 @@ final class DeckConfigModel {
         updated.config = cfg
 
         do {
-            try deckClient.updateDeckConfig(
+            try await deckClient.updateDeckConfig(
                 deckId,
                 updated,
                 applyToChildren,
@@ -382,7 +382,7 @@ final class DeckConfigModel {
         isPresetMutating = true
         defer { isPresetMutating = false }
         do {
-            try deckClient.selectDeckPreset(deckId, target, applyToChildren)
+            try await deckClient.selectDeckPreset(deckId, target, applyToChildren)
             await loadConfig()
         } catch {
             destination = .alert(.presetError("Failed to switch preset: \(error.localizedDescription)"))
@@ -395,7 +395,7 @@ final class DeckConfigModel {
         isPresetMutating = true
         defer { isPresetMutating = false }
         do {
-            try deckClient.createDeckPreset(deckId, base, uniqueName(name), applyToChildren)
+            try await deckClient.createDeckPreset(deckId, base, uniqueName(name), applyToChildren)
             newPresetName = ""
             await loadConfig()
         } catch {
@@ -413,7 +413,7 @@ final class DeckConfigModel {
             base.name = trimmed
             // Reuse selectDeckPreset which writes the existing config's row in
             // place — same RPC the Anki Desktop "rename preset" flow uses.
-            try deckClient.selectDeckPreset(deckId, base, applyToChildren)
+            try await deckClient.selectDeckPreset(deckId, base, applyToChildren)
             await loadConfig()
         } catch {
             destination = .alert(.presetError("Failed to rename preset: \(error.localizedDescription)"))
@@ -425,7 +425,7 @@ final class DeckConfigModel {
         isPresetMutating = true
         defer { isPresetMutating = false }
         do {
-            try deckClient.deleteDeckPreset(deckId, current.id, fallback, applyToChildren)
+            try await deckClient.deleteDeckPreset(deckId, current.id, fallback, applyToChildren)
             await loadConfig()
         } catch {
             destination = .alert(.presetError("Failed to delete preset: \(error.localizedDescription)"))
@@ -457,7 +457,7 @@ final class DeckConfigModel {
                 runHealthCheck: fsrsHealthCheck
             )
 
-            let result = try deckClient.computeFsrsParams(request)
+            let result = try await deckClient.computeFsrsParams(request)
             guard !result.weights.isEmpty else {
                 destination = .alert(.fsrsError("Not enough review history to optimize. Try lowering historical retention or expanding the search."))
                 return
@@ -477,7 +477,7 @@ final class DeckConfigModel {
         defer { isOptimizingFsrs = false }
 
         do {
-            try deckClient.optimizeFsrsPresets(deckId, loaded.config)
+            try await deckClient.optimizeFsrsPresets(deckId, loaded.config)
             await loadConfig()
         } catch {
             destination = .alert(.fsrsError(error.localizedDescription))

@@ -19,13 +19,13 @@ final class StatsDashboardModel {
     @ObservationIgnored @Dependency(\.deckClient) private var deckClient
 
     func loadDecks() async {
-        decks = (try? deckClient.fetchAll()) ?? []
+        decks = (try? await deckClient.fetchAll()) ?? []
     }
 
     func loadStats(search: String, days: Int) async {
         isLoading = graphs == nil
         do {
-            graphs = try statsClient.fetchGraphs(search, days)
+            graphs = try await statsClient.fetchGraphs(search, days)
             errorMessage = nil
         } catch {
             errorMessage = error.localizedDescription

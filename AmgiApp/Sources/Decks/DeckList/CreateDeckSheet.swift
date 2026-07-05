@@ -45,7 +45,7 @@ private extension CreateDeckSheet {
     func create() async {
         isSaving = true
         do {
-            _ = try deckClient.create(name.trimmingCharacters(in: .whitespaces))
+            _ = try await deckClient.create(name.trimmingCharacters(in: .whitespaces))
             onDone()
         } catch {
             print("[CreateDeckSheet] Create failed: \(error)")

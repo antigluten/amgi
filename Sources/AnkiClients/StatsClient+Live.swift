@@ -8,7 +8,7 @@ extension StatsClient: DependencyKey {
 
         return Self(
             fetchGraphs: { search, days in
-                try stats.fetchGraphs(search, days)
+                try await backendOffload { try stats.fetchGraphs(search, days) }
             }
         )
     }()

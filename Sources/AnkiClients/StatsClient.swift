@@ -4,7 +4,7 @@ import DependenciesMacros
 
 @DependencyClient
 public struct StatsClient: Sendable {
-    public var fetchGraphs: @Sendable (_ search: String, _ days: Int) throws -> GraphsSnapshot
+    public var fetchGraphs: @Sendable (_ search: String, _ days: Int) async throws -> GraphsSnapshot
 }
 
 extension StatsClient: TestDependencyKey {
