@@ -68,7 +68,7 @@ final class BrowseModel {
     func loadInitial() async {
         await loadDecks()
         await performSearch()
-        allTags = ((try? tagClient.getAllTags()) ?? []).sorted()
+        allTags = ((try? await tagClient.getAllTags()) ?? []).sorted()
         if let pairs = try? notetypesService.getNotetypeNames() {
             notetypeNames = Dictionary(uniqueKeysWithValues: pairs.map { ($0.id, $0.name) })
         }
@@ -86,7 +86,7 @@ final class BrowseModel {
         isLoading = true
         let query = buildQuery()
         do {
-            let results = try noteClient.search(query, nil)
+            let results = try await noteClient.search(query, nil)
             allNotes = results
             notes = Array(results.prefix(pageSize))
             hasMorePages = results.count > pageSize
@@ -108,7 +108,7 @@ final class BrowseModel {
 
     /// Lazy-fetch full note details for a stub and update the arrays in place.
     func fetchNoteDetails(id: NoteID) async {
-        guard let fullNote = try? noteClient.fetch(id) else { return }
+        guard let fullNote = try? await noteClient.fetch(id) else { return }
         if let idx = notes.firstIndex(where: { $0.id == id }) {
             notes[idx] = fullNote
         }
@@ -118,35 +118,41 @@ final class BrowseModel {
     }
 
     /// Resolve a possibly-stub note to its full record before navigation.
+    /// This runs from a synchronous SwiftUI `navigationDestination` closure
+    /// that can't await, so it falls back to the model's already-loaded
+    /// arrays (kept current by `fetchNoteDetails`) rather than an async
+    /// backend fetch.
     func resolved(_ note: NoteRecord) -> NoteRecord {
         guard note.sfld == "Loading..." else { return note }
-        return (try? noteClient.fetch(note.id)) ?? note
+        return notes.first(where: { $0.id == note.id })
+            ?? allNotes.first(where: { $0.id == note.id })
+            ?? note
     }
 
     // MARK: - Mutations
 
     func delete(_ id: NoteID) async {
-        try? noteClient.delete(id)
+        try? await noteClient.delete(id)
         await performSearch()
     }
 
     func suspendSelected(_ noteIDs: Set<NoteID>) async {
-        for id in collectCardIDs(for: noteIDs) {
-            try? cardClient.suspend(id)
+        for id in await collectCardIDs(for: noteIDs) {
+            try? await cardClient.suspend(id)
         }
         await performSearch()
     }
 
     func flagSelected(_ noteIDs: Set<NoteID>, value: UInt32) async {
-        for id in collectCardIDs(for: noteIDs) {
-            try? cardClient.flag(id, value)
+        for id in await collectCardIDs(for: noteIDs) {
+            try? await cardClient.flag(id, value)
         }
         await performSearch()
     }
 
     func deleteSelected(_ noteIDs: Set<NoteID>) async {
         for id in noteIDs {
-            try? noteClient.delete(id)
+            try? await noteClient.delete(id)
         }
         await performSearch()
     }
@@ -168,10 +174,10 @@ final class BrowseModel {
         return parts.joined(separator: " ")
     }
 
-    private func collectCardIDs(for noteIDs: Set<NoteID>) -> [CardID] {
+    private func collectCardIDs(for noteIDs: Set<NoteID>) async -> [CardID] {
         var result: [CardID] = []
         for nid in noteIDs {
-            if let cards = try? cardClient.fetchByNote(nid) {
+            if let cards = try? await cardClient.fetchByNote(nid) {
                 result.append(contentsOf: cards.map(\.id))
             }
         }

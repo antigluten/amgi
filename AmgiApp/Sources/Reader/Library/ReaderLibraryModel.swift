@@ -50,7 +50,7 @@ final class ReaderLibraryModel {
         var firstError: String?
         if let configuration = ReaderConfigurationLoader.loadConfiguration() {
             do {
-                ankiBooks = try readerBookClient.loadBooks(configuration)
+                ankiBooks = try await readerBookClient.loadBooks(configuration)
             } catch {
                 firstError = error.localizedDescription
             }

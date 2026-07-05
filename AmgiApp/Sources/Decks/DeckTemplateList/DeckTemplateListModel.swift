@@ -23,7 +23,7 @@ final class DeckTemplateListModel {
         defer { isLoading = false }
 
         do {
-            let allEntries = try notetypesClient.listAll()
+            let allEntries = try await notetypesClient.listAll()
             entries = sortDeckTemplateEntries(allEntries)
             errorMessage = nil
         } catch {
@@ -37,9 +37,9 @@ final class DeckTemplateListModel {
         guard !trimmed.isEmpty, trimmed != target.name else { return }
 
         do {
-            var notetype: Notetype = try notetypesClient.get(target.id)
+            var notetype: Notetype = try await notetypesClient.get(target.id)
             notetype.name = trimmed
-            try notetypesClient.update(notetype)
+            try await notetypesClient.update(notetype)
             await loadTemplates()
         } catch {
             actionError = "Rename failed: \(error.localizedDescription)"
@@ -49,7 +49,7 @@ final class DeckTemplateListModel {
 
     func delete(_ target: NotetypeNameId) async {
         do {
-            try notetypesClient.remove(target.id)
+            try await notetypesClient.remove(target.id)
             await loadTemplates()
         } catch {
             actionError = "Delete failed: \(error.localizedDescription)"

@@ -75,7 +75,7 @@ final class StudyLandingModel {
             )
 
             // 4. Books → sort by lastRead desc → take 8 → map to DTO
-            let readingRecs = loadReadingRecs()
+            let readingRecs = await loadReadingRecs()
 
             contentState = .loaded(summary: summary, decks: deckRows, readingRecs: readingRecs)
         } catch {
@@ -87,15 +87,15 @@ final class StudyLandingModel {
     func selectBook(_ bookID: String) {
         guard let configuration = ReaderConfigurationLoader.loadConfiguration() else { return }
         Task {
-            if let book = try? readerBookClient.loadBook(bookID, configuration) {
+            if let book = try? await readerBookClient.loadBook(bookID, configuration) {
                 selectedBook = book
             }
         }
     }
 
-    private func loadReadingRecs() -> [StudyReadingRecData] {
+    private func loadReadingRecs() async -> [StudyReadingRecData] {
         guard let configuration = ReaderConfigurationLoader.loadConfiguration(),
-              let books = try? readerBookClient.loadBooks(configuration) else {
+              let books = try? await readerBookClient.loadBooks(configuration) else {
             return []
         }
 

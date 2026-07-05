@@ -464,7 +464,7 @@ struct NoteContextMenuButton: View {
         }
         .task(id: noteId) {
             guard firstCardId == nil else { return }
-            firstCardId = (try? cardClient.fetchByNote(noteId))?.first?.id
+            firstCardId = (try? await cardClient.fetchByNote(noteId))?.first?.id
         }
     }
 }

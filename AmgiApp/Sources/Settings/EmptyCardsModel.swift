@@ -48,18 +48,20 @@ final class EmptyCardsModel {
                 let deckById = (try? await capturedDeckClient.fetchAll())?.reduce(into: [DeckID: String]()) { partial, deck in
                     partial[deck.id] = deck.name
                 } ?? [:]
-                let entries = emptyReport.notes.map { note in
-                    let cards = (try? capturedCardClient.fetchByNote(note.noteID)) ?? []
+                var entries: [NoteEntry] = []
+                entries.reserveCapacity(emptyReport.notes.count)
+                for note in emptyReport.notes {
+                    let cards = (try? await capturedCardClient.fetchByNote(note.noteID)) ?? []
                     let totalCards = max(cards.count, note.cardIDs.count)
                     let deckName = cards.first.flatMap { deckById[$0.did] } ?? "-"
-                    return NoteEntry(
+                    entries.append(NoteEntry(
                         id: note.noteID,
                         cardIds: note.cardIDs,
                         totalCards: totalCards,
                         emptyCards: note.cardIDs.count,
                         deckName: deckName,
                         willDeleteNote: note.willDeleteNote
-                    )
+                    ))
                 }
                 return (emptyReport.report, entries)
             }.value
@@ -80,7 +82,7 @@ final class EmptyCardsModel {
         let cardClientCapture = cardClient
         do {
             try await Task.detached {
-                try cardClientCapture.removeCards(allCardIds)
+                try await cardClientCapture.removeCards(allCardIds)
             }.value
             return true
         } catch {
@@ -91,8 +93,8 @@ final class EmptyCardsModel {
 
     /// Fetch the full note record for the editor; sets `errorMessage` and
     /// returns nil if it can't be loaded.
-    func fetchNote(_ id: NoteID) -> NoteRecord? {
-        guard let note = try? noteClient.fetch(id) else {
+    func fetchNote(_ id: NoteID) async -> NoteRecord? {
+        guard let note = try? await noteClient.fetch(id) else {
             errorMessage = "An unknown error occurred."
             return nil
         }

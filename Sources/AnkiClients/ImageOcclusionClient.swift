@@ -16,15 +16,15 @@ public struct ImageOcclusionClient: Sendable {
         _ tags: [String],
         _ deckID: DeckID,
         _ notetypeID: NotetypeID
-    ) throws -> Void
+    ) async throws -> Void
 
     /// Ensures the image-occlusion notetype exists in the collection.
     /// Safe to call multiple times — Anki skips creation if it already exists.
-    public var ensureNotetype: @Sendable () throws -> Void
+    public var ensureNotetype: @Sendable () async throws -> Void
 
     /// Fetches an existing image occlusion note for editing.
     /// Returns (imageData, imageName, occlusions, header, backExtra, tags).
-    public var getNote: @Sendable (_ noteId: NoteID) throws -> ImageOcclusionNoteData
+    public var getNote: @Sendable (_ noteId: NoteID) async throws -> ImageOcclusionNoteData
 
     /// Updates an existing image occlusion note.
     public var updateNote: @Sendable (
@@ -33,7 +33,7 @@ public struct ImageOcclusionClient: Sendable {
         _ header: String,
         _ backExtra: String,
         _ tags: [String]
-    ) throws -> Void
+    ) async throws -> Void
 }
 
 extension ImageOcclusionClient: TestDependencyKey {
