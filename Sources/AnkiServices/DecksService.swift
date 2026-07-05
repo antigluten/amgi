@@ -12,9 +12,9 @@ public struct DecksService: Sendable {
     public var countsForDeck: @Sendable (_ deckId: DeckID) throws -> DeckCounts
     public var setCurrentDeck: @Sendable (_ deckId: DeckID) throws -> Void
     public var getCurrentDeck: @Sendable () throws -> DeckInfo
-    public var createDeck: @Sendable (_ name: String) throws -> DeckID
-    public var renameDeck: @Sendable (_ deckId: DeckID, _ name: String) throws -> Void
-    public var removeDeck: @Sendable (_ deckId: DeckID) throws -> Void
+    public var createDeck: @Sendable (_ name: String) throws -> DeckCreation
+    public var renameDeck: @Sendable (_ deckId: DeckID, _ name: String) throws -> CollectionChanges
+    public var removeDeck: @Sendable (_ deckId: DeckID) throws -> CollectionChanges
     public var rebuildFilteredDeck: @Sendable (_ deckId: DeckID) throws -> Int
     public var emptyFilteredDeck: @Sendable (_ deckId: DeckID) throws -> Void
     public var fetchDeckConfigContext: @Sendable (_ deckId: DeckID) throws -> DeckConfigsForUpdate

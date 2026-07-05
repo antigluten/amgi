@@ -7,9 +7,9 @@ public struct DeckClient: Sendable {
     public var fetchAll: @Sendable () throws -> [DeckInfo]
     public var fetchTree: @Sendable () throws -> [DeckTreeNode]
     public var countsForDeck: @Sendable (_ deckId: DeckID) throws -> DeckCounts
-    public var create: @Sendable (_ name: String) throws -> DeckID
-    public var rename: @Sendable (_ deckId: DeckID, _ name: String) throws -> Void
-    public var delete: @Sendable (_ deckId: DeckID) throws -> Void
+    public var create: @Sendable (_ name: String) throws -> DeckCreation
+    public var rename: @Sendable (_ deckId: DeckID, _ name: String) throws -> CollectionChanges
+    public var delete: @Sendable (_ deckId: DeckID) throws -> CollectionChanges
     public var rebuildFilteredDeck: @Sendable (_ deckId: DeckID) throws -> Int
     public var emptyFilteredDeck: @Sendable (_ deckId: DeckID) throws -> Void
     public var fetchDeckConfigContext: @Sendable (_ deckId: DeckID) throws -> DeckConfigsForUpdate

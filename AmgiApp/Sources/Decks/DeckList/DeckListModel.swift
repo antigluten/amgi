@@ -35,7 +35,7 @@ final class DeckListModel {
 
     func delete(_ id: DeckID) async {
         do {
-            try deckClient.delete(id)
+            _ = try deckClient.delete(id)
         } catch {
             print("[DeckListModel] Delete failed: \(error)")
         }
