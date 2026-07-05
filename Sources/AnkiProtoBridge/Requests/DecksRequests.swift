@@ -104,7 +104,10 @@ extension Request where Response == Void {
         )
     }
 
-    /// Renames a deck in place.
+}
+
+extension Request where Response == CollectionChanges {
+    /// Renames the deck. Returns the invalidation payload.
     public static func renameDeck(deckId: DeckID, newName: String) -> Self {
         Self(
             serviceId: ServiceID.decks,
@@ -115,12 +118,14 @@ extension Request where Response == Void {
                 proto.newName = newName
                 return try proto.serializedData()
             },
-            decode: { _ in () }
+            decode: { bytes in
+                CollectionChanges(try Anki_Collection_OpChanges(serializedBytes: bytes))
+            }
         )
     }
 
-    /// Removes the given deck(s). The Anki backend cascades to children
-    /// and their cards.
+    /// Removes the given deck(s). The Anki backend cascades to children.
+    /// Returns the invalidation payload.
     public static func removeDecks(deckIds: [DeckID]) -> Self {
         Self(
             serviceId: ServiceID.decks,
@@ -130,7 +135,10 @@ extension Request where Response == Void {
                 proto.dids = deckIds.map(\.rawValue)
                 return try proto.serializedData()
             },
-            decode: { _ in () }
+            decode: { bytes in
+                let resp = try Anki_Collection_OpChangesWithCount(serializedBytes: bytes)
+                return CollectionChanges(resp.changes)
+            }
         )
     }
 }
@@ -166,9 +174,9 @@ extension Request where Response == DeckTemplate {
     }
 }
 
-extension Request where Response == DeckID {
-    /// Renames the given template to `name` and persists it. Returns
-    /// the new deck's id.
+extension Request where Response == DeckCreation {
+    /// Renames the given template to `name` and persists it. Returns the
+    /// new deck's id plus the invalidation payload.
     public static func addDeck(template: DeckTemplate, name: String) -> Self {
         Self(
             serviceId: ServiceID.decks,
@@ -180,7 +188,10 @@ extension Request where Response == DeckID {
             },
             decode: { bytes in
                 let resp = try Anki_Collection_OpChangesWithId(serializedBytes: bytes)
-                return DeckID(resp.id)
+                return DeckCreation(
+                    id: DeckID(resp.id),
+                    changes: CollectionChanges(resp.changes)
+                )
             }
         )
     }

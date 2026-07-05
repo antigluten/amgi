@@ -50,7 +50,7 @@ private extension RenameDeckSheet {
     func rename() async {
         isSaving = true
         do {
-            try deckClient.rename(deckId, name.trimmingCharacters(in: .whitespaces))
+            _ = try deckClient.rename(deckId, name.trimmingCharacters(in: .whitespaces))
             onDone()
         } catch {
             print("[RenameDeckSheet] Rename failed: \(error)")
