@@ -9,52 +9,56 @@ extension NoteClient: DependencyKey {
 
         return Self(
             fetch: { noteId in
-                try notes.getNote(noteId)
+                try await backendOffload { try notes.getNote(noteId) }
             },
             search: { query, limit in
-                let ids = try notes.searchNoteIds(query)
-                let bounded = Array(ids.prefix(limit ?? 5000))
+                try await backendOffload {
+                    let ids = try notes.searchNoteIds(query)
+                    let bounded = Array(ids.prefix(limit ?? 5000))
 
-                let firstPageSize = min(bounded.count, 50)
-                var results: [NoteRecord] = []
-                results.reserveCapacity(bounded.count)
+                    let firstPageSize = min(bounded.count, 50)
+                    var results: [NoteRecord] = []
+                    results.reserveCapacity(bounded.count)
 
-                for nid in bounded.prefix(firstPageSize) {
-                    if let note = try? notes.getNote(nid) {
-                        results.append(note)
+                    for nid in bounded.prefix(firstPageSize) {
+                        if let note = try? notes.getNote(nid) {
+                            results.append(note)
+                        }
                     }
-                }
 
-                for nid in bounded.dropFirst(firstPageSize) {
-                    results.append(NoteRecord(
-                        id: nid, guid: "", mid: NotetypeID(0), mod: 0,
-                        tags: "", flds: "", sfld: "Loading...", csum: 0
-                    ))
-                }
+                    for nid in bounded.dropFirst(firstPageSize) {
+                        results.append(NoteRecord(
+                            id: nid, guid: "", mid: NotetypeID(0), mod: 0,
+                            tags: "", flds: "", sfld: "Loading...", csum: 0
+                        ))
+                    }
 
-                return results
+                    return results
+                }
             },
             searchAll: { query, limit in
-                let ids = try notes.searchNoteIds(query)
-                let bounded = Array(ids.prefix(limit ?? Int.max))
-                var results: [NoteRecord] = []
-                results.reserveCapacity(bounded.count)
-                // No lazy placeholders — every record gets a real
-                // backend fetch. Skips IDs that fail to load (deleted
-                // or otherwise unreachable) rather than aborting the
-                // whole batch.
-                for nid in bounded {
-                    if let note = try? notes.getNote(nid) {
-                        results.append(note)
+                try await backendOffload {
+                    let ids = try notes.searchNoteIds(query)
+                    let bounded = Array(ids.prefix(limit ?? Int.max))
+                    var results: [NoteRecord] = []
+                    results.reserveCapacity(bounded.count)
+                    // No lazy placeholders — every record gets a real
+                    // backend fetch. Skips IDs that fail to load (deleted
+                    // or otherwise unreachable) rather than aborting the
+                    // whole batch.
+                    for nid in bounded {
+                        if let note = try? notes.getNote(nid) {
+                            results.append(note)
+                        }
                     }
+                    return results
                 }
-                return results
             },
             save: { note in
-                try notes.saveNote(note)
+                try await backendOffload { try notes.saveNote(note) }
             },
             delete: { noteId in
-                try notes.deleteNote(noteId)
+                try await backendOffload { try notes.deleteNote(noteId) }
             }
         )
     }()

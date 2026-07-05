@@ -13,17 +13,17 @@ extension NotetypesClient: DependencyKey {
 
         return Self(
             listAll: {
-                try backend.invoke(.notetypeNames)
+                try await backend.invoke(.notetypeNames)
             },
             get: { id in
-                try backend.invoke(.notetype(for: id))
+                try await backend.invoke(.notetype(for: id))
             },
             update: { notetype in
-                try backend.invoke(.updateNotetype(notetype))
+                try await backend.invoke(.updateNotetype(notetype))
                 logger.info("Notetype updated: id=\(notetype.id.rawValue)")
             },
             remove: { id in
-                try backend.invoke(.removeNotetype(id: id))
+                try await backend.invoke(.removeNotetype(id: id))
                 logger.info("Notetype removed: id=\(id.rawValue)")
             }
         )

@@ -18,28 +18,32 @@ extension MediaClient: DependencyKey {
                 return FileManager.default.fileExists(atPath: url.path) ? url : nil
             },
             save: { data, filename in
-                guard let folder = backend.currentMediaFolderPath else { return }
-                let url = URL(fileURLWithPath: folder).appendingPathComponent(filename)
-                try data.write(to: url)
+                try await backendOffload {
+                    guard let folder = backend.currentMediaFolderPath else { return }
+                    let url = URL(fileURLWithPath: folder).appendingPathComponent(filename)
+                    try data.write(to: url)
+                }
             },
             delete: { filename in
-                guard let folder = backend.currentMediaFolderPath else { return }
-                let url = URL(fileURLWithPath: folder).appendingPathComponent(filename)
-                try FileManager.default.removeItem(at: url)
+                try await backendOffload {
+                    guard let folder = backend.currentMediaFolderPath else { return }
+                    let url = URL(fileURLWithPath: folder).appendingPathComponent(filename)
+                    try FileManager.default.removeItem(at: url)
+                }
             },
             checkMedia: {
-                try backend.invoke(.checkMedia)
+                try await backend.invoke(.checkMedia)
             },
             trashMediaFiles: { filenames in
-                try backend.invoke(.trashMediaFiles(filenames: filenames))
+                try await backend.invoke(.trashMediaFiles(filenames: filenames))
                 logger.info("Moved \(filenames.count) media files to trash")
             },
             emptyTrash: {
-                try backend.invoke(.emptyMediaTrash)
+                try await backend.invoke(.emptyMediaTrash)
                 logger.info("Media trash emptied")
             },
             restoreTrash: {
-                try backend.invoke(.restoreMediaTrash)
+                try await backend.invoke(.restoreMediaTrash)
                 logger.info("Media trash restored")
             }
         )

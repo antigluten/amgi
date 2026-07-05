@@ -22,7 +22,7 @@ final class TagsModel {
 
     func loadTags() async {
         do {
-            allTags = try tagClient.getAllTags().sorted()
+            allTags = try await tagClient.getAllTags().sorted()
             isLoading = false
         } catch {
             errorMessage = "Failed to load tags: \(error.localizedDescription)"
@@ -37,9 +37,9 @@ final class TagsModel {
     func createTag(name: String, targetNoteIDs: [NoteID]) async -> Bool {
         do {
             if targetNoteIDs.isEmpty {
-                try tagClient.addTag(name)
+                try await tagClient.addTag(name)
             } else {
-                try tagClient.addTagToNotes(name, targetNoteIDs)
+                try await tagClient.addTagToNotes(name, targetNoteIDs)
             }
             await loadTags()
             return true
@@ -54,7 +54,7 @@ final class TagsModel {
         isApplying = true
         defer { isApplying = false }
         do {
-            try tagClient.addTagToNotes(tag, targetNoteIDs)
+            try await tagClient.addTagToNotes(tag, targetNoteIDs)
         } catch {
             errorMessage = "Failed to apply tag: \(error.localizedDescription)"
             showError = true
@@ -65,7 +65,7 @@ final class TagsModel {
         isApplying = true
         defer { isApplying = false }
         do {
-            try tagClient.removeTagFromNotes(tag, targetNoteIDs)
+            try await tagClient.removeTagFromNotes(tag, targetNoteIDs)
         } catch {
             errorMessage = "Failed to remove tag: \(error.localizedDescription)"
             showError = true
@@ -76,7 +76,7 @@ final class TagsModel {
         isDeleting = true
         defer { isDeleting = false }
         do {
-            try tagClient.removeTag(tag)
+            try await tagClient.removeTag(tag)
             await loadTags()
         } catch {
             errorMessage = "Failed to delete tag: \(error.localizedDescription)"
@@ -89,7 +89,7 @@ final class TagsModel {
         let trimmed = newName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty, trimmed != oldName else { return false }
         do {
-            try tagClient.renameTag(oldName, trimmed)
+            try await tagClient.renameTag(oldName, trimmed)
             await loadTags()
             return true
         } catch {

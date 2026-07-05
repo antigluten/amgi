@@ -15,7 +15,7 @@ extension TagClient: DependencyKey {
         return Self(
             getAllTags: {
                 do {
-                    let tags = try backend.invoke(.allTagPaths)
+                    let tags = try await backend.invoke(.allTagPaths)
                     logger.info("Retrieved \(tags.count) tags")
                     return tags
                 } catch {
@@ -29,7 +29,7 @@ extension TagClient: DependencyKey {
                     throw BackendError(kind: .invalidInput, message: "Tag name cannot be empty")
                 }
                 do {
-                    try backend.invoke(.setTagCollapsed(tag: normalized, collapsed: false))
+                    try await backend.invoke(.setTagCollapsed(tag: normalized, collapsed: false))
                     logger.info("Tag '\(normalized)' created via SetTagCollapsed")
                 } catch {
                     logger.error("addTag failed for '\(normalized)': \(error)")
@@ -45,7 +45,7 @@ extension TagClient: DependencyKey {
                     throw BackendError(kind: .invalidInput, message: "No notes selected")
                 }
                 do {
-                    try backend.invoke(.addNoteTags(noteIds: noteIDs, tags: normalized))
+                    try await backend.invoke(.addNoteTags(noteIds: noteIDs, tags: normalized))
                     logger.info("Applied tag '\(normalized)' to \(noteIDs.count) notes")
                 } catch {
                     logger.error("addTagToNotes failed for tag='\(normalized)': \(error)")
@@ -61,7 +61,7 @@ extension TagClient: DependencyKey {
                     throw BackendError(kind: .invalidInput, message: "No notes selected")
                 }
                 do {
-                    try backend.invoke(.removeNoteTags(noteIds: noteIDs, tags: normalized))
+                    try await backend.invoke(.removeNoteTags(noteIds: noteIDs, tags: normalized))
                     logger.info("Removed tag '\(normalized)' from \(noteIDs.count) notes")
                 } catch {
                     logger.error("removeTagFromNotes failed for tag='\(normalized)': \(error)")
@@ -70,7 +70,7 @@ extension TagClient: DependencyKey {
             },
             removeTag: { tag in
                 do {
-                    try backend.invoke(.removeTags(name: tag))
+                    try await backend.invoke(.removeTags(name: tag))
                     logger.info("Tag '\(tag)' removed")
                 } catch {
                     logger.error("removeTag failed for '\(tag)': \(error)")
@@ -79,7 +79,7 @@ extension TagClient: DependencyKey {
             },
             renameTag: { oldName, newName in
                 do {
-                    try backend.invoke(.renameTags(oldPrefix: oldName, newPrefix: newName))
+                    try await backend.invoke(.renameTags(oldPrefix: oldName, newPrefix: newName))
                     logger.info("Tag renamed: '\(oldName)' → '\(newName)'")
                 } catch {
                     logger.error("renameTag failed: \(error)")
@@ -88,7 +88,7 @@ extension TagClient: DependencyKey {
             },
             findNotesByTag: { tag in
                 do {
-                    let ids = try backend.invoke(.searchNoteIds(query: "tag:\(tag)"))
+                    let ids = try await backend.invoke(.searchNoteIds(query: "tag:\(tag)"))
                     logger.info("Found \(ids.count) notes with tag '\(tag)'")
                     return ids
                 } catch {

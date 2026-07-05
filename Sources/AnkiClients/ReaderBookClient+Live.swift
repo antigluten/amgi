@@ -22,16 +22,16 @@ extension ReaderBookClient: DependencyKey {
 
         return Self(
             loadBooks: { configuration in
-                let notes = try fetchNotes(for: configuration, noteClient: noteClient)
-                return try buildBooks(
+                let notes = try await fetchNotes(for: configuration, noteClient: noteClient)
+                return try await buildBooks(
                     from: notes,
                     configuration: configuration,
                     notetypesClient: notetypesClient
                 )
             },
             loadBook: { bookID, configuration in
-                let notes = try fetchNotes(for: configuration, noteClient: noteClient)
-                return try buildBooks(
+                let notes = try await fetchNotes(for: configuration, noteClient: noteClient)
+                return try await buildBooks(
                     from: notes,
                     configuration: configuration,
                     notetypesClient: notetypesClient
@@ -47,12 +47,12 @@ extension ReaderBookClient: DependencyKey {
 private func fetchNotes(
     for configuration: ReaderLibraryConfiguration,
     noteClient: NoteClient
-) throws -> [NoteRecord] {
+) async throws -> [NoteRecord] {
     let query = try validatedDeckQuery(configuration.deckName)
     // searchAll (not search) — we read `note.flds` immediately to build
     // chapters, so the lazy 50-real-rest-placeholder behavior of
     // `search` would silently drop chapter content past the first 50.
-    var notes = try noteClient.searchAll(query, nil)
+    var notes = try await noteClient.searchAll(query, nil)
     if let notetypeID = configuration.notetypeID {
         notes = notes.filter { $0.mid.rawValue == notetypeID }
     }
@@ -76,7 +76,7 @@ private func buildBooks(
     from notes: [NoteRecord],
     configuration: ReaderLibraryConfiguration,
     notetypesClient: NotetypesClient
-) throws -> [ReaderBook] {
+) async throws -> [ReaderBook] {
     var fieldNamesByNotetypeID: [NotetypeID: [String]] = [:]
     var chaptersByBookID: [String: [ReaderChapter]] = [:]
     var coverImagePathByBookID: [String: String] = [:]
@@ -93,7 +93,7 @@ private func buildBooks(
         if let cached = fieldNamesByNotetypeID[note.mid] {
             fieldNames = cached
         } else {
-            let notetype = try notetypesClient.get(note.mid)
+            let notetype = try await notetypesClient.get(note.mid)
             let names = notetype.fields.map(\.name)
             fieldNamesByNotetypeID[note.mid] = names
             fieldNames = names

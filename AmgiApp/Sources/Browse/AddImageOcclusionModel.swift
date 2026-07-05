@@ -101,7 +101,7 @@ final class AddImageOcclusionModel {
         let tags = tagsText.split(separator: " ").map(String.init).filter { !$0.isEmpty }
 
         do {
-            try client.addNote(url, occlusions, header, backExtra, tags, selectedDeckId, NotetypeID(0))
+            try await client.addNote(url, occlusions, header, backExtra, tags, selectedDeckId, NotetypeID(0))
             return true
         } catch {
             errorMessage = error.localizedDescription

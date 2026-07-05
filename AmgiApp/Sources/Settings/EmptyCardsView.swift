@@ -17,7 +17,9 @@ struct EmptyCardsView: View {
         EmptyCardsContent(
             model: model,
             onOpenNote: { id in
-                if let note = model.fetchNote(id) { editingNote = note }
+                Task {
+                    if let note = await model.fetchNote(id) { editingNote = note }
+                }
             },
             onRequestDeleteAll: { showDeleteConfirm = true }
         )
