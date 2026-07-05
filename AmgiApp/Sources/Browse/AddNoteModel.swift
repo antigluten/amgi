@@ -44,7 +44,7 @@ final class AddNoteModel {
     }
 
     func loadData() async {
-        decks = (try? deckClient.fetchAll()) ?? []
+        decks = (try? await deckClient.fetchAll()) ?? []
         if let preselectedDeckId, decks.contains(where: { $0.id == preselectedDeckId }) {
             selectedDeckId = preselectedDeckId
         } else if let first = decks.first {

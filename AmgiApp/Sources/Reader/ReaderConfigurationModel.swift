@@ -17,7 +17,7 @@ final class ReaderConfigurationModel {
 
     func loadDecks() async {
         do {
-            decks = try deckClient.fetchAll().sorted { $0.name < $1.name }
+            decks = try await deckClient.fetchAll().sorted { $0.name < $1.name }
         } catch {
             loadError = "Failed to load decks: \(error.localizedDescription)"
         }

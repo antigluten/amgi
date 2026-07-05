@@ -76,7 +76,7 @@ final class BrowseModel {
 
     func loadDecks() async {
         do {
-            allDecks = try deckClient.fetchAll()
+            allDecks = try await deckClient.fetchAll()
         } catch {
             allDecks = []
         }

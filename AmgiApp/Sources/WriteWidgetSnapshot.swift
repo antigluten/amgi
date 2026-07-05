@@ -24,10 +24,10 @@ func writeWidgetSnapshot() async {
 
     do {
         // 1. Fetch deck list
-        let decks: [DeckInfo] = try deckClient.fetchAll()
+        let decks: [DeckInfo] = try await deckClient.fetchAll()
 
         // 2. Fetch 28-day stats graph for streak + daily counts
-        let graphs = try statsClient.fetchGraphs("", 28)
+        let graphs = try await statsClient.fetchGraphs("", 28)
 
         // 3+4. Compute streak and last-7-days totals via shared helper.
         let streak = StreakCalculator.streak(reviews: graphs.reviews.count)

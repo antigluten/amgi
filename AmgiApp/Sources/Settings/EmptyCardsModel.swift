@@ -45,7 +45,7 @@ final class EmptyCardsModel {
             // backend calls that scale with note count.
             let (reportText, entries) = try await Task.detached {
                 let emptyReport = try cardRenderingServiceCapture.getEmptyCardsReport()
-                let deckById = (try? capturedDeckClient.fetchAll())?.reduce(into: [DeckID: String]()) { partial, deck in
+                let deckById = (try? await capturedDeckClient.fetchAll())?.reduce(into: [DeckID: String]()) { partial, deck in
                     partial[deck.id] = deck.name
                 } ?? [:]
                 let entries = emptyReport.notes.map { note in
