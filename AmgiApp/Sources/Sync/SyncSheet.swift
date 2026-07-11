@@ -94,7 +94,7 @@ private extension SyncSheet {
         do {
             let summary = try await syncClient.sync()
             syncState = .syncing("Syncing media...")
-            _ = try? await syncClient.syncMedia()
+            try? await syncClient.syncMedia()
             syncState = .success(summary)
         } catch let syncError as SyncError where syncError == .authFailed {
             showLogin = true
