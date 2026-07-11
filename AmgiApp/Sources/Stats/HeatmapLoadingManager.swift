@@ -66,25 +66,6 @@ public actor HeatmapLoadingManager: Sendable {
         logger.info("Set heatmap date range to \(days) days")
     }
 
-    /// Get current configuration
-    public func getCurrentConfig() -> HeatmapConfig {
-        HeatmapConfig(visibleDays: currentVisibleDays, totalDataPoints: allData.count)
-    }
-
-    /// Get statistics for current visible range
-    public func getVisibleStats() -> HeatmapStats {
-        let visibleData = getVisibleData()
-        let total = visibleData.values.reduce(0) { $0 + $1.total }
-        let maxCount = visibleData.values.map { $0.total }.max() ?? 1
-        return HeatmapStats(
-            totalReviews: total,
-            maxReviewsInDay: maxCount,
-            visibleDayCount: visibleData.count,
-            dateRange: currentVisibleDays
-        )
-    }
-
-    // MARK: - Private Helpers
 }
 
 private extension HeatmapLoadingManager {
@@ -106,17 +87,6 @@ public struct ReviewCount: Sendable {
     public let total: Int
 }
 
-public struct HeatmapConfig: Sendable {
-    public let visibleDays: Int
-    public let totalDataPoints: Int
-}
-
-public struct HeatmapStats: Sendable {
-    public let totalReviews: Int
-    public let maxReviewsInDay: Int
-    public let visibleDayCount: Int
-    public let dateRange: Int
-}
 
 // MARK: - Logging
 

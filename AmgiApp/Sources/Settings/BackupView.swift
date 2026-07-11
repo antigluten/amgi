@@ -144,7 +144,6 @@ private extension BackupView {
     func createBackup() async {
         isCreating = true
         defer { isCreating = false }
-        let user = username
         do {
             guard let dir = backupsDirectory() else {
                 throw NSError(
@@ -159,7 +158,6 @@ private extension BackupView {
             formatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"
             let timestamp = formatter.string(from: .now)
             let destURL = dir.appendingPathComponent("\(timestamp).anki2")
-            _ = user // keep param meaningful for future per-user override paths
             try await Task.detached(priority: .userInitiated) {
                 try FileManager.default.copyItem(at: sourceURL, to: destURL)
             }.value
