@@ -3,6 +3,7 @@ import SwiftUI
 import AmgiUI
 import AmgiReader
 import AnkiKit
+import Dependencies
 
 /// Study tab container. Holds a `StudyLandingModel` that loads the deck tree
 /// + reader books and maps to `StudyLandingContent.State`; forwards
@@ -13,8 +14,8 @@ struct StudyLandingView: View {
     /// existing fullscreen cover.
     let onSelectDeck: (DeckID) -> Void
 
+    @Dependency(\.collectionStore) private var store
     @State private var model = StudyLandingModel()
-    @State private var loadTask: Task<Void, Never>?
 
     var body: some View {
         StudyLandingContent(
@@ -30,13 +31,9 @@ struct StudyLandingView: View {
                 ChapterListView(book: book, progress: model.progressCoordinator)
             }
         }
-        .task {
-            loadTask = Task { await model.load() }
-        }
-        .onDisappear {
-            loadTask?.cancel()
-            loadTask = nil
-        }
+        // Keyed on the store's generation: any Invalidation re-runs the
+        // load; `.task` cancels itself on disappear.
+        .task(id: store.generation) { await model.load() }
     }
 
     private func beginSession() {

@@ -16,10 +16,11 @@ final class DeckListModel {
 
     @ObservationIgnored @Dependency(\.deckClient) private var deckClient
     @ObservationIgnored @Dependency(\.statsClient) private var statsClient
+    @ObservationIgnored @Dependency(\.collectionStore) private var store
 
     func load() async {
         do {
-            let tree = try await deckClient.fetchTree()
+            let tree = try await store.tree()
             if tree.isEmpty {
                 state = .empty
                 return
@@ -35,11 +36,12 @@ final class DeckListModel {
 
     func delete(_ id: DeckID) async {
         do {
-            _ = try await deckClient.delete(id)
+            let changes = try await deckClient.delete(id)
+            store.apply(changes)   // generation bump → the view's .task(id:) reloads
         } catch {
             print("[DeckListModel] Delete failed: \(error)")
+            await load()           // error path: no invalidation happened, reload manually
         }
-        await load()
     }
 
     /// First loaded deck that has cards waiting, projected to a `DeckInfo`

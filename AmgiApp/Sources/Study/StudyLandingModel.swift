@@ -17,13 +17,13 @@ final class StudyLandingModel {
 
     let progressCoordinator = ReaderProgressCoordinator()
 
-    @ObservationIgnored @Dependency(\.deckClient) private var deckClient
     @ObservationIgnored @Dependency(\.readerBookClient) private var readerBookClient
+    @ObservationIgnored @Dependency(\.collectionStore) private var store
 
     func load() async {
         do {
             // 1. Deck tree → flatten → filter due > 0 → sort desc
-            let tree = try await deckClient.fetchTree()
+            let tree = try await store.tree()
             guard !tree.isEmpty else {
                 contentState = .empty
                 return

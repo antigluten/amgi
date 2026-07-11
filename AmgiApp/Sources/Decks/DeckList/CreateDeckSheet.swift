@@ -11,6 +11,7 @@ struct CreateDeckSheet: View {
     let onDone: () -> Void
 
     @Dependency(\.deckClient) var deckClient
+    @Dependency(\.collectionStore) var store
     @State private var name = ""
     @State private var isSaving = false
     @Environment(\.dismiss) private var dismiss
@@ -45,7 +46,8 @@ private extension CreateDeckSheet {
     func create() async {
         isSaving = true
         do {
-            _ = try await deckClient.create(name.trimmingCharacters(in: .whitespaces))
+            let creation = try await deckClient.create(name.trimmingCharacters(in: .whitespaces))
+            store.apply(creation.changes)
             onDone()
         } catch {
             print("[CreateDeckSheet] Create failed: \(error)")
