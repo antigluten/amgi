@@ -16,6 +16,7 @@ struct DeckDetailView: View {
     let deck: DeckInfo
 
     @Environment(\.palette) private var palette
+    @Dependency(\.collectionStore) private var store
     @State private var model: DeckDetailModel
     @State private var destination: DeckDetailDestination?
     @State private var newSubdeckName = ""
@@ -99,7 +100,9 @@ struct DeckDetailView: View {
             .overlay(alignment: .bottom) { RebuildFeedbackBanner(feedback: model.rebuildFeedback) }
             .animation(.easeInOut(duration: 0.2), value: model.rebuildFeedback)
             .animation(.easeInOut(duration: 0.2), value: model.importInProgress)
-            .task {
+            // Keyed on the store's generation so mutations (subdeck create,
+            // rebuild/empty, import) reload this screen via Invalidation.
+            .task(id: store.generation) {
                 await model.loadCounts()
                 await model.loadChildren()
                 model.loadStats()

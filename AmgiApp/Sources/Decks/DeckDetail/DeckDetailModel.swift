@@ -29,6 +29,7 @@ final class DeckDetailModel {
 
     @ObservationIgnored @Dependency(\.deckClient) private var deckClient
     @ObservationIgnored @Dependency(\.statsClient) private var statsClient
+    @ObservationIgnored @Dependency(\.collectionStore) private var store
     @ObservationIgnored private var statsTask: Task<Void, Never>?
 
     enum ImportOutcome {
@@ -57,7 +58,7 @@ final class DeckDetailModel {
 
     func loadChildren() async {
         do {
-            let tree = try await deckClient.fetchTree()
+            let tree = try await store.tree()
             childDecks = Self.findChildren(in: tree, parentId: deck.id)
         } catch {
             childDecks = []
@@ -94,7 +95,8 @@ final class DeckDetailModel {
         do {
             let count = try await deckClient.rebuildFilteredDeck(deck.id)
             rebuildFeedback = "Rebuilt — \(count) cards"
-            await loadCounts()
+            // Rebuild's request only decodes a count — invalidate conservatively.
+            store.apply(CollectionChanges(card: true, deck: true, studyQueues: true))
             try? await Task.sleep(for: .seconds(2))
             rebuildFeedback = nil
             return nil
@@ -109,7 +111,7 @@ final class DeckDetailModel {
         defer { actionInFlight = false }
         do {
             try await deckClient.emptyFilteredDeck(deck.id)
-            await loadCounts()
+            store.apply(CollectionChanges(card: true, deck: true, studyQueues: true))
             return nil
         } catch {
             return error.localizedDescription
@@ -153,8 +155,8 @@ final class DeckDetailModel {
         let leafName = trimmed.replacingOccurrences(of: "::", with: "_")
         let fullName = "\(deck.name)::\(leafName)"
         do {
-            _ = try await deckClient.create(fullName)
-            await loadChildren()
+            let creation = try await deckClient.create(fullName)
+            store.apply(creation.changes)
             return nil
         } catch {
             return "Failed to create subdeck: \(error.localizedDescription)"
@@ -179,8 +181,9 @@ private extension DeckDetailModel {
             let summary = try await Task.detached {
                 try ImportHelper.importPackage(from: url)
             }.value
-            await loadCounts()
-            await loadChildren()
+            // Import can touch anything; the generation bump reloads this
+            // screen and the Library behind it.
+            store.apply(.all)
             return .success(summary)
         } catch {
             return .failure("Import failed: \(error.localizedDescription)")
