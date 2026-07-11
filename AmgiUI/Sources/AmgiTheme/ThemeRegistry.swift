@@ -35,10 +35,6 @@ public final class ThemeRegistry: @unchecked Sendable {
         return data.resolve(scheme: scheme)
     }
 
-    public func data(id: ThemeID) -> PaletteData? {
-        themesByID[id.rawValue]
-    }
-
     // MARK: - Bundle loading
 
     private static func loadFromBundle() -> [PaletteData] {

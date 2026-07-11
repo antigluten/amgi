@@ -15,7 +15,6 @@ public import Foundation
 public struct DictionaryConfigStore: Sendable {
     public var load: @Sendable (_ key: String) async throws -> Data?
     public var save: @Sendable (_ json: Data, _ key: String) async throws -> Void
-    public var remove: @Sendable (_ key: String) async throws -> Void
 }
 
 extension DictionaryConfigStore: TestDependencyKey {
@@ -24,8 +23,7 @@ extension DictionaryConfigStore: TestDependencyKey {
     /// without making tests trip over uninitialized closures.
     public static let testValue = DictionaryConfigStore(
         load: { _ in nil },
-        save: { _, _ in },
-        remove: { _ in }
+        save: { _, _ in }
     )
 }
 
@@ -39,8 +37,7 @@ extension DictionaryConfigStore: DependencyKey {
         let storage = MemoryDictionaryConfigStorage()
         return DictionaryConfigStore(
             load: { key in await storage.load(key: key) },
-            save: { value, key in await storage.save(value, key: key) },
-            remove: { key in await storage.remove(key: key) }
+            save: { value, key in await storage.save(value, key: key) }
         )
     }()
 }
@@ -60,5 +57,4 @@ private actor MemoryDictionaryConfigStorage {
 
     func load(key: String) -> Data? { storage[key] }
     func save(_ value: Data, key: String) { storage[key] = value }
-    func remove(key: String) { storage.removeValue(forKey: key) }
 }
