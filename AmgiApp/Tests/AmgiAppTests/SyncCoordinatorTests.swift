@@ -33,7 +33,7 @@ struct SyncCoordinatorTests {
         try await withDependencies {
             $0.appStorageKeyFormatWarningEnabled = false
             $0.syncClient.sync = {
-                throw SyncError(message: "Network unreachable", isRetryable: true)
+                throw SyncError(message: "Network unreachable")
             }
         } operation: {
             let coordinator = SyncCoordinator()
