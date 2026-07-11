@@ -14,6 +14,7 @@ struct ContentView: View {
     @Binding var pendingReviewDeckId: DeckID?
 
     @Dependency(\.syncCoordinator) private var coordinator
+    @Dependency(\.collectionStore) private var store
 
     @State private var syncToast = SyncToastController()
     @State private var showSync = false
@@ -32,7 +33,8 @@ struct ContentView: View {
             onSelectStudyDeck: { pendingReviewDeckId = $0 }
         )
         .sheet(isPresented: $showSync) {
-            refreshID = UUID()
+            store.invalidateAll()
+            refreshID = UUID()          // still drives the tabs not yet on CollectionStore
         } content: {
             SyncSheet(isPresented: $showSync)
                 .presentationDetents([.fraction(0.7), .large])
@@ -43,14 +45,17 @@ struct ContentView: View {
         }
         .onChange(of: coordinator.state) { _, newState in
             syncToast.handle(newState)
+            if case .success = newState { store.invalidateAll() }
         }
         .syncToastOverlay(syncToast.toast)
         .deckImport(isPresented: $showImport) {
+            store.invalidateAll()
             refreshID = UUID()
         }
         .fullScreenCover(item: $pendingReviewDeckId) { deckId in
             ReviewView(deckId: deckId) {
                 pendingReviewDeckId = nil
+                store.invalidateAll()
                 refreshID = UUID()
             }
         }

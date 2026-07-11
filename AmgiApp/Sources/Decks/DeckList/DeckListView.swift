@@ -11,6 +11,7 @@ import Dependencies
 /// delegated to `LibraryListContent` (AmgiUI); data assembly lives in the
 /// model. The View is intentionally thin — presentation wiring only.
 struct DeckListView: View {
+    @Dependency(\.collectionStore) private var store
     @State private var model: DeckListModel
     @State private var showCreateSheet = false
     @State private var renameTarget: DeckRowViewData?
@@ -37,18 +38,17 @@ struct DeckListView: View {
         .sheet(isPresented: $showCreateSheet) {
             CreateDeckSheet {
                 showCreateSheet = false
-                Task { await model.load() }
             }
         }
         .sheet(item: $renameTarget) { row in
             RenameDeckSheet(deckId: DeckID(row.id), currentName: row.fullName) {
                 renameTarget = nil
-                Task { await model.load() }
             }
         }
-        // `.task` ties the load to the view's lifetime and cancels it
-        // automatically on disappear — no manual Task bookkeeping needed.
-        .task { await model.load() }
+        // Keyed on the store's generation: any Invalidation (deck mutation,
+        // sync, import, review-end) re-runs the load; `.task` still cancels
+        // on disappear.
+        .task(id: store.generation) { await model.load() }
     }
 
     @ToolbarContentBuilder

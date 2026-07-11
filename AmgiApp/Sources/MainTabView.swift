@@ -3,9 +3,10 @@ import SwiftUI
 import AnkiKit
 
 /// Root tab bar for the app. Pure layout: each tab wraps a feature view in
-/// a `NavigationStack` keyed by `refreshID` (bumped by the host to force a
-/// reload after sync / import / review). All side effects are forwarded to
-/// the host via closures so this view owns no I/O or sync state.
+/// a `NavigationStack`. `refreshID` (bumped by the host after sync / import /
+/// review) now only drives the tabs not yet on `CollectionStore` — Library
+/// and Study reload via the store's generation instead. All side effects are
+/// forwarded to the host via closures so this view owns no I/O or sync state.
 struct MainTabView: View {
     let refreshID: UUID
     let showReaderTab: Bool
@@ -19,7 +20,6 @@ struct MainTabView: View {
             Tab("Library", systemImage: "books.vertical") {
                 NavigationStack {
                     DeckListView()
-                        .id(refreshID)
                         .toolbar { libraryToolbar }
                 }
             }
@@ -36,7 +36,6 @@ struct MainTabView: View {
             Tab("Study", systemImage: "graduationcap") {
                 NavigationStack {
                     StudyLandingView(onSelectDeck: onSelectStudyDeck)
-                        .id(refreshID)
                 }
             }
             // 4. Stats

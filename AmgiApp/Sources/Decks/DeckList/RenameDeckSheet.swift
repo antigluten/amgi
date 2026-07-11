@@ -10,6 +10,7 @@ struct RenameDeckSheet: View {
     let onDone: () -> Void
 
     @Dependency(\.deckClient) var deckClient
+    @Dependency(\.collectionStore) var store
     @State private var name: String
     @State private var isSaving = false
     @Environment(\.dismiss) private var dismiss
@@ -50,7 +51,8 @@ private extension RenameDeckSheet {
     func rename() async {
         isSaving = true
         do {
-            _ = try await deckClient.rename(deckId, name.trimmingCharacters(in: .whitespaces))
+            let changes = try await deckClient.rename(deckId, name.trimmingCharacters(in: .whitespaces))
+            store.apply(changes)
             onDone()
         } catch {
             print("[RenameDeckSheet] Rename failed: \(error)")
