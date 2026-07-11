@@ -29,10 +29,6 @@ extension ImageOcclusionClient: DependencyKey {
                 }
             },
 
-            ensureNotetype: {
-                try await backend.invoke(.addImageOcclusionNotetype)
-            },
-
             getNote: { noteId in
                 try await backend.invoke(.getImageOcclusionNote(noteId: noteId))
             },

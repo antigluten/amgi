@@ -30,7 +30,6 @@ extension SyncClient: DependencyKey {
                 guard !hostKey.isEmpty else { throw SyncError.authFailed }
                 let endpoint = KeychainHelper.loadEndpoint() ?? ""
                 try await syncService.syncMedia(endpoint, hostKey)
-                return MediaSyncSummary()
             },
             lastSyncDate: { nil }
         )
