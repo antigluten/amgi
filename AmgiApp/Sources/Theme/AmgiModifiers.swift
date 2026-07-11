@@ -279,18 +279,7 @@ private struct AmgiStatusPanelModifier: ViewModifier {
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
                     .stroke(tone.borderColor(palette), lineWidth: 1)
             )
-            .modifier(_ConditionalShadow(enabled: elevated))
-    }
-}
-
-private struct _ConditionalShadow: ViewModifier {
-    let enabled: Bool
-    func body(content: Content) -> some View {
-        if enabled {
-            content.amgiShadow()
-        } else {
-            content
-        }
+            .modifier(ConditionalShadow(enabled: elevated))
     }
 }
 

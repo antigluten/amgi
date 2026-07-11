@@ -54,9 +54,7 @@ final class StudyLandingModel {
             let deckCount = dueDecks.count
 
             // 3. Build subtitle label from current weekday + deck count
-            let formatter = DateFormatter()
-            formatter.dateFormat = "EEEE"
-            let weekday = formatter.string(from: Date())
+            let weekday = Date().formatted(.dateTime.weekday(.wide))
             let subtitleLabel: String
             if deckCount == 0 {
                 subtitleLabel = weekday

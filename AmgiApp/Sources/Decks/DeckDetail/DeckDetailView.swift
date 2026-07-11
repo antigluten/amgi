@@ -218,7 +218,7 @@ private extension DeckDetailView {
                 }
             }
         case .exportFile(let url):
-            DeckExportShareSheet(url: url) {
+            ShareSheet(items: [url]) {
                 destination = nil
             }
         }

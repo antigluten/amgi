@@ -111,8 +111,6 @@ targets:
         product: SwiftNavigation
       - package: swift-navigation
         product: SwiftUINavigation
-      - package: swift-navigation
-        product: UIKitNavigation
       - package: swift-sharing
         product: Sharing
       - sdk: WidgetKit.framework

@@ -11,7 +11,6 @@
 		01BBA23FD8A728553F6179CB /* EaseChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7B1366ED7DF9A2977AC85B /* EaseChart.swift */; };
 		02CEE9B27A99ED4E31361BBD /* BookCoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEEFEFF49240640D62CEE23A /* BookCoverView.swift */; };
 		031AF93F320B7E29AC835AF7 /* StatsDualAxisSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FA551A94122B948800BA53 /* StatsDualAxisSupport.swift */; };
-		040033C6E335CD8EF283273C /* Sharing in Frameworks */ = {isa = PBXBuildFile; productRef = 4F99E922EA9267E4EE4CD5D6 /* Sharing */; };
 		044818E78C0D0052B0817B6A /* AddNoteModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91CBC60291E12D8CD15E768A /* AddNoteModel.swift */; };
 		0453D87A64F5D97716D53E90 /* CardWebViewCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 342022B67A1EDBA3B371E543 /* CardWebViewCoordinator.swift */; };
 		049D4E82AD8D2DD926E3BE97 /* ReaderDictionarySettingsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 522511E7EC771CFB49023F9B /* ReaderDictionarySettingsModel.swift */; };
@@ -101,7 +100,7 @@
 		73BED515464AA8C80C765BFF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44792958B343213988DC8FFB /* ContentView.swift */; };
 		75380F9BE33B85F31F5A5279 /* DeckConfigDestination.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38C8B5391D7B0EAE1162DC3A /* DeckConfigDestination.swift */; };
 		79AB97A5F02DD5E940373863 /* AmgiSpacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41932790D6D52614FE97FB6A /* AmgiSpacing.swift */; };
-		7C4497B5B8FEB2820FD860B0 /* UIKitNavigation in Frameworks */ = {isa = PBXBuildFile; productRef = C6F941841B903375DAA58334 /* UIKitNavigation */; };
+		7C4497B5B8FEB2820FD860B0 /* Sharing in Frameworks */ = {isa = PBXBuildFile; productRef = 4F99E922EA9267E4EE4CD5D6 /* Sharing */; };
 		7C46534E4D979D315641F713 /* AnkiSync in Frameworks */ = {isa = PBXBuildFile; productRef = 9F148DCECED472C7DE230AB6 /* AnkiSync */; };
 		7D83F3FF41F019F1895052E5 /* ContinueReadingSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20D7DC09C2654231749D745 /* ContinueReadingSection.swift */; };
 		7EC529DC6A312F24FC8069FD /* CardWebViewConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D87C8D1EA1497775B548D36 /* CardWebViewConfig.swift */; };
@@ -176,7 +175,6 @@
 		E8CE9276CD85FEC652968AA5 /* RenameDeckSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 171ECA86AAD36234799EBED9 /* RenameDeckSheet.swift */; };
 		ED773D0658D79BF857AC7E33 /* DeckDetailDestination.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45A39E0F75D5CDD329862A7E /* DeckDetailDestination.swift */; };
 		EF9AE5772C4EAA9AA7A33BEC /* MaintenanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D38F9CB4658B665209B01BB2 /* MaintenanceView.swift */; };
-		F121039FD8EE0629187AF43B /* NoteFieldHTMLPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75A3A3F2790F00A2E443F00A /* NoteFieldHTMLPreview.swift */; };
 		F12D2524A2616E3735B61E6F /* AppearanceSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652D89BC805F4B74FCAB89D3 /* AppearanceSettingsView.swift */; };
 		F1BDD71EC7EFF9A9ECA8F980 /* ReaderLibraryContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724EE9AA1730F39FDF095BBB /* ReaderLibraryContent.swift */; };
 		F2448DB5E5C576F1533690E7 /* AllBooksCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6A2DF246A738F877A39013D /* AllBooksCell.swift */; };
@@ -303,7 +301,6 @@
 		6FFCFF60AA2E601671E999F6 /* TemplateValidation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateValidation.swift; sourceTree = "<group>"; };
 		724EE9AA1730F39FDF095BBB /* ReaderLibraryContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderLibraryContent.swift; sourceTree = "<group>"; };
 		74A0BE53CBFBEA8D6B0155AC /* StreakCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakCalculator.swift; sourceTree = "<group>"; };
-		75A3A3F2790F00A2E443F00A /* NoteFieldHTMLPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteFieldHTMLPreview.swift; sourceTree = "<group>"; };
 		771456E3EFBF1BE767B6E246 /* ShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareSheet.swift; sourceTree = "<group>"; };
 		795E67571E8B9C7014F5A3E7 /* EPUBReader */ = {isa = PBXFileReference; lastKnownFileType = folder; name = EPUBReader; path = Resources/EPUBReader; sourceTree = SOURCE_ROOT; };
 		81861EA695E7EA4CE8A5D959 /* NoteEditingDestinationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteEditingDestinationView.swift; sourceTree = "<group>"; };
@@ -463,8 +460,7 @@
 				125CB371BB8CCAEE250459BD /* AmgiUI in Frameworks */,
 				F37C1A973A4F933CE3C9B39C /* SwiftNavigation in Frameworks */,
 				88C9801267943920AF0688C8 /* SwiftUINavigation in Frameworks */,
-				7C4497B5B8FEB2820FD860B0 /* UIKitNavigation in Frameworks */,
-				040033C6E335CD8EF283273C /* Sharing in Frameworks */,
+				7C4497B5B8FEB2820FD860B0 /* Sharing in Frameworks */,
 				2F6CCEA4FF8B775FCA9299DA /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -715,7 +711,6 @@
 				81861EA695E7EA4CE8A5D959 /* NoteEditingDestinationView.swift */,
 				8714405E668AC12C68C0DD33 /* NoteEditorModel.swift */,
 				AD31FEA1C35D0834FF9F2AE8 /* NoteEditorView.swift */,
-				75A3A3F2790F00A2E443F00A /* NoteFieldHTMLPreview.swift */,
 				D4A672D8B286F28E10D41007 /* RichNoteFieldEditor.swift */,
 			);
 			path = Browse;
@@ -850,7 +845,6 @@
 				DAC2CBBCA214A6D82D147002 /* AmgiUI */,
 				A83E8288FCBE678AC922CFF0 /* SwiftNavigation */,
 				CA8CCDB6FCA0124A188DC0B8 /* SwiftUINavigation */,
-				C6F941841B903375DAA58334 /* UIKitNavigation */,
 				4F99E922EA9267E4EE4CD5D6 /* Sharing */,
 			);
 			productName = AmgiApp;
@@ -1068,7 +1062,6 @@
 				8AC149CBB292119390646D68 /* NoteEditingDestinationView.swift in Sources */,
 				C542008EC372E991653DA58C /* NoteEditorModel.swift in Sources */,
 				70BA3C17D61EE36D3C9459F7 /* NoteEditorView.swift in Sources */,
-				F121039FD8EE0629187AF43B /* NoteFieldHTMLPreview.swift in Sources */,
 				0DC5FB3FA0723E6ED0408AB0 /* NotetypeFieldManagerView.swift in Sources */,
 				217903C9B79F788887FD6DB6 /* NotetypeList.swift in Sources */,
 				FE005216E1B6A16B60A88A9D /* OnboardingView.swift in Sources */,
@@ -1528,11 +1521,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 0654502C09BEED604C13D953 /* XCRemoteSwiftPackageReference "swift-navigation" */;
 			productName = SwiftNavigation;
-		};
-		C6F941841B903375DAA58334 /* UIKitNavigation */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 0654502C09BEED604C13D953 /* XCRemoteSwiftPackageReference "swift-navigation" */;
-			productName = UIKitNavigation;
 		};
 		CA8CCDB6FCA0124A188DC0B8 /* SwiftUINavigation */ = {
 			isa = XCSwiftPackageProductDependency;
