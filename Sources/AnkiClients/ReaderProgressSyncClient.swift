@@ -15,18 +15,18 @@ public struct ReaderProgressSyncClient: Sendable {
     /// Returns the merged manifest of book → progress entries that the
     /// Anki collection currently holds, or nil if nothing has been
     /// synced yet from any device.
-    public var loadManifest: @Sendable () throws -> ReaderProgressManifest?
+    public var loadManifest: @Sendable () async throws -> ReaderProgressManifest?
     /// Pushes a single book's progress into the collection config and
     /// returns the resulting manifest. Idempotent on identical writes.
     public var pushBookProgress: @Sendable (
         _ bookID: String,
         _ payload: ReaderSavedProgress
-    ) throws -> ReaderProgressManifest
+    ) async throws -> ReaderProgressManifest
     /// Replaces the manifest wholesale — used by tests and by the
     /// optional "reset reader sync" maintenance action.
-    public var saveManifest: @Sendable (_ manifest: ReaderProgressManifest) throws -> Void
+    public var saveManifest: @Sendable (_ manifest: ReaderProgressManifest) async throws -> Void
     /// Removes the reader-progress key from the Anki collection config.
-    public var clearManifest: @Sendable () throws -> Void
+    public var clearManifest: @Sendable () async throws -> Void
 }
 
 extension ReaderProgressSyncClient: TestDependencyKey {
