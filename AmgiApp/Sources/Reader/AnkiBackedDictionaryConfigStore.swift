@@ -21,10 +21,6 @@ enum AnkiBackedDictionaryConfigStore {
             save: { json, key in
                 @Dependency(\.ankiBackend) var backend
                 try backend.setConfigRawJSON(json, for: key)
-            },
-            remove: { key in
-                @Dependency(\.ankiBackend) var backend
-                try backend.removeConfigValue(for: key)
             }
         )
     }

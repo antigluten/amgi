@@ -74,18 +74,6 @@ public struct Palette: Sendable, Equatable {
         self.cardStateRelearn = cardStateRelearn
         self.shadows = shadows
     }
-
-    public static func resolve(theme: ThemeID, scheme: ColorScheme) -> Palette {
-        if theme == .vivid {
-            return scheme == .dark ? .vividDark : .vividLight
-        } else if theme == .muted {
-            return scheme == .dark ? .mutedDark : .mutedLight
-        } else if theme == .sepia {
-            return scheme == .dark ? .sepiaDark : .sepiaLight
-        } else {
-            return scheme == .dark ? .vividDark : .vividLight
-        }
-    }
 }
 
 // MARK: - Hex helpers (file-private)
