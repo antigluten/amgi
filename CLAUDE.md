@@ -22,7 +22,6 @@ and called from Swift via C FFI + protobuf.
 ```
 AmgiApp (iOS app target — AmgiApp/, xcodegen → AmgiApp.xcodeproj)
   ├─ depends on → AnkiBridge package (this repo's root Package.swift)
-  ├─ depends on → AmgiDomain  (sibling SPM, ./AmgiDomain)
   ├─ depends on → AmgiReader  (sibling SPM, ./AmgiReader; vendors EPUBKit)
   └─ depends on → AmgiUI      (sibling SPM, ./AmgiUI)
 
@@ -68,7 +67,6 @@ dictionary UI, widgets.
 ### Sibling SPM packages (path-resolved)
 | Package / Module | Purpose |
 |---|---|
-| `AmgiDomain` (./AmgiDomain) | App-domain types that aren't part of the Anki engine surface (reader book/chapter models, dictionary lookup shapes). Keeps "Amgi the app" decoupled from "Anki the engine". |
 | `AmgiReader` (./AmgiReader) | Pure-Swift reader domain types — no EPUB/Cxx deps. |
 | `AmgiReaderDictionary` (./AmgiReader) | Cxx-mode wrapper around `hoshidicts` (Yomitan-compatible offline dictionary). Isolated so importing `AmgiReader` stays Cxx-free. |
 | `AmgiReaderEPUB` (./AmgiReader) | EPUB parsing built on the vendored EPUBKit. |
