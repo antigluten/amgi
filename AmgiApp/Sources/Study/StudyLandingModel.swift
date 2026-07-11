@@ -97,11 +97,14 @@ final class StudyLandingModel {
             return []
         }
 
+        var lastRead: [String: Date] = [:]
+        for book in books {
+            lastRead[book.id] = await progressCoordinator.resolved(bookID: book.id)?.updatedAt
+        }
+
         return books
             .sorted { lhs, rhs in
-                let lDate = progressCoordinator.resolved(bookID: lhs.id)?.updatedAt ?? .distantPast
-                let rDate = progressCoordinator.resolved(bookID: rhs.id)?.updatedAt ?? .distantPast
-                return lDate > rDate
+                (lastRead[lhs.id] ?? .distantPast) > (lastRead[rhs.id] ?? .distantPast)
             }
             .prefix(8)
             .map { book in

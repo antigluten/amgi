@@ -5,7 +5,7 @@ struct ChapterListView: View {
     let book: ReaderBook
     let progress: ReaderProgressCoordinator
 
-    private var savedProgress: ReaderSavedProgress? { progress.resolved(bookID: book.id) }
+    @State private var savedProgress: ReaderSavedProgress?
 
     var body: some View {
         List(book.chapters) { chapter in
@@ -20,6 +20,7 @@ struct ChapterListView: View {
         }
         .navigationTitle(book.title)
         .navigationBarTitleDisplayMode(.inline)
+        .task { savedProgress = await progress.resolved(bookID: book.id) }
         .toolbar {
             if let savedProgress, let chapter = book.chapters.first(where: { $0.id == savedProgress.chapterID }) {
                 ToolbarItem(placement: .topBarTrailing) {

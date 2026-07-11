@@ -34,7 +34,7 @@ final class ReaderBookDetailModel {
         let bookID = book.id
         for (index, chapter) in book.chapters.enumerated() {
             let tag = "amgi::book::\(bookID)::ch::\(index)"
-            let count = (try? readerCardCountClient.cardsAdded(tag)) ?? 0
+            let count = (try? await readerCardCountClient.cardsAdded(tag)) ?? 0
             counts[chapter.id] = count
         }
         state = .loaded(

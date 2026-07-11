@@ -291,7 +291,7 @@ private extension EPUBChapterReaderView {
     func prepareRestoreIfNeeded() async {
         guard let chapter = currentChapter else { return }
         if !didRequestInitialRestore,
-           let saved = progressCoordinator.resolved(bookID: book.id),
+           let saved = await progressCoordinator.resolved(bookID: book.id),
            saved.chapterID == chapter.id,
            saved.progress > 0.01 {
             pendingRestoreFraction = saved.progress

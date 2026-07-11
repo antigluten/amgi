@@ -24,9 +24,9 @@ struct ReaderProgressCoordinator: Sendable {
     /// recent of local vs. collection. If the collection has the newer
     /// payload, it's also written back to local so subsequent reads
     /// don't have to round-trip.
-    func resolved(bookID: String) -> ReaderSavedProgress? {
+    func resolved(bookID: String) async -> ReaderSavedProgress? {
         let local = store.load(bookID: bookID)
-        let collection = (try? sync.loadManifest()?.entries[bookID]) ?? nil
+        let collection = (try? await sync.loadManifest()?.entries[bookID]) ?? nil
 
         let winner: ReaderSavedProgress?
         switch (local, collection) {
@@ -54,7 +54,7 @@ struct ReaderProgressCoordinator: Sendable {
         )
         store.save(bookID: bookID, payload: payload)
         Task.detached(priority: .background) {
-            _ = try? sync.pushBookProgress(bookID, payload)
+            _ = try? await sync.pushBookProgress(bookID, payload)
         }
     }
 }

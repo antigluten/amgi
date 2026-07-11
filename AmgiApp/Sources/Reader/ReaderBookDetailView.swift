@@ -7,17 +7,21 @@ struct ReaderBookDetailView: View {
     let progress: ReaderProgressCoordinator
 
     @State private var model = ReaderBookDetailModel()
+    @State private var savedProgress: ReaderSavedProgress?
 
     var body: some View {
         ReaderBookDetailContent(
             book: book,
-            savedProgress: progress.resolved(bookID: book.id),
+            savedProgress: savedProgress,
             state: model.state,
             progress: progress
         )
         .navigationTitle(book.title)
         .navigationBarTitleDisplayMode(.inline)
-        .task { await model.load(book: book) }
+        .task {
+            savedProgress = await progress.resolved(bookID: book.id)
+            await model.load(book: book)
+        }
         .onReceive(NotificationCenter.default.publisher(for: .amgiReaderCardAdded)) { note in
             guard let bookID = note.userInfo?["bookID"] as? String,
                   bookID == book.id else { return }

@@ -18,6 +18,7 @@ struct ChapterReaderView: View {
 
     @State private var scrollProgress: Double = 0
     @State private var didRestoreInitialProgress = false
+    @State private var initialRestoreProgress: Double?
     @State private var lookupQuery: String?
 
     @Shared(.appStorage(ReaderPreferences.Keys.fontSize))
@@ -70,7 +71,7 @@ struct ChapterReaderView: View {
         ZStack(alignment: .top) {
             ChapterWebView(
                 html: wrappedHTML(chapter.content),
-                initialProgress: didRestoreInitialProgress ? nil : initialProgress(),
+                initialProgress: didRestoreInitialProgress ? nil : initialRestoreProgress,
                 progress: $scrollProgress,
                 onTapLookup: tapLookup
                     ? { phrase in
@@ -147,6 +148,11 @@ struct ChapterReaderView: View {
         .onAppear {
             didRestoreInitialProgress = false
         }
+        .task(id: chapter.id) {
+            guard let saved = await progress.resolved(bookID: book.id),
+                  saved.chapterID == chapter.id else { return }
+            initialRestoreProgress = saved.progress
+        }
         .onDisappear {
             // Persist whatever the user reached. Save unconditionally —
             // even 0% writes are cheap and keep the chapterID stable so
@@ -178,12 +184,6 @@ struct ChapterReaderView: View {
 }
 
 private extension ChapterReaderView {
-    func initialProgress() -> Double? {
-        guard let saved = progress.resolved(bookID: book.id),
-              saved.chapterID == chapter.id else { return nil }
-        return saved.progress
-    }
-
     /// Toolbar "+" handler: ask the WebView for the user's current
     /// selection. The WebView responds via the `onSelectionForNote`
     /// callback, which seeds `pendingNoteText` and triggers the sheet.
@@ -387,7 +387,13 @@ private struct ChapterWebView: UIViewRepresentable {
         context.coordinator.pendingInitialProgress = initialProgress
         if context.coordinator.loadedHTML != html {
             context.coordinator.loadedHTML = html
+            context.coordinator.didFinishLoad = false
+            context.coordinator.didApplyInitialProgress = false
             webView.loadHTMLString(html, baseURL: nil)
+        } else {
+            // The saved progress now resolves asynchronously, so it can
+            // land after `didFinish` — apply it late, once per load.
+            context.coordinator.applyPendingInitialProgressIfLoaded()
         }
     }
 
@@ -464,6 +470,8 @@ private struct ChapterWebView: UIViewRepresentable {
     final class Coordinator: NSObject, WKNavigationDelegate, UIScrollViewDelegate, WKScriptMessageHandler {
         var pendingInitialProgress: Double?
         var loadedHTML: String?
+        var didFinishLoad = false
+        var didApplyInitialProgress = false
         @Binding var progress: Double
         let onTapLookup: ((String) -> Void)?
         let onSelectionForNote: ((String) -> Void)?
@@ -502,17 +510,25 @@ private struct ChapterWebView: UIViewRepresentable {
         }
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            // Restore prior scroll position once the page reports a real
-            // content size; without this the scrollView height is still
-            // the initial frame size and our offset would be clamped.
-            if let target = pendingInitialProgress, target > 0 {
-                let scrollView = webView.scrollView
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                    let maxOffset = max(0, scrollView.contentSize.height - scrollView.bounds.height)
-                    scrollView.contentOffset.y = maxOffset * CGFloat(target)
-                }
-            }
+            didFinishLoad = true
+            applyPendingInitialProgressIfLoaded()
+        }
+
+        /// Restore prior scroll position once the page reports a real
+        /// content size; without this the scrollView height is still
+        /// the initial frame size and our offset would be clamped.
+        /// One-shot per HTML load — the flag stops later view updates
+        /// from yanking the user back to the saved position.
+        func applyPendingInitialProgressIfLoaded() {
+            guard didFinishLoad, !didApplyInitialProgress,
+                  let target = pendingInitialProgress else { return }
+            didApplyInitialProgress = true
             pendingInitialProgress = nil
+            guard target > 0, let scrollView = webView?.scrollView else { return }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                let maxOffset = max(0, scrollView.contentSize.height - scrollView.bounds.height)
+                scrollView.contentOffset.y = maxOffset * CGFloat(target)
+            }
         }
 
         func scrollViewDidScroll(_ scrollView: UIScrollView) {
