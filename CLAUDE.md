@@ -110,15 +110,21 @@ The four C symbols (in `anki-bridge-rs/src/lib.rs`) are stable: `anki_open_backe
 symbols unless absolutely necessary — prefer routing through `anki_run_method`
 with a new service/method pair.
 
-## Build & Run — prefer Xcode MCP
+## Build & Run — Xcode MCP, not shell
 
-Day-to-day builds, previews, and tests go through the Xcode MCP server, not the
-shell. The shell invocations below are a fallback for CI / when MCP is
-unavailable.
+All builds, previews, and tests go through the Xcode MCP server. Do NOT use
+`xcodebuild` or `swift build` to verify changes — the only shell steps are the
+Rust/proto scripts and `xcodegen` below.
 
-### Xcode MCP (preferred)
-- `BuildProject` — compile the AmgiApp scheme. Use this instead of
-  `xcodebuild build`; it resolves SPM deps and surfaces structured diagnostics.
+### Build flow
+1. If `AmgiApp/project.yml` changed: `cd AmgiApp && xcodegen generate` (shell).
+2. `XcodeListWindows` — get the `tabIdentifier` for AmgiApp.xcodeproj
+   (open the project in Xcode first if no window is listed).
+3. `BuildProject` with that tab — compiles the AmgiApp scheme, resolves SPM
+   deps, returns structured errors. This is the ground truth for "it builds".
+4. On failure, `GetBuildLog` for detail beyond the returned error summary.
+
+### Other Xcode MCP tools
 - `RenderPreview` — render a SwiftUI `#Preview` without launching the simulator.
 - `RunAllTests` / `RunSomeTests` — run XCTest targets. Use the latter when you
   know the suite name (see `Tests/README.md`). Note: SPM tests are
@@ -127,7 +133,7 @@ unavailable.
   guessing API shapes.
 - `mcpbridge` — escape hatch for less common Xcode MCP calls.
 
-### Shell fallback
+### Shell (scripts only — not for build verification)
 ```bash
 # Rebuild the Rust XCFramework. Required when:
 #   - anki-bridge-rs/ changes
@@ -138,16 +144,14 @@ unavailable.
 # Regenerate Swift protobuf types from anki-upstream/proto/anki/*.proto
 ./scripts/generate-protos.sh
 
-# SPM build — verifies individual macOS-safe targets only.
-# AnkiBackend / AnkiClients will NOT build here (iOS-only XCFramework).
-swift build --target AnkiKit
-swift build --target AnkiProtoBridge
-
-# Full iOS build (use only when Xcode MCP can't)
-cd AmgiApp && xcodegen generate && cd ..
-xcodebuild build -project AmgiApp/AmgiApp.xcodeproj -scheme AmgiApp \
-  -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max'
+# Regenerate the Xcode project after project.yml changes
+cd AmgiApp && xcodegen generate
 ```
+
+macOS SPM builds are NOT a verification path: `AnkiProtoBridge` pulls in
+`AnkiBackend` (iOS-only `AnkiRustLib`) and `AmgiUI` uses UIKit types, so both
+fail on macOS. Only `swift build --target AnkiKit` works, and it proves little —
+use `BuildProject`.
 
 ## Key Patterns
 
