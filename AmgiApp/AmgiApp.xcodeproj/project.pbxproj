@@ -181,6 +181,7 @@
 		F37C1A973A4F933CE3C9B39C /* SwiftNavigation in Frameworks */ = {isa = PBXBuildFile; productRef = A83E8288FCBE678AC922CFF0 /* SwiftNavigation */; };
 		F435860F404414DDFB885081 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9AB03FC0929F8401CB402B4 /* AboutView.swift */; };
 		F4BC36B69D12F447736F9CC0 /* ReaderFontOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = E164CDFA0C6357AEFBD66E15 /* ReaderFontOption.swift */; };
+		F760DFC850FD7E0D2389CE86 /* CollectionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E5B1AA814518C2CC9323F81 /* CollectionStore.swift */; };
 		F8BECE1BD48F70BE6F4BC1A1 /* BrowseModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 558A136951C4CFC25373A3F4 /* BrowseModel.swift */; };
 		FA35797FA7D58A05421232F4 /* EPUBChapterReaderModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BC44420A7B1441746B1182C /* EPUBChapterReaderModel.swift */; };
 		FA6F34B1F03D032967D1A495 /* AddedChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D96AF0D713B27B32FA98015 /* AddedChart.swift */; };
@@ -232,6 +233,7 @@
 		08E19A746CD1A271080054C1 /* ReaderLibraryModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderLibraryModel.swift; sourceTree = "<group>"; };
 		0A33DB0DDA9DDB6DF8F59802 /* CardAssetScheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardAssetScheme.swift; sourceTree = "<group>"; };
 		0D1F690F555A23ED3B0C6480 /* AnkiMobileAttributionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnkiMobileAttributionView.swift; sourceTree = "<group>"; };
+		0E5B1AA814518C2CC9323F81 /* CollectionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionStore.swift; sourceTree = "<group>"; };
 		0FAFEE95E43D2A4090B68118 /* HeatmapLoadingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeatmapLoadingManager.swift; sourceTree = "<group>"; };
 		0FD34CECBFA19884BCBEF44F /* SyncCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncCoordinator.swift; sourceTree = "<group>"; };
 		119E0B0CFB5C66619B051652 /* ReaderBookDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderBookDetailView.swift; sourceTree = "<group>"; };
@@ -524,6 +526,7 @@
 			children = (
 				1DBE800CB36941130D213F56 /* CardContextMenu.swift */,
 				15473ED3DDE35CD29CFFE82D /* CardContextMenuModel.swift */,
+				0E5B1AA814518C2CC9323F81 /* CollectionStore.swift */,
 				563D97E28D0A34E270C7C744 /* DeckCountsView.swift */,
 				4321AD543C71CB54FEE51BDD /* ImportHelper.swift */,
 				230D9AB6235454610CDF182B /* SharedKeys.swift */,
@@ -1005,6 +1008,7 @@
 				721CA6E5DEBF3AEF0C6F7BC5 /* ChapterListView.swift in Sources */,
 				59F9ECD115D085D942DB1767 /* ChapterReaderView.swift in Sources */,
 				9EAD0522B1DD04941E870437 /* CodeEditorSettingsView.swift in Sources */,
+				F760DFC850FD7E0D2389CE86 /* CollectionStore.swift in Sources */,
 				73BED515464AA8C80C765BFF /* ContentView.swift in Sources */,
 				1542703CAC526B097FB9D060 /* ContinueReadingCard.swift in Sources */,
 				7D83F3FF41F019F1895052E5 /* ContinueReadingSection.swift in Sources */,
