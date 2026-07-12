@@ -81,10 +81,10 @@ struct DeckDetailView: View {
                 deckId: deck.id,
                 onReviewDismiss: {
                     destination = nil
-                    Task {
-                        await model.loadCounts()
-                        model.loadStats()
-                    }
+                    // Review-end from this screen's own cover: invalidate so
+                    // the generation-keyed loads here AND in Library/Study
+                    // behind us all refresh (answers mutate the queues).
+                    store.invalidateAll()
                 },
                 sheetContent: { sheet in AnyView(sheetContent(for: sheet)) }
             ))
@@ -203,21 +203,15 @@ private extension DeckDetailView {
     func sheetContent(for sheet: DeckDetailSheet) -> some View {
         switch sheet {
         case .addNote:
-            AddNoteView(preselectedDeckId: deck.id) {
-                Task {
-                    await model.loadCounts()
-                    await model.loadChildren()
-                    model.loadStats()
-                }
-            }
+            // AddNoteModel invalidates the store on save; the generation-keyed
+            // .task reloads this screen. Nothing extra to do here.
+            AddNoteView(preselectedDeckId: deck.id) {}
         case .showDeckOptions:
             NavigationStack {
                 DeckConfigView(deckId: deck.id, deckName: deck.name) {
                     destination = nil
-                    Task {
-                        await model.loadCounts()
-                        model.loadStats()
-                    }
+                    // Limits/config changes reshape due counts everywhere.
+                    store.apply(CollectionChanges(deck: true, studyQueues: true))
                 }
             }
         case .exportFile(let url):
@@ -266,19 +260,17 @@ private extension DeckDetailView {
 
     // MARK: Action bridges (model results → destination state)
 
+    // Rebuild/empty already invalidate in the model; the generation-keyed
+    // .task reloads counts, children, and stats — no manual chaining here.
     func runRebuild() async {
         if let err = await model.rebuild() {
             destination = .alert(.error(err))
-        } else {
-            model.loadStats()
         }
     }
 
     func runEmpty() async {
         if let err = await model.empty() {
             destination = .alert(.error(err))
-        } else {
-            model.loadStats()
         }
     }
 
@@ -295,7 +287,6 @@ private extension DeckDetailView {
         switch await model.handleImport(result) {
         case .success(let summary):
             destination = .alert(.info(summary))
-            model.loadStats()
         case .failure(let msg):
             destination = .alert(.error(msg))
         }
