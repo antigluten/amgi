@@ -24,6 +24,7 @@ final class AddNoteModel {
     @ObservationIgnored @Dependency(\.deckClient) private var deckClient
     @ObservationIgnored @Dependency(\.notetypesService) private var notetypesService
     @ObservationIgnored @Dependency(\.notesService) private var notesService
+    @ObservationIgnored @Dependency(\.collectionStore) private var store
 
     @ObservationIgnored private let preselectedDeckId: DeckID?
     @ObservationIgnored private let initialDraft: AddNoteDraft?
@@ -100,6 +101,10 @@ final class AddNoteModel {
             template.fields = fieldValues
             template.tags = tags.split(separator: " ").map(String.init)
             try notesService.addNote(template, selectedDeckId)
+            // addNote doesn't surface OpChanges yet — invalidate the shared
+            // tree cache conservatively so every host (DeckDetail, reader
+            // lookup, Browse) sees fresh counts.
+            store.apply(CollectionChanges(card: true, note: true, studyQueues: true))
             return true
         } catch {
             errorMessage = "Failed to add note: \(error.localizedDescription)"

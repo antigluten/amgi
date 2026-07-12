@@ -84,8 +84,8 @@ struct SyncCoordinatorTests {
     }
 
     @Test @MainActor
-    func logEntriesCappedAt100() async throws {
-        try await withDependencies {
+    func logEntriesCappedAt100() {
+        withDependencies {
             $0.appStorageKeyFormatWarningEnabled = false
         } operation: {
             let coordinator = SyncCoordinator()
@@ -136,8 +136,8 @@ struct SyncCoordinatorTests {
     }
 
     @Test @MainActor
-    func appendLogIncrementsAndOrders() async throws {
-        try await withDependencies {
+    func appendLogIncrementsAndOrders() {
+        withDependencies {
             $0.appStorageKeyFormatWarningEnabled = false
         } operation: {
             let coordinator = SyncCoordinator()
