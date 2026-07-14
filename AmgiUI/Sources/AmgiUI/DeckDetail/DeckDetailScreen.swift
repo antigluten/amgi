@@ -260,7 +260,7 @@ private let _krEmpty = DeckDetailViewData(
             state: .loaded(_krDefault),
             heatmapSlot: {
                 Rectangle()
-                    .fill(Color.blue.opacity(0.10))
+                    .fill(Palette.vividLight.accentSoft)
                     .frame(height: 80)
                     .overlay(Text("heatmap (R03)").font(.caption).foregroundStyle(.secondary))
             },

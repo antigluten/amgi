@@ -1,10 +1,13 @@
 import SwiftUI
+import AmgiTheme
 import Charts
 import AnkiKit
 
 struct ButtonsChart: View {
     let buttons: ButtonsBuckets
     let period: StatsPeriod
+
+    @Environment(\.palette) private var palette
 
     private var buttonCounts: ButtonsBuckets.ButtonCounts {
         switch period {
@@ -62,9 +65,9 @@ struct ButtonsChart: View {
                     .foregroundStyle(by: .value("Type", entry.cardType))
                 }
                 .chartForegroundStyleScale([
-                    "Learning": Color.blue,
-                    "Young": Color.green,
-                    "Mature": Color.purple,
+                    "Learning": palette.cardStateNew,
+                    "Young": palette.cardStateLearning,
+                    "Mature": palette.cardStateMature,
                 ])
                 .frame(height: 180)
             }

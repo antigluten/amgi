@@ -1,10 +1,13 @@
 import SwiftUI
+import AmgiTheme
 import Charts
 import AnkiKit
 
 struct ReviewsChart: View {
     let reviews: ReviewCountsAndTimes
     let period: StatsPeriod
+
+    @Environment(\.palette) private var palette
 
     private struct ReviewEntry: Identifiable {
         let id = UUID()
@@ -17,10 +20,10 @@ struct ReviewsChart: View {
     private var entries: [ReviewEntry] {
         let maxDay = period.days
         let types: [(String, KeyPath<ReviewCountsAndTimes.Reviews, Int>, Color)] = [
-            ("Learn", \.learn, .blue),
-            ("Relearn", \.relearn, .orange),
-            ("Young", \.young, .green),
-            ("Mature", \.mature, .purple),
+            ("Learn", \.learn, palette.cardStateNew),
+            ("Relearn", \.relearn, palette.cardStateRelearn),
+            ("Young", \.young, palette.cardStateLearning),
+            ("Mature", \.mature, palette.cardStateMature),
             ("Filtered", \.filtered, .gray),
         ]
         var result: [ReviewEntry] = []
@@ -61,10 +64,10 @@ struct ReviewsChart: View {
                     .foregroundStyle(by: .value("Type", entry.type))
                 }
                 .chartForegroundStyleScale([
-                    "Learn": Color.blue,
-                    "Relearn": Color.orange,
-                    "Young": Color.green,
-                    "Mature": Color.purple,
+                    "Learn": palette.cardStateNew,
+                    "Relearn": palette.cardStateRelearn,
+                    "Young": palette.cardStateLearning,
+                    "Mature": palette.cardStateMature,
                     "Filtered": Color.gray,
                 ])
                 .chartXAxis {

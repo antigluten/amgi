@@ -112,4 +112,44 @@ struct DeckListView: View {
     }
     .environment(\.palette, .vividLight)
 }
+
+#Preview("Minimal") {
+    // Same seeded state as the default preview — mirrors it but pins the
+    // minimal theme's light palette to eyeball ring elevation + monogram
+    // tiles + cobalt accent.
+    let model = withDependencies {
+        $0.deckClient = .previewValue
+        $0.statsClient = .previewValue
+    } operation: {
+        DeckListModel()
+    }
+    model.state = .loaded(
+        rows: [
+            DeckRowViewData(
+                id: 1, name: "한국어", fullName: "한국어",
+                newCount: 20, learnCount: 93, reviewCount: 74,
+                isFiltered: false, subdeckCount: 4
+            ),
+            DeckRowViewData(
+                id: 2, name: "English", fullName: "English",
+                newCount: 0, learnCount: 67, reviewCount: 200,
+                isFiltered: false, subdeckCount: 0
+            ),
+            DeckRowViewData(
+                id: 3, name: "Hardest cards", fullName: "Hardest cards",
+                newCount: 0, learnCount: 0, reviewCount: 24,
+                isFiltered: true, subdeckCount: 0
+            ),
+        ],
+        hero: HeroData(
+            totalDue: 478, deckCount: 3, streak: 36,
+            last14Days: [3, 5, 2, 7, 6, 9, 4, 8, 6, 5, 7, 3, 8, 5]
+        ),
+        heatmap: .empty
+    )
+    return NavigationStack {
+        DeckListView(model: model)
+    }
+    .environment(\.palette, ThemeRegistry.shared.palette(id: .minimal, scheme: .light))
+}
 #endif
