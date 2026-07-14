@@ -64,6 +64,9 @@ private struct StudyDeckTile: View {
         case .letter(let tint):
             fill = tint
             glyphColor = .white
+        case .monogram(let tint):
+            fill = tint.opacity(0.11)
+            glyphColor = tint
         }
 
         return ZStack(alignment: .bottomTrailing) {
