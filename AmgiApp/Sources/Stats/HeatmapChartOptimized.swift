@@ -260,7 +260,7 @@ private extension HeatmapChartOptimized {
             Text("Less").amgiFont(.micro).foregroundStyle(palette.textSecondary)
             ForEach([0.0, 0.25, 0.5, 0.75, 1.0], id: \.self) { intensity in
                 RoundedRectangle(cornerRadius: 2)
-                    .fill(Color.green.opacity(max(0.1, intensity)))
+                    .fill(palette.accent.opacity(max(0.1, intensity)))
                     .frame(width: cellSize, height: cellSize)
             }
             Text("More").amgiFont(.micro).foregroundStyle(palette.textSecondary)
@@ -292,7 +292,7 @@ private extension HeatmapChartOptimized {
     func heatColor(count: Int) -> Color {
         if count == 0 { return Color(.systemGray6) }
         let intensity = min(1.0, Double(count) / Double(max(maxCount, 1)))
-        return .green.opacity(max(0.2, intensity))
+        return palette.accent.opacity(max(0.2, intensity))
     }
 
     func dayOffset(for date: Date) -> Int {

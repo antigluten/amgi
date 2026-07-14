@@ -42,7 +42,7 @@ struct FutureDueChart: View {
                         x: .value("Day", item.day),
                         y: .value("Cards", item.count)
                     )
-                    .foregroundStyle(item.day < 0 ? Color.red.gradient : Color.blue.gradient)
+                    .foregroundStyle(item.day < 0 ? palette.danger.gradient : palette.accent.gradient)
                 }
                 .chartXAxis {
                     AxisMarks(values: .automatic(desiredCount: 5)) { _ in
