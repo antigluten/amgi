@@ -18,7 +18,7 @@ public struct DeckHeroTile: View {
 
     public var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
+            RoundedRectangle(cornerRadius: AmgiRadius.hero, style: .continuous)
                 .fill(
                     LinearGradient(
                         colors: [tone, mixed(tone, with: .white, by: 0.6)],
@@ -27,7 +27,7 @@ public struct DeckHeroTile: View {
                     )
                 )
                 .overlay(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    RoundedRectangle(cornerRadius: AmgiRadius.hero, style: .continuous)
                         .strokeBorder(Color.black.opacity(0.04), lineWidth: 0.5)
                 )
                 .shadow(color: Color.black.opacity(0.10), radius: 3, x: 0, y: 2)
