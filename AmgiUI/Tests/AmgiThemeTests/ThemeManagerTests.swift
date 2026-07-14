@@ -19,7 +19,7 @@ final class ThemeManagerTests: XCTestCase {
 
     func testDefaultValuesOnEmptyStore() {
         let manager = ThemeManager(defaults: defaults)
-        XCTAssertEqual(manager.themeID, .vivid)
+        XCTAssertEqual(manager.themeID, .minimal)
         XCTAssertEqual(manager.appearance, .system)
     }
 
@@ -47,7 +47,7 @@ final class ThemeManagerTests: XCTestCase {
         manager.appearance = .light
         // Even with systemScheme=.dark, .light appearance should pick the light palette
         let palette = manager.palette(for: .dark)
-        let expected = ThemeRegistry.shared.palette(id: .vivid, scheme: .light)
+        let expected = ThemeRegistry.shared.palette(id: .minimal, scheme: .light)
         XCTAssertEqual(palette.background, expected.background)
     }
 
