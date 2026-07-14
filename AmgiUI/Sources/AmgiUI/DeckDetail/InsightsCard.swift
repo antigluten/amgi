@@ -35,9 +35,9 @@ public struct InsightsCard: View {
                 isFirst: false
             )
         }
-        .background(palette.surfaceElevated, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .background(palette.surfaceElevated, in: RoundedRectangle(cornerRadius: AmgiRadius.inset, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
+            RoundedRectangle(cornerRadius: AmgiRadius.inset, style: .continuous)
                 .strokeBorder(palette.border, lineWidth: 0.5)
         )
     }

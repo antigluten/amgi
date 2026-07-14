@@ -29,7 +29,7 @@ public struct AmgiCard<Content: View>: View {
     public init(
         background: AmgiCardBackground = .surface,
         shadow: ShadowSpec? = nil,
-        cornerRadius: CGFloat = 18,
+        cornerRadius: CGFloat = AmgiRadius.hero,
         contentInsets: EdgeInsets = EdgeInsets(top: 20, leading: 20, bottom: 20, trailing: 20),
         @ViewBuilder content: @escaping () -> Content
     ) {

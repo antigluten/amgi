@@ -20,10 +20,10 @@ struct AmgiCardModifier: ViewModifier {
             .padding(AmgiSpacing.lg)
             .background(
                 elevated ? palette.surfaceElevated : palette.surface,
-                in: RoundedRectangle(cornerRadius: 12, style: .continuous)
+                in: RoundedRectangle(cornerRadius: AmgiRadius.inset, style: .continuous)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                RoundedRectangle(cornerRadius: AmgiRadius.inset, style: .continuous)
                     .stroke(palette.border.opacity(elevated ? 0.32 : 0.18), lineWidth: 1)
             )
             .modifier(ConditionalShadow(enabled: elevated))
@@ -208,10 +208,10 @@ private struct AmgiToolbarIconButtonModifier: ViewModifier {
             .foregroundStyle(palette.textPrimary)
             .background(palette.surfaceElevated)
             .overlay(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                RoundedRectangle(cornerRadius: AmgiRadius.control, style: .continuous)
                     .stroke(palette.border.opacity(0.28), lineWidth: 1)
             )
-            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: AmgiRadius.control, style: .continuous))
     }
 }
 
@@ -268,15 +268,15 @@ private struct AmgiStatusPanelModifier: ViewModifier {
         content
             .padding(AmgiSpacing.lg)
             .background(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                RoundedRectangle(cornerRadius: AmgiRadius.inset, style: .continuous)
                     .fill(palette.surfaceElevated)
             )
             .background(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                RoundedRectangle(cornerRadius: AmgiRadius.inset, style: .continuous)
                     .fill(tone.backgroundColor(palette))
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                RoundedRectangle(cornerRadius: AmgiRadius.inset, style: .continuous)
                     .stroke(tone.borderColor(palette), lineWidth: 1)
             )
             .modifier(ConditionalShadow(enabled: elevated))

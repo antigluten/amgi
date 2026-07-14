@@ -20,7 +20,7 @@ public struct DeckDetailTile: View {
         AmgiCard(
             background: .surfaceElevated,
             shadow: palette.shadows.sm,
-            cornerRadius: 18,
+            cornerRadius: AmgiRadius.hero,
             contentInsets: EdgeInsets(top: 18, leading: 4, bottom: 18, trailing: 4)
         ) {
             HStack(spacing: 0) {

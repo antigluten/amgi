@@ -106,7 +106,7 @@ private struct DeckTile: View {
         }
 
         return ZStack(alignment: .bottomTrailing) {
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
+            RoundedRectangle(cornerRadius: AmgiRadius.control, style: .continuous)
                 .fill(fill)
                 .frame(width: 40, height: 40)
                 .overlay(
