@@ -8,19 +8,30 @@ import Foundation
 public struct PaletteData: Codable, Sendable, Equatable {
     public let id: String
     public let displayName: String
+    public let elevation: ElevationStyle?
+    public let deckGlyph: DeckGlyphStyle?
     public let light: PaletteScheme
     public let dark: PaletteScheme
 
-    public init(id: String, displayName: String, light: PaletteScheme, dark: PaletteScheme) {
+    public init(
+        id: String,
+        displayName: String,
+        elevation: ElevationStyle? = nil,
+        deckGlyph: DeckGlyphStyle? = nil,
+        light: PaletteScheme,
+        dark: PaletteScheme
+    ) {
         self.id = id
         self.displayName = displayName
+        self.elevation = elevation
+        self.deckGlyph = deckGlyph
         self.light = light
         self.dark = dark
     }
 
     public func resolve(scheme: ColorScheme) -> Palette {
         let s = (scheme == .dark) ? dark : light
-        return s.toPalette()
+        return s.toPalette(elevation: elevation ?? .shadow, deckGlyph: deckGlyph ?? .emoji)
     }
 }
 
@@ -127,7 +138,10 @@ public struct PaletteScheme: Codable, Sendable, Equatable {
         self.shadows = shadows
     }
 
-    func toPalette() -> Palette {
+    func toPalette(
+        elevation: ElevationStyle = .shadow,
+        deckGlyph: DeckGlyphStyle = .emoji
+    ) -> Palette {
         Palette(
             background: .fromHex(backgroundHex),
             surface: .fromHex(surfaceHex),
@@ -151,6 +165,8 @@ public struct PaletteScheme: Codable, Sendable, Equatable {
             cardStateMature: .fromHex(cardStateMatureHex),
             cardStateSuspended: .fromHex(cardStateSuspendedHex),
             cardStateRelearn: .fromHex(cardStateRelearnHex),
+            elevation: elevation,
+            deckGlyph: deckGlyph,
             shadows: shadows
         )
     }
