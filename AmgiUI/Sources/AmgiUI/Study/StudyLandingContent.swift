@@ -169,8 +169,17 @@ public struct StudyLandingContent: View {
                 .background(
                     RoundedRectangle(cornerRadius: AmgiRadius.inset, style: .continuous)
                         .fill(palette.surfaceElevated)
-                        .shadow(color: .black.opacity(0.06), radius: 4, x: 0, y: 2)
+                        .shadow(
+                            color: palette.elevation == .ring ? .clear : .black.opacity(0.06),
+                            radius: 4, x: 0, y: 2
+                        )
                 )
+                .overlay {
+                    if palette.elevation == .ring {
+                        RoundedRectangle(cornerRadius: AmgiRadius.inset, style: .continuous)
+                            .strokeBorder(palette.separator, lineWidth: 1)
+                    }
+                }
             }
             .padding(.top, 20)
         }
