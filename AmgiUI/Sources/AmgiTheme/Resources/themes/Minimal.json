@@ -1,0 +1,62 @@
+{
+  "id": "minimal",
+  "displayName": "Minimal",
+  "elevation": "ring",
+  "deckGlyph": "monogram",
+  "light": {
+    "background": "#FBFAF8",
+    "surface": "#FFFFFF",
+    "surfaceElevated": "#FFFFFF",
+    "border": "#1B1D231A",
+    "textPrimary": "#1B1D23",
+    "textSecondary": "#1B1D23B3",
+    "textTertiary": "#1B1D2373",
+    "accent": "#2653D8",
+    "link": "#2653D8",
+    "positive": "#14874E",
+    "warning": "#B17000",
+    "danger": "#C13C3B",
+    "info": "#037CA5",
+    "customStudyBadge": "#B17000",
+    "accentSoft": "#2653D824",
+    "separator": "#1B1D231A",
+    "cardStateNew": "#2653D8",
+    "cardStateLearning": "#B17000",
+    "cardStateReview": "#14874E",
+    "cardStateMature": "#8050A0",
+    "cardStateSuspended": "#7C808D",
+    "cardStateRelearn": "#C13C3B",
+    "shadows": {
+      "sm": { "radius": 0, "dx": 0, "dy": 0, "opacity": 0 },
+      "md": { "radius": 0, "dx": 0, "dy": 0, "opacity": 0 }
+    }
+  },
+  "dark": {
+    "background": "#0F0F12",
+    "surface": "#17181C",
+    "surfaceElevated": "#202126",
+    "border": "#FFFFFF1A",
+    "textPrimary": "#E6E7ED",
+    "textSecondary": "#E6E7EDB3",
+    "textTertiary": "#E6E7ED73",
+    "accent": "#78A1FF",
+    "link": "#78A1FF",
+    "positive": "#57BC80",
+    "warning": "#E29E47",
+    "danger": "#F47B74",
+    "info": "#50B1DC",
+    "customStudyBadge": "#E29E47",
+    "accentSoft": "#78A1FF33",
+    "separator": "#FFFFFF14",
+    "cardStateNew": "#78A1FF",
+    "cardStateLearning": "#E29E47",
+    "cardStateReview": "#57BC80",
+    "cardStateMature": "#BE8CE1",
+    "cardStateSuspended": "#9A9EAB",
+    "cardStateRelearn": "#F47B74",
+    "shadows": {
+      "sm": { "radius": 0, "dx": 0, "dy": 0, "opacity": 0 },
+      "md": { "radius": 0, "dx": 0, "dy": 0, "opacity": 0 }
+    }
+  }
+}

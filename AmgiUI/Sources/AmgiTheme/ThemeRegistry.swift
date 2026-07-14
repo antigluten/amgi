@@ -21,9 +21,9 @@ public final class ThemeRegistry: @unchecked Sendable {
             byID[data.id] = data
         }
         self.themesByID = byID
-        // The fallback is whichever-one-of-vivid-or-first exists; vivid is
+        // The fallback is whichever-one-of-minimal-or-first exists; minimal is
         // always bundled, so this is safe for the shipped app.
-        self.fallback = byID["vivid"] ?? loaded.first ?? Self.emergencyFallback()
+        self.fallback = byID["minimal"] ?? loaded.first ?? Self.emergencyFallback()
     }
 
     public func allThemes() -> [PaletteData] {

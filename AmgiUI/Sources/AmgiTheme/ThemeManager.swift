@@ -26,8 +26,8 @@ public final class ThemeManager: @unchecked Sendable {
             ?? defaults.string(forKey: Keys.legacyTheme)
         let stored = storedRaw.map(ThemeID.init(rawValue:))
         let storedAppearance = defaults.string(forKey: Keys.appearance).flatMap(Appearance.init(rawValue:))
-        // Unknown IDs are fine — registry.palette(id:scheme:) falls back to Vivid.
-        self.themeID = stored ?? .vivid
+        // Unknown IDs are fine — registry.palette(id:scheme:) falls back to Minimal.
+        self.themeID = stored ?? .minimal
         self.appearance = storedAppearance ?? .system
     }
 
