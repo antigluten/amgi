@@ -12,11 +12,23 @@ enum DeckTileGlyph {
         enum Mode: Equatable, Sendable {
             case emoji
             case letter(tint: Color)
+            case monogram(tint: Color)
         }
     }
 
     static func resolve(deckName: String, palette: Palette) -> Resolved {
         let trimmed = deckName.trimmingCharacters(in: .whitespacesAndNewlines)
+        if palette.deckGlyph == .monogram {
+            // Strip a leading emoji (and following space) so "📚 Books" → "B".
+            var name = trimmed
+            if let first = name.first, isEmojiPresentation(first) {
+                name = String(name.dropFirst()).trimmingCharacters(in: .whitespaces)
+            }
+            return Resolved(
+                display: abbreviation(from: name),
+                mode: .monogram(tint: tint(for: trimmed, palette: palette))
+            )
+        }
         if let firstChar = trimmed.first, isEmojiPresentation(firstChar) {
             return Resolved(display: String(firstChar), mode: .emoji)
         }

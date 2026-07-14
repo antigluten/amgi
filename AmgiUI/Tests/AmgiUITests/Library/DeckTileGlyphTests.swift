@@ -57,4 +57,27 @@ import AmgiTheme
         let r = DeckTileGlyph.resolve(deckName: "   ", palette: palette)
         #expect(r.display == "?")
     }
+
+    @Test func monogramPaletteForcesMonogramForEmojiName() {
+        let minimal = ThemeRegistry.shared.palette(id: .minimal, scheme: .light)
+        let r = DeckTileGlyph.resolve(deckName: "📚 Books", palette: minimal)
+        #expect(r.display == "B")
+        if case .monogram = r.mode { /* ok */ } else {
+            Issue.record("Monogram palette must skip the emoji branch")
+        }
+    }
+
+    @Test func monogramPaletteUsesInitialsForPlainName() {
+        let minimal = ThemeRegistry.shared.palette(id: .minimal, scheme: .light)
+        let r = DeckTileGlyph.resolve(deckName: "Computer Science", palette: minimal)
+        #expect(r.display == "CS")
+        if case .monogram = r.mode { /* ok */ } else {
+            Issue.record("Expected .monogram mode")
+        }
+    }
+
+    @Test func emojiPaletteBehaviorUnchanged() {
+        let r = DeckTileGlyph.resolve(deckName: "📚 Books", palette: Palette.vividLight)
+        #expect(r.mode == .emoji)
+    }
 }
