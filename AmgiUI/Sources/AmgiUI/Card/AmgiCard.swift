@@ -45,8 +45,14 @@ public struct AmgiCard<Content: View>: View {
             .padding(contentInsets)
             .background(backgroundView)
             .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+            .overlay {
+                if palette.elevation == .ring {
+                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                        .strokeBorder(palette.separator, lineWidth: 1)
+                }
+            }
             .shadow(
-                color: .black.opacity(shadow?.opacity ?? 0),
+                color: .black.opacity(palette.elevation == .ring ? 0 : (shadow?.opacity ?? 0)),
                 radius: shadow?.radius ?? 0,
                 x: shadow?.dx ?? 0,
                 y: shadow?.dy ?? 0

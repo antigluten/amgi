@@ -34,7 +34,10 @@ public struct DeckStudyButton: View {
             .padding(.vertical, 14)
             .background(palette.accent, in: RoundedRectangle(cornerRadius: AmgiRadius.control, style: .continuous))
             .opacity(isDisabled ? 0.4 : 1.0)
-            .shadow(color: isDisabled ? .clear : palette.accent.opacity(0.28), radius: 8, x: 0, y: 6)
+            .shadow(
+                color: (isDisabled || palette.elevation == .ring) ? .clear : palette.accent.opacity(0.28),
+                radius: 8, x: 0, y: 6
+            )
         }
         .buttonStyle(.plain)
         .disabled(isDisabled)
