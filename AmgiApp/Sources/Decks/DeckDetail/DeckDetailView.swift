@@ -28,7 +28,15 @@ struct DeckDetailView: View {
     }
 
     private var shortTitle: String {
-        String(deck.name.split(separator: "::", omittingEmptySubsequences: true).last ?? Substring(deck.name))
+        Self.leafName(from: deck.name)
+    }
+
+    /// Leaf segment of a "Parent::Child" deck path — must be passed to
+    /// `DeckTileGlyph.resolve` (see `deckName:` below) instead of the full
+    /// path, or emoji detection/letter abbreviation/tint hash all break for
+    /// subdecks. Extracted for direct testing (AmgiAppTests).
+    static func leafName(from fullName: String) -> String {
+        String(fullName.split(separator: "::", omittingEmptySubsequences: true).last ?? Substring(fullName))
     }
 
     private var currentAlert: DeckDetailAlert? {
