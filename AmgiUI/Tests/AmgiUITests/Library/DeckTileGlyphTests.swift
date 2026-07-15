@@ -81,6 +81,46 @@ import AmgiTheme
         #expect(r.mode == .emoji)
     }
 
+    // MARK: - Hierarchical paths ("Parent::Child") are NOT stripped
+
+    // `resolve` documented as operating on a deck *name*, not a full
+    // "::"-delimited path — these fixtures pin down that contract so a
+    // future regression (a caller passing `DeckInfo.name`, which is the
+    // full hierarchical path for a subdeck, instead of the leaf segment)
+    // is caught here rather than slipping through because every existing
+    // fixture above is a single-segment name. See R29 Task 2 follow-up:
+    // DeckDetailView was passing `deck.name` (the full path) as
+    // `deckName:`, which broke emoji detection, the letter abbreviation,
+    // and the tint hash relative to what Library shows for the same deck.
+
+    @Test func hierarchicalPathDefeatsEmojiDetection() {
+        // A full path whose leaf starts with an emoji: the emoji is not
+        // the first character of the *path*, so `.emoji` mode is missed.
+        let r = DeckTileGlyph.resolve(deckName: "Parent::📚 Vocab", palette: palette)
+        #expect(r.mode != .emoji)
+    }
+
+    @Test func leafOnlyNamePreservesEmojiDetection() {
+        // The leaf segment alone (what callers must pass) round-trips
+        // through `.emoji` mode correctly.
+        let r = DeckTileGlyph.resolve(deckName: "📚 Vocab", palette: palette)
+        #expect(r.display == "📚")
+        #expect(r.mode == .emoji)
+    }
+
+    @Test func hierarchicalPathAndLeafDisagreeOnAbbreviationAndTint() {
+        let path = DeckTileGlyph.resolve(deckName: "Parent::Child", palette: palette)
+        let leaf = DeckTileGlyph.resolve(deckName: "Child", palette: palette)
+        // Splitting the whole path on spaces yields a different (wrong)
+        // abbreviation than abbreviating the leaf alone.
+        #expect(path.display == "P")
+        #expect(leaf.display == "C")
+        #expect(path.display != leaf.display)
+        // The tint hash runs over whatever string is passed in, so a full
+        // path and its leaf land on different tiles.
+        #expect(path.mode != leaf.mode)
+    }
+
     @Test func deckDetailViewDataCarriesDeckNameNotAResolvedGlyph() {
         let data = DeckDetailViewData(
             title: "Books",

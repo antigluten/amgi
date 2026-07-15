@@ -60,7 +60,14 @@ struct DeckDetailView: View {
             title: shortTitle,
             subtitle: subtitle,
             tone: DeckTonePalette.tone(for: deck.name),
-            deckName: deck.name,
+            // Leaf-only name — must match what Library passes to
+            // DeckTileGlyph.resolve (DeckRowViewData.name) so the glyph
+            // and tint agree for the same deck. `deck.name` here is the
+            // full "Parent::Child" path for subdecks; DeckTileGlyph does
+            // no "::" stripping of its own (it operates on a deck *name*,
+            // not a path), so passing the full path breaks emoji
+            // detection, the letter abbreviation, and the tint hash.
+            deckName: shortTitle,
             tileCounts: DeckDetailTileData(
                 newCount: model.counts.newCount,
                 learnCount: model.counts.learnCount,
