@@ -1,9 +1,13 @@
 import SwiftUI
+import AmgiTheme
+import AmgiUI
 import Charts
 import AnkiKit
 
 struct IntervalsChart: View {
     let intervals: IntervalsBuckets
+
+    @Environment(\.palette) private var palette
 
     private struct Bucket: Identifiable {
         let id: String
@@ -36,28 +40,34 @@ struct IntervalsChart: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Review Intervals").amgiFont(.bodyEmphasis)
+        AmgiCard(
+            background: .surface,
+            shadow: palette.shadows.sm,
+            cornerRadius: AmgiRadius.inset,
+            contentInsets: EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
+        ) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Review Intervals").amgiFont(.bodyEmphasis)
 
-            if buckets.isEmpty {
-                Text("No interval data").foregroundStyle(.secondary).frame(height: 180)
-            } else {
-                Chart(buckets) { bucket in
-                    BarMark(
-                        x: .value("Interval", bucket.label),
-                        y: .value("Cards", bucket.count)
-                    )
-                    .foregroundStyle(.teal.gradient)
-                }
-                .chartXAxis {
-                    AxisMarks(values: .automatic) { _ in
-                        AxisValueLabel()
+                if buckets.isEmpty {
+                    Text("No interval data").foregroundStyle(.secondary).frame(height: 180)
+                } else {
+                    Chart(buckets) { bucket in
+                        BarMark(
+                            x: .value("Interval", bucket.label),
+                            y: .value("Cards", bucket.count)
+                        )
+                        .foregroundStyle(.teal.gradient)
                     }
+                    .chartXAxis {
+                        AxisMarks(values: .automatic) { _ in
+                            AxisValueLabel()
+                        }
+                    }
+                    .frame(height: 180)
                 }
-                .frame(height: 180)
             }
         }
-        .amgiCard()
     }
 }
 

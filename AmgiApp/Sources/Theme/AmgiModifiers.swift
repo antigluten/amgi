@@ -1,53 +1,6 @@
 import SwiftUI
 import AmgiTheme
 
-// MARK: - Shadow
-
-extension View {
-    func amgiShadow() -> some View {
-        shadow(color: Color.black.opacity(0.22), radius: 15, x: 3, y: 5)
-    }
-}
-
-// MARK: - Card Modifier
-
-struct AmgiCardModifier: ViewModifier {
-    @Environment(\.palette) private var palette
-    var elevated: Bool = false
-
-    func body(content: Content) -> some View {
-        content
-            .padding(AmgiSpacing.lg)
-            .background(
-                elevated ? palette.surfaceElevated : palette.surface,
-                in: RoundedRectangle(cornerRadius: AmgiRadius.inset, style: .continuous)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: AmgiRadius.inset, style: .continuous)
-                    .stroke(palette.border.opacity(elevated ? 0.32 : 0.18), lineWidth: 1)
-            )
-            .modifier(ConditionalShadow(enabled: elevated))
-    }
-}
-
-private struct ConditionalShadow: ViewModifier {
-    let enabled: Bool
-
-    func body(content: Content) -> some View {
-        if enabled {
-            content.amgiShadow()
-        } else {
-            content
-        }
-    }
-}
-
-extension View {
-    func amgiCard(elevated: Bool = false) -> some View {
-        modifier(AmgiCardModifier(elevated: elevated))
-    }
-}
-
 // MARK: - Section Background
 
 extension View {
@@ -279,7 +232,14 @@ private struct AmgiStatusPanelModifier: ViewModifier {
                 RoundedRectangle(cornerRadius: AmgiRadius.inset, style: .continuous)
                     .stroke(tone.borderColor(palette), lineWidth: 1)
             )
-            .modifier(ConditionalShadow(enabled: elevated))
+            .shadow(
+                color: (elevated && palette.elevation != .ring)
+                    ? .black.opacity(palette.shadows.md.opacity)
+                    : .clear,
+                radius: palette.shadows.md.radius,
+                x: palette.shadows.md.dx,
+                y: palette.shadows.md.dy
+            )
     }
 }
 

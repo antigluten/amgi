@@ -1,8 +1,12 @@
 import SwiftUI
+import AmgiTheme
+import AmgiUI
 import AnkiKit
 
 struct RetentionChart: View {
     let trueRetention: TrueRetentionStats
+
+    @Environment(\.palette) private var palette
 
     private struct RetentionRow: Identifiable {
         let id: String
@@ -37,26 +41,32 @@ struct RetentionChart: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("True Retention").amgiFont(.bodyEmphasis)
+        AmgiCard(
+            background: .surface,
+            shadow: palette.shadows.sm,
+            cornerRadius: AmgiRadius.inset,
+            contentInsets: EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
+        ) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("True Retention").amgiFont(.bodyEmphasis)
 
-            Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 6) {
-                GridRow {
-                    Text("Period").font(.caption2.weight(.semibold)).foregroundStyle(.secondary)
-                    Text("Young").font(.caption2.weight(.semibold)).foregroundStyle(.secondary)
-                    Text("Mature").font(.caption2.weight(.semibold)).foregroundStyle(.secondary)
-                }
-                Divider()
-                ForEach(rows) { row in
+                Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 6) {
                     GridRow {
-                        Text(row.label).font(.caption)
-                        retentionBadge(row.youngRate)
-                        retentionBadge(row.matureRate)
+                        Text("Period").font(.caption2.weight(.semibold)).foregroundStyle(.secondary)
+                        Text("Young").font(.caption2.weight(.semibold)).foregroundStyle(.secondary)
+                        Text("Mature").font(.caption2.weight(.semibold)).foregroundStyle(.secondary)
+                    }
+                    Divider()
+                    ForEach(rows) { row in
+                        GridRow {
+                            Text(row.label).font(.caption)
+                            retentionBadge(row.youngRate)
+                            retentionBadge(row.matureRate)
+                        }
                     }
                 }
             }
         }
-        .amgiCard()
     }
 }
 
