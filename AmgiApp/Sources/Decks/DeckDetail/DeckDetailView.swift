@@ -60,7 +60,7 @@ struct DeckDetailView: View {
             title: shortTitle,
             subtitle: subtitle,
             tone: DeckTonePalette.tone(for: deck.name),
-            glyph: DeckGlyph.from(name: deck.name),
+            deckName: deck.name,
             tileCounts: DeckDetailTileData(
                 newCount: model.counts.newCount,
                 learnCount: model.counts.learnCount,

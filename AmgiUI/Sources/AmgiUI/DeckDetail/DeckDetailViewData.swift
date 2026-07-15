@@ -6,7 +6,7 @@ public struct DeckDetailViewData: Equatable, Sendable {
     public let title: String
     public let subtitle: String
     public let tone: Color
-    public let glyph: String
+    public let deckName: String
     public let tileCounts: DeckDetailTileData
     public let isFiltered: Bool
     public let isEmpty: Bool
@@ -18,7 +18,7 @@ public struct DeckDetailViewData: Equatable, Sendable {
         title: String,
         subtitle: String,
         tone: Color,
-        glyph: String,
+        deckName: String,
         tileCounts: DeckDetailTileData,
         isFiltered: Bool,
         isEmpty: Bool,
@@ -29,7 +29,7 @@ public struct DeckDetailViewData: Equatable, Sendable {
         self.title = title
         self.subtitle = subtitle
         self.tone = tone
-        self.glyph = glyph
+        self.deckName = deckName
         self.tileCounts = tileCounts
         self.isFiltered = isFiltered
         self.isEmpty = isEmpty
