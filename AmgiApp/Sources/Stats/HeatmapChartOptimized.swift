@@ -1,5 +1,6 @@
 import SwiftUI
 import AmgiTheme
+import AmgiUI
 import AnkiKit
 
 /// Optimized heatmap with incremental loading.
@@ -118,6 +119,23 @@ struct HeatmapChartOptimized: View {
     // MARK: - Body
 
     var body: some View {
+        AmgiCard(
+            background: .surface,
+            shadow: palette.shadows.sm,
+            cornerRadius: AmgiRadius.inset,
+            contentInsets: EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
+        ) {
+            heatmapContent()
+        }
+        .task {
+            await initializeLoadingManager()
+            await refreshFromManager()
+        }
+    }
+}
+
+private extension HeatmapChartOptimized {
+    func heatmapContent() -> some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text("Reviews")
@@ -186,20 +204,6 @@ struct HeatmapChartOptimized: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(isCompact ? 10 : 16)
-        .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(palette.surfaceElevated)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(palette.border.opacity(0.32), lineWidth: 1)
-        )
-        .shadow(color: Color.black.opacity(0.08), radius: 12, y: 4)
-        .task {
-            await initializeLoadingManager()
-            await refreshFromManager()
-        }
     }
 
     // MARK: - View Components
@@ -245,7 +249,7 @@ private extension HeatmapChartOptimized {
                             let isFuture = date > Date()
 
                             RoundedRectangle(cornerRadius: 2)
-                                .fill(isFuture ? Color.clear : heatColor(count: count))
+                                .fill(isFuture ? Color.clear : HeatmapColorRamp.color(count: count, maxCount: maxCount, palette: palette))
                                 .frame(width: cellSize, height: cellSize)
                         }
                     }
@@ -258,9 +262,9 @@ private extension HeatmapChartOptimized {
         HStack(spacing: isCompact ? 3 : 4) {
             Spacer()
             Text("Less").amgiFont(.micro).foregroundStyle(palette.textSecondary)
-            ForEach([0.0, 0.25, 0.5, 0.75, 1.0], id: \.self) { intensity in
+            ForEach(Array(HeatmapColorRamp.legendColors(palette: palette).enumerated()), id: \.offset) { _, color in
                 RoundedRectangle(cornerRadius: 2)
-                    .fill(palette.accent.opacity(max(0.1, intensity)))
+                    .fill(color)
                     .frame(width: cellSize, height: cellSize)
             }
             Text("More").amgiFont(.micro).foregroundStyle(palette.textSecondary)
@@ -287,12 +291,6 @@ private extension HeatmapChartOptimized {
         case 5: "F"
         default: ""
         }
-    }
-
-    func heatColor(count: Int) -> Color {
-        if count == 0 { return Color(.systemGray6) }
-        let intensity = min(1.0, Double(count) / Double(max(maxCount, 1)))
-        return palette.accent.opacity(max(0.2, intensity))
     }
 
     func dayOffset(for date: Date) -> Int {
