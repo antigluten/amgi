@@ -1,5 +1,6 @@
 import SwiftUI
 import AmgiTheme
+import AmgiUI
 import Charts
 import AnkiKit
 
@@ -31,41 +32,47 @@ struct FutureDueChart: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Future Due").amgiFont(.bodyEmphasis)
+        AmgiCard(
+            background: .surface,
+            shadow: palette.shadows.sm,
+            cornerRadius: AmgiRadius.inset,
+            contentInsets: EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
+        ) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Future Due").amgiFont(.bodyEmphasis)
 
-            if filteredData.isEmpty {
-                Text("No cards due").foregroundStyle(.secondary).frame(height: 180)
-            } else {
-                Chart(filteredData, id: \.day) { item in
-                    BarMark(
-                        x: .value("Day", item.day),
-                        y: .value("Cards", item.count)
-                    )
-                    .foregroundStyle(item.day < 0 ? palette.danger.gradient : palette.accent.gradient)
-                }
-                .chartXAxis {
-                    AxisMarks(values: .automatic(desiredCount: 5)) { _ in
-                        AxisGridLine()
-                        AxisValueLabel()
+                if filteredData.isEmpty {
+                    Text("No cards due").foregroundStyle(.secondary).frame(height: 180)
+                } else {
+                    Chart(filteredData, id: \.day) { item in
+                        BarMark(
+                            x: .value("Day", item.day),
+                            y: .value("Cards", item.count)
+                        )
+                        .foregroundStyle(item.day < 0 ? palette.danger.gradient : palette.accent.gradient)
                     }
+                    .chartXAxis {
+                        AxisMarks(values: .automatic(desiredCount: 5)) { _ in
+                            AxisGridLine()
+                            AxisValueLabel()
+                        }
+                    }
+                    .frame(height: 180)
                 }
-                .frame(height: 180)
-            }
 
-            if futureDue.haveBacklog {
-                Toggle("Include Backlog", isOn: $includeBacklog)
-                    .font(.caption)
-            }
+                if futureDue.haveBacklog {
+                    Toggle("Include Backlog", isOn: $includeBacklog)
+                        .font(.caption)
+                }
 
-            HStack(spacing: 16) {
-                footerItem("Total", value: "\(totalDue)")
-                footerItem("Avg/day", value: String(format: "%.1f", avgPerDay))
-                footerItem("Tomorrow", value: "\(dueTomorrow)")
-                footerItem("Daily Load", value: "\(futureDue.dailyLoad)")
+                HStack(spacing: 16) {
+                    footerItem("Total", value: "\(totalDue)")
+                    footerItem("Avg/day", value: String(format: "%.1f", avgPerDay))
+                    footerItem("Tomorrow", value: "\(dueTomorrow)")
+                    footerItem("Daily Load", value: "\(futureDue.dailyLoad)")
+                }
             }
         }
-        .amgiCard()
     }
 }
 

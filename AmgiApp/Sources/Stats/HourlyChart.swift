@@ -1,10 +1,14 @@
 import SwiftUI
+import AmgiTheme
+import AmgiUI
 import Charts
 import AnkiKit
 
 struct HourlyChart: View {
     let hours: HoursBuckets
     let period: StatsPeriod
+
+    @Environment(\.palette) private var palette
 
     private var hourData: [HoursBuckets.Hour] {
         switch period {
@@ -33,60 +37,66 @@ struct HourlyChart: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Hourly Breakdown").amgiFont(.bodyEmphasis)
+        AmgiCard(
+            background: .surface,
+            shadow: palette.shadows.sm,
+            cornerRadius: AmgiRadius.inset,
+            contentInsets: EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
+        ) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Hourly Breakdown").amgiFont(.bodyEmphasis)
 
-            if entries.allSatisfy({ $0.total == 0 }) {
-                Text("No review data").foregroundStyle(.secondary).frame(height: 180)
-            } else {
-                Chart(entries) { entry in
-                    BarMark(
-                        x: .value("Hour", entry.hour),
-                        y: .value("Reviews", entry.total)
-                    )
-                    .foregroundStyle(.purple.gradient)
-                }
-                .chartXAxis {
-                    AxisMarks(values: [0, 4, 8, 12, 16, 20]) { value in
-                        AxisGridLine()
-                        if let h = value.as(Int.self) {
-                            AxisValueLabel(formatHour(h))
+                if entries.allSatisfy({ $0.total == 0 }) {
+                    Text("No review data").foregroundStyle(.secondary).frame(height: 180)
+                } else {
+                    Chart(entries) { entry in
+                        BarMark(
+                            x: .value("Hour", entry.hour),
+                            y: .value("Reviews", entry.total)
+                        )
+                        .foregroundStyle(.purple.gradient)
+                    }
+                    .chartXAxis {
+                        AxisMarks(values: [0, 4, 8, 12, 16, 20]) { value in
+                            AxisGridLine()
+                            if let h = value.as(Int.self) {
+                                AxisValueLabel(formatHour(h))
+                            }
                         }
                     }
-                }
-                .chartXScale(domain: 0...23)
-                .frame(height: 150)
+                    .chartXScale(domain: 0...23)
+                    .frame(height: 150)
 
-                Chart(entries) { entry in
-                    LineMark(
-                        x: .value("Hour", entry.hour),
-                        y: .value("Correct %", entry.correctPct)
-                    )
-                    .foregroundStyle(.green)
-                    .interpolationMethod(.catmullRom)
+                    Chart(entries) { entry in
+                        LineMark(
+                            x: .value("Hour", entry.hour),
+                            y: .value("Correct %", entry.correctPct)
+                        )
+                        .foregroundStyle(.green)
+                        .interpolationMethod(.catmullRom)
 
-                    AreaMark(
-                        x: .value("Hour", entry.hour),
-                        y: .value("Correct %", entry.correctPct)
-                    )
-                    .foregroundStyle(.green.opacity(0.1))
-                    .interpolationMethod(.catmullRom)
-                }
-                .chartXAxis {
-                    AxisMarks(values: [0, 4, 8, 12, 16, 20]) { value in
-                        AxisGridLine()
-                        if let h = value.as(Int.self) {
-                            AxisValueLabel(formatHour(h))
+                        AreaMark(
+                            x: .value("Hour", entry.hour),
+                            y: .value("Correct %", entry.correctPct)
+                        )
+                        .foregroundStyle(.green.opacity(0.1))
+                        .interpolationMethod(.catmullRom)
+                    }
+                    .chartXAxis {
+                        AxisMarks(values: [0, 4, 8, 12, 16, 20]) { value in
+                            AxisGridLine()
+                            if let h = value.as(Int.self) {
+                                AxisValueLabel(formatHour(h))
+                            }
                         }
                     }
+                    .chartXScale(domain: 0...23)
+                    .chartYScale(domain: 0...100)
+                    .chartYAxisLabel("Correct %")
+                    .frame(height: 100)
                 }
-                .chartXScale(domain: 0...23)
-                .chartYScale(domain: 0...100)
-                .chartYAxisLabel("Correct %")
-                .frame(height: 100)
             }
         }
-        .amgiCard()
     }
 }
 

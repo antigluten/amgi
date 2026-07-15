@@ -1,5 +1,6 @@
 import SwiftUI
 import AmgiTheme
+import AmgiUI
 import AnkiKit
 
 struct PeriodStatsCard: View {
@@ -61,6 +62,18 @@ struct PeriodStatsCard: View {
     }
 
     var body: some View {
+        AmgiCard(
+            background: .surfaceElevated,
+            shadow: palette.shadows.md,
+            cornerRadius: AmgiRadius.inset,
+            contentInsets: EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
+        ) {
+            statsContent
+        }
+    }
+
+    @ViewBuilder
+    private var statsContent: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(periodTitle)
                 .amgiFont(.captionBold)
@@ -110,7 +123,6 @@ struct PeriodStatsCard: View {
                 }
             }
         }
-        .amgiCard(elevated: true)
     }
 }
 
