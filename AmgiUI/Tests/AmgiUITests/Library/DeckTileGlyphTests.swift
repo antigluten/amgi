@@ -80,4 +80,21 @@ import AmgiTheme
         let r = DeckTileGlyph.resolve(deckName: "📚 Books", palette: Palette.vividLight)
         #expect(r.mode == .emoji)
     }
+
+    @Test func deckDetailViewDataCarriesDeckNameNotAResolvedGlyph() {
+        let data = DeckDetailViewData(
+            title: "Books",
+            subtitle: "",
+            tone: .red,
+            deckName: "📚 Books",
+            tileCounts: DeckDetailTileData(newCount: 0, learnCount: 0, reviewCount: 0),
+            isFiltered: false,
+            isEmpty: true,
+            subdecks: [],
+            insights: .empty,
+            isActionInFlight: false
+        )
+        // The tile resolves against the palette; the DTO must not pre-bake a glyph.
+        #expect(data.deckName == "📚 Books")
+    }
 }

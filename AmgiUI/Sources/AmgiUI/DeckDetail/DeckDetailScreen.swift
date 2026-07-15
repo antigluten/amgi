@@ -61,13 +61,13 @@ public struct DeckDetailScreen<HeatmapSlot: View>: View {
     private var heroSection: some View {
         switch state {
         case .loading:
-            DeckHero(title: "…", subtitle: "Loading…", tone: palette.border, glyph: "📚", isFiltered: false)
+            DeckHero(title: "…", subtitle: "Loading…", tone: palette.border, deckName: "📚", isFiltered: false)
         case .loaded(let data):
             DeckHero(
                 title: data.title,
                 subtitle: data.subtitle,
                 tone: data.tone,
-                glyph: data.glyph,
+                deckName: data.deckName,
                 isFiltered: data.isFiltered
             )
         }
@@ -163,7 +163,7 @@ private let _krDefault = DeckDetailViewData(
     title: "한국어",
     subtitle: "Last studied today · 32-day streak",
     tone: .red,
-    glyph: "🇰🇷",
+    deckName: "🇰🇷 한국어",
     tileCounts: DeckDetailTileData(newCount: 20, learnCount: 93, reviewCount: 74),
     isFiltered: false,
     isEmpty: false,
@@ -176,7 +176,7 @@ private let _krFiltered = DeckDetailViewData(
     title: "한국어 (Filtered)",
     subtitle: "Last studied today · 32-day streak",
     tone: .red,
-    glyph: "🇰🇷",
+    deckName: "🇰🇷 한국어",
     tileCounts: DeckDetailTileData(newCount: 20, learnCount: 93, reviewCount: 74),
     isFiltered: true,
     isEmpty: false,
@@ -189,7 +189,7 @@ private let _krEmpty = DeckDetailViewData(
     title: "한국어",
     subtitle: "No cards yet · Add some to start studying",
     tone: .red,
-    glyph: "🇰🇷",
+    deckName: "🇰🇷 한국어",
     tileCounts: .zero,
     isFiltered: false,
     isEmpty: true,
