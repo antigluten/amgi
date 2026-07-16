@@ -67,6 +67,7 @@ xcodebuild test -project AnkiApp/AnkiApp.xcodeproj -scheme AnkiApp \
 
 ## WatchOS Compatibility
 
+- WatchReviewView exposes only .again and .good for the sake of keeping the screen clear for long cards and allowing for larger touch targets. Again and Good were chosen to be kept because they are the recommended buttons to use when trying to avoid [ease hell](https://readbroca.com/anki/ease-hell/) for those who are not yet using FSRS.
 - Stats sources in `AmgiApp/project.yml` are hand-enumerated to allow for manual review of new stat pages to ensure they fit on the Apple Watch screen. The current expectation is that text can be small and have awkward wrapping but all included diagrams and graphs must fit horizontally.
 
 ## Branch Strategy
