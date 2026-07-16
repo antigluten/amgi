@@ -114,6 +114,13 @@ struct DesignConformanceTests {
         ("system semantic color", #"Color\(\.(system|secondarySystem|tertiarySystem)"#),
         ("raw UIColor literal", #"UIColor\(red:"#),
         ("hardcoded role color", #"\.(foregroundStyle|foregroundColor|tint|fill)\(\s*\.(red|green|orange|blue|purple|cyan|yellow|gray|secondary|primary)\s*\)"#),
+        // Catches the fully-qualified `Color.<role>` spelling, which the shorthand
+        // `.(foregroundStyle|...)( .role )` pattern above misses entirely — both when
+        // it's used outside those 4 modifiers (.background, .opacity, dictionary
+        // literals, @State initializers, ternaries) and when it's spelled out instead
+        // of shortened. `Color.accentColor` is intentionally excluded — already
+        // reported by the "Color.accentColor" pattern above; don't double-count it.
+        ("hardcoded role color (Color.<role> form)", #"\bColor\.(red|green|orange|blue|purple|cyan|yellow|gray|grey|secondary|primary|white|black)\b"#),
         ("raw corner radius", #"cornerRadius:\s*\d"#),
         ("shadow", #"\.shadow\("#),
     ]
