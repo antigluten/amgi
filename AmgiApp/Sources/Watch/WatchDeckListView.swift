@@ -6,9 +6,14 @@ import SwiftUI
 
 struct WatchDeckListView: View {
     @Dependency(\.deckClient) var deckClient
+    @Dependency(\.syncClient) var syncClient
     @State private var tree: [DeckTreeNode] = []
     @State private var isLoading = true
     @State private var expandedDecks: Set<Int64> = []
+    @State private var isSyncing = false
+    @State private var showSyncMenu = false
+    @State private var showLoginSheet = false
+
     var body: some View {
         Group {
             if isLoading {
@@ -77,10 +82,7 @@ struct WatchDeckListView: View {
             await loadDecks()
         }
     }
-    @Dependency(\.syncClient) var syncClient
-    @State private var isSyncing = false
-    @State private var showSyncMenu = false
-    @State private var showLoginSheet = false
+
     private func sync() async {
         isSyncing = true
         do {
