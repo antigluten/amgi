@@ -290,10 +290,10 @@ private struct ReviewContent: View {
 
     private var answerButtons: some View {
         HStack(spacing: disperseAnswerButtons ? 16 : 8) {
-            ratingButton(.again, color: .red)
-            ratingButton(.hard, color: .orange)
-            ratingButton(.good, color: .green)
-            ratingButton(.easy, color: .blue)
+            ratingButton(.again, color: palette.danger)
+            ratingButton(.hard, color: palette.warning)
+            ratingButton(.good, color: palette.positive)
+            ratingButton(.easy, color: palette.info)
         }
         .padding(.horizontal, disperseAnswerButtons ? 20 : 16)
         .padding(.vertical, 16)
@@ -304,7 +304,7 @@ private struct ReviewContent: View {
             Spacer()
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 64))
-                .foregroundStyle(.green)
+                .foregroundStyle(palette.positive)
             Text("Congratulations!")
                 .amgiFont(.sectionHeading)
                 .foregroundStyle(palette.textPrimary)
@@ -332,10 +332,10 @@ private extension ReviewContent {
             VStack(spacing: 4) {
                 if showNextReviewTime {
                     Text(session.nextIntervals[rating] ?? "")
-                        .font(.caption2)
+                        .amgiFont(.caption)
                 }
                 Text(ratingLabel(rating))
-                    .font(.subheadline.weight(.medium))
+                    .amgiFont(.bodyEmphasis)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 10)
