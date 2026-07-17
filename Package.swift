@@ -16,7 +16,10 @@ let package = Package(
     // Pinned to iOS 18 / macOS 15 because the sibling AmgiReader package
     // depends on hoshidicts, which requires macOS 15+. The app target
     // already deploys iOS 18 so this is a no-op for users.
-    platforms: [.iOS(.v18), .macOS(.v15)],
+    // watchOS 11 added for the AmgiWatchApp target (PR #14); matches the app's
+    // watchOS deployment target and the sibling AmgiReader package's floor
+    // (AnkiClients depends on AmgiReader, which requires watchOS 11).
+    platforms: [.iOS(.v18), .macOS(.v15), .watchOS(.v11)],
     products: [
         .library(name: "AnkiKit", targets: ["AnkiKit"]),
         .library(name: "AnkiProto", targets: ["AnkiProto"]),

@@ -18,12 +18,12 @@ public import SwiftProtobuf
 // incompatible with the version of SwiftProtobuf to which you are linking.
 // Please ensure that you are building against the same version of the API
 // that was used to generate this file.
-fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
+fileprivate nonisolated struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
   struct _2: SwiftProtobuf.ProtobufAPIVersion_2 {}
   typealias Version = _2
 }
 
-public struct Anki_Links_HelpPageLinkRequest: Sendable {
+public nonisolated struct Anki_Links_HelpPageLinkRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -32,7 +32,7 @@ public struct Anki_Links_HelpPageLinkRequest: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum HelpPage: SwiftProtobuf.Enum, Swift.CaseIterable {
+  public nonisolated enum HelpPage: SwiftProtobuf.Enum, Swift.CaseIterable {
     public typealias RawValue = Int
     case noteType // = 0
     case browsing // = 1
@@ -155,9 +155,9 @@ public struct Anki_Links_HelpPageLinkRequest: Sendable {
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
-fileprivate let _protobuf_package = "anki.links"
+fileprivate nonisolated let _protobuf_package = "anki.links"
 
-extension Anki_Links_HelpPageLinkRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Links_HelpPageLinkRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".HelpPageLinkRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}page\0")
 
@@ -187,6 +187,6 @@ extension Anki_Links_HelpPageLinkRequest: SwiftProtobuf.Message, SwiftProtobuf._
   }
 }
 
-extension Anki_Links_HelpPageLinkRequest.HelpPage: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Links_HelpPageLinkRequest.HelpPage: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0NOTE_TYPE\0\u{1}BROWSING\0\u{1}BROWSING_FIND_AND_REPLACE\0\u{1}BROWSING_NOTES_MENU\0\u{1}KEYBOARD_SHORTCUTS\0\u{1}EDITING\0\u{1}ADDING_CARD_AND_NOTE\0\u{1}ADDING_A_NOTE_TYPE\0\u{1}LATEX\0\u{1}PREFERENCES\0\u{1}INDEX\0\u{1}TEMPLATES\0\u{1}FILTERED_DECK\0\u{1}IMPORTING\0\u{1}CUSTOMIZING_FIELDS\0\u{1}DECK_OPTIONS\0\u{1}EDITING_FEATURES\0\u{1}FULL_SCREEN_ISSUE\0\u{1}CARD_TYPE_DUPLICATE\0\u{1}CARD_TYPE_NO_FRONT_FIELD\0\u{1}CARD_TYPE_MISSING_CLOZE\0\u{1}TROUBLESHOOTING\0\u{1}CARD_TYPE_TEMPLATE_ERROR\0")
 }

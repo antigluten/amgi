@@ -18,12 +18,12 @@ public import SwiftProtobuf
 // incompatible with the version of SwiftProtobuf to which you are linking.
 // Please ensure that you are building against the same version of the API
 // that was used to generate this file.
-fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
+fileprivate nonisolated struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
   struct _2: SwiftProtobuf.ProtobufAPIVersion_2 {}
   typealias Version = _2
 }
 
-public struct Anki_Stats_ReviewLogs: Sendable {
+public nonisolated struct Anki_Stats_ReviewLogs: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -35,7 +35,7 @@ public struct Anki_Stats_ReviewLogs: Sendable {
   public init() {}
 }
 
-public struct Anki_Stats_CardStatsResponse: @unchecked Sendable {
+public nonisolated struct Anki_Stats_CardStatsResponse: @unchecked Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -198,7 +198,7 @@ public struct Anki_Stats_CardStatsResponse: @unchecked Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public struct StatsRevlogEntry: Sendable {
+  public nonisolated struct StatsRevlogEntry: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -238,7 +238,7 @@ public struct Anki_Stats_CardStatsResponse: @unchecked Sendable {
   fileprivate var _storage = _StorageClass.defaultInstance
 }
 
-public struct Anki_Stats_GraphsRequest: Sendable {
+public nonisolated struct Anki_Stats_GraphsRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -252,7 +252,7 @@ public struct Anki_Stats_GraphsRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Stats_GraphsResponse: @unchecked Sendable {
+public nonisolated struct Anki_Stats_GraphsResponse: @unchecked Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -386,7 +386,7 @@ public struct Anki_Stats_GraphsResponse: @unchecked Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public struct Added: Sendable {
+  public nonisolated struct Added: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -398,7 +398,7 @@ public struct Anki_Stats_GraphsResponse: @unchecked Sendable {
     public init() {}
   }
 
-  public struct Intervals: Sendable {
+  public nonisolated struct Intervals: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -410,7 +410,7 @@ public struct Anki_Stats_GraphsResponse: @unchecked Sendable {
     public init() {}
   }
 
-  public struct Eases: Sendable {
+  public nonisolated struct Eases: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -424,7 +424,7 @@ public struct Anki_Stats_GraphsResponse: @unchecked Sendable {
     public init() {}
   }
 
-  public struct Retrievability: Sendable {
+  public nonisolated struct Retrievability: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -442,7 +442,7 @@ public struct Anki_Stats_GraphsResponse: @unchecked Sendable {
     public init() {}
   }
 
-  public struct FutureDue: Sendable {
+  public nonisolated struct FutureDue: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -458,7 +458,7 @@ public struct Anki_Stats_GraphsResponse: @unchecked Sendable {
     public init() {}
   }
 
-  public struct Today: Sendable {
+  public nonisolated struct Today: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -487,7 +487,7 @@ public struct Anki_Stats_GraphsResponse: @unchecked Sendable {
   }
 
   /// each bucket is a 24 element vec
-  public struct Hours: Sendable {
+  public nonisolated struct Hours: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -502,7 +502,7 @@ public struct Anki_Stats_GraphsResponse: @unchecked Sendable {
 
     public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-    public struct Hour: Sendable {
+    public nonisolated struct Hour: Sendable {
       // SwiftProtobuf.Message conformance is added in an extension below. See the
       // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
       // methods supported on all messages.
@@ -519,7 +519,7 @@ public struct Anki_Stats_GraphsResponse: @unchecked Sendable {
     public init() {}
   }
 
-  public struct ReviewCountsAndTimes: Sendable {
+  public nonisolated struct ReviewCountsAndTimes: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -530,7 +530,7 @@ public struct Anki_Stats_GraphsResponse: @unchecked Sendable {
 
     public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-    public struct Reviews: Sendable {
+    public nonisolated struct Reviews: Sendable {
       // SwiftProtobuf.Message conformance is added in an extension below. See the
       // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
       // methods supported on all messages.
@@ -554,7 +554,7 @@ public struct Anki_Stats_GraphsResponse: @unchecked Sendable {
   }
 
   /// 4 element vecs for buttons 1-4
-  public struct Buttons: Sendable {
+  public nonisolated struct Buttons: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -597,7 +597,7 @@ public struct Anki_Stats_GraphsResponse: @unchecked Sendable {
 
     public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-    public struct ButtonCounts: Sendable {
+    public nonisolated struct ButtonCounts: Sendable {
       // SwiftProtobuf.Message conformance is added in an extension below. See the
       // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
       // methods supported on all messages.
@@ -621,7 +621,7 @@ public struct Anki_Stats_GraphsResponse: @unchecked Sendable {
     fileprivate var _allTime: Anki_Stats_GraphsResponse.Buttons.ButtonCounts? = nil
   }
 
-  public struct CardCounts: Sendable {
+  public nonisolated struct CardCounts: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -649,7 +649,7 @@ public struct Anki_Stats_GraphsResponse: @unchecked Sendable {
 
     public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-    public struct Counts: Sendable {
+    public nonisolated struct Counts: Sendable {
       // SwiftProtobuf.Message conformance is added in an extension below. See the
       // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
       // methods supported on all messages.
@@ -679,7 +679,7 @@ public struct Anki_Stats_GraphsResponse: @unchecked Sendable {
     fileprivate var _excludingInactive: Anki_Stats_GraphsResponse.CardCounts.Counts? = nil
   }
 
-  public struct TrueRetentionStats: @unchecked Sendable {
+  public nonisolated struct TrueRetentionStats: @unchecked Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -740,7 +740,7 @@ public struct Anki_Stats_GraphsResponse: @unchecked Sendable {
 
     public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-    public struct TrueRetention: Sendable {
+    public nonisolated struct TrueRetention: Sendable {
       // SwiftProtobuf.Message conformance is added in an extension below. See the
       // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
       // methods supported on all messages.
@@ -768,7 +768,7 @@ public struct Anki_Stats_GraphsResponse: @unchecked Sendable {
   fileprivate var _storage = _StorageClass.defaultInstance
 }
 
-public struct Anki_Stats_GraphPreferences: Sendable {
+public nonisolated struct Anki_Stats_GraphPreferences: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -783,7 +783,7 @@ public struct Anki_Stats_GraphPreferences: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum Weekday: SwiftProtobuf.Enum, Swift.CaseIterable {
+  public nonisolated enum Weekday: SwiftProtobuf.Enum, Swift.CaseIterable {
     public typealias RawValue = Int
     case sunday // = 0
     case monday // = 1
@@ -828,7 +828,7 @@ public struct Anki_Stats_GraphPreferences: Sendable {
   public init() {}
 }
 
-public struct Anki_Stats_RevlogEntry: Sendable {
+public nonisolated struct Anki_Stats_RevlogEntry: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -853,7 +853,7 @@ public struct Anki_Stats_RevlogEntry: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum ReviewKind: SwiftProtobuf.Enum, Swift.CaseIterable {
+  public nonisolated enum ReviewKind: SwiftProtobuf.Enum, Swift.CaseIterable {
     public typealias RawValue = Int
     case learning // = 0
     case review // = 1
@@ -906,7 +906,7 @@ public struct Anki_Stats_RevlogEntry: Sendable {
   public init() {}
 }
 
-public struct Anki_Stats_CardEntry: Sendable {
+public nonisolated struct Anki_Stats_CardEntry: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -922,7 +922,7 @@ public struct Anki_Stats_CardEntry: Sendable {
   public init() {}
 }
 
-public struct Anki_Stats_DeckEntry: Sendable {
+public nonisolated struct Anki_Stats_DeckEntry: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -938,7 +938,7 @@ public struct Anki_Stats_DeckEntry: Sendable {
   public init() {}
 }
 
-public struct Anki_Stats_Dataset: Sendable {
+public nonisolated struct Anki_Stats_Dataset: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -958,9 +958,9 @@ public struct Anki_Stats_Dataset: Sendable {
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
-fileprivate let _protobuf_package = "anki.stats"
+fileprivate nonisolated let _protobuf_package = "anki.stats"
 
-extension Anki_Stats_ReviewLogs: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Stats_ReviewLogs: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ReviewLogs"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}entries\0")
 
@@ -990,7 +990,7 @@ extension Anki_Stats_ReviewLogs: SwiftProtobuf.Message, SwiftProtobuf._MessageIm
   }
 }
 
-extension Anki_Stats_CardStatsResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Stats_CardStatsResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".CardStatsResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}revlog\0\u{3}card_id\0\u{3}note_id\0\u{1}deck\0\u{1}added\0\u{3}first_review\0\u{3}latest_review\0\u{3}due_date\0\u{3}due_position\0\u{1}interval\0\u{1}ease\0\u{1}reviews\0\u{1}lapses\0\u{3}average_secs\0\u{3}total_secs\0\u{3}card_type\0\u{1}notetype\0\u{3}memory_state\0\u{3}fsrs_retrievability\0\u{3}custom_data\0\u{1}preset\0\u{3}original_deck\0\u{3}desired_retention\0\u{3}fsrs_params\0")
 
@@ -1221,7 +1221,7 @@ extension Anki_Stats_CardStatsResponse: SwiftProtobuf.Message, SwiftProtobuf._Me
   }
 }
 
-extension Anki_Stats_CardStatsResponse.StatsRevlogEntry: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Stats_CardStatsResponse.StatsRevlogEntry: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Stats_CardStatsResponse.protoMessageName + ".StatsRevlogEntry"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}time\0\u{3}review_kind\0\u{3}button_chosen\0\u{1}interval\0\u{1}ease\0\u{3}taken_secs\0\u{3}memory_state\0")
 
@@ -1285,7 +1285,7 @@ extension Anki_Stats_CardStatsResponse.StatsRevlogEntry: SwiftProtobuf.Message, 
   }
 }
 
-extension Anki_Stats_GraphsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Stats_GraphsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".GraphsRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}search\0\u{1}days\0")
 
@@ -1320,7 +1320,7 @@ extension Anki_Stats_GraphsRequest: SwiftProtobuf.Message, SwiftProtobuf._Messag
   }
 }
 
-extension Anki_Stats_GraphsResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Stats_GraphsResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".GraphsResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}buttons\0\u{3}card_counts\0\u{1}hours\0\u{1}today\0\u{1}eases\0\u{1}intervals\0\u{3}future_due\0\u{1}added\0\u{1}reviews\0\u{3}rollover_hour\0\u{1}difficulty\0\u{1}retrievability\0\u{1}fsrs\0\u{1}stability\0\u{3}true_retention\0")
 
@@ -1488,7 +1488,7 @@ extension Anki_Stats_GraphsResponse: SwiftProtobuf.Message, SwiftProtobuf._Messa
   }
 }
 
-extension Anki_Stats_GraphsResponse.Added: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Stats_GraphsResponse.Added: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Stats_GraphsResponse.protoMessageName + ".Added"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}added\0")
 
@@ -1518,7 +1518,7 @@ extension Anki_Stats_GraphsResponse.Added: SwiftProtobuf.Message, SwiftProtobuf.
   }
 }
 
-extension Anki_Stats_GraphsResponse.Intervals: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Stats_GraphsResponse.Intervals: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Stats_GraphsResponse.protoMessageName + ".Intervals"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}intervals\0")
 
@@ -1548,7 +1548,7 @@ extension Anki_Stats_GraphsResponse.Intervals: SwiftProtobuf.Message, SwiftProto
   }
 }
 
-extension Anki_Stats_GraphsResponse.Eases: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Stats_GraphsResponse.Eases: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Stats_GraphsResponse.protoMessageName + ".Eases"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}eases\0\u{1}average\0")
 
@@ -1583,7 +1583,7 @@ extension Anki_Stats_GraphsResponse.Eases: SwiftProtobuf.Message, SwiftProtobuf.
   }
 }
 
-extension Anki_Stats_GraphsResponse.Retrievability: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Stats_GraphsResponse.Retrievability: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Stats_GraphsResponse.protoMessageName + ".Retrievability"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}retrievability\0\u{1}average\0\u{3}sum_by_card\0\u{3}sum_by_note\0")
 
@@ -1628,7 +1628,7 @@ extension Anki_Stats_GraphsResponse.Retrievability: SwiftProtobuf.Message, Swift
   }
 }
 
-extension Anki_Stats_GraphsResponse.FutureDue: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Stats_GraphsResponse.FutureDue: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Stats_GraphsResponse.protoMessageName + ".FutureDue"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}future_due\0\u{3}have_backlog\0\u{3}daily_load\0")
 
@@ -1668,7 +1668,7 @@ extension Anki_Stats_GraphsResponse.FutureDue: SwiftProtobuf.Message, SwiftProto
   }
 }
 
-extension Anki_Stats_GraphsResponse.Today: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Stats_GraphsResponse.Today: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Stats_GraphsResponse.protoMessageName + ".Today"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}answer_count\0\u{3}answer_millis\0\u{3}correct_count\0\u{3}mature_correct\0\u{3}mature_count\0\u{3}learn_count\0\u{3}review_count\0\u{3}relearn_count\0\u{3}early_review_count\0")
 
@@ -1738,7 +1738,7 @@ extension Anki_Stats_GraphsResponse.Today: SwiftProtobuf.Message, SwiftProtobuf.
   }
 }
 
-extension Anki_Stats_GraphsResponse.Hours: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Stats_GraphsResponse.Hours: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Stats_GraphsResponse.protoMessageName + ".Hours"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}one_month\0\u{3}three_months\0\u{3}one_year\0\u{3}all_time\0")
 
@@ -1783,7 +1783,7 @@ extension Anki_Stats_GraphsResponse.Hours: SwiftProtobuf.Message, SwiftProtobuf.
   }
 }
 
-extension Anki_Stats_GraphsResponse.Hours.Hour: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Stats_GraphsResponse.Hours.Hour: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Stats_GraphsResponse.Hours.protoMessageName + ".Hour"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}total\0\u{1}correct\0")
 
@@ -1818,7 +1818,7 @@ extension Anki_Stats_GraphsResponse.Hours.Hour: SwiftProtobuf.Message, SwiftProt
   }
 }
 
-extension Anki_Stats_GraphsResponse.ReviewCountsAndTimes: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Stats_GraphsResponse.ReviewCountsAndTimes: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Stats_GraphsResponse.protoMessageName + ".ReviewCountsAndTimes"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}count\0\u{1}time\0")
 
@@ -1853,7 +1853,7 @@ extension Anki_Stats_GraphsResponse.ReviewCountsAndTimes: SwiftProtobuf.Message,
   }
 }
 
-extension Anki_Stats_GraphsResponse.ReviewCountsAndTimes.Reviews: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Stats_GraphsResponse.ReviewCountsAndTimes.Reviews: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Stats_GraphsResponse.ReviewCountsAndTimes.protoMessageName + ".Reviews"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}learn\0\u{1}relearn\0\u{1}young\0\u{1}mature\0\u{1}filtered\0")
 
@@ -1903,7 +1903,7 @@ extension Anki_Stats_GraphsResponse.ReviewCountsAndTimes.Reviews: SwiftProtobuf.
   }
 }
 
-extension Anki_Stats_GraphsResponse.Buttons: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Stats_GraphsResponse.Buttons: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Stats_GraphsResponse.protoMessageName + ".Buttons"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}one_month\0\u{3}three_months\0\u{3}one_year\0\u{3}all_time\0")
 
@@ -1952,7 +1952,7 @@ extension Anki_Stats_GraphsResponse.Buttons: SwiftProtobuf.Message, SwiftProtobu
   }
 }
 
-extension Anki_Stats_GraphsResponse.Buttons.ButtonCounts: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Stats_GraphsResponse.Buttons.ButtonCounts: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Stats_GraphsResponse.Buttons.protoMessageName + ".ButtonCounts"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}learning\0\u{1}young\0\u{1}mature\0")
 
@@ -1992,7 +1992,7 @@ extension Anki_Stats_GraphsResponse.Buttons.ButtonCounts: SwiftProtobuf.Message,
   }
 }
 
-extension Anki_Stats_GraphsResponse.CardCounts: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Stats_GraphsResponse.CardCounts: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Stats_GraphsResponse.protoMessageName + ".CardCounts"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}including_inactive\0\u{3}excluding_inactive\0")
 
@@ -2031,7 +2031,7 @@ extension Anki_Stats_GraphsResponse.CardCounts: SwiftProtobuf.Message, SwiftProt
   }
 }
 
-extension Anki_Stats_GraphsResponse.CardCounts.Counts: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Stats_GraphsResponse.CardCounts.Counts: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Stats_GraphsResponse.CardCounts.protoMessageName + ".Counts"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}newCards\0\u{1}learn\0\u{1}relearn\0\u{1}young\0\u{1}mature\0\u{1}suspended\0\u{1}buried\0")
 
@@ -2091,7 +2091,7 @@ extension Anki_Stats_GraphsResponse.CardCounts.Counts: SwiftProtobuf.Message, Sw
   }
 }
 
-extension Anki_Stats_GraphsResponse.TrueRetentionStats: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Stats_GraphsResponse.TrueRetentionStats: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Stats_GraphsResponse.protoMessageName + ".TrueRetentionStats"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}today\0\u{1}yesterday\0\u{1}week\0\u{1}month\0\u{1}year\0\u{3}all_time\0")
 
@@ -2196,7 +2196,7 @@ extension Anki_Stats_GraphsResponse.TrueRetentionStats: SwiftProtobuf.Message, S
   }
 }
 
-extension Anki_Stats_GraphsResponse.TrueRetentionStats.TrueRetention: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Stats_GraphsResponse.TrueRetentionStats.TrueRetention: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Stats_GraphsResponse.TrueRetentionStats.protoMessageName + ".TrueRetention"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}young_passed\0\u{3}young_failed\0\u{3}mature_passed\0\u{3}mature_failed\0")
 
@@ -2241,7 +2241,7 @@ extension Anki_Stats_GraphsResponse.TrueRetentionStats.TrueRetention: SwiftProto
   }
 }
 
-extension Anki_Stats_GraphPreferences: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Stats_GraphPreferences: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".GraphPreferences"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}calendar_first_day_of_week\0\u{3}card_counts_separate_inactive\0\u{3}browser_links_supported\0\u{3}future_due_show_backlog\0")
 
@@ -2286,11 +2286,11 @@ extension Anki_Stats_GraphPreferences: SwiftProtobuf.Message, SwiftProtobuf._Mes
   }
 }
 
-extension Anki_Stats_GraphPreferences.Weekday: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Stats_GraphPreferences.Weekday: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0SUNDAY\0\u{1}MONDAY\0\u{2}\u{4}FRIDAY\0\u{1}SATURDAY\0")
 }
 
-extension Anki_Stats_RevlogEntry: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Stats_RevlogEntry: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".RevlogEntry"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{1}cid\0\u{1}usn\0\u{3}button_chosen\0\u{1}interval\0\u{3}last_interval\0\u{3}ease_factor\0\u{3}taken_millis\0\u{3}review_kind\0")
 
@@ -2360,11 +2360,11 @@ extension Anki_Stats_RevlogEntry: SwiftProtobuf.Message, SwiftProtobuf._MessageI
   }
 }
 
-extension Anki_Stats_RevlogEntry.ReviewKind: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Stats_RevlogEntry.ReviewKind: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0LEARNING\0\u{1}REVIEW\0\u{1}RELEARNING\0\u{1}FILTERED\0\u{1}MANUAL\0\u{1}RESCHEDULED\0")
 }
 
-extension Anki_Stats_CardEntry: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Stats_CardEntry: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".CardEntry"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{3}note_id\0\u{3}deck_id\0")
 
@@ -2404,7 +2404,7 @@ extension Anki_Stats_CardEntry: SwiftProtobuf.Message, SwiftProtobuf._MessageImp
   }
 }
 
-extension Anki_Stats_DeckEntry: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Stats_DeckEntry: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".DeckEntry"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{3}parent_id\0\u{3}preset_id\0")
 
@@ -2444,7 +2444,7 @@ extension Anki_Stats_DeckEntry: SwiftProtobuf.Message, SwiftProtobuf._MessageImp
   }
 }
 
-extension Anki_Stats_Dataset: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Stats_Dataset: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".Dataset"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}revlogs\0\u{1}cards\0\u{1}decks\0\u{3}next_day_at\0")
 

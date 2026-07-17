@@ -18,12 +18,12 @@ public import SwiftProtobuf
 // incompatible with the version of SwiftProtobuf to which you are linking.
 // Please ensure that you are building against the same version of the API
 // that was used to generate this file.
-fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
+fileprivate nonisolated struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
   struct _2: SwiftProtobuf.ProtobufAPIVersion_2 {}
   typealias Version = _2
 }
 
-public struct Anki_Sync_SyncAuth: Sendable {
+public nonisolated struct Anki_Sync_SyncAuth: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -56,7 +56,7 @@ public struct Anki_Sync_SyncAuth: Sendable {
   fileprivate var _ioTimeoutSecs: UInt32? = nil
 }
 
-public struct Anki_Sync_SyncLoginRequest: Sendable {
+public nonisolated struct Anki_Sync_SyncLoginRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -81,7 +81,7 @@ public struct Anki_Sync_SyncLoginRequest: Sendable {
   fileprivate var _endpoint: String? = nil
 }
 
-public struct Anki_Sync_SyncStatusResponse: Sendable {
+public nonisolated struct Anki_Sync_SyncStatusResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -99,7 +99,7 @@ public struct Anki_Sync_SyncStatusResponse: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum Required: SwiftProtobuf.Enum, Swift.CaseIterable {
+  public nonisolated enum Required: SwiftProtobuf.Enum, Swift.CaseIterable {
     public typealias RawValue = Int
     case noChanges // = 0
     case normalSync // = 1
@@ -142,7 +142,7 @@ public struct Anki_Sync_SyncStatusResponse: Sendable {
   fileprivate var _newEndpoint: String? = nil
 }
 
-public struct Anki_Sync_SyncCollectionRequest: Sendable {
+public nonisolated struct Anki_Sync_SyncCollectionRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -165,7 +165,7 @@ public struct Anki_Sync_SyncCollectionRequest: Sendable {
   fileprivate var _auth: Anki_Sync_SyncAuth? = nil
 }
 
-public struct Anki_Sync_SyncCollectionResponse: Sendable {
+public nonisolated struct Anki_Sync_SyncCollectionResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -189,7 +189,7 @@ public struct Anki_Sync_SyncCollectionResponse: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum ChangesRequired: SwiftProtobuf.Enum, Swift.CaseIterable {
+  public nonisolated enum ChangesRequired: SwiftProtobuf.Enum, Swift.CaseIterable {
     public typealias RawValue = Int
     case noChanges // = 0
     case normalSync // = 1
@@ -244,7 +244,7 @@ public struct Anki_Sync_SyncCollectionResponse: Sendable {
   fileprivate var _newEndpoint: String? = nil
 }
 
-public struct Anki_Sync_MediaSyncStatusResponse: Sendable {
+public nonisolated struct Anki_Sync_MediaSyncStatusResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -267,7 +267,7 @@ public struct Anki_Sync_MediaSyncStatusResponse: Sendable {
   fileprivate var _progress: Anki_Sync_MediaSyncProgress? = nil
 }
 
-public struct Anki_Sync_MediaSyncProgress: Sendable {
+public nonisolated struct Anki_Sync_MediaSyncProgress: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -283,7 +283,7 @@ public struct Anki_Sync_MediaSyncProgress: Sendable {
   public init() {}
 }
 
-public struct Anki_Sync_FullUploadOrDownloadRequest: Sendable {
+public nonisolated struct Anki_Sync_FullUploadOrDownloadRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -319,9 +319,9 @@ public struct Anki_Sync_FullUploadOrDownloadRequest: Sendable {
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
-fileprivate let _protobuf_package = "anki.sync"
+fileprivate nonisolated let _protobuf_package = "anki.sync"
 
-extension Anki_Sync_SyncAuth: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Sync_SyncAuth: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SyncAuth"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}hkey\0\u{1}endpoint\0\u{3}io_timeout_secs\0")
 
@@ -365,7 +365,7 @@ extension Anki_Sync_SyncAuth: SwiftProtobuf.Message, SwiftProtobuf._MessageImple
   }
 }
 
-extension Anki_Sync_SyncLoginRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Sync_SyncLoginRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SyncLoginRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}username\0\u{1}password\0\u{1}endpoint\0")
 
@@ -409,7 +409,7 @@ extension Anki_Sync_SyncLoginRequest: SwiftProtobuf.Message, SwiftProtobuf._Mess
   }
 }
 
-extension Anki_Sync_SyncStatusResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Sync_SyncStatusResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SyncStatusResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}required\0\u{4}\u{3}new_endpoint\0")
 
@@ -448,11 +448,11 @@ extension Anki_Sync_SyncStatusResponse: SwiftProtobuf.Message, SwiftProtobuf._Me
   }
 }
 
-extension Anki_Sync_SyncStatusResponse.Required: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Sync_SyncStatusResponse.Required: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0NO_CHANGES\0\u{1}NORMAL_SYNC\0\u{1}FULL_SYNC\0")
 }
 
-extension Anki_Sync_SyncCollectionRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Sync_SyncCollectionRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SyncCollectionRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}auth\0\u{3}sync_media\0")
 
@@ -491,7 +491,7 @@ extension Anki_Sync_SyncCollectionRequest: SwiftProtobuf.Message, SwiftProtobuf.
   }
 }
 
-extension Anki_Sync_SyncCollectionResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Sync_SyncCollectionResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SyncCollectionResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}host_number\0\u{3}server_message\0\u{1}required\0\u{3}new_endpoint\0\u{3}server_media_usn\0")
 
@@ -545,11 +545,11 @@ extension Anki_Sync_SyncCollectionResponse: SwiftProtobuf.Message, SwiftProtobuf
   }
 }
 
-extension Anki_Sync_SyncCollectionResponse.ChangesRequired: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Sync_SyncCollectionResponse.ChangesRequired: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0NO_CHANGES\0\u{1}NORMAL_SYNC\0\u{1}FULL_SYNC\0\u{1}FULL_DOWNLOAD\0\u{1}FULL_UPLOAD\0")
 }
 
-extension Anki_Sync_MediaSyncStatusResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Sync_MediaSyncStatusResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".MediaSyncStatusResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}active\0\u{1}progress\0")
 
@@ -588,7 +588,7 @@ extension Anki_Sync_MediaSyncStatusResponse: SwiftProtobuf.Message, SwiftProtobu
   }
 }
 
-extension Anki_Sync_MediaSyncProgress: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Sync_MediaSyncProgress: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".MediaSyncProgress"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}checked\0\u{1}added\0\u{1}removed\0")
 
@@ -628,7 +628,7 @@ extension Anki_Sync_MediaSyncProgress: SwiftProtobuf.Message, SwiftProtobuf._Mes
   }
 }
 
-extension Anki_Sync_FullUploadOrDownloadRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Sync_FullUploadOrDownloadRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".FullUploadOrDownloadRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}auth\0\u{1}upload\0\u{3}server_usn\0")
 

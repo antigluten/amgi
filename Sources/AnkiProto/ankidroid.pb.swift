@@ -20,12 +20,12 @@ public import SwiftProtobuf
 // incompatible with the version of SwiftProtobuf to which you are linking.
 // Please ensure that you are building against the same version of the API
 // that was used to generate this file.
-fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
+fileprivate nonisolated struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
   struct _2: SwiftProtobuf.ProtobufAPIVersion_2 {}
   typealias Version = _2
 }
 
-public struct Anki_Ankidroid_DebugActiveDatabaseSequenceNumbersResponse: Sendable {
+public nonisolated struct Anki_Ankidroid_DebugActiveDatabaseSequenceNumbersResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -37,7 +37,7 @@ public struct Anki_Ankidroid_DebugActiveDatabaseSequenceNumbersResponse: Sendabl
   public init() {}
 }
 
-public struct Anki_Ankidroid_SchedTimingTodayLegacyRequest: Sendable {
+public nonisolated struct Anki_Ankidroid_SchedTimingTodayLegacyRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -69,7 +69,7 @@ public struct Anki_Ankidroid_SchedTimingTodayLegacyRequest: Sendable {
 /// We expect in Java: Null, String, Short, Int, Long, Float, Double, Boolean,
 /// Blob (unused) We get: DbResult (Null, String, i64, f64, Vec<u8>), which
 /// matches SQLite documentation
-public struct Anki_Ankidroid_SqlValue: Sendable {
+public nonisolated struct Anki_Ankidroid_SqlValue: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -110,7 +110,7 @@ public struct Anki_Ankidroid_SqlValue: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum OneOf_Data: Equatable, Sendable {
+  public nonisolated enum OneOf_Data: Equatable, Sendable {
     case stringValue(String)
     case longValue(Int64)
     case doubleValue(Double)
@@ -121,7 +121,7 @@ public struct Anki_Ankidroid_SqlValue: Sendable {
   public init() {}
 }
 
-public struct Anki_Ankidroid_Row: Sendable {
+public nonisolated struct Anki_Ankidroid_Row: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -133,7 +133,7 @@ public struct Anki_Ankidroid_Row: Sendable {
   public init() {}
 }
 
-public struct Anki_Ankidroid_DbResult: Sendable {
+public nonisolated struct Anki_Ankidroid_DbResult: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -145,7 +145,7 @@ public struct Anki_Ankidroid_DbResult: Sendable {
   public init() {}
 }
 
-public struct Anki_Ankidroid_DbResponse: Sendable {
+public nonisolated struct Anki_Ankidroid_DbResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -172,7 +172,7 @@ public struct Anki_Ankidroid_DbResponse: Sendable {
   fileprivate var _result: Anki_Ankidroid_DbResult? = nil
 }
 
-public struct Anki_Ankidroid_GetNextResultPageRequest: Sendable {
+public nonisolated struct Anki_Ankidroid_GetNextResultPageRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -186,7 +186,7 @@ public struct Anki_Ankidroid_GetNextResultPageRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Ankidroid_GetActiveSequenceNumbersResponse: Sendable {
+public nonisolated struct Anki_Ankidroid_GetActiveSequenceNumbersResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -200,9 +200,9 @@ public struct Anki_Ankidroid_GetActiveSequenceNumbersResponse: Sendable {
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
-fileprivate let _protobuf_package = "anki.ankidroid"
+fileprivate nonisolated let _protobuf_package = "anki.ankidroid"
 
-extension Anki_Ankidroid_DebugActiveDatabaseSequenceNumbersResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Ankidroid_DebugActiveDatabaseSequenceNumbersResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".DebugActiveDatabaseSequenceNumbersResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}sequence_numbers\0")
 
@@ -232,7 +232,7 @@ extension Anki_Ankidroid_DebugActiveDatabaseSequenceNumbersResponse: SwiftProtob
   }
 }
 
-extension Anki_Ankidroid_SchedTimingTodayLegacyRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Ankidroid_SchedTimingTodayLegacyRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SchedTimingTodayLegacyRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}created_secs\0\u{3}created_mins_west\0\u{3}now_secs\0\u{3}now_mins_west\0\u{3}rollover_hour\0")
 
@@ -286,7 +286,7 @@ extension Anki_Ankidroid_SchedTimingTodayLegacyRequest: SwiftProtobuf.Message, S
   }
 }
 
-extension Anki_Ankidroid_SqlValue: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Ankidroid_SqlValue: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SqlValue"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}stringValue\0\u{1}longValue\0\u{1}doubleValue\0\u{1}blobValue\0")
 
@@ -367,7 +367,7 @@ extension Anki_Ankidroid_SqlValue: SwiftProtobuf.Message, SwiftProtobuf._Message
   }
 }
 
-extension Anki_Ankidroid_Row: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Ankidroid_Row: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".Row"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}fields\0")
 
@@ -397,7 +397,7 @@ extension Anki_Ankidroid_Row: SwiftProtobuf.Message, SwiftProtobuf._MessageImple
   }
 }
 
-extension Anki_Ankidroid_DbResult: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Ankidroid_DbResult: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".DbResult"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}rows\0")
 
@@ -427,7 +427,7 @@ extension Anki_Ankidroid_DbResult: SwiftProtobuf.Message, SwiftProtobuf._Message
   }
 }
 
-extension Anki_Ankidroid_DbResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Ankidroid_DbResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".DbResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}result\0\u{1}sequenceNumber\0\u{1}rowCount\0\u{1}startIndex\0")
 
@@ -476,7 +476,7 @@ extension Anki_Ankidroid_DbResponse: SwiftProtobuf.Message, SwiftProtobuf._Messa
   }
 }
 
-extension Anki_Ankidroid_GetNextResultPageRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Ankidroid_GetNextResultPageRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".GetNextResultPageRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}sequence\0\u{1}index\0")
 
@@ -511,7 +511,7 @@ extension Anki_Ankidroid_GetNextResultPageRequest: SwiftProtobuf.Message, SwiftP
   }
 }
 
-extension Anki_Ankidroid_GetActiveSequenceNumbersResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Ankidroid_GetActiveSequenceNumbersResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".GetActiveSequenceNumbersResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}numbers\0")
 

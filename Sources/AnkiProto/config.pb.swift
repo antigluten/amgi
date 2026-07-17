@@ -23,19 +23,19 @@ public import SwiftProtobuf
 // incompatible with the version of SwiftProtobuf to which you are linking.
 // Please ensure that you are building against the same version of the API
 // that was used to generate this file.
-fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
+fileprivate nonisolated struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
   struct _2: SwiftProtobuf.ProtobufAPIVersion_2 {}
   typealias Version = _2
 }
 
-public struct Anki_Config_ConfigKey: Sendable {
+public nonisolated struct Anki_Config_ConfigKey: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum BoolEnum: SwiftProtobuf.Enum, Swift.CaseIterable {
+  public nonisolated enum BoolEnum: SwiftProtobuf.Enum, Swift.CaseIterable {
     public typealias RawValue = Int
     case browserTableShowNotesMode // = 0
     case previewBothSides // = 3
@@ -169,7 +169,7 @@ public struct Anki_Config_ConfigKey: Sendable {
 
   }
 
-  public enum StringEnum: SwiftProtobuf.Enum, Swift.CaseIterable {
+  public nonisolated enum StringEnum: SwiftProtobuf.Enum, Swift.CaseIterable {
     public typealias RawValue = Int
     case setDueBrowser // = 0
     case setDueReviewer // = 1
@@ -214,7 +214,7 @@ public struct Anki_Config_ConfigKey: Sendable {
   public init() {}
 }
 
-public struct Anki_Config_GetConfigBoolRequest: Sendable {
+public nonisolated struct Anki_Config_GetConfigBoolRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -226,7 +226,7 @@ public struct Anki_Config_GetConfigBoolRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Config_SetConfigBoolRequest: Sendable {
+public nonisolated struct Anki_Config_SetConfigBoolRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -242,7 +242,7 @@ public struct Anki_Config_SetConfigBoolRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Config_GetConfigStringRequest: Sendable {
+public nonisolated struct Anki_Config_GetConfigStringRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -254,7 +254,7 @@ public struct Anki_Config_GetConfigStringRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Config_SetConfigStringRequest: Sendable {
+public nonisolated struct Anki_Config_SetConfigStringRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -270,7 +270,7 @@ public struct Anki_Config_SetConfigStringRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Config_OptionalStringConfigKey: Sendable {
+public nonisolated struct Anki_Config_OptionalStringConfigKey: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -282,7 +282,7 @@ public struct Anki_Config_OptionalStringConfigKey: Sendable {
   public init() {}
 }
 
-public struct Anki_Config_SetConfigJsonRequest: Sendable {
+public nonisolated struct Anki_Config_SetConfigJsonRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -298,7 +298,7 @@ public struct Anki_Config_SetConfigJsonRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Config_Preferences: @unchecked Sendable {
+public nonisolated struct Anki_Config_Preferences: @unchecked Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -341,7 +341,7 @@ public struct Anki_Config_Preferences: @unchecked Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public struct Scheduling: Sendable {
+  public nonisolated struct Scheduling: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -359,7 +359,7 @@ public struct Anki_Config_Preferences: @unchecked Sendable {
 
     public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-    public enum NewReviewMix: SwiftProtobuf.Enum, Swift.CaseIterable {
+    public nonisolated enum NewReviewMix: SwiftProtobuf.Enum, Swift.CaseIterable {
       public typealias RawValue = Int
       case distribute // = 0
       case reviewsFirst // = 1
@@ -400,7 +400,7 @@ public struct Anki_Config_Preferences: @unchecked Sendable {
     public init() {}
   }
 
-  public struct Reviewing: Sendable {
+  public nonisolated struct Reviewing: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -424,7 +424,7 @@ public struct Anki_Config_Preferences: @unchecked Sendable {
     public init() {}
   }
 
-  public struct Editing: Sendable {
+  public nonisolated struct Editing: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -446,7 +446,7 @@ public struct Anki_Config_Preferences: @unchecked Sendable {
     public init() {}
   }
 
-  public struct BackupLimits: Sendable {
+  public nonisolated struct BackupLimits: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -471,9 +471,9 @@ public struct Anki_Config_Preferences: @unchecked Sendable {
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
-fileprivate let _protobuf_package = "anki.config"
+fileprivate nonisolated let _protobuf_package = "anki.config"
 
-extension Anki_Config_ConfigKey: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Config_ConfigKey: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ConfigKey"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap()
 
@@ -492,15 +492,15 @@ extension Anki_Config_ConfigKey: SwiftProtobuf.Message, SwiftProtobuf._MessageIm
   }
 }
 
-extension Anki_Config_ConfigKey.BoolEnum: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Config_ConfigKey.BoolEnum: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0BROWSER_TABLE_SHOW_NOTES_MODE\0\u{2}\u{3}PREVIEW_BOTH_SIDES\0\u{1}COLLAPSE_TAGS\0\u{1}COLLAPSE_NOTETYPES\0\u{1}COLLAPSE_DECKS\0\u{1}COLLAPSE_SAVED_SEARCHES\0\u{1}COLLAPSE_TODAY\0\u{1}COLLAPSE_CARD_STATE\0\u{1}COLLAPSE_FLAGS\0\u{1}SCHED_2021\0\u{1}ADDING_DEFAULTS_TO_CURRENT_DECK\0\u{1}HIDE_AUDIO_PLAY_BUTTONS\0\u{1}INTERRUPT_AUDIO_WHEN_ANSWERING\0\u{1}PASTE_IMAGES_AS_PNG\0\u{1}PASTE_STRIPS_FORMATTING\0\u{1}NORMALIZE_NOTE_TEXT\0\u{1}IGNORE_ACCENTS_IN_SEARCH\0\u{1}RESTORE_POSITION_BROWSER\0\u{1}RESTORE_POSITION_REVIEWER\0\u{1}RESET_COUNTS_BROWSER\0\u{1}RESET_COUNTS_REVIEWER\0\u{1}RANDOM_ORDER_REPOSITION\0\u{1}SHIFT_POSITION_OF_EXISTING_CARDS\0\u{1}RENDER_LATEX\0\u{1}LOAD_BALANCER_ENABLED\0\u{1}FSRS_SHORT_TERM_WITH_STEPS_ENABLED\0\u{1}FSRS_LEGACY_EVALUATE\0")
 }
 
-extension Anki_Config_ConfigKey.StringEnum: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Config_ConfigKey.StringEnum: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0SET_DUE_BROWSER\0\u{1}SET_DUE_REVIEWER\0\u{1}DEFAULT_SEARCH_TEXT\0\u{1}CARD_STATE_CUSTOMIZER\0")
 }
 
-extension Anki_Config_GetConfigBoolRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Config_GetConfigBoolRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".GetConfigBoolRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}key\0")
 
@@ -530,7 +530,7 @@ extension Anki_Config_GetConfigBoolRequest: SwiftProtobuf.Message, SwiftProtobuf
   }
 }
 
-extension Anki_Config_SetConfigBoolRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Config_SetConfigBoolRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SetConfigBoolRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}key\0\u{1}value\0\u{1}undoable\0")
 
@@ -570,7 +570,7 @@ extension Anki_Config_SetConfigBoolRequest: SwiftProtobuf.Message, SwiftProtobuf
   }
 }
 
-extension Anki_Config_GetConfigStringRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Config_GetConfigStringRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".GetConfigStringRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}key\0")
 
@@ -600,7 +600,7 @@ extension Anki_Config_GetConfigStringRequest: SwiftProtobuf.Message, SwiftProtob
   }
 }
 
-extension Anki_Config_SetConfigStringRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Config_SetConfigStringRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SetConfigStringRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}key\0\u{1}value\0\u{1}undoable\0")
 
@@ -640,7 +640,7 @@ extension Anki_Config_SetConfigStringRequest: SwiftProtobuf.Message, SwiftProtob
   }
 }
 
-extension Anki_Config_OptionalStringConfigKey: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Config_OptionalStringConfigKey: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".OptionalStringConfigKey"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}key\0")
 
@@ -670,7 +670,7 @@ extension Anki_Config_OptionalStringConfigKey: SwiftProtobuf.Message, SwiftProto
   }
 }
 
-extension Anki_Config_SetConfigJsonRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Config_SetConfigJsonRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SetConfigJsonRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}key\0\u{3}value_json\0\u{1}undoable\0")
 
@@ -710,7 +710,7 @@ extension Anki_Config_SetConfigJsonRequest: SwiftProtobuf.Message, SwiftProtobuf
   }
 }
 
-extension Anki_Config_Preferences: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Config_Preferences: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".Preferences"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}scheduling\0\u{1}reviewing\0\u{1}editing\0\u{1}backups\0")
 
@@ -801,7 +801,7 @@ extension Anki_Config_Preferences: SwiftProtobuf.Message, SwiftProtobuf._Message
   }
 }
 
-extension Anki_Config_Preferences.Scheduling: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Config_Preferences.Scheduling: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Config_Preferences.protoMessageName + ".Scheduling"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\u{2}rollover\0\u{3}learn_ahead_secs\0\u{3}new_review_mix\0\u{3}new_timezone\0\u{3}day_learn_first\0")
 
@@ -851,11 +851,11 @@ extension Anki_Config_Preferences.Scheduling: SwiftProtobuf.Message, SwiftProtob
   }
 }
 
-extension Anki_Config_Preferences.Scheduling.NewReviewMix: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Config_Preferences.Scheduling.NewReviewMix: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0DISTRIBUTE\0\u{1}REVIEWS_FIRST\0\u{1}NEW_FIRST\0")
 }
 
-extension Anki_Config_Preferences.Reviewing: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Config_Preferences.Reviewing: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Config_Preferences.protoMessageName + ".Reviewing"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}hide_audio_play_buttons\0\u{3}interrupt_audio_when_answering\0\u{3}show_remaining_due_counts\0\u{3}show_intervals_on_buttons\0\u{3}time_limit_secs\0\u{3}load_balancer_enabled\0\u{3}fsrs_short_term_with_steps_enabled\0")
 
@@ -915,7 +915,7 @@ extension Anki_Config_Preferences.Reviewing: SwiftProtobuf.Message, SwiftProtobu
   }
 }
 
-extension Anki_Config_Preferences.Editing: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Config_Preferences.Editing: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Config_Preferences.protoMessageName + ".Editing"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}adding_defaults_to_current_deck\0\u{3}paste_images_as_png\0\u{3}paste_strips_formatting\0\u{3}default_search_text\0\u{3}ignore_accents_in_search\0\u{3}render_latex\0")
 
@@ -970,7 +970,7 @@ extension Anki_Config_Preferences.Editing: SwiftProtobuf.Message, SwiftProtobuf.
   }
 }
 
-extension Anki_Config_Preferences.BackupLimits: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Config_Preferences.BackupLimits: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Config_Preferences.protoMessageName + ".BackupLimits"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}daily\0\u{1}weekly\0\u{1}monthly\0\u{3}minimum_interval_mins\0")
 

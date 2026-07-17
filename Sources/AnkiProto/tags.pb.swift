@@ -18,12 +18,12 @@ public import SwiftProtobuf
 // incompatible with the version of SwiftProtobuf to which you are linking.
 // Please ensure that you are building against the same version of the API
 // that was used to generate this file.
-fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
+fileprivate nonisolated struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
   struct _2: SwiftProtobuf.ProtobufAPIVersion_2 {}
   typealias Version = _2
 }
 
-public struct Anki_Tags_SetTagCollapsedRequest: Sendable {
+public nonisolated struct Anki_Tags_SetTagCollapsedRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -37,7 +37,7 @@ public struct Anki_Tags_SetTagCollapsedRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Tags_TagTreeNode: Sendable {
+public nonisolated struct Anki_Tags_TagTreeNode: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -55,7 +55,7 @@ public struct Anki_Tags_TagTreeNode: Sendable {
   public init() {}
 }
 
-public struct Anki_Tags_ReparentTagsRequest: Sendable {
+public nonisolated struct Anki_Tags_ReparentTagsRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -69,7 +69,7 @@ public struct Anki_Tags_ReparentTagsRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Tags_RenameTagsRequest: Sendable {
+public nonisolated struct Anki_Tags_RenameTagsRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -83,7 +83,7 @@ public struct Anki_Tags_RenameTagsRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Tags_NoteIdsAndTagsRequest: Sendable {
+public nonisolated struct Anki_Tags_NoteIdsAndTagsRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -97,7 +97,7 @@ public struct Anki_Tags_NoteIdsAndTagsRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Tags_FindAndReplaceTagRequest: Sendable {
+public nonisolated struct Anki_Tags_FindAndReplaceTagRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -117,7 +117,7 @@ public struct Anki_Tags_FindAndReplaceTagRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Tags_CompleteTagRequest: Sendable {
+public nonisolated struct Anki_Tags_CompleteTagRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -132,7 +132,7 @@ public struct Anki_Tags_CompleteTagRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Tags_CompleteTagResponse: Sendable {
+public nonisolated struct Anki_Tags_CompleteTagResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -146,9 +146,9 @@ public struct Anki_Tags_CompleteTagResponse: Sendable {
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
-fileprivate let _protobuf_package = "anki.tags"
+fileprivate nonisolated let _protobuf_package = "anki.tags"
 
-extension Anki_Tags_SetTagCollapsedRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Tags_SetTagCollapsedRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SetTagCollapsedRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}name\0\u{1}collapsed\0")
 
@@ -183,7 +183,7 @@ extension Anki_Tags_SetTagCollapsedRequest: SwiftProtobuf.Message, SwiftProtobuf
   }
 }
 
-extension Anki_Tags_TagTreeNode: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Tags_TagTreeNode: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".TagTreeNode"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}name\0\u{1}children\0\u{1}level\0\u{1}collapsed\0")
 
@@ -228,7 +228,7 @@ extension Anki_Tags_TagTreeNode: SwiftProtobuf.Message, SwiftProtobuf._MessageIm
   }
 }
 
-extension Anki_Tags_ReparentTagsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Tags_ReparentTagsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ReparentTagsRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}tags\0\u{3}new_parent\0")
 
@@ -263,7 +263,7 @@ extension Anki_Tags_ReparentTagsRequest: SwiftProtobuf.Message, SwiftProtobuf._M
   }
 }
 
-extension Anki_Tags_RenameTagsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Tags_RenameTagsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".RenameTagsRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}current_prefix\0\u{3}new_prefix\0")
 
@@ -298,7 +298,7 @@ extension Anki_Tags_RenameTagsRequest: SwiftProtobuf.Message, SwiftProtobuf._Mes
   }
 }
 
-extension Anki_Tags_NoteIdsAndTagsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Tags_NoteIdsAndTagsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".NoteIdsAndTagsRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}note_ids\0\u{1}tags\0")
 
@@ -333,7 +333,7 @@ extension Anki_Tags_NoteIdsAndTagsRequest: SwiftProtobuf.Message, SwiftProtobuf.
   }
 }
 
-extension Anki_Tags_FindAndReplaceTagRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Tags_FindAndReplaceTagRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".FindAndReplaceTagRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}note_ids\0\u{1}search\0\u{1}replacement\0\u{1}regex\0\u{3}match_case\0")
 
@@ -383,7 +383,7 @@ extension Anki_Tags_FindAndReplaceTagRequest: SwiftProtobuf.Message, SwiftProtob
   }
 }
 
-extension Anki_Tags_CompleteTagRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Tags_CompleteTagRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".CompleteTagRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}input\0\u{3}match_limit\0")
 
@@ -418,7 +418,7 @@ extension Anki_Tags_CompleteTagRequest: SwiftProtobuf.Message, SwiftProtobuf._Me
   }
 }
 
-extension Anki_Tags_CompleteTagResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Tags_CompleteTagResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".CompleteTagResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}tags\0")
 

@@ -18,12 +18,12 @@ public import SwiftProtobuf
 // incompatible with the version of SwiftProtobuf to which you are linking.
 // Please ensure that you are building against the same version of the API
 // that was used to generate this file.
-fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
+fileprivate nonisolated struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
   struct _2: SwiftProtobuf.ProtobufAPIVersion_2 {}
   typealias Version = _2
 }
 
-public struct Anki_Search_SearchNode: @unchecked Sendable {
+public nonisolated struct Anki_Search_SearchNode: @unchecked Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -203,7 +203,7 @@ public struct Anki_Search_SearchNode: @unchecked Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum OneOf_Filter: Equatable, Sendable {
+  public nonisolated enum OneOf_Filter: Equatable, Sendable {
     case group(Anki_Search_SearchNode.Group)
     case negated(Anki_Search_SearchNode)
     case parsableText(String)
@@ -228,7 +228,7 @@ public struct Anki_Search_SearchNode: @unchecked Sendable {
 
   }
 
-  public enum Flag: SwiftProtobuf.Enum, Swift.CaseIterable {
+  public nonisolated enum Flag: SwiftProtobuf.Enum, Swift.CaseIterable {
     public typealias RawValue = Int
     case none // = 0
     case any // = 1
@@ -290,7 +290,7 @@ public struct Anki_Search_SearchNode: @unchecked Sendable {
 
   }
 
-  public enum Rating: SwiftProtobuf.Enum, Swift.CaseIterable {
+  public nonisolated enum Rating: SwiftProtobuf.Enum, Swift.CaseIterable {
     public typealias RawValue = Int
     case any // = 0
     case again // = 1
@@ -340,7 +340,7 @@ public struct Anki_Search_SearchNode: @unchecked Sendable {
 
   }
 
-  public enum CardState: SwiftProtobuf.Enum, Swift.CaseIterable {
+  public nonisolated enum CardState: SwiftProtobuf.Enum, Swift.CaseIterable {
     public typealias RawValue = Int
     case new // = 0
     case learn // = 1
@@ -390,7 +390,7 @@ public struct Anki_Search_SearchNode: @unchecked Sendable {
 
   }
 
-  public enum FieldSearchMode: SwiftProtobuf.Enum, Swift.CaseIterable {
+  public nonisolated enum FieldSearchMode: SwiftProtobuf.Enum, Swift.CaseIterable {
     public typealias RawValue = Int
     case normal // = 0
     case regex // = 1
@@ -428,7 +428,7 @@ public struct Anki_Search_SearchNode: @unchecked Sendable {
 
   }
 
-  public struct Dupe: Sendable {
+  public nonisolated struct Dupe: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -442,7 +442,7 @@ public struct Anki_Search_SearchNode: @unchecked Sendable {
     public init() {}
   }
 
-  public struct Rated: Sendable {
+  public nonisolated struct Rated: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -456,7 +456,7 @@ public struct Anki_Search_SearchNode: @unchecked Sendable {
     public init() {}
   }
 
-  public struct IdList: Sendable {
+  public nonisolated struct IdList: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -468,7 +468,7 @@ public struct Anki_Search_SearchNode: @unchecked Sendable {
     public init() {}
   }
 
-  public struct Group: Sendable {
+  public nonisolated struct Group: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -479,7 +479,7 @@ public struct Anki_Search_SearchNode: @unchecked Sendable {
 
     public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-    public enum Joiner: SwiftProtobuf.Enum, Swift.CaseIterable {
+    public nonisolated enum Joiner: SwiftProtobuf.Enum, Swift.CaseIterable {
       public typealias RawValue = Int
       case and // = 0
       case or // = 1
@@ -516,7 +516,7 @@ public struct Anki_Search_SearchNode: @unchecked Sendable {
     public init() {}
   }
 
-  public struct Field: Sendable {
+  public nonisolated struct Field: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -537,7 +537,7 @@ public struct Anki_Search_SearchNode: @unchecked Sendable {
   fileprivate var _storage = _StorageClass.defaultInstance
 }
 
-public struct Anki_Search_SearchRequest: Sendable {
+public nonisolated struct Anki_Search_SearchRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -560,7 +560,7 @@ public struct Anki_Search_SearchRequest: Sendable {
   fileprivate var _order: Anki_Search_SortOrder? = nil
 }
 
-public struct Anki_Search_SearchResponse: Sendable {
+public nonisolated struct Anki_Search_SearchResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -572,7 +572,7 @@ public struct Anki_Search_SearchResponse: Sendable {
   public init() {}
 }
 
-public struct Anki_Search_SortOrder: Sendable {
+public nonisolated struct Anki_Search_SortOrder: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -605,14 +605,14 @@ public struct Anki_Search_SortOrder: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum OneOf_Value: Equatable, Sendable {
+  public nonisolated enum OneOf_Value: Equatable, Sendable {
     case none(Anki_Generic_Empty)
     case custom(String)
     case builtin(Anki_Search_SortOrder.Builtin)
 
   }
 
-  public struct Builtin: Sendable {
+  public nonisolated struct Builtin: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -629,7 +629,7 @@ public struct Anki_Search_SortOrder: Sendable {
   public init() {}
 }
 
-public struct Anki_Search_JoinSearchNodesRequest: Sendable {
+public nonisolated struct Anki_Search_JoinSearchNodesRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -662,7 +662,7 @@ public struct Anki_Search_JoinSearchNodesRequest: Sendable {
   fileprivate var _additionalNode: Anki_Search_SearchNode? = nil
 }
 
-public struct Anki_Search_ReplaceSearchNodeRequest: Sendable {
+public nonisolated struct Anki_Search_ReplaceSearchNodeRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -693,7 +693,7 @@ public struct Anki_Search_ReplaceSearchNodeRequest: Sendable {
   fileprivate var _replacementNode: Anki_Search_SearchNode? = nil
 }
 
-public struct Anki_Search_FindAndReplaceRequest: Sendable {
+public nonisolated struct Anki_Search_FindAndReplaceRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -715,7 +715,7 @@ public struct Anki_Search_FindAndReplaceRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Search_BrowserColumns: Sendable {
+public nonisolated struct Anki_Search_BrowserColumns: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -724,7 +724,7 @@ public struct Anki_Search_BrowserColumns: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum Sorting: SwiftProtobuf.Enum, Swift.CaseIterable {
+  public nonisolated enum Sorting: SwiftProtobuf.Enum, Swift.CaseIterable {
     public typealias RawValue = Int
     case none // = 0
     case ascending // = 1
@@ -762,7 +762,7 @@ public struct Anki_Search_BrowserColumns: Sendable {
 
   }
 
-  public enum Alignment: SwiftProtobuf.Enum, Swift.CaseIterable {
+  public nonisolated enum Alignment: SwiftProtobuf.Enum, Swift.CaseIterable {
     public typealias RawValue = Int
     case start // = 0
     case center // = 1
@@ -796,7 +796,7 @@ public struct Anki_Search_BrowserColumns: Sendable {
 
   }
 
-  public struct Column: Sendable {
+  public nonisolated struct Column: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -828,7 +828,7 @@ public struct Anki_Search_BrowserColumns: Sendable {
   public init() {}
 }
 
-public struct Anki_Search_BrowserRow: Sendable {
+public nonisolated struct Anki_Search_BrowserRow: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -843,7 +843,7 @@ public struct Anki_Search_BrowserRow: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum Color: SwiftProtobuf.Enum, Swift.CaseIterable {
+  public nonisolated enum Color: SwiftProtobuf.Enum, Swift.CaseIterable {
     public typealias RawValue = Int
     case `default` // = 0
     case marked // = 1
@@ -913,7 +913,7 @@ public struct Anki_Search_BrowserRow: Sendable {
 
   }
 
-  public struct Cell: Sendable {
+  public nonisolated struct Cell: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -926,7 +926,7 @@ public struct Anki_Search_BrowserRow: Sendable {
 
     public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-    public enum TextElideMode: SwiftProtobuf.Enum, Swift.CaseIterable {
+    public nonisolated enum TextElideMode: SwiftProtobuf.Enum, Swift.CaseIterable {
       public typealias RawValue = Int
       case elideLeft // = 0
       case elideRight // = 1
@@ -976,9 +976,9 @@ public struct Anki_Search_BrowserRow: Sendable {
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
-fileprivate let _protobuf_package = "anki.search"
+fileprivate nonisolated let _protobuf_package = "anki.search"
 
-extension Anki_Search_SearchNode: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Search_SearchNode: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SearchNode"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}group\0\u{1}negated\0\u{3}parsable_text\0\u{1}template\0\u{1}nid\0\u{1}dupe\0\u{3}field_name\0\u{1}rated\0\u{3}added_in_days\0\u{3}due_in_days\0\u{1}flag\0\u{3}card_state\0\u{1}nids\0\u{3}edited_in_days\0\u{1}deck\0\u{3}due_on_day\0\u{1}tag\0\u{1}note\0\u{3}introduced_in_days\0\u{1}field\0\u{3}literal_text\0")
 
@@ -1329,23 +1329,23 @@ extension Anki_Search_SearchNode: SwiftProtobuf.Message, SwiftProtobuf._MessageI
   }
 }
 
-extension Anki_Search_SearchNode.Flag: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Search_SearchNode.Flag: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0FLAG_NONE\0\u{1}FLAG_ANY\0\u{1}FLAG_RED\0\u{1}FLAG_ORANGE\0\u{1}FLAG_GREEN\0\u{1}FLAG_BLUE\0\u{1}FLAG_PINK\0\u{1}FLAG_TURQUOISE\0\u{1}FLAG_PURPLE\0")
 }
 
-extension Anki_Search_SearchNode.Rating: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Search_SearchNode.Rating: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0RATING_ANY\0\u{1}RATING_AGAIN\0\u{1}RATING_HARD\0\u{1}RATING_GOOD\0\u{1}RATING_EASY\0\u{1}RATING_BY_RESCHEDULE\0")
 }
 
-extension Anki_Search_SearchNode.CardState: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Search_SearchNode.CardState: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0CARD_STATE_NEW\0\u{1}CARD_STATE_LEARN\0\u{1}CARD_STATE_REVIEW\0\u{1}CARD_STATE_DUE\0\u{1}CARD_STATE_SUSPENDED\0\u{1}CARD_STATE_BURIED\0")
 }
 
-extension Anki_Search_SearchNode.FieldSearchMode: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Search_SearchNode.FieldSearchMode: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0FIELD_SEARCH_MODE_NORMAL\0\u{1}FIELD_SEARCH_MODE_REGEX\0\u{1}FIELD_SEARCH_MODE_NOCOMBINING\0")
 }
 
-extension Anki_Search_SearchNode.Dupe: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Search_SearchNode.Dupe: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Search_SearchNode.protoMessageName + ".Dupe"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}notetype_id\0\u{3}first_field\0")
 
@@ -1380,7 +1380,7 @@ extension Anki_Search_SearchNode.Dupe: SwiftProtobuf.Message, SwiftProtobuf._Mes
   }
 }
 
-extension Anki_Search_SearchNode.Rated: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Search_SearchNode.Rated: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Search_SearchNode.protoMessageName + ".Rated"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}days\0\u{1}rating\0")
 
@@ -1415,7 +1415,7 @@ extension Anki_Search_SearchNode.Rated: SwiftProtobuf.Message, SwiftProtobuf._Me
   }
 }
 
-extension Anki_Search_SearchNode.IdList: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Search_SearchNode.IdList: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Search_SearchNode.protoMessageName + ".IdList"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}ids\0")
 
@@ -1445,7 +1445,7 @@ extension Anki_Search_SearchNode.IdList: SwiftProtobuf.Message, SwiftProtobuf._M
   }
 }
 
-extension Anki_Search_SearchNode.Group: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Search_SearchNode.Group: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Search_SearchNode.protoMessageName + ".Group"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}nodes\0\u{1}joiner\0")
 
@@ -1480,11 +1480,11 @@ extension Anki_Search_SearchNode.Group: SwiftProtobuf.Message, SwiftProtobuf._Me
   }
 }
 
-extension Anki_Search_SearchNode.Group.Joiner: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Search_SearchNode.Group.Joiner: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0AND\0\u{1}OR\0")
 }
 
-extension Anki_Search_SearchNode.Field: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Search_SearchNode.Field: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Search_SearchNode.protoMessageName + ".Field"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}field_name\0\u{1}text\0\u{1}mode\0")
 
@@ -1524,7 +1524,7 @@ extension Anki_Search_SearchNode.Field: SwiftProtobuf.Message, SwiftProtobuf._Me
   }
 }
 
-extension Anki_Search_SearchRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Search_SearchRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SearchRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}search\0\u{1}order\0")
 
@@ -1563,7 +1563,7 @@ extension Anki_Search_SearchRequest: SwiftProtobuf.Message, SwiftProtobuf._Messa
   }
 }
 
-extension Anki_Search_SearchResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Search_SearchResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SearchResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}ids\0")
 
@@ -1593,7 +1593,7 @@ extension Anki_Search_SearchResponse: SwiftProtobuf.Message, SwiftProtobuf._Mess
   }
 }
 
-extension Anki_Search_SortOrder: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Search_SortOrder: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SortOrder"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}none\0\u{1}custom\0\u{1}builtin\0")
 
@@ -1672,7 +1672,7 @@ extension Anki_Search_SortOrder: SwiftProtobuf.Message, SwiftProtobuf._MessageIm
   }
 }
 
-extension Anki_Search_SortOrder.Builtin: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Search_SortOrder.Builtin: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Search_SortOrder.protoMessageName + ".Builtin"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}column\0\u{1}reverse\0")
 
@@ -1707,7 +1707,7 @@ extension Anki_Search_SortOrder.Builtin: SwiftProtobuf.Message, SwiftProtobuf._M
   }
 }
 
-extension Anki_Search_JoinSearchNodesRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Search_JoinSearchNodesRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".JoinSearchNodesRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}joiner\0\u{3}existing_node\0\u{3}additional_node\0")
 
@@ -1751,7 +1751,7 @@ extension Anki_Search_JoinSearchNodesRequest: SwiftProtobuf.Message, SwiftProtob
   }
 }
 
-extension Anki_Search_ReplaceSearchNodeRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Search_ReplaceSearchNodeRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ReplaceSearchNodeRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}existing_node\0\u{3}replacement_node\0")
 
@@ -1790,7 +1790,7 @@ extension Anki_Search_ReplaceSearchNodeRequest: SwiftProtobuf.Message, SwiftProt
   }
 }
 
-extension Anki_Search_FindAndReplaceRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Search_FindAndReplaceRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".FindAndReplaceRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}nids\0\u{1}search\0\u{1}replacement\0\u{1}regex\0\u{3}match_case\0\u{3}field_name\0")
 
@@ -1845,7 +1845,7 @@ extension Anki_Search_FindAndReplaceRequest: SwiftProtobuf.Message, SwiftProtobu
   }
 }
 
-extension Anki_Search_BrowserColumns: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Search_BrowserColumns: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".BrowserColumns"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}columns\0")
 
@@ -1875,15 +1875,15 @@ extension Anki_Search_BrowserColumns: SwiftProtobuf.Message, SwiftProtobuf._Mess
   }
 }
 
-extension Anki_Search_BrowserColumns.Sorting: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Search_BrowserColumns.Sorting: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0SORTING_NONE\0\u{1}SORTING_ASCENDING\0\u{1}SORTING_DESCENDING\0")
 }
 
-extension Anki_Search_BrowserColumns.Alignment: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Search_BrowserColumns.Alignment: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0ALIGNMENT_START\0\u{1}ALIGNMENT_CENTER\0")
 }
 
-extension Anki_Search_BrowserColumns.Column: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Search_BrowserColumns.Column: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Search_BrowserColumns.protoMessageName + ".Column"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}key\0\u{3}cards_mode_label\0\u{3}notes_mode_label\0\u{3}sorting_cards\0\u{3}uses_cell_font\0\u{1}alignment\0\u{3}cards_mode_tooltip\0\u{3}notes_mode_tooltip\0\u{3}sorting_notes\0")
 
@@ -1953,7 +1953,7 @@ extension Anki_Search_BrowserColumns.Column: SwiftProtobuf.Message, SwiftProtobu
   }
 }
 
-extension Anki_Search_BrowserRow: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Search_BrowserRow: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".BrowserRow"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}cells\0\u{1}color\0\u{3}font_name\0\u{3}font_size\0")
 
@@ -1998,11 +1998,11 @@ extension Anki_Search_BrowserRow: SwiftProtobuf.Message, SwiftProtobuf._MessageI
   }
 }
 
-extension Anki_Search_BrowserRow.Color: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Search_BrowserRow.Color: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0COLOR_DEFAULT\0\u{1}COLOR_MARKED\0\u{1}COLOR_SUSPENDED\0\u{1}COLOR_FLAG_RED\0\u{1}COLOR_FLAG_ORANGE\0\u{1}COLOR_FLAG_GREEN\0\u{1}COLOR_FLAG_BLUE\0\u{1}COLOR_FLAG_PINK\0\u{1}COLOR_FLAG_TURQUOISE\0\u{1}COLOR_FLAG_PURPLE\0\u{1}COLOR_BURIED\0")
 }
 
-extension Anki_Search_BrowserRow.Cell: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Search_BrowserRow.Cell: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Search_BrowserRow.protoMessageName + ".Cell"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}text\0\u{3}is_rtl\0\u{3}elide_mode\0")
 
@@ -2042,6 +2042,6 @@ extension Anki_Search_BrowserRow.Cell: SwiftProtobuf.Message, SwiftProtobuf._Mes
   }
 }
 
-extension Anki_Search_BrowserRow.Cell.TextElideMode: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Search_BrowserRow.Cell.TextElideMode: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0ElideLeft\0\u{1}ElideRight\0\u{1}ElideMiddle\0\u{1}ElideNone\0")
 }

@@ -23,12 +23,12 @@ public import SwiftProtobuf
 // incompatible with the version of SwiftProtobuf to which you are linking.
 // Please ensure that you are building against the same version of the API
 // that was used to generate this file.
-fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
+fileprivate nonisolated struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
   struct _2: SwiftProtobuf.ProtobufAPIVersion_2 {}
   typealias Version = _2
 }
 
-public struct Anki_Generic_Empty: Sendable {
+public nonisolated struct Anki_Generic_Empty: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -38,7 +38,7 @@ public struct Anki_Generic_Empty: Sendable {
   public init() {}
 }
 
-public struct Anki_Generic_Int32: Sendable {
+public nonisolated struct Anki_Generic_Int32: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -50,7 +50,7 @@ public struct Anki_Generic_Int32: Sendable {
   public init() {}
 }
 
-public struct Anki_Generic_UInt32: Sendable {
+public nonisolated struct Anki_Generic_UInt32: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -62,7 +62,7 @@ public struct Anki_Generic_UInt32: Sendable {
   public init() {}
 }
 
-public struct Anki_Generic_Int64: Sendable {
+public nonisolated struct Anki_Generic_Int64: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -74,7 +74,7 @@ public struct Anki_Generic_Int64: Sendable {
   public init() {}
 }
 
-public struct Anki_Generic_String: Sendable {
+public nonisolated struct Anki_Generic_String: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -86,7 +86,7 @@ public struct Anki_Generic_String: Sendable {
   public init() {}
 }
 
-public struct Anki_Generic_Json: Sendable {
+public nonisolated struct Anki_Generic_Json: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -98,7 +98,7 @@ public struct Anki_Generic_Json: Sendable {
   public init() {}
 }
 
-public struct Anki_Generic_Bool: Sendable {
+public nonisolated struct Anki_Generic_Bool: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -110,7 +110,7 @@ public struct Anki_Generic_Bool: Sendable {
   public init() {}
 }
 
-public struct Anki_Generic_StringList: Sendable {
+public nonisolated struct Anki_Generic_StringList: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -124,9 +124,9 @@ public struct Anki_Generic_StringList: Sendable {
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
-fileprivate let _protobuf_package = "anki.generic"
+fileprivate nonisolated let _protobuf_package = "anki.generic"
 
-extension Anki_Generic_Empty: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Generic_Empty: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".Empty"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap()
 
@@ -145,7 +145,7 @@ extension Anki_Generic_Empty: SwiftProtobuf.Message, SwiftProtobuf._MessageImple
   }
 }
 
-extension Anki_Generic_Int32: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Generic_Int32: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".Int32"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}val\0")
 
@@ -175,7 +175,7 @@ extension Anki_Generic_Int32: SwiftProtobuf.Message, SwiftProtobuf._MessageImple
   }
 }
 
-extension Anki_Generic_UInt32: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Generic_UInt32: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".UInt32"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}val\0")
 
@@ -205,7 +205,7 @@ extension Anki_Generic_UInt32: SwiftProtobuf.Message, SwiftProtobuf._MessageImpl
   }
 }
 
-extension Anki_Generic_Int64: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Generic_Int64: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".Int64"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}val\0")
 
@@ -235,7 +235,7 @@ extension Anki_Generic_Int64: SwiftProtobuf.Message, SwiftProtobuf._MessageImple
   }
 }
 
-extension Anki_Generic_String: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Generic_String: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".String"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}val\0")
 
@@ -265,7 +265,7 @@ extension Anki_Generic_String: SwiftProtobuf.Message, SwiftProtobuf._MessageImpl
   }
 }
 
-extension Anki_Generic_Json: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Generic_Json: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".Json"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}json\0")
 
@@ -295,7 +295,7 @@ extension Anki_Generic_Json: SwiftProtobuf.Message, SwiftProtobuf._MessageImplem
   }
 }
 
-extension Anki_Generic_Bool: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Generic_Bool: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".Bool"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}val\0")
 
@@ -325,7 +325,7 @@ extension Anki_Generic_Bool: SwiftProtobuf.Message, SwiftProtobuf._MessageImplem
   }
 }
 
-extension Anki_Generic_StringList: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Generic_StringList: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".StringList"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}vals\0")
 

@@ -23,12 +23,12 @@ public import SwiftProtobuf
 // incompatible with the version of SwiftProtobuf to which you are linking.
 // Please ensure that you are building against the same version of the API
 // that was used to generate this file.
-fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
+fileprivate nonisolated struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
   struct _2: SwiftProtobuf.ProtobufAPIVersion_2 {}
   typealias Version = _2
 }
 
-public struct Anki_Decks_DeckId: Sendable {
+public nonisolated struct Anki_Decks_DeckId: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -40,7 +40,7 @@ public struct Anki_Decks_DeckId: Sendable {
   public init() {}
 }
 
-public struct Anki_Decks_DeckIds: Sendable {
+public nonisolated struct Anki_Decks_DeckIds: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -52,7 +52,7 @@ public struct Anki_Decks_DeckIds: Sendable {
   public init() {}
 }
 
-public struct Anki_Decks_Deck: @unchecked Sendable {
+public nonisolated struct Anki_Decks_Deck: @unchecked Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -113,13 +113,13 @@ public struct Anki_Decks_Deck: @unchecked Sendable {
 
   /// the specifics are inlined here when sending data to clients,
   /// as otherwise an extra level of indirection would be required
-  public enum OneOf_Kind: Equatable, Sendable {
+  public nonisolated enum OneOf_Kind: Equatable, Sendable {
     case normal(Anki_Decks_Deck.Normal)
     case filtered(Anki_Decks_Deck.Filtered)
 
   }
 
-  public struct Common: Sendable {
+  public nonisolated struct Common: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -147,7 +147,7 @@ public struct Anki_Decks_Deck: @unchecked Sendable {
     public init() {}
   }
 
-  public struct Normal: Sendable {
+  public nonisolated struct Normal: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -210,7 +210,7 @@ public struct Anki_Decks_Deck: @unchecked Sendable {
 
     public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-    public struct DayLimit: Sendable {
+    public nonisolated struct DayLimit: Sendable {
       // SwiftProtobuf.Message conformance is added in an extension below. See the
       // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
       // methods supported on all messages.
@@ -233,7 +233,7 @@ public struct Anki_Decks_Deck: @unchecked Sendable {
     fileprivate var _desiredRetention: Float? = nil
   }
 
-  public struct Filtered: Sendable {
+  public nonisolated struct Filtered: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -259,7 +259,7 @@ public struct Anki_Decks_Deck: @unchecked Sendable {
 
     public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-    public struct SearchTerm: Sendable {
+    public nonisolated struct SearchTerm: Sendable {
       // SwiftProtobuf.Message conformance is added in an extension below. See the
       // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
       // methods supported on all messages.
@@ -272,7 +272,7 @@ public struct Anki_Decks_Deck: @unchecked Sendable {
 
       public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-      public enum Order: SwiftProtobuf.Enum, Swift.CaseIterable {
+      public nonisolated enum Order: SwiftProtobuf.Enum, Swift.CaseIterable {
         public typealias RawValue = Int
         case oldestReviewedFirst // = 0
         case random // = 1
@@ -346,7 +346,7 @@ public struct Anki_Decks_Deck: @unchecked Sendable {
 
   /// a container to store the deck specifics in the DB
   /// as a tagged enum
-  public struct KindContainer: Sendable {
+  public nonisolated struct KindContainer: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -371,7 +371,7 @@ public struct Anki_Decks_Deck: @unchecked Sendable {
 
     public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-    public enum OneOf_Kind: Equatable, Sendable {
+    public nonisolated enum OneOf_Kind: Equatable, Sendable {
       case normal(Anki_Decks_Deck.Normal)
       case filtered(Anki_Decks_Deck.Filtered)
 
@@ -385,7 +385,7 @@ public struct Anki_Decks_Deck: @unchecked Sendable {
   fileprivate var _storage = _StorageClass.defaultInstance
 }
 
-public struct Anki_Decks_AddOrUpdateDeckLegacyRequest: Sendable {
+public nonisolated struct Anki_Decks_AddOrUpdateDeckLegacyRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -399,7 +399,7 @@ public struct Anki_Decks_AddOrUpdateDeckLegacyRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Decks_DeckTreeRequest: Sendable {
+public nonisolated struct Anki_Decks_DeckTreeRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -412,7 +412,7 @@ public struct Anki_Decks_DeckTreeRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Decks_DeckTreeNode: Sendable {
+public nonisolated struct Anki_Decks_DeckTreeNode: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -457,7 +457,7 @@ public struct Anki_Decks_DeckTreeNode: Sendable {
   public init() {}
 }
 
-public struct Anki_Decks_SetDeckCollapsedRequest: Sendable {
+public nonisolated struct Anki_Decks_SetDeckCollapsedRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -470,7 +470,7 @@ public struct Anki_Decks_SetDeckCollapsedRequest: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum Scope: SwiftProtobuf.Enum, Swift.CaseIterable {
+  public nonisolated enum Scope: SwiftProtobuf.Enum, Swift.CaseIterable {
     public typealias RawValue = Int
     case reviewer // = 0
     case browser // = 1
@@ -507,7 +507,7 @@ public struct Anki_Decks_SetDeckCollapsedRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Decks_GetDeckNamesRequest: Sendable {
+public nonisolated struct Anki_Decks_GetDeckNamesRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -522,7 +522,7 @@ public struct Anki_Decks_GetDeckNamesRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Decks_DeckNames: Sendable {
+public nonisolated struct Anki_Decks_DeckNames: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -534,7 +534,7 @@ public struct Anki_Decks_DeckNames: Sendable {
   public init() {}
 }
 
-public struct Anki_Decks_DeckNameId: Sendable {
+public nonisolated struct Anki_Decks_DeckNameId: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -548,7 +548,7 @@ public struct Anki_Decks_DeckNameId: Sendable {
   public init() {}
 }
 
-public struct Anki_Decks_ReparentDecksRequest: Sendable {
+public nonisolated struct Anki_Decks_ReparentDecksRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -562,7 +562,7 @@ public struct Anki_Decks_ReparentDecksRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Decks_RenameDeckRequest: Sendable {
+public nonisolated struct Anki_Decks_RenameDeckRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -576,7 +576,7 @@ public struct Anki_Decks_RenameDeckRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Decks_FilteredDeckForUpdate: Sendable {
+public nonisolated struct Anki_Decks_FilteredDeckForUpdate: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -605,9 +605,9 @@ public struct Anki_Decks_FilteredDeckForUpdate: Sendable {
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
-fileprivate let _protobuf_package = "anki.decks"
+fileprivate nonisolated let _protobuf_package = "anki.decks"
 
-extension Anki_Decks_DeckId: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Decks_DeckId: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".DeckId"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}did\0")
 
@@ -637,7 +637,7 @@ extension Anki_Decks_DeckId: SwiftProtobuf.Message, SwiftProtobuf._MessageImplem
   }
 }
 
-extension Anki_Decks_DeckIds: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Decks_DeckIds: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".DeckIds"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}dids\0")
 
@@ -667,7 +667,7 @@ extension Anki_Decks_DeckIds: SwiftProtobuf.Message, SwiftProtobuf._MessageImple
   }
 }
 
-extension Anki_Decks_Deck: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Decks_Deck: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".Deck"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{1}name\0\u{3}mtime_secs\0\u{1}usn\0\u{1}common\0\u{1}normal\0\u{1}filtered\0")
 
@@ -805,7 +805,7 @@ extension Anki_Decks_Deck: SwiftProtobuf.Message, SwiftProtobuf._MessageImplemen
   }
 }
 
-extension Anki_Decks_Deck.Common: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Decks_Deck.Common: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Decks_Deck.protoMessageName + ".Common"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}study_collapsed\0\u{3}browser_collapsed\0\u{3}last_day_studied\0\u{3}new_studied\0\u{3}review_studied\0\u{3}learning_studied\0\u{3}milliseconds_studied\0\u{2}x\u{3}other\0\u{c}\u{8}\u{6}")
 
@@ -870,7 +870,7 @@ extension Anki_Decks_Deck.Common: SwiftProtobuf.Message, SwiftProtobuf._MessageI
   }
 }
 
-extension Anki_Decks_Deck.Normal: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Decks_Deck.Normal: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Decks_Deck.protoMessageName + ".Normal"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}config_id\0\u{3}extend_new\0\u{3}extend_review\0\u{1}description\0\u{3}markdown_description\0\u{3}review_limit\0\u{3}new_limit\0\u{3}review_limit_today\0\u{3}new_limit_today\0\u{3}desired_retention\0\u{c}\u{c}\u{4}")
 
@@ -949,7 +949,7 @@ extension Anki_Decks_Deck.Normal: SwiftProtobuf.Message, SwiftProtobuf._MessageI
   }
 }
 
-extension Anki_Decks_Deck.Normal.DayLimit: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Decks_Deck.Normal.DayLimit: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Decks_Deck.Normal.protoMessageName + ".DayLimit"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}limit\0\u{1}today\0")
 
@@ -984,7 +984,7 @@ extension Anki_Decks_Deck.Normal.DayLimit: SwiftProtobuf.Message, SwiftProtobuf.
   }
 }
 
-extension Anki_Decks_Deck.Filtered: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Decks_Deck.Filtered: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Decks_Deck.protoMessageName + ".Filtered"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}reschedule\0\u{3}search_terms\0\u{1}delays\0\u{3}preview_delay\0\u{3}preview_hard_secs\0\u{3}preview_good_secs\0\u{3}preview_again_secs\0")
 
@@ -1044,7 +1044,7 @@ extension Anki_Decks_Deck.Filtered: SwiftProtobuf.Message, SwiftProtobuf._Messag
   }
 }
 
-extension Anki_Decks_Deck.Filtered.SearchTerm: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Decks_Deck.Filtered.SearchTerm: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Decks_Deck.Filtered.protoMessageName + ".SearchTerm"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}search\0\u{1}limit\0\u{1}order\0")
 
@@ -1084,11 +1084,11 @@ extension Anki_Decks_Deck.Filtered.SearchTerm: SwiftProtobuf.Message, SwiftProto
   }
 }
 
-extension Anki_Decks_Deck.Filtered.SearchTerm.Order: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Decks_Deck.Filtered.SearchTerm.Order: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0OLDEST_REVIEWED_FIRST\0\u{1}RANDOM\0\u{1}INTERVALS_ASCENDING\0\u{1}INTERVALS_DESCENDING\0\u{1}LAPSES\0\u{1}ADDED\0\u{1}DUE\0\u{1}REVERSE_ADDED\0\u{1}RETRIEVABILITY_ASCENDING\0\u{1}RETRIEVABILITY_DESCENDING\0")
 }
 
-extension Anki_Decks_Deck.KindContainer: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Decks_Deck.KindContainer: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_Decks_Deck.protoMessageName + ".KindContainer"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}normal\0\u{1}filtered\0")
 
@@ -1155,7 +1155,7 @@ extension Anki_Decks_Deck.KindContainer: SwiftProtobuf.Message, SwiftProtobuf._M
   }
 }
 
-extension Anki_Decks_AddOrUpdateDeckLegacyRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Decks_AddOrUpdateDeckLegacyRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".AddOrUpdateDeckLegacyRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}deck\0\u{3}preserve_usn_and_mtime\0")
 
@@ -1190,7 +1190,7 @@ extension Anki_Decks_AddOrUpdateDeckLegacyRequest: SwiftProtobuf.Message, SwiftP
   }
 }
 
-extension Anki_Decks_DeckTreeRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Decks_DeckTreeRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".DeckTreeRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}now\0")
 
@@ -1220,7 +1220,7 @@ extension Anki_Decks_DeckTreeRequest: SwiftProtobuf.Message, SwiftProtobuf._Mess
   }
 }
 
-extension Anki_Decks_DeckTreeNode: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Decks_DeckTreeNode: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".DeckTreeNode"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}deck_id\0\u{1}name\0\u{1}children\0\u{1}level\0\u{1}collapsed\0\u{3}review_count\0\u{3}learn_count\0\u{3}new_count\0\u{3}intraday_learning\0\u{3}interday_learning_uncapped\0\u{3}new_uncapped\0\u{3}review_uncapped\0\u{3}total_in_deck\0\u{3}total_including_children\0\u{2}\u{2}filtered\0")
 
@@ -1320,7 +1320,7 @@ extension Anki_Decks_DeckTreeNode: SwiftProtobuf.Message, SwiftProtobuf._Message
   }
 }
 
-extension Anki_Decks_SetDeckCollapsedRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Decks_SetDeckCollapsedRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SetDeckCollapsedRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}deck_id\0\u{1}collapsed\0\u{1}scope\0")
 
@@ -1360,11 +1360,11 @@ extension Anki_Decks_SetDeckCollapsedRequest: SwiftProtobuf.Message, SwiftProtob
   }
 }
 
-extension Anki_Decks_SetDeckCollapsedRequest.Scope: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Decks_SetDeckCollapsedRequest.Scope: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0REVIEWER\0\u{1}BROWSER\0")
 }
 
-extension Anki_Decks_GetDeckNamesRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Decks_GetDeckNamesRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".GetDeckNamesRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}skip_empty_default\0\u{3}include_filtered\0")
 
@@ -1399,7 +1399,7 @@ extension Anki_Decks_GetDeckNamesRequest: SwiftProtobuf.Message, SwiftProtobuf._
   }
 }
 
-extension Anki_Decks_DeckNames: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Decks_DeckNames: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".DeckNames"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}entries\0")
 
@@ -1429,7 +1429,7 @@ extension Anki_Decks_DeckNames: SwiftProtobuf.Message, SwiftProtobuf._MessageImp
   }
 }
 
-extension Anki_Decks_DeckNameId: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Decks_DeckNameId: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".DeckNameId"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{1}name\0")
 
@@ -1464,7 +1464,7 @@ extension Anki_Decks_DeckNameId: SwiftProtobuf.Message, SwiftProtobuf._MessageIm
   }
 }
 
-extension Anki_Decks_ReparentDecksRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Decks_ReparentDecksRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ReparentDecksRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}deck_ids\0\u{3}new_parent\0")
 
@@ -1499,7 +1499,7 @@ extension Anki_Decks_ReparentDecksRequest: SwiftProtobuf.Message, SwiftProtobuf.
   }
 }
 
-extension Anki_Decks_RenameDeckRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Decks_RenameDeckRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".RenameDeckRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}deck_id\0\u{3}new_name\0")
 
@@ -1534,7 +1534,7 @@ extension Anki_Decks_RenameDeckRequest: SwiftProtobuf.Message, SwiftProtobuf._Me
   }
 }
 
-extension Anki_Decks_FilteredDeckForUpdate: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Decks_FilteredDeckForUpdate: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".FilteredDeckForUpdate"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{1}name\0\u{1}config\0\u{3}allow_empty\0")
 

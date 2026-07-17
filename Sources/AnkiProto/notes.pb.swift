@@ -18,12 +18,12 @@ public import SwiftProtobuf
 // incompatible with the version of SwiftProtobuf to which you are linking.
 // Please ensure that you are building against the same version of the API
 // that was used to generate this file.
-fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
+fileprivate nonisolated struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
   struct _2: SwiftProtobuf.ProtobufAPIVersion_2 {}
   typealias Version = _2
 }
 
-public struct Anki_Notes_NoteId: Sendable {
+public nonisolated struct Anki_Notes_NoteId: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -35,7 +35,7 @@ public struct Anki_Notes_NoteId: Sendable {
   public init() {}
 }
 
-public struct Anki_Notes_NoteIds: Sendable {
+public nonisolated struct Anki_Notes_NoteIds: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -47,7 +47,7 @@ public struct Anki_Notes_NoteIds: Sendable {
   public init() {}
 }
 
-public struct Anki_Notes_Note: Sendable {
+public nonisolated struct Anki_Notes_Note: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -71,7 +71,7 @@ public struct Anki_Notes_Note: Sendable {
   public init() {}
 }
 
-public struct Anki_Notes_AddNoteRequest: Sendable {
+public nonisolated struct Anki_Notes_AddNoteRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -94,7 +94,7 @@ public struct Anki_Notes_AddNoteRequest: Sendable {
   fileprivate var _note: Anki_Notes_Note? = nil
 }
 
-public struct Anki_Notes_AddNoteResponse: Sendable {
+public nonisolated struct Anki_Notes_AddNoteResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -117,7 +117,7 @@ public struct Anki_Notes_AddNoteResponse: Sendable {
   fileprivate var _changes: Anki_Collection_OpChangesWithCount? = nil
 }
 
-public struct Anki_Notes_AddNotesRequest: Sendable {
+public nonisolated struct Anki_Notes_AddNotesRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -129,7 +129,7 @@ public struct Anki_Notes_AddNotesRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Notes_AddNotesResponse: Sendable {
+public nonisolated struct Anki_Notes_AddNotesResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -152,7 +152,7 @@ public struct Anki_Notes_AddNotesResponse: Sendable {
   fileprivate var _changes: Anki_Collection_OpChanges? = nil
 }
 
-public struct Anki_Notes_UpdateNotesRequest: Sendable {
+public nonisolated struct Anki_Notes_UpdateNotesRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -166,7 +166,7 @@ public struct Anki_Notes_UpdateNotesRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Notes_DefaultsForAddingRequest: Sendable {
+public nonisolated struct Anki_Notes_DefaultsForAddingRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -178,7 +178,7 @@ public struct Anki_Notes_DefaultsForAddingRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Notes_DeckAndNotetype: Sendable {
+public nonisolated struct Anki_Notes_DeckAndNotetype: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -192,7 +192,7 @@ public struct Anki_Notes_DeckAndNotetype: Sendable {
   public init() {}
 }
 
-public struct Anki_Notes_RemoveNotesRequest: Sendable {
+public nonisolated struct Anki_Notes_RemoveNotesRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -206,7 +206,7 @@ public struct Anki_Notes_RemoveNotesRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Notes_ClozeNumbersInNoteResponse: Sendable {
+public nonisolated struct Anki_Notes_ClozeNumbersInNoteResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -218,7 +218,7 @@ public struct Anki_Notes_ClozeNumbersInNoteResponse: Sendable {
   public init() {}
 }
 
-public struct Anki_Notes_AfterNoteUpdatesRequest: Sendable {
+public nonisolated struct Anki_Notes_AfterNoteUpdatesRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -234,7 +234,7 @@ public struct Anki_Notes_AfterNoteUpdatesRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Notes_FieldNamesForNotesRequest: Sendable {
+public nonisolated struct Anki_Notes_FieldNamesForNotesRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -246,7 +246,7 @@ public struct Anki_Notes_FieldNamesForNotesRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_Notes_FieldNamesForNotesResponse: Sendable {
+public nonisolated struct Anki_Notes_FieldNamesForNotesResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -258,7 +258,7 @@ public struct Anki_Notes_FieldNamesForNotesResponse: Sendable {
   public init() {}
 }
 
-public struct Anki_Notes_NoteFieldsCheckResponse: Sendable {
+public nonisolated struct Anki_Notes_NoteFieldsCheckResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -267,7 +267,7 @@ public struct Anki_Notes_NoteFieldsCheckResponse: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum State: SwiftProtobuf.Enum, Swift.CaseIterable {
+  public nonisolated enum State: SwiftProtobuf.Enum, Swift.CaseIterable {
     public typealias RawValue = Int
     case normal // = 0
     case empty // = 1
@@ -322,9 +322,9 @@ public struct Anki_Notes_NoteFieldsCheckResponse: Sendable {
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
-fileprivate let _protobuf_package = "anki.notes"
+fileprivate nonisolated let _protobuf_package = "anki.notes"
 
-extension Anki_Notes_NoteId: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Notes_NoteId: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".NoteId"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}nid\0")
 
@@ -354,7 +354,7 @@ extension Anki_Notes_NoteId: SwiftProtobuf.Message, SwiftProtobuf._MessageImplem
   }
 }
 
-extension Anki_Notes_NoteIds: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Notes_NoteIds: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".NoteIds"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}note_ids\0")
 
@@ -384,7 +384,7 @@ extension Anki_Notes_NoteIds: SwiftProtobuf.Message, SwiftProtobuf._MessageImple
   }
 }
 
-extension Anki_Notes_Note: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Notes_Note: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".Note"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{1}guid\0\u{3}notetype_id\0\u{3}mtime_secs\0\u{1}usn\0\u{1}tags\0\u{1}fields\0")
 
@@ -444,7 +444,7 @@ extension Anki_Notes_Note: SwiftProtobuf.Message, SwiftProtobuf._MessageImplemen
   }
 }
 
-extension Anki_Notes_AddNoteRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Notes_AddNoteRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".AddNoteRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}note\0\u{3}deck_id\0")
 
@@ -483,7 +483,7 @@ extension Anki_Notes_AddNoteRequest: SwiftProtobuf.Message, SwiftProtobuf._Messa
   }
 }
 
-extension Anki_Notes_AddNoteResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Notes_AddNoteResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".AddNoteResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}changes\0\u{3}note_id\0")
 
@@ -522,7 +522,7 @@ extension Anki_Notes_AddNoteResponse: SwiftProtobuf.Message, SwiftProtobuf._Mess
   }
 }
 
-extension Anki_Notes_AddNotesRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Notes_AddNotesRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".AddNotesRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}requests\0")
 
@@ -552,7 +552,7 @@ extension Anki_Notes_AddNotesRequest: SwiftProtobuf.Message, SwiftProtobuf._Mess
   }
 }
 
-extension Anki_Notes_AddNotesResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Notes_AddNotesResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".AddNotesResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}changes\0\u{1}nids\0")
 
@@ -591,7 +591,7 @@ extension Anki_Notes_AddNotesResponse: SwiftProtobuf.Message, SwiftProtobuf._Mes
   }
 }
 
-extension Anki_Notes_UpdateNotesRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Notes_UpdateNotesRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".UpdateNotesRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}notes\0\u{3}skip_undo_entry\0")
 
@@ -626,7 +626,7 @@ extension Anki_Notes_UpdateNotesRequest: SwiftProtobuf.Message, SwiftProtobuf._M
   }
 }
 
-extension Anki_Notes_DefaultsForAddingRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Notes_DefaultsForAddingRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".DefaultsForAddingRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}home_deck_of_current_review_card\0")
 
@@ -656,7 +656,7 @@ extension Anki_Notes_DefaultsForAddingRequest: SwiftProtobuf.Message, SwiftProto
   }
 }
 
-extension Anki_Notes_DeckAndNotetype: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Notes_DeckAndNotetype: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".DeckAndNotetype"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}deck_id\0\u{3}notetype_id\0")
 
@@ -691,7 +691,7 @@ extension Anki_Notes_DeckAndNotetype: SwiftProtobuf.Message, SwiftProtobuf._Mess
   }
 }
 
-extension Anki_Notes_RemoveNotesRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Notes_RemoveNotesRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".RemoveNotesRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}note_ids\0\u{3}card_ids\0")
 
@@ -726,7 +726,7 @@ extension Anki_Notes_RemoveNotesRequest: SwiftProtobuf.Message, SwiftProtobuf._M
   }
 }
 
-extension Anki_Notes_ClozeNumbersInNoteResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Notes_ClozeNumbersInNoteResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ClozeNumbersInNoteResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}numbers\0")
 
@@ -756,7 +756,7 @@ extension Anki_Notes_ClozeNumbersInNoteResponse: SwiftProtobuf.Message, SwiftPro
   }
 }
 
-extension Anki_Notes_AfterNoteUpdatesRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Notes_AfterNoteUpdatesRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".AfterNoteUpdatesRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}nids\0\u{3}mark_notes_modified\0\u{3}generate_cards\0")
 
@@ -796,7 +796,7 @@ extension Anki_Notes_AfterNoteUpdatesRequest: SwiftProtobuf.Message, SwiftProtob
   }
 }
 
-extension Anki_Notes_FieldNamesForNotesRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Notes_FieldNamesForNotesRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".FieldNamesForNotesRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}nids\0")
 
@@ -826,7 +826,7 @@ extension Anki_Notes_FieldNamesForNotesRequest: SwiftProtobuf.Message, SwiftProt
   }
 }
 
-extension Anki_Notes_FieldNamesForNotesResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Notes_FieldNamesForNotesResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".FieldNamesForNotesResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}fields\0")
 
@@ -856,7 +856,7 @@ extension Anki_Notes_FieldNamesForNotesResponse: SwiftProtobuf.Message, SwiftPro
   }
 }
 
-extension Anki_Notes_NoteFieldsCheckResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Notes_NoteFieldsCheckResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".NoteFieldsCheckResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}state\0")
 
@@ -886,6 +886,6 @@ extension Anki_Notes_NoteFieldsCheckResponse: SwiftProtobuf.Message, SwiftProtob
   }
 }
 
-extension Anki_Notes_NoteFieldsCheckResponse.State: SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Notes_NoteFieldsCheckResponse.State: SwiftProtobuf._ProtoNameProviding {
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0NORMAL\0\u{1}EMPTY\0\u{1}DUPLICATE\0\u{1}MISSING_CLOZE\0\u{1}NOTETYPE_NOT_CLOZE\0\u{1}FIELD_NOT_CLOZE\0")
 }

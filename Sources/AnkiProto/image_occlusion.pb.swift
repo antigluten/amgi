@@ -23,12 +23,12 @@ public import SwiftProtobuf
 // incompatible with the version of SwiftProtobuf to which you are linking.
 // Please ensure that you are building against the same version of the API
 // that was used to generate this file.
-fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
+fileprivate nonisolated struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
   struct _2: SwiftProtobuf.ProtobufAPIVersion_2 {}
   typealias Version = _2
 }
 
-public struct Anki_ImageOcclusion_GetImageForOcclusionRequest: Sendable {
+public nonisolated struct Anki_ImageOcclusion_GetImageForOcclusionRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -40,7 +40,7 @@ public struct Anki_ImageOcclusion_GetImageForOcclusionRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_ImageOcclusion_GetImageForOcclusionResponse: Sendable {
+public nonisolated struct Anki_ImageOcclusion_GetImageForOcclusionResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -54,7 +54,7 @@ public struct Anki_ImageOcclusion_GetImageForOcclusionResponse: Sendable {
   public init() {}
 }
 
-public struct Anki_ImageOcclusion_AddImageOcclusionNoteRequest: Sendable {
+public nonisolated struct Anki_ImageOcclusion_AddImageOcclusionNoteRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -76,7 +76,7 @@ public struct Anki_ImageOcclusion_AddImageOcclusionNoteRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_ImageOcclusion_GetImageOcclusionNoteRequest: Sendable {
+public nonisolated struct Anki_ImageOcclusion_GetImageOcclusionNoteRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -88,7 +88,7 @@ public struct Anki_ImageOcclusion_GetImageOcclusionNoteRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_ImageOcclusion_GetImageOcclusionNoteResponse: Sendable {
+public nonisolated struct Anki_ImageOcclusion_GetImageOcclusionNoteResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -113,13 +113,13 @@ public struct Anki_ImageOcclusion_GetImageOcclusionNoteResponse: Sendable {
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  public enum OneOf_Value: Equatable, Sendable {
+  public nonisolated enum OneOf_Value: Equatable, Sendable {
     case note(Anki_ImageOcclusion_GetImageOcclusionNoteResponse.ImageOcclusionNote)
     case error(String)
 
   }
 
-  public struct ImageOcclusionProperty: Sendable {
+  public nonisolated struct ImageOcclusionProperty: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -133,7 +133,7 @@ public struct Anki_ImageOcclusion_GetImageOcclusionNoteResponse: Sendable {
     public init() {}
   }
 
-  public struct ImageOcclusionShape: Sendable {
+  public nonisolated struct ImageOcclusionShape: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -147,7 +147,7 @@ public struct Anki_ImageOcclusion_GetImageOcclusionNoteResponse: Sendable {
     public init() {}
   }
 
-  public struct ImageOcclusion: Sendable {
+  public nonisolated struct ImageOcclusion: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -161,7 +161,7 @@ public struct Anki_ImageOcclusion_GetImageOcclusionNoteResponse: Sendable {
     public init() {}
   }
 
-  public struct ImageOcclusionNote: Sendable {
+  public nonisolated struct ImageOcclusionNote: Sendable {
     // SwiftProtobuf.Message conformance is added in an extension below. See the
     // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
     // methods supported on all messages.
@@ -188,7 +188,7 @@ public struct Anki_ImageOcclusion_GetImageOcclusionNoteResponse: Sendable {
   public init() {}
 }
 
-public struct Anki_ImageOcclusion_UpdateImageOcclusionNoteRequest: Sendable {
+public nonisolated struct Anki_ImageOcclusion_UpdateImageOcclusionNoteRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -208,7 +208,7 @@ public struct Anki_ImageOcclusion_UpdateImageOcclusionNoteRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_ImageOcclusion_GetImageOcclusionFieldsRequest: Sendable {
+public nonisolated struct Anki_ImageOcclusion_GetImageOcclusionFieldsRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -220,7 +220,7 @@ public struct Anki_ImageOcclusion_GetImageOcclusionFieldsRequest: Sendable {
   public init() {}
 }
 
-public struct Anki_ImageOcclusion_GetImageOcclusionFieldsResponse: Sendable {
+public nonisolated struct Anki_ImageOcclusion_GetImageOcclusionFieldsResponse: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -241,7 +241,7 @@ public struct Anki_ImageOcclusion_GetImageOcclusionFieldsResponse: Sendable {
   fileprivate var _fields: Anki_ImageOcclusion_ImageOcclusionFieldIndexes? = nil
 }
 
-public struct Anki_ImageOcclusion_ImageOcclusionFieldIndexes: Sendable {
+public nonisolated struct Anki_ImageOcclusion_ImageOcclusionFieldIndexes: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -261,9 +261,9 @@ public struct Anki_ImageOcclusion_ImageOcclusionFieldIndexes: Sendable {
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
-fileprivate let _protobuf_package = "anki.image_occlusion"
+fileprivate nonisolated let _protobuf_package = "anki.image_occlusion"
 
-extension Anki_ImageOcclusion_GetImageForOcclusionRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImageOcclusion_GetImageForOcclusionRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".GetImageForOcclusionRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}path\0")
 
@@ -293,7 +293,7 @@ extension Anki_ImageOcclusion_GetImageForOcclusionRequest: SwiftProtobuf.Message
   }
 }
 
-extension Anki_ImageOcclusion_GetImageForOcclusionResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImageOcclusion_GetImageForOcclusionResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".GetImageForOcclusionResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}data\0\u{1}name\0")
 
@@ -328,7 +328,7 @@ extension Anki_ImageOcclusion_GetImageForOcclusionResponse: SwiftProtobuf.Messag
   }
 }
 
-extension Anki_ImageOcclusion_AddImageOcclusionNoteRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImageOcclusion_AddImageOcclusionNoteRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".AddImageOcclusionNoteRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}image_path\0\u{1}occlusions\0\u{1}header\0\u{3}back_extra\0\u{1}tags\0\u{3}notetype_id\0")
 
@@ -383,7 +383,7 @@ extension Anki_ImageOcclusion_AddImageOcclusionNoteRequest: SwiftProtobuf.Messag
   }
 }
 
-extension Anki_ImageOcclusion_GetImageOcclusionNoteRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImageOcclusion_GetImageOcclusionNoteRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".GetImageOcclusionNoteRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}note_id\0")
 
@@ -413,7 +413,7 @@ extension Anki_ImageOcclusion_GetImageOcclusionNoteRequest: SwiftProtobuf.Messag
   }
 }
 
-extension Anki_ImageOcclusion_GetImageOcclusionNoteResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImageOcclusion_GetImageOcclusionNoteResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".GetImageOcclusionNoteResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}note\0\u{1}error\0")
 
@@ -475,7 +475,7 @@ extension Anki_ImageOcclusion_GetImageOcclusionNoteResponse: SwiftProtobuf.Messa
   }
 }
 
-extension Anki_ImageOcclusion_GetImageOcclusionNoteResponse.ImageOcclusionProperty: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImageOcclusion_GetImageOcclusionNoteResponse.ImageOcclusionProperty: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_ImageOcclusion_GetImageOcclusionNoteResponse.protoMessageName + ".ImageOcclusionProperty"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}name\0\u{1}value\0")
 
@@ -510,7 +510,7 @@ extension Anki_ImageOcclusion_GetImageOcclusionNoteResponse.ImageOcclusionProper
   }
 }
 
-extension Anki_ImageOcclusion_GetImageOcclusionNoteResponse.ImageOcclusionShape: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImageOcclusion_GetImageOcclusionNoteResponse.ImageOcclusionShape: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_ImageOcclusion_GetImageOcclusionNoteResponse.protoMessageName + ".ImageOcclusionShape"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}shape\0\u{1}properties\0")
 
@@ -545,7 +545,7 @@ extension Anki_ImageOcclusion_GetImageOcclusionNoteResponse.ImageOcclusionShape:
   }
 }
 
-extension Anki_ImageOcclusion_GetImageOcclusionNoteResponse.ImageOcclusion: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImageOcclusion_GetImageOcclusionNoteResponse.ImageOcclusion: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_ImageOcclusion_GetImageOcclusionNoteResponse.protoMessageName + ".ImageOcclusion"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}shapes\0\u{1}ordinal\0")
 
@@ -580,7 +580,7 @@ extension Anki_ImageOcclusion_GetImageOcclusionNoteResponse.ImageOcclusion: Swif
   }
 }
 
-extension Anki_ImageOcclusion_GetImageOcclusionNoteResponse.ImageOcclusionNote: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImageOcclusion_GetImageOcclusionNoteResponse.ImageOcclusionNote: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = Anki_ImageOcclusion_GetImageOcclusionNoteResponse.protoMessageName + ".ImageOcclusionNote"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}image_data\0\u{1}occlusions\0\u{1}header\0\u{3}back_extra\0\u{1}tags\0\u{3}image_file_name\0\u{3}occlude_inactive\0")
 
@@ -640,7 +640,7 @@ extension Anki_ImageOcclusion_GetImageOcclusionNoteResponse.ImageOcclusionNote: 
   }
 }
 
-extension Anki_ImageOcclusion_UpdateImageOcclusionNoteRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImageOcclusion_UpdateImageOcclusionNoteRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".UpdateImageOcclusionNoteRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}note_id\0\u{1}occlusions\0\u{1}header\0\u{3}back_extra\0\u{1}tags\0")
 
@@ -690,7 +690,7 @@ extension Anki_ImageOcclusion_UpdateImageOcclusionNoteRequest: SwiftProtobuf.Mes
   }
 }
 
-extension Anki_ImageOcclusion_GetImageOcclusionFieldsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImageOcclusion_GetImageOcclusionFieldsRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".GetImageOcclusionFieldsRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}notetype_id\0")
 
@@ -720,7 +720,7 @@ extension Anki_ImageOcclusion_GetImageOcclusionFieldsRequest: SwiftProtobuf.Mess
   }
 }
 
-extension Anki_ImageOcclusion_GetImageOcclusionFieldsResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImageOcclusion_GetImageOcclusionFieldsResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".GetImageOcclusionFieldsResponse"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}fields\0")
 
@@ -754,7 +754,7 @@ extension Anki_ImageOcclusion_GetImageOcclusionFieldsResponse: SwiftProtobuf.Mes
   }
 }
 
-extension Anki_ImageOcclusion_ImageOcclusionFieldIndexes: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_ImageOcclusion_ImageOcclusionFieldIndexes: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ImageOcclusionFieldIndexes"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}occlusions\0\u{1}image\0\u{1}header\0\u{3}back_extra\0")
 

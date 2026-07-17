@@ -18,12 +18,12 @@ public import SwiftProtobuf
 // incompatible with the version of SwiftProtobuf to which you are linking.
 // Please ensure that you are building against the same version of the API
 // that was used to generate this file.
-fileprivate struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
+fileprivate nonisolated struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobuf.ProtobufAPIVersionCheck {
   struct _2: SwiftProtobuf.ProtobufAPIVersion_2 {}
   typealias Version = _2
 }
 
-public struct Anki_Frontend_SchedulingStatesWithContext: Sendable {
+public nonisolated struct Anki_Frontend_SchedulingStatesWithContext: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -54,7 +54,7 @@ public struct Anki_Frontend_SchedulingStatesWithContext: Sendable {
   fileprivate var _context: Anki_Scheduler_SchedulingContext? = nil
 }
 
-public struct Anki_Frontend_SetSchedulingStatesRequest: Sendable {
+public nonisolated struct Anki_Frontend_SetSchedulingStatesRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
@@ -79,9 +79,9 @@ public struct Anki_Frontend_SetSchedulingStatesRequest: Sendable {
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
 
-fileprivate let _protobuf_package = "anki.frontend"
+fileprivate nonisolated let _protobuf_package = "anki.frontend"
 
-extension Anki_Frontend_SchedulingStatesWithContext: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Frontend_SchedulingStatesWithContext: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SchedulingStatesWithContext"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}states\0\u{1}context\0")
 
@@ -120,7 +120,7 @@ extension Anki_Frontend_SchedulingStatesWithContext: SwiftProtobuf.Message, Swif
   }
 }
 
-extension Anki_Frontend_SetSchedulingStatesRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+nonisolated extension Anki_Frontend_SetSchedulingStatesRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SetSchedulingStatesRequest"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}key\0\u{1}states\0")
 
