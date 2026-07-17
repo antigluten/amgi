@@ -46,92 +46,87 @@ struct TagsView: View {
     private var isNoteMode: Bool { !targetNoteIDs.isEmpty }
 
     var body: some View {
-        NavigationStack {
-            VStack {
-                if isLoading {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if allTags.isEmpty {
-                    ContentUnavailableView(
-                        "No Tags",
-                        systemImage: "tag.slash",
-                        description: Text(isNoteMode
-                            ? "These notes don't have any tags."
-                            : "Your collection has no tags yet.")
-                    )
-                } else {
-                    tagListContent
+        VStack {
+            if isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if allTags.isEmpty {
+                ContentUnavailableView(
+                    "No Tags",
+                    systemImage: "tag.slash",
+                    description: Text(isNoteMode
+                        ? "These notes don't have any tags."
+                        : "Your collection has no tags yet.")
+                )
+            } else {
+                tagListContent
+            }
+        }
+        .background(palette.background)
+        .navigationTitle(navigationTitle)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(action: { showAddTag = true }) {
+                    Image(systemName: "plus")
                 }
             }
-            .background(palette.background)
-            .navigationTitle(navigationTitle)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("Done") { dismiss() }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(action: { showAddTag = true }) {
-                        Image(systemName: "plus")
-                    }
-                }
-            }
-            .sheet(isPresented: $showAddTag) {
-                addTagSheet
-            }
-            .alert("Delete Tag?", isPresented: $showDeleteConfirm) {
-                Button("Cancel", role: .cancel) { }
-                Button("Delete", role: .destructive) {
-                    if let tag = selectedTag {
-                        Task { await deleteTag(tag) }
-                    }
-                }
-            } message: {
+        }
+        .sheet(isPresented: $showAddTag) {
+            addTagSheet
+        }
+        .alert("Delete Tag?", isPresented: $showDeleteConfirm) {
+            Button("Cancel", role: .cancel) { }
+            Button("Delete", role: .destructive) {
                 if let tag = selectedTag {
-                    Text("Delete \"\(tag)\"? This will remove it from all notes.")
+                    Task { await deleteTag(tag) }
                 }
             }
-            .alert("Rename Tag", isPresented: $showRenameTag) {
-                TextField("New name", text: $renameTagName)
-                    .autocorrectionDisabled()
-                    .textInputAutocapitalization(.never)
-                Button("Cancel", role: .cancel) { tagToRename = nil }
-                Button("Rename") {
-                    if let old = tagToRename {
-                        Task { await renameTagAction(from: old, to: renameTagName) }
-                    }
-                }
-            } message: {
-                if let tag = tagToRename {
-                    Text("Delete \"\(tag)\"? This will remove it from all notes.")
-                }
+        } message: {
+            if let tag = selectedTag {
+                Text("Delete \"\(tag)\"? This will remove it from all notes.")
             }
-            .alert("Error", isPresented: $showError) {
-                Button("OK") { }
-            } message: {
-                Text(errorMessage ?? "An unknown error occurred.")
-            }
-            .confirmationDialog(
-                tagActionTag ?? "",
-                isPresented: Binding(
-                    get: { tagActionTag != nil && isNoteMode && noteMode == .manage },
-                    set: { if !$0 { tagActionTag = nil } }
-                ),
-                titleVisibility: .visible
-            ) {
-                if let tag = tagActionTag {
-                    Button("Apply to \(targetNoteIDs.count) note\(targetNoteIDs.count == 1 ? "" : "s")") {
-                        Task { await applyTag(tag) }
-                    }
-                    Button("Remove from \(targetNoteIDs.count) note\(targetNoteIDs.count == 1 ? "" : "s")", role: .destructive) {
-                        Task { await removeTagFromSelectedNotes(tag) }
-                    }
-                    Button("Cancel", role: .cancel) { tagActionTag = nil }
+        }
+        .alert("Rename Tag", isPresented: $showRenameTag) {
+            TextField("New name", text: $renameTagName)
+                .autocorrectionDisabled()
+                .textInputAutocapitalization(.never)
+            Button("Cancel", role: .cancel) { tagToRename = nil }
+            Button("Rename") {
+                if let old = tagToRename {
+                    Task { await renameTagAction(from: old, to: renameTagName) }
                 }
             }
-            .task {
-                await loadTags()
+        } message: {
+            if let tag = tagToRename {
+                Text("Delete \"\(tag)\"? This will remove it from all notes.")
             }
+        }
+        .alert("Error", isPresented: $showError) {
+            Button("OK") { }
+        } message: {
+            Text(errorMessage ?? "An unknown error occurred.")
+        }
+        .confirmationDialog(
+            tagActionTag ?? "",
+            isPresented: Binding(
+                get: { tagActionTag != nil && isNoteMode && noteMode == .manage },
+                set: { if !$0 { tagActionTag = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            if let tag = tagActionTag {
+                Button("Apply to \(targetNoteIDs.count) note\(targetNoteIDs.count == 1 ? "" : "s")") {
+                    Task { await applyTag(tag) }
+                }
+                Button("Remove from \(targetNoteIDs.count) note\(targetNoteIDs.count == 1 ? "" : "s")", role: .destructive) {
+                    Task { await removeTagFromSelectedNotes(tag) }
+                }
+                Button("Cancel", role: .cancel) { tagActionTag = nil }
+            }
+        }
+        .task {
+            await loadTags()
         }
     }
 

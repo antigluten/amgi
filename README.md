@@ -29,14 +29,13 @@ Amgi wraps the official [ankitects/anki](https://github.com/ankitects/anki) Rust
 - **Note Browser** -- search notes across all decks, deck filter chips (top-level decks auto-include subdecks), lazy-load results (50 per page)
 - **Note Editor** -- edit note fields with accurate field names from the Rust notetype RPC
 - **Statistics Dashboard** -- full-year review heatmap (auto-scrolls to today), streak counter, retention rate, forecast chart, card count breakdown
+- **Reader** -- read books from your collection chapter-by-chapter; tap any word for a Yomitan-compatible dictionary lookup; chained popups, search history, per-dictionary collapsed memory; TTS speak button with language-aware voice selection; bundled Korean fonts (Sarasa Mono K, Nanum Myeongjo, Nanum Gothic); vertical writing mode and Latin/CJK auto-detection; cross-device progress sync
+- **Multi-Profile Accounts** -- isolated Anki collections per profile, fast picker in the decks toolbar, per-profile sync credentials and review history
+- **Image Occlusion** -- create and edit notes with rectangle, ellipse, polygon, and text masks; reviewer parity with upstream Anki
+- **Multi-Theme System** -- Vivid + Muted palettes, Light/Dark/Follow-System; persists across app and home-screen widgets via App Group
+- **Per-Deck Study Options** -- FSRS weights editor with optimizer + simulator, preset CRUD, Easy Days, bury rules, timer, auto-advance
 - **Offline-First** -- everything works offline; sync when you have a connection
 - **Swift 6.2 Strict Concurrency** -- zero data races, fully actor-isolated, `Sendable` throughout
-- **Multi-Theme** -- Vivid and Muted palettes, Light/Dark/Follow-System appearance, propagated through the SwiftUI environment to the app and home-screen widgets
-- **Image Occlusion** -- create and edit Image Occlusion notes with an in-app canvas (rectangle, ellipse, polygon, text masks); reviewer parity with upstream Anki
-- **Card Template Editor** -- edit card front/back/styling with live uncommitted preview powered by the Rust render engine
-- **Settings + Maintenance** -- dedicated tab with Backup, User Files, Empty Cards, Media Check, Deck Templates, About
-- **Tags + Rich Note Editor** -- inline tag management and rich field editing with audio playback and HTML preview
-- **Statistics** -- retrievability histogram, optimized year-long heatmap, dual-axis tooltips for Future Due and Reviews
 
 ## Screenshots
 
@@ -88,7 +87,7 @@ cd amgi
 ```bash
 # Rust toolchain
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-rustup target add aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios-simulator
+rustup target add aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios
 
 # Protobuf compiler and Swift plugin
 brew install protobuf swift-protobuf
@@ -114,8 +113,8 @@ This cross-compiles the Rust bridge for iOS device and simulator, then packages 
 ### 5. Open in Xcode
 
 ```bash
-cd AnkiApp && xcodegen generate && cd ..
-open AnkiApp/AnkiApp.xcodeproj
+cd AmgiApp && xcodegen generate && cd ..
+open AmgiApp/AmgiApp.xcodeproj
 ```
 
 ### 6. Build and Run

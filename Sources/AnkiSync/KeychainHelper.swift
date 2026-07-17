@@ -6,6 +6,7 @@ public enum KeychainHelper: Sendable {
     private static let hostKeyAccount = "sync-host-key"
     private static let usernameAccount = "sync-username"
     private static let endpointAccount = "sync-endpoint"
+    private static let currentEndpointAccount = "sync-current-endpoint"
 
     // MARK: - Host Key
 
@@ -47,6 +48,26 @@ public enum KeychainHelper: Sendable {
 
     public static func deleteEndpoint() {
         delete(account: endpointAccount)
+    }
+
+    // MARK: - Current Endpoint
+    //
+    // Last shard URL the sync server redirected us to. AnkiWeb pins
+    // upload/download to a specific shard (e.g. sync5.ankiweb.net) and only
+    // emits the redirect on the meta path, so subsequent FullUploadOrDownload
+    // calls must already point at the shard. Kept separate from the
+    // user-configured endpoint so changing servers can reset it cleanly.
+
+    public static func saveCurrentEndpoint(_ url: String) throws {
+        try save(account: currentEndpointAccount, value: url)
+    }
+
+    public static func loadCurrentEndpoint() -> String? {
+        load(account: currentEndpointAccount)
+    }
+
+    public static func deleteCurrentEndpoint() {
+        delete(account: currentEndpointAccount)
     }
 
     // MARK: - Internal

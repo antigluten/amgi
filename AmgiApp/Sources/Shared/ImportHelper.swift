@@ -41,4 +41,35 @@ enum ImportHelper {
 
         return outPath
     }
+
+    /// Exports a single deck as an `.apkg` file in the temporary directory and
+    /// returns the URL. The default options preserve scheduling, deck configs,
+    /// and media — matching upstream Anki's "Export including media" preset.
+    static func exportDeck(
+        deckId: Int64,
+        deckName: String,
+        withScheduling: Bool = true,
+        withDeckConfigs: Bool = true,
+        withMedia: Bool = true
+    ) throws -> URL {
+        let safeName = deckName
+            .replacingOccurrences(of: "::", with: "-")
+            .replacingOccurrences(of: "/", with: "-")
+        let filename = "\(safeName).apkg"
+        let tempDir = FileManager.default.temporaryDirectory
+        let outPath = tempDir.appendingPathComponent(filename)
+        try? FileManager.default.removeItem(at: outPath)
+
+        @Dependency(\.importExportService) var importExportService
+        _ = try importExportService.exportDeckPackage(
+            deckId,
+            outPath.path,
+            withScheduling,
+            withDeckConfigs,
+            withMedia,
+            false  // legacy
+        )
+
+        return outPath
+    }
 }

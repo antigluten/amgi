@@ -47,7 +47,7 @@ ankitects/anki rslib (anki-upstream/)
 swift build
 
 # Build iOS app
-cd AnkiApp && xcodegen generate && cd ..
+cd AmgiApp && xcodegen generate && cd ..
 xcodebuild build -project AnkiApp/AnkiApp.xcodeproj -scheme AnkiApp \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max'
 

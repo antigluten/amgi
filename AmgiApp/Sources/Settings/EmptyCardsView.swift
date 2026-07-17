@@ -35,53 +35,45 @@ struct EmptyCardsView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            Group {
-                if isLoading {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(palette.background)
-                } else {
-                    resultsList
-                }
+        Group {
+            if isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(palette.background)
+            } else {
+                resultsList
             }
-            .navigationTitle("Empty Cards")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { dismiss() }
-                        .amgiToolbarTextButton()
-                }
+        }
+        .navigationTitle("Empty Cards")
+        .navigationBarTitleDisplayMode(.inline)
+        .alert("Delete empty cards?", isPresented: $showDeleteConfirm) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) {
+                Task { await deleteAllEmpty() }
             }
-            .alert("Delete empty cards?", isPresented: $showDeleteConfirm) {
-                Button("Cancel", role: .cancel) {}
-                Button("Delete", role: .destructive) {
-                    Task { await deleteAllEmpty() }
-                }
-            } message: {
-                let count = noteEntries.reduce(0) { $0 + $1.cardIds.count }
-                Text("Delete \(count) empty cards? This cannot be undone.")
+        } message: {
+            let count = noteEntries.reduce(0) { $0 + $1.cardIds.count }
+            Text("Delete \(count) empty cards? This cannot be undone.")
+        }
+        .alert("Done", isPresented: $showSuccess) {
+            Button("OK", role: .cancel) { dismiss() }
+        } message: {
+            Text("Empty cards deleted.")
+        }
+        .alert("Error", isPresented: $showError) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(errorMessage ?? "An unknown error occurred.")
+        }
+        .task { await loadEmptyCards() }
+        .sheet(item: regularEditingNoteBinding) { note in
+            NoteEditingDestinationView(note: note, embedInNavigationStack: true) {
+                Task { await loadEmptyCards() }
             }
-            .alert("Done", isPresented: $showSuccess) {
-                Button("OK", role: .cancel) { dismiss() }
-            } message: {
-                Text("Empty cards deleted.")
-            }
-            .alert("Error", isPresented: $showError) {
-                Button("OK", role: .cancel) {}
-            } message: {
-                Text(errorMessage ?? "An unknown error occurred.")
-            }
-            .task { await loadEmptyCards() }
-            .sheet(item: regularEditingNoteBinding) { note in
-                NoteEditingDestinationView(note: note, embedInNavigationStack: true) {
-                    Task { await loadEmptyCards() }
-                }
-            }
-            .fullScreenCover(item: imageOcclusionEditingNoteBinding) { note in
-                NoteEditingDestinationView(note: note, embedInNavigationStack: true) {
-                    Task { await loadEmptyCards() }
-                }
+        }
+        .fullScreenCover(item: imageOcclusionEditingNoteBinding) { note in
+            NoteEditingDestinationView(note: note, embedInNavigationStack: true) {
+                Task { await loadEmptyCards() }
             }
         }
     }

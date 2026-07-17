@@ -1,18 +1,24 @@
-import Foundation
+public import Foundation
 
 public enum SyncDirection: Sendable {
     case upload
     case download
 }
 
-public struct SyncError: Error, Sendable, Equatable {
+public struct SyncError: Error, LocalizedError, Sendable, Equatable {
     public let message: String
     public let isRetryable: Bool
+    /// When set, an in-progress merge failed and the local-collection backup
+    /// .apkg has been left on disk at this path so the user can recover.
+    public let recoveryBackupPath: String?
 
-    public init(message: String, isRetryable: Bool = true) {
+    public init(message: String, isRetryable: Bool = true, recoveryBackupPath: String? = nil) {
         self.message = message
         self.isRetryable = isRetryable
+        self.recoveryBackupPath = recoveryBackupPath
     }
+
+    public var errorDescription: String? { message }
 
     public static let authFailed = SyncError(message: "Authentication failed", isRetryable: false)
     public static let networkUnavailable = SyncError(message: "Network unavailable", isRetryable: true)

@@ -10,9 +10,27 @@ struct SettingsView: View {
                 }
             }
 
-            Section("Sync") {
+            Section("Account") {
+                NavigationLink("Profiles") {
+                    AccountsSettingsView()
+                }
                 NavigationLink("Sync Server") {
                     SyncSettingsView()
+                }
+            }
+
+            Section("Review") {
+                NavigationLink("Review Behavior") {
+                    ReviewSettingsView()
+                }
+            }
+
+            Section("Reader") {
+                NavigationLink("Reader Display") {
+                    ReaderSettingsView()
+                }
+                NavigationLink("Dictionaries") {
+                    ReaderDictionarySettingsView()
                 }
             }
 

@@ -43,6 +43,7 @@ enum ReaderPreferences {
         static let contentField = "reader_pref_content_field"
         static let languageField = "reader_pref_language_field"
         static let bookshelfColumns = "reader_pref_bookshelf_columns"
+        static let bookshelfSortMode = "reader_pref_bookshelf_sort_mode"
         static let verticalLayout = "reader_pref_vertical_layout"
         static let selectedFont = "reader_pref_selected_font"
         static let fontSize = "reader_pref_font_size"
@@ -81,6 +82,8 @@ enum ReaderPreferences {
         static let dictionaryMaxResults = "reader_pref_dictionary_max_results"
         static let dictionaryScanLength = "reader_pref_dictionary_scan_length"
         static let lookupNoteTemplate = "reader_pref_lookup_note_template"
+        static let popupSearchHistory = "reader_pref_popup_search_history"
+        static let popupCollapsedDictionaries = "reader_pref_popup_collapsed_dictionaries"
     }
 }
 
@@ -102,6 +105,7 @@ enum SyncPreferences {
         static let mediaLastLogBase = "sync_pref_media_last_log"
         static let mediaLastSyncedAtBase = "sync_pref_media_last_synced_at"
         static let lastCollectionSyncedAtBase = "sync_pref_collection_last_synced_at"
+        static let needsFullSyncBase = "sync_pref_needs_full_sync"
 
         static func modeForCurrentUser() -> String {
             scoped(modeBase)
@@ -125,6 +129,10 @@ enum SyncPreferences {
 
         static func lastCollectionSyncedAtForCurrentUser() -> String {
             scoped(lastCollectionSyncedAtBase)
+        }
+
+        static func needsFullSyncForCurrentUser() -> String {
+            scoped(needsFullSyncBase)
         }
 
         private static func scoped(_ base: String) -> String {

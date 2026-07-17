@@ -1,12 +1,22 @@
 import SwiftUI
 import AnkiKit
 import AnkiClients
+import AnkiServices
 import Dependencies
 import AmgiTheme
+
+enum BrowseSortOrder: String, CaseIterable, Sendable {
+    case dateDesc = "Date (newest)"
+    case titleAsc = "Title (A→Z)"
+    case templateAsc = "Type (A→Z)"
+}
 
 struct BrowseView: View {
     @Dependency(\.noteClient) var noteClient
     @Dependency(\.deckClient) var deckClient
+    @Dependency(\.cardClient) var cardClient
+    @Dependency(\.tagClient) var tagClient
+    @Dependency(\.notetypesService) var notetypesService
 
     @State private var searchText = ""
     @State private var allNotes: [NoteRecord] = []
@@ -20,6 +30,14 @@ struct BrowseView: View {
     @State private var hasMorePages = true
     @State private var showAddNote = false
     @State private var showAddImageOcclusion = false
+    @State private var selectionState = BrowseSelectionState()
+    @State private var showTagSheet = false
+    @State private var showDeleteConfirm = false
+    @State private var pendingSwipeDelete: NoteRecord?
+    @State private var allTags: [String] = []
+    @State private var activeTag: String?
+    @State private var sortOrder: BrowseSortOrder = .dateDesc
+    @State private var notetypeNames: [Int64: String] = [:]
 
     private let pageSize = 50
 
@@ -35,23 +53,54 @@ struct BrowseView: View {
                 ContentUnavailableView.search(text: searchText)
             } else {
                 List {
-                    ForEach(notes, id: \.id) { note in
+                    ForEach(sortedNotes(notes), id: \.id) { note in
                         HStack {
-                            NavigationLink(value: note) {
-                                NoteRowView(note: note)
+                            if selectionState.isSelectMode {
+                                Image(systemName: selectionState.contains(note.id) ? "checkmark.circle.fill" : "circle")
+                                    .foregroundStyle(selectionState.contains(note.id) ? Color.accentColor : Color.secondary)
+                                NoteRowView(note: note, notetypeName: notetypeNames[note.mid])
+                                    .contentShape(Rectangle())
+                                    .onTapGesture {
+                                        selectionState.toggle(note.id)
+                                    }
                                     .onAppear {
-                                        // Lazy-load stub notes when they appear on screen
                                         if note.sfld == "Loading..." {
                                             Task { await fetchNoteDetails(id: note.id) }
                                         }
-                                        // Paging: load next batch near the end
                                         if note.id == notes.last?.id {
                                             Task { await loadNextPage() }
                                         }
                                     }
+                            } else {
+                                HStack {
+                                    NavigationLink(value: note) {
+                                        NoteRowView(note: note, notetypeName: notetypeNames[note.mid])
+                                            .onAppear {
+                                                // Lazy-load stub notes when they appear on screen
+                                                if note.sfld == "Loading..." {
+                                                    Task { await fetchNoteDetails(id: note.id) }
+                                                }
+                                                // Paging: load next batch near the end
+                                                if note.id == notes.last?.id {
+                                                    Task { await loadNextPage() }
+                                                }
+                                            }
+                                    }
+                                    NoteContextMenuButton(noteId: note.id) {
+                                        Task { await performSearch() }
+                                    }
+                                }
+                                .contentShape(Rectangle())
+                                .onLongPressGesture(minimumDuration: 0.5) {
+                                    selectionState.enterSelectMode(preselect: note.id)
+                                }
                             }
-                            NoteContextMenuButton(noteId: note.id) {
-                                Task { await performSearch() }
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            Button(role: .destructive) {
+                                pendingSwipeDelete = note
+                            } label: {
+                                Label("Delete", systemImage: "trash")
                             }
                         }
                     }
@@ -86,11 +135,84 @@ struct BrowseView: View {
                     Image(systemName: "plus")
                 }
             }
+            ToolbarItem(placement: .topBarLeading) {
+                Menu {
+                    ForEach(BrowseSortOrder.allCases, id: \.self) { order in
+                        Button {
+                            sortOrder = order
+                        } label: {
+                            if sortOrder == order {
+                                Label(order.rawValue, systemImage: "checkmark")
+                            } else {
+                                Text(order.rawValue)
+                            }
+                        }
+                    }
+                } label: {
+                    Image(systemName: "arrow.up.arrow.down")
+                }
+                .disabled(notes.isEmpty)
+            }
             ToolbarItem(placement: .topBarTrailing) {
-                if !notes.isEmpty {
-                    Text("\(allNotes.count) notes")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                if selectionState.isSelectMode {
+                    Button("Done") {
+                        selectionState.exitSelectMode()
+                    }
+                } else if !notes.isEmpty {
+                    Button("Edit") {
+                        selectionState.enterSelectMode()
+                    }
+                }
+            }
+            if selectionState.isSelectMode {
+                ToolbarItem(placement: .bottomBar) {
+                    Button {
+                        suspendSelected()
+                    } label: {
+                        Label("Suspend", systemImage: "pause.circle")
+                    }
+                    .disabled(selectionState.isEmpty)
+                }
+                ToolbarItem(placement: .bottomBar) {
+                    Spacer()
+                }
+                ToolbarItem(placement: .bottomBar) {
+                    Menu {
+                        Button { flagSelected(1) } label: { Label("Red flag",       systemImage: "flag.fill") }
+                        Button { flagSelected(2) } label: { Label("Orange flag",    systemImage: "flag.fill") }
+                        Button { flagSelected(3) } label: { Label("Green flag",     systemImage: "flag.fill") }
+                        Button { flagSelected(4) } label: { Label("Blue flag",      systemImage: "flag.fill") }
+                        Button { flagSelected(5) } label: { Label("Pink flag",      systemImage: "flag.fill") }
+                        Button { flagSelected(6) } label: { Label("Turquoise flag", systemImage: "flag.fill") }
+                        Button { flagSelected(7) } label: { Label("Purple flag",    systemImage: "flag.fill") }
+                        Divider()
+                        Button { flagSelected(0) } label: { Label("Clear flag",     systemImage: "flag.slash") }
+                    } label: {
+                        Label("Flag", systemImage: "flag")
+                    }
+                    .disabled(selectionState.isEmpty)
+                }
+                ToolbarItem(placement: .bottomBar) {
+                    Spacer()
+                }
+                ToolbarItem(placement: .bottomBar) {
+                    Button {
+                        showTagSheet = true
+                    } label: {
+                        Label("Tags", systemImage: "tag")
+                    }
+                    .disabled(selectionState.isEmpty)
+                }
+                ToolbarItem(placement: .bottomBar) {
+                    Spacer()
+                }
+                ToolbarItem(placement: .bottomBar) {
+                    Button(role: .destructive) {
+                        showDeleteConfirm = true
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                    .disabled(selectionState.isEmpty)
                 }
             }
         }
@@ -102,9 +224,51 @@ struct BrowseView: View {
         .sheet(isPresented: $showAddImageOcclusion) {
             AddImageOcclusionNoteView { Task { await performSearch() } }
         }
+        .sheet(isPresented: $showTagSheet) {
+            BatchTagSheet(noteIDs: selectionState.selectedNoteIDs) {
+                Task {
+                    await MainActor.run {
+                        selectionState.exitSelectMode()
+                    }
+                    await performSearch()
+                }
+            }
+        }
+        .confirmationDialog(
+            "Delete this note?",
+            isPresented: Binding(
+                get: { pendingSwipeDelete != nil },
+                set: { if !$0 { pendingSwipeDelete = nil } }
+            ),
+            presenting: pendingSwipeDelete
+        ) { note in
+            Button("Delete", role: .destructive) {
+                Task {
+                    try? noteClient.delete(note.id)
+                    pendingSwipeDelete = nil
+                    await performSearch()
+                }
+            }
+            Button("Cancel", role: .cancel) {
+                pendingSwipeDelete = nil
+            }
+        } message: { _ in
+            Text("This action cannot be undone.")
+        }
+        .confirmationDialog(
+            "Delete \(selectionState.count) note\(selectionState.count == 1 ? "" : "s")?",
+            isPresented: $showDeleteConfirm
+        ) {
+            Button("Delete", role: .destructive) {
+                deleteSelected()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This action cannot be undone.")
+        }
         .safeAreaInset(edge: .top) {
-            if !allDecks.isEmpty {
-                deckFilterBar
+            if !allDecks.isEmpty || !allTags.isEmpty {
+                filterBar
             }
         }
         .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search notes...")
@@ -114,9 +278,59 @@ struct BrowseView: View {
         .onChange(of: activeDeck) {
             Task { await performSearch() }
         }
+        .onChange(of: activeTag) {
+            Task { await performSearch() }
+        }
         .task {
             await loadDecks()
             await performSearch()
+            allTags = ((try? tagClient.getAllTags()) ?? []).sorted()
+            if let pairs = try? notetypesService.getNotetypeNames() {
+                notetypeNames = Dictionary(uniqueKeysWithValues: pairs.map { ($0.id, $0.name) })
+            }
+        }
+    }
+
+    // MARK: - Sort
+
+    private func sortedNotes(_ notes: [NoteRecord]) -> [NoteRecord] {
+        switch sortOrder {
+        case .dateDesc:
+            return notes.sorted { $0.mod > $1.mod }
+        case .titleAsc:
+            return notes.sorted { $0.sfld.localizedCaseInsensitiveCompare($1.sfld) == .orderedAscending }
+        case .templateAsc:
+            return notes.sorted { (notetypeNames[$0.mid] ?? "") < (notetypeNames[$1.mid] ?? "") }
+        }
+    }
+
+    // MARK: - Filter Bar
+
+    private var filterBar: some View {
+        VStack(spacing: 0) {
+            if !allDecks.isEmpty {
+                deckFilterBar
+            }
+            if !allTags.isEmpty {
+                tagChipRow
+            }
+        }
+    }
+
+    private var tagChipRow: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                chipButton(label: "All", isSelected: activeTag == nil) {
+                    activeTag = nil
+                }
+                ForEach(allTags, id: \.self) { tag in
+                    chipButton(label: tag, isSelected: activeTag == tag) {
+                        activeTag = (activeTag == tag) ? nil : tag
+                    }
+                }
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 8)
         }
     }
 
@@ -238,6 +452,57 @@ struct BrowseView: View {
         isLoading = false
     }
 
+    private func collectCardIDs(for noteIDs: Set<Int64>) -> [Int64] {
+        var result: [Int64] = []
+        for nid in noteIDs {
+            if let cards = try? cardClient.fetchByNote(nid) {
+                result.append(contentsOf: cards.map(\.id))
+            }
+        }
+        return result
+    }
+
+    private func suspendSelected() {
+        let ids = selectionState.selectedNoteIDs
+        Task {
+            let cardIDs = collectCardIDs(for: ids)
+            for id in cardIDs {
+                try? cardClient.suspend(id)
+            }
+            await MainActor.run {
+                selectionState.exitSelectMode()
+            }
+            await performSearch()
+        }
+    }
+
+    private func flagSelected(_ value: UInt32) {
+        let ids = selectionState.selectedNoteIDs
+        Task {
+            let cardIDs = collectCardIDs(for: ids)
+            for id in cardIDs {
+                try? cardClient.flag(id, value)
+            }
+            await MainActor.run {
+                selectionState.exitSelectMode()
+            }
+            await performSearch()
+        }
+    }
+
+    private func deleteSelected() {
+        let ids = selectionState.selectedNoteIDs
+        Task {
+            for id in ids {
+                try? noteClient.delete(id)
+            }
+            await MainActor.run {
+                selectionState.exitSelectMode()
+            }
+            await performSearch()
+        }
+    }
+
     private func loadNextPage() async {
         guard hasMorePages, !isLoading else { return }
         let loaded = notes.count
@@ -261,6 +526,9 @@ struct BrowseView: View {
         var parts: [String] = []
         if let deck = activeDeck {
             parts.append("deck:\"\(deck.name)\"")
+        }
+        if let tag = activeTag {
+            parts.append("tag:\"\(tag)\"")
         }
         let trimmed = searchText.trimmingCharacters(in: .whitespaces)
         if !trimmed.isEmpty {
@@ -306,16 +574,19 @@ struct NoteContextMenuButton: View {
 
 struct NoteRowView: View {
     let note: NoteRecord
+    let notetypeName: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(note.sfld)
                 .font(.body)
                 .lineLimit(1)
-            if !note.tags.trimmingCharacters(in: .whitespaces).isEmpty {
-                Text(note.tags.trimmingCharacters(in: .whitespaces))
+            if let subtitle = composeNoteSubtitle(notetypeName: notetypeName, tags: note.tags) {
+                Text(subtitle)
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
             }
         }
         .padding(.vertical, 2)

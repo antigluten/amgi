@@ -17,33 +17,25 @@ struct MediaCheckResultView: View {
     @State private var showActionAlert = false
 
     var body: some View {
-        NavigationStack {
-            Group {
-                if isLoading {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(palette.background)
-                } else if let result = currentResult {
-                    contentList(result: result)
-                }
+        Group {
+            if isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(palette.background)
+            } else if let result = currentResult {
+                contentList(result: result)
             }
-            .scrollContentBackground(.hidden)
-            .background(palette.background)
-            .navigationTitle("Media Check")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { dismiss() }
-                        .amgiToolbarTextButton()
-                }
-            }
-            .alert("Done", isPresented: $showActionAlert) {
-                Button("OK", role: .cancel) {}
-            } message: {
-                Text(actionMessage ?? "")
-            }
-            .task { await runMediaCheck() }
         }
+        .scrollContentBackground(.hidden)
+        .background(palette.background)
+        .navigationTitle("Media Check")
+        .navigationBarTitleDisplayMode(.inline)
+        .alert("Done", isPresented: $showActionAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(actionMessage ?? "")
+        }
+        .task { await runMediaCheck() }
     }
 
     private func contentList(result: MediaCheckResult) -> some View {

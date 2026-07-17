@@ -1,4 +1,5 @@
 public import AnkiKit
+public import AnkiProto
 public import Dependencies
 import DependenciesMacros
 
@@ -12,6 +13,24 @@ public struct DeckClient: Sendable {
     public var delete: @Sendable (_ deckId: Int64) throws -> Void
     public var rebuildFilteredDeck: @Sendable (_ deckId: Int64) throws -> Int
     public var emptyFilteredDeck: @Sendable (_ deckId: Int64) throws -> Void
+    public var fetchDeckConfigContext: @Sendable (_ deckId: Int64) throws -> Anki_DeckConfig_DeckConfigsForUpdate
+    public var getDeckConfig: @Sendable (_ deckId: Int64) throws -> Anki_DeckConfig_DeckConfig
+    public var updateDeckConfig: @Sendable (
+        _ deckId: Int64,
+        _ config: Anki_DeckConfig_DeckConfig,
+        _ applyToChildren: Bool,
+        _ fsrsEnabled: Bool,
+        _ newCardsIgnoreReviewLimit: Bool,
+        _ applyAllParentLimits: Bool,
+        _ fsrsHealthCheck: Bool
+    ) throws -> Void
+    public var computeFsrsParams: @Sendable (_ request: Anki_Scheduler_ComputeFsrsParamsRequest) throws -> Anki_Scheduler_ComputeFsrsParamsResponse
+    public var simulateFsrsReview: @Sendable (_ request: Anki_Scheduler_SimulateFsrsReviewRequest) throws -> Anki_Scheduler_SimulateFsrsReviewResponse
+    public var simulateFsrsWorkload: @Sendable (_ request: Anki_Scheduler_SimulateFsrsReviewRequest) throws -> Anki_Scheduler_SimulateFsrsWorkloadResponse
+    public var optimizeFsrsPresets: @Sendable (_ deckId: Int64, _ config: Anki_DeckConfig_DeckConfig) throws -> Void
+    public var selectDeckPreset: @Sendable (_ deckId: Int64, _ config: Anki_DeckConfig_DeckConfig, _ applyToChildren: Bool) throws -> Void
+    public var createDeckPreset: @Sendable (_ deckId: Int64, _ baseConfig: Anki_DeckConfig_DeckConfig, _ name: String, _ applyToChildren: Bool) throws -> Void
+    public var deleteDeckPreset: @Sendable (_ deckId: Int64, _ removingConfigId: Int64, _ fallbackConfig: Anki_DeckConfig_DeckConfig, _ applyToChildren: Bool) throws -> Void
 }
 
 extension DeckClient: TestDependencyKey {
