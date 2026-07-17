@@ -32,7 +32,7 @@ struct WatchReviewView: View {
                             ratingButton(.good, color: .green)
                         }
                     } else {
-                        reviewButton("Show Answer", color: .blue) { session.revealAnswer() }
+                        reviewButton("Show Answer", color: .blue) { Task { await session.revealAnswer() } }
                     }
                 }
                 .ignoresSafeArea(edges: .bottom)

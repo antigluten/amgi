@@ -153,12 +153,16 @@ targets:
           - DeckDetailView.swift
           - DeckTemplateListView.swift
           - TemplateSourceEditor.swift
+          - DeckConfigView.swift
+          - DecksReviewsChart.swift
+          - ProfilePickerMenu.swift
       - path: Sources/Review
         type: group
         excludes:
           - ReviewView.swift
           - CardAssetScheme.swift
           - CardWebView.swift
+          - CardWebViewCoordinator.swift
       - path: Sources/Stats/PeriodPicker.swift
       - path: Sources/Stats/TodayStatsCard.swift
       - path: Sources/Stats/FutureDueChart.swift
