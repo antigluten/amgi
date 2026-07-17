@@ -50,14 +50,14 @@ struct IntervalsChart: View {
                 Text("Review Intervals").amgiFont(.bodyEmphasis)
 
                 if buckets.isEmpty {
-                    Text("No interval data").foregroundStyle(.secondary).frame(height: 180)
+                    Text("No interval data").foregroundStyle(palette.textSecondary).frame(height: 180)
                 } else {
                     Chart(buckets) { bucket in
                         BarMark(
                             x: .value("Interval", bucket.label),
                             y: .value("Cards", bucket.count)
                         )
-                        .foregroundStyle(.teal.gradient)
+                        .foregroundStyle(palette.accent.gradient)
                     }
                     .chartXAxis {
                         AxisMarks(values: .automatic) { _ in

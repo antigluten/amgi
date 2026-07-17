@@ -42,7 +42,7 @@ struct FutureDueChart: View {
                 Text("Future Due").amgiFont(.bodyEmphasis)
 
                 if filteredData.isEmpty {
-                    Text("No cards due").foregroundStyle(.secondary).frame(height: 180)
+                    Text("No cards due").foregroundStyle(palette.textSecondary).frame(height: 180)
                 } else {
                     Chart(filteredData, id: \.day) { item in
                         BarMark(
@@ -62,7 +62,7 @@ struct FutureDueChart: View {
 
                 if futureDue.haveBacklog {
                     Toggle("Include Backlog", isOn: $includeBacklog)
-                        .font(.caption)
+                        .amgiFont(.caption)
                 }
 
                 HStack(spacing: 16) {

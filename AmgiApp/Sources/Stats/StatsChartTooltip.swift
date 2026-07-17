@@ -23,11 +23,11 @@ struct StatsChartTooltip: View {
         .padding(.vertical, AmgiSpacing.xs)
         .background(palette.surfaceElevated)
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: AmgiRadius.inset)
                 .stroke(palette.border.opacity(0.3), lineWidth: 1)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .shadow(color: .black.opacity(0.12), radius: 12, y: 6)
+        .clipShape(RoundedRectangle(cornerRadius: AmgiRadius.inset))
+        .amgiChromeShadow(RoundedRectangle(cornerRadius: AmgiRadius.inset), radius: 12, y: 6, opacity: 0.12)
     }
 }
 

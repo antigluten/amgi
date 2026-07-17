@@ -62,7 +62,7 @@ struct ButtonsChart: View {
                 Text("Answer Buttons").amgiFont(.bodyEmphasis)
 
                 if entries.isEmpty {
-                    Text("No button data").foregroundStyle(.secondary).frame(height: 180)
+                    Text("No button data").foregroundStyle(palette.textSecondary).frame(height: 180)
                 } else {
                     Chart(entries) { entry in
                         BarMark(

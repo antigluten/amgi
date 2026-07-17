@@ -25,7 +25,7 @@ struct ReviewsChart: View {
             ("Relearn", \.relearn, palette.cardStateRelearn),
             ("Young", \.young, palette.cardStateLearning),
             ("Mature", \.mature, palette.cardStateMature),
-            ("Filtered", \.filtered, .gray),
+            ("Filtered", \.filtered, palette.textTertiary),
         ]
         var result: [ReviewEntry] = []
         for (day, rev) in reviews.count {
@@ -61,7 +61,7 @@ struct ReviewsChart: View {
                 Text("Reviews").amgiFont(.bodyEmphasis)
 
                 if entries.isEmpty {
-                    Text("No review data").foregroundStyle(.secondary).frame(height: 180)
+                    Text("No review data").foregroundStyle(palette.textSecondary).frame(height: 180)
                 } else {
                     Chart(entries) { entry in
                         BarMark(
@@ -75,7 +75,7 @@ struct ReviewsChart: View {
                         "Relearn": palette.cardStateRelearn,
                         "Young": palette.cardStateLearning,
                         "Mature": palette.cardStateMature,
-                        "Filtered": Color.gray,
+                        "Filtered": palette.textTertiary,
                     ])
                     .chartXAxis {
                         AxisMarks(values: .automatic(desiredCount: 5)) { _ in
@@ -90,7 +90,6 @@ struct ReviewsChart: View {
                     footerItem("Total", value: "\(totalReviews)")
                     footerItem("Avg/day", value: String(format: "%.1f", avgPerDay))
                 }
-                .font(.caption2)
             }
         }
     }
@@ -99,8 +98,8 @@ struct ReviewsChart: View {
 private extension ReviewsChart {
     func footerItem(_ label: String, value: String) -> some View {
         VStack(spacing: 2) {
-            Text(value).font(.caption.weight(.semibold).monospacedDigit())
-            Text(label).foregroundStyle(.secondary)
+            Text(value).amgiFont(.captionBold).monospacedDigit()
+            Text(label).amgiFont(.caption).foregroundStyle(palette.textSecondary)
         }
         .frame(maxWidth: .infinity)
     }

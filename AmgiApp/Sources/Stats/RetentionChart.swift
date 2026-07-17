@@ -52,14 +52,14 @@ struct RetentionChart: View {
 
                 Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 6) {
                     GridRow {
-                        Text("Period").font(.caption2.weight(.semibold)).foregroundStyle(.secondary)
-                        Text("Young").font(.caption2.weight(.semibold)).foregroundStyle(.secondary)
-                        Text("Mature").font(.caption2.weight(.semibold)).foregroundStyle(.secondary)
+                        Text("Period").amgiFont(.captionBold).foregroundStyle(palette.textSecondary)
+                        Text("Young").amgiFont(.captionBold).foregroundStyle(palette.textSecondary)
+                        Text("Mature").amgiFont(.captionBold).foregroundStyle(palette.textSecondary)
                     }
                     Divider()
                     ForEach(rows) { row in
                         GridRow {
-                            Text(row.label).font(.caption)
+                            Text(row.label).amgiFont(.caption)
                             retentionBadge(row.youngRate)
                             retentionBadge(row.matureRate)
                         }
@@ -73,15 +73,16 @@ struct RetentionChart: View {
 private extension RetentionChart {
     func retentionBadge(_ rate: Double) -> some View {
         Text(rate > 0 ? "\(Int(rate * 100))%" : "---")
-            .font(.caption.monospacedDigit().weight(.medium))
+            .amgiFont(.captionBold)
+            .monospacedDigit()
             .foregroundStyle(retentionColor(rate))
     }
 
     func retentionColor(_ rate: Double) -> Color {
-        if rate <= 0 { return .secondary }
-        if rate >= 0.9 { return .green }
-        if rate >= 0.8 { return .orange }
-        return .red
+        if rate <= 0 { return palette.textSecondary }
+        if rate >= 0.9 { return palette.positive }
+        if rate >= 0.8 { return palette.warning }
+        return palette.danger
     }
 }
 
