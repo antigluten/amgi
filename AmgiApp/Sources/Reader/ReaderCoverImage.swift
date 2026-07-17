@@ -1,3 +1,4 @@
+import AmgiTheme
 import AnkiBackend
 import Dependencies
 import Foundation
@@ -24,6 +25,8 @@ struct ReaderCoverImage<Placeholder: View>: View {
     let isEPUB: Bool
     @ViewBuilder let placeholder: () -> Placeholder
 
+    @Environment(\.palette) private var palette
+
     init(path: String?, isEPUB: Bool = false, @ViewBuilder placeholder: @escaping () -> Placeholder) {
         self.source = .ankiMediaPath(path)
         self.isEPUB = isEPUB
@@ -45,7 +48,7 @@ struct ReaderCoverImage<Placeholder: View>: View {
                     .padding(.horizontal, 5)
                     .padding(.vertical, 2)
                     .background(.thinMaterial, in: Capsule())
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(palette.textPrimary)
                     .padding(4)
             }
         }
@@ -125,13 +128,15 @@ private extension ReaderCoverImage {
 // MARK: - Preview
 
 private struct CoverPlaceholder: View {
+    @Environment(\.palette) private var palette
+
     var body: some View {
         RoundedRectangle(cornerRadius: 8)
             .fill(.gray.opacity(0.25))
             .overlay {
                 Image(systemName: "book.closed")
                     .font(.largeTitle)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(palette.textSecondary)
             }
             .frame(width: 120)
     }

@@ -1,4 +1,5 @@
 import AmgiReader
+import AmgiTheme
 import Foundation
 import SwiftUI
 
@@ -150,36 +151,38 @@ private struct BookHeaderView: View {
     let coverURL: URL?
     let isEPUB: Bool
 
+    @Environment(\.palette) private var palette
+
     var body: some View {
         VStack(spacing: 12) {
             HStack {
                 Spacer()
                 cover
                     .frame(width: 140, height: 190)
-                    .background(Color.secondary.opacity(0.15), in: RoundedRectangle(cornerRadius: 8))
+                    .background(palette.separator, in: RoundedRectangle(cornerRadius: 8))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .shadow(color: Color.black.opacity(0.18), radius: 8, x: 0, y: 4)
+                    .amgiChromeShadow(RoundedRectangle(cornerRadius: 8), radius: 8, y: 4, opacity: 0.18)
                 Spacer()
             }
             .padding(.top, 8)
 
             Text(book.title)
-                .font(.title2.bold())
+                .amgiFont(.sectionHeading)
                 .multilineTextAlignment(.center)
                 .lineLimit(3)
 
             if let author = book.author {
                 Text(author)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .amgiFont(.body)
+                    .foregroundStyle(palette.textSecondary)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
             }
 
             if let meta = metaText {
                 Text(meta)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .amgiFont(.caption)
+                    .foregroundStyle(palette.textSecondary)
             }
         }
         .frame(maxWidth: .infinity)
@@ -196,7 +199,7 @@ private struct BookHeaderView: View {
 
     private var placeholder: some View {
         Image(systemName: "book.closed")
-            .foregroundStyle(.secondary)
+            .foregroundStyle(palette.textSecondary)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
@@ -221,23 +224,25 @@ private struct ContinueBlock<Destination: View>: View {
     let resumeIndex: Int
     @ViewBuilder var destination: (Int) -> Destination
 
+    @Environment(\.palette) private var palette
+
     var body: some View {
         VStack(spacing: 8) {
             NavigationLink {
                 destination(resumeIndex)
             } label: {
                 Text("Continue · \(percent)%")
-                    .font(.headline)
+                    .amgiFont(.cardTitle)
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
-                    .background(Color.accentColor, in: RoundedRectangle(cornerRadius: 12))
+                    .background(palette.accent, in: RoundedRectangle(cornerRadius: AmgiRadius.inset))
             }
             .buttonStyle(.plain)
 
             ProgressView(value: Double(percent), total: 100)
                 .progressViewStyle(.linear)
-                .tint(Color.accentColor)
+                .tint(palette.accent)
         }
     }
 }
@@ -252,11 +257,13 @@ private struct ChaptersSection<Destination: View>: View {
     let isChapterComplete: (Int) -> Bool
     @ViewBuilder var destination: (Int) -> Destination
 
+    @Environment(\.palette) private var palette
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("CHAPTERS")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
+                .amgiFont(.captionBold)
+                .foregroundStyle(palette.textSecondary)
                 .padding(.top, 8)
             VStack(spacing: 0) {
                 ForEach(Array(book.chapters.enumerated()), id: \.element.id) { index, chapter in
@@ -278,7 +285,7 @@ private struct ChaptersSection<Destination: View>: View {
                     }
                 }
             }
-            .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 12))
+            .background(palette.surface, in: RoundedRectangle(cornerRadius: AmgiRadius.inset))
         }
     }
 }
@@ -291,25 +298,27 @@ private struct ChapterRow: View {
     let isComplete: Bool
     let isCurrent: Bool
 
+    @Environment(\.palette) private var palette
+
     var body: some View {
         HStack(spacing: 12) {
             leading
                 .frame(width: 28, height: 28)
             VStack(alignment: .leading, spacing: 2) {
                 Text(chapter.title)
-                    .font(.body)
-                    .foregroundStyle(isCurrent ? Color.accentColor : .primary)
+                    .amgiFont(.body)
+                    .foregroundStyle(isCurrent ? palette.accent : palette.textPrimary)
                     .lineLimit(2)
                 if let subline {
                     Text(subline)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .amgiFont(.caption)
+                        .foregroundStyle(palette.textSecondary)
                 }
             }
             Spacer(minLength: 8)
             Image(systemName: "chevron.right")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.tertiary)
+                .amgiFont(.captionBold)
+                .foregroundStyle(palette.textTertiary)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 12)
@@ -320,12 +329,12 @@ private struct ChapterRow: View {
     private var leading: some View {
         if isComplete {
             Image(systemName: "checkmark.circle.fill")
-                .font(.title3)
-                .foregroundStyle(.green)
+                .amgiFont(.sectionHeading)
+                .foregroundStyle(palette.positive)
         } else {
             Text(String(format: "%02d", index + 1))
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(isCurrent ? Color.accentColor : .secondary)
+                .amgiFont(.captionBold)
+                .foregroundStyle(isCurrent ? palette.accent : palette.textSecondary)
         }
     }
 

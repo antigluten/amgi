@@ -1,3 +1,4 @@
+import AmgiTheme
 import Sharing
 import SwiftUI
 
@@ -6,6 +7,7 @@ import SwiftUI
 /// so the chapter VC's `styleTokens` recomputation fires immediately.
 struct ReaderTypographySettingsView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.palette) private var palette
 
     @Shared(.appStorage(ReaderTypographyPreferences.Keys.fontFamily))
     private var fontFamilyRaw: String = ReaderTypographyPreferences.FontFamily.system.rawValue
@@ -104,7 +106,7 @@ struct ReaderTypographySettingsView: View {
                     Spacer()
                     Text(String(format: "%.1f", lineHeight))
                         .font(.body.monospacedDigit())
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(palette.textSecondary)
                 }
             }
         } header: {
@@ -179,13 +181,15 @@ private struct ThemeSwatchButton: View {
     let isSelected: Bool
     let action: () -> Void
 
+    @Environment(\.palette) private var palette
+
     var body: some View {
         Button(action: action) {
             VStack(spacing: 6) {
                 swatch
                 Text(theme.label)
-                    .font(.caption)
-                    .foregroundStyle(.primary)
+                    .amgiFont(.caption)
+                    .foregroundStyle(palette.textPrimary)
             }
         }
         .buttonStyle(.plain)
@@ -200,13 +204,13 @@ private struct ThemeSwatchButton: View {
                 .frame(width: 44, height: 44)
                 .overlay(
                     Circle().strokeBorder(
-                        isSelected ? Color.accentColor : Color.secondary.opacity(0.3),
+                        isSelected ? palette.accent : palette.textSecondary.opacity(0.3),
                         lineWidth: isSelected ? 2 : 1
                     )
                 )
             Text("Aa")
                 .font(.callout.weight(.semibold))
-                .foregroundStyle(Color(hex: theme.foregroundHex) ?? .black)
+                .foregroundStyle(Color(hex: theme.foregroundHex) ?? palette.textPrimary)
         }
     }
 }

@@ -253,3 +253,50 @@ private struct AmgiStatusTextModifier: ViewModifier {
             .foregroundStyle(tone.foregroundColor(palette))
     }
 }
+
+// MARK: - Chrome elevation shadow (ring vs shadow)
+
+extension View {
+    /// Floating chrome (capsule/circle buttons, cover art) that needs the
+    /// same ring-vs-shadow elevation switch `AmgiCard` uses internally, but
+    /// doesn't fit `AmgiCard`'s padding+background shape. The caller still
+    /// owns its own `.background(_:in:)`; this only adds the ring overlay
+    /// (under `.ring` elevation) or the drop shadow (under `.shadow`
+    /// elevation), clipped to `shape`.
+    ///
+    /// Lives here rather than at the call site because the design
+    /// conformance guard bans raw `.shadow(` in every screen file — this
+    /// is the one mechanism other views delegate to, mirroring
+    /// `AmgiStatusPanelModifier` above.
+    func amgiChromeShadow<S: InsettableShape>(
+        _ shape: S,
+        radius: CGFloat = 4,
+        x: CGFloat = 0,
+        y: CGFloat = 2,
+        opacity: Double = 0.08
+    ) -> some View {
+        modifier(AmgiChromeShadowModifier(shape: shape, radius: radius, x: x, y: y, opacity: opacity))
+    }
+}
+
+private struct AmgiChromeShadowModifier<S: InsettableShape>: ViewModifier {
+    @Environment(\.palette) private var palette
+    let shape: S
+    let radius: CGFloat
+    let x: CGFloat
+    let y: CGFloat
+    let opacity: Double
+
+    func body(content: Content) -> some View {
+        content
+            .overlay {
+                if palette.elevation == .ring {
+                    shape.strokeBorder(palette.separator, lineWidth: 1)
+                }
+            }
+            .shadow(
+                color: palette.elevation == .ring ? .clear : .black.opacity(opacity),
+                radius: radius, x: x, y: y
+            )
+    }
+}

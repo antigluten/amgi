@@ -1,4 +1,5 @@
 import AmgiReader
+import AmgiTheme
 import Sharing
 import SwiftUI
 import WebKit
@@ -67,6 +68,8 @@ struct ChapterReaderView: View {
     @State private var pendingNoteText: String?
     @State private var lastTapPhrase: String?
 
+    @Environment(\.palette) private var palette
+
     var body: some View {
         ZStack(alignment: .top) {
             ChapterWebView(
@@ -84,7 +87,7 @@ struct ChapterReaderView: View {
             if showProgressTop {
                 ProgressView(value: scrollProgress)
                     .progressViewStyle(.linear)
-                    .tint(.accentColor)
+                    .tint(palette.accent)
                     .frame(height: 2)
                     .scaleEffect(x: 1, y: 0.6, anchor: .top)
                     .ignoresSafeArea(edges: .horizontal)
@@ -120,8 +123,8 @@ struct ChapterReaderView: View {
             if showPercentage {
                 ToolbarItem(placement: .topBarTrailing) {
                     Text("\(Int(scrollProgress * 100))%")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .amgiFont(.caption)
+                        .foregroundStyle(palette.textSecondary)
                         .monospacedDigit()
                 }
             }
@@ -178,7 +181,7 @@ struct ChapterReaderView: View {
         }
         .font(.system(size: 10, design: .monospaced))
         .padding(6)
-        .background(Color.black.opacity(0.55), in: RoundedRectangle(cornerRadius: 4))
+        .background(palette.textPrimary.opacity(0.55), in: RoundedRectangle(cornerRadius: 4))
         .foregroundStyle(.white)
     }
 }

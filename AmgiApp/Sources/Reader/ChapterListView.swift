@@ -1,4 +1,5 @@
 import AmgiReader
+import AmgiTheme
 import SwiftUI
 
 struct ChapterListView: View {
@@ -39,15 +40,17 @@ private struct ChapterRow: View {
     let chapter: ReaderChapter
     let savedProgress: ReaderSavedProgress?
 
+    @Environment(\.palette) private var palette
+
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(chapter.title).font(.body)
+            Text(chapter.title).amgiFont(.body)
             if let order = chapter.order {
-                Text("Chapter \(order)").font(.caption).foregroundStyle(.secondary)
+                Text("Chapter \(order)").amgiFont(.caption).foregroundStyle(palette.textSecondary)
             }
             if let savedProgress {
                 ProgressView(value: savedProgress.progress)
-                    .tint(.accentColor)
+                    .tint(palette.accent)
                     .padding(.top, 2)
             }
         }
