@@ -1,4 +1,5 @@
 import AmgiReader
+import AmgiTheme
 import SwiftUI
 
 struct AllBooksSection: View {
@@ -11,12 +12,14 @@ struct AllBooksSection: View {
         count: 3
     )
 
+    @Environment(\.palette) private var palette
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("ALL BOOKS")
                 .font(.caption2.weight(.semibold))
                 .tracking(1.4)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(palette.textSecondary)
                 .padding(.horizontal, 16)
 
             LazyVGrid(columns: columns, spacing: 18) {

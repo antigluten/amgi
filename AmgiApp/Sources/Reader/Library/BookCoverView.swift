@@ -1,3 +1,4 @@
+import AmgiTheme
 import AmgiUI
 import SwiftUI
 
@@ -31,6 +32,6 @@ struct BookCoverView: View {
         seed: "book-id-001"
     )
     .frame(width: 140, height: 190)
-    .clipShape(RoundedRectangle(cornerRadius: 10))
+    .clipShape(RoundedRectangle(cornerRadius: AmgiRadius.control))
     .padding()
 }

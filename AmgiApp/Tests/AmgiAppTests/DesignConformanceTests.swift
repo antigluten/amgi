@@ -18,13 +18,6 @@ struct DesignConformanceTests {
     /// 5 brief-listed files are now clean (dropped) and 20 files the brief
     /// never mentioned are genuine violations (added, grouped below).
     private static let pendingSweep: Set<String> = [
-        // Task 6 — Reader library
-        "Reader/Library/ImportBookCTA.swift",
-        "Reader/Library/ContinueReadingCard.swift",
-        "Reader/Library/ContinueReadingSection.swift",
-        "Reader/Library/AllBooksCell.swift",
-        "Reader/Library/AllBooksSection.swift",
-        "Reader/Library/BookCoverView.swift",
         // Task 7 — Sync
         "Sync/SyncSheet.swift",
         "Sync/SyncToast.swift",
@@ -99,6 +92,8 @@ struct DesignConformanceTests {
         "Reader/ReaderCoverImage.swift":
             "Radius literals with no AmgiRadius equivalent; changing them would be a layout change (R29 is no-layout).",
         "Reader/ChapterReaderView.swift":
+            "Radius literals with no AmgiRadius equivalent; changing them would be a layout change (R29 is no-layout).",
+        "Reader/Library/AllBooksCell.swift":
             "Radius literals with no AmgiRadius equivalent; changing them would be a layout change (R29 is no-layout).",
         "Theme/AmgiModifiers.swift":
             "Implements the palette.elevation-driven shadow branch itself (AmgiCard's " +
