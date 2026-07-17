@@ -353,7 +353,7 @@ private struct SyncSheetContent: View {
                         Label("Merge (combine both)", systemImage: "arrow.triangle.merge")
                             .frame(maxWidth: .infinity)
                         Text("Keeps cards from both sides; conflicts use newest")
-                            .font(.caption2)
+                            .amgiFont(.micro)
                             .foregroundStyle(.white.opacity(0.85))
                     }
                 }
@@ -366,7 +366,7 @@ private struct SyncSheetContent: View {
                         Label("Replace local with server", systemImage: "arrow.down.circle")
                             .frame(maxWidth: .infinity)
                         Text("Local-only changes will be lost")
-                            .font(.caption2)
+                            .amgiFont(.micro)
                             .foregroundStyle(palette.textSecondary)
                     }
                 }
@@ -379,7 +379,7 @@ private struct SyncSheetContent: View {
                         Label("Replace server with local", systemImage: "arrow.up.circle")
                             .frame(maxWidth: .infinity)
                         Text("Server-only changes will be lost")
-                            .font(.caption2)
+                            .amgiFont(.micro)
                             .foregroundStyle(palette.textSecondary)
                     }
                 }

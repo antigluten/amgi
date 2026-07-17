@@ -11,6 +11,7 @@ anki-bridge-rs/target/
 anki-upstream/target/
 .claude/
 .superpowers/
+/.agent-shell/
 
 # Local design scratch (mockups, screenshots, JSX prototypes)
 design/
@@ -21,4 +22,3 @@ design/
 
 # Working files
 *.pdf
-*.apkg
