@@ -14,23 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "95284AD6E89B9B84191749DE"
-               BuildableName = "AmgiApp.app"
-               BlueprintName = "AmgiApp"
-               ReferencedContainer = "container:AmgiApp.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "9B3B324834735D7AA9620491"
-               BuildableName = "AmgiWidget.appex"
-               BlueprintName = "AmgiWidget"
+               BlueprintIdentifier = "D799962EF4F5CA4D32203063"
+               BuildableName = "AmgiWatchApp.app"
+               BlueprintName = "AmgiWatchApp"
                ReferencedContainer = "container:AmgiApp.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -44,24 +30,13 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "95284AD6E89B9B84191749DE"
-            BuildableName = "AmgiApp.app"
-            BlueprintName = "AmgiApp"
+            BlueprintIdentifier = "D799962EF4F5CA4D32203063"
+            BuildableName = "AmgiWatchApp.app"
+            BlueprintName = "AmgiWatchApp"
             ReferencedContainer = "container:AmgiApp.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "EE6CF1FAA191BC2F0404B752"
-               BuildableName = "AmgiAppTests.xctest"
-               BlueprintName = "AmgiAppTests"
-               ReferencedContainer = "container:AmgiApp.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
@@ -78,9 +53,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "95284AD6E89B9B84191749DE"
-            BuildableName = "AmgiApp.app"
-            BlueprintName = "AmgiApp"
+            BlueprintIdentifier = "D799962EF4F5CA4D32203063"
+            BuildableName = "AmgiWatchApp.app"
+            BlueprintName = "AmgiWatchApp"
             ReferencedContainer = "container:AmgiApp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -95,9 +70,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "95284AD6E89B9B84191749DE"
-            BuildableName = "AmgiApp.app"
-            BlueprintName = "AmgiApp"
+            BlueprintIdentifier = "D799962EF4F5CA4D32203063"
+            BuildableName = "AmgiWatchApp.app"
+            BlueprintName = "AmgiWatchApp"
             ReferencedContainer = "container:AmgiApp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

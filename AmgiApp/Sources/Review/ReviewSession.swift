@@ -1,5 +1,7 @@
 import SwiftUI
+#if canImport(UIKit)
 import UIKit
+#endif
 import AmgiCardWeb
 import AnkiClients
 import AnkiKit
@@ -263,10 +265,12 @@ final class ReviewSession {
         isAudioPlaying = playing
     }
 
+#if canImport(UIKit)
     func updateCardChrome(color: UIColor, isDark: Bool) {
         cardChromeColor = Color(uiColor: color)
         cardChromeIsDark = isDark
     }
+#endif
 
     func bumpReplayRequest() {
         replayRequestID += 1

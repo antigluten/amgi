@@ -54,11 +54,27 @@ struct DesignConformanceTests {
             "Radius literals with no AmgiRadius equivalent; changing them would be a layout change (R29 is no-layout).",
         "Review/ReviewView.swift":
             "64pt display numeral; no AmgiFont role at this size.",
+        "Review/RenderModeChipRow.swift":
+            "Template-name chip renders code in .caption.monospaced(); AmgiFont has no monospaced role.",
         "Decks/DeckTemplateList/TemplateEditorView.swift":
             "Radius literals with no AmgiRadius equivalent; changing them would be a layout change (R29 is no-layout).",
         "Widgets/LargeWidgetView.swift":
             "Separate target (shares only AmgiTheme + AnkiKit). Renders in the system's context and cannot observe ThemeManager at render time, so palette adoption is a design decision, not a conformance sweep. Tracked separately if widget theming is wanted.",
+        "Watch/WatchApp.swift": watchExemptReason,
+        "Watch/WatchContentView.swift": watchExemptReason,
+        "Watch/WatchDeckDetailView.swift": watchExemptReason,
+        "Watch/WatchDeckListView.swift": watchExemptReason,
+        "Watch/WatchLoginView.swift": watchExemptReason,
+        "Watch/WatchReviewView.swift": watchExemptReason,
+        "Watch/WatchStatsView.swift": watchExemptReason,
+        "Watch/WatchThemeCompatibility.swift": watchExemptReason,
     ]
+
+    /// watchOS target (PR #14): the palette/ThemeManager pipeline is iOS-scoped;
+    /// the watch app ships its own compact HIG styling via WatchThemeCompatibility.
+    /// Palette adoption on watchOS is a design decision, not a conformance sweep.
+    private static let watchExemptReason =
+        "watchOS target — palette/ThemeManager is iOS-scoped; watch uses WatchThemeCompatibility."
 
     private static let bannedPatterns: [(name: String, regex: String)] = [
         ("Color.accentColor", #"Color\.accentColor|\.accentColor\b"#),

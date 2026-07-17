@@ -34,7 +34,9 @@ let sharedSwiftSettings: [SwiftSetting] = [
 
 let package = Package(
     name: "AmgiUI",
-    platforms: [.iOS(.v18), .macOS(.v15)],
+    // watchOS 11 added for the AmgiWatchApp target (PR #14); matches the
+    // root package's watchOS floor.
+    platforms: [.iOS(.v18), .macOS(.v15), .watchOS(.v11)],
     products: [
         .library(name: "AmgiTheme", targets: ["AmgiTheme"]),
         .library(name: "AmgiUI", targets: ["AmgiUI"]),
