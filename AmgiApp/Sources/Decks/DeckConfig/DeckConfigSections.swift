@@ -1,4 +1,5 @@
 import SwiftUI
+import AmgiTheme
 import AnkiKit
 
 // Section structs for the deck-options Form. Each is dedicated so SwiftUI can
@@ -20,6 +21,8 @@ struct PresetSection: View {
     let onRename: () -> Void
     let onDelete: () -> Void
 
+    @Environment(\.palette) private var palette
+
     var body: some View {
         Section("Preset") {
             LabeledContent("Preset") {
@@ -39,10 +42,10 @@ struct PresetSection: View {
                     }
                 } label: {
                     HStack {
-                        Text(selectedPresetName).foregroundStyle(.primary)
+                        Text(selectedPresetName).foregroundStyle(palette.textPrimary)
                         Image(systemName: "chevron.up.chevron.down")
                             .font(.caption2)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(palette.textSecondary)
                     }
                 }
                 .disabled(isPresetMutating || presetOptions.isEmpty)
@@ -50,7 +53,7 @@ struct PresetSection: View {
 
             LabeledContent("Used by") {
                 Text("\(presetUseCount) deck\(presetUseCount == 1 ? "" : "s")")
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(palette.textSecondary)
             }
 
             Menu {
@@ -324,7 +327,7 @@ struct FsrsSection: View {
 
             if fsrsEnabled {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Weights").font(.subheadline)
+                    Text("Weights").amgiFont(.body)
                     TextField(
                         "Space- or comma-separated parameters",
                         text: $fsrsWeightsText,
@@ -370,6 +373,8 @@ struct EasyDaysSection: View {
     let fsrsEnabled: Bool
     @Binding var easyDayPercentages: [Double]
 
+    @Environment(\.palette) private var palette
+
     var body: some View {
         // FSRS interprets these as per-weekday workload multipliers; only
         // shown when FSRS is enabled, matching Anki desktop's gating.
@@ -386,7 +391,7 @@ struct EasyDaysSection: View {
                 }
             } else {
                 Text("Enable FSRS to configure Easy Days.")
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(palette.textSecondary)
             }
         } header: {
             Text("Easy Days")
@@ -416,6 +421,8 @@ struct LabeledSlider: View {
     let step: Double
     let valueText: String
 
+    @Environment(\.palette) private var palette
+
     init(label: String, value: Binding<Double>, in range: ClosedRange<Double>, step: Double, valueText: String) {
         self.label = label
         self._value = value
@@ -429,7 +436,7 @@ struct LabeledSlider: View {
             HStack {
                 Text(label)
                 Spacer()
-                Text(valueText).foregroundStyle(.secondary)
+                Text(valueText).foregroundStyle(palette.textSecondary)
             }
             Slider(value: $value, in: range, step: step)
         }
