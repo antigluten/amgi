@@ -1,4 +1,5 @@
 import SwiftUI
+import AmgiTheme
 import AnkiKit
 import AnkiClients
 import AnkiSync
@@ -131,6 +132,8 @@ private extension SyncSheet {
 /// loading. Every dynamic value arrives as a `let`; every action is a
 /// closure the Container fulfils.
 private struct SyncSheetContent: View {
+    @Environment(\.palette) private var palette
+
     let state: SyncSheetState
     let endpoint: String?
     let username: String?
@@ -203,17 +206,17 @@ private struct SyncSheetContent: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Server")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .amgiFont(.caption)
+                            .foregroundStyle(palette.textSecondary)
                         Text(endpoint)
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
+                            .amgiFont(.caption)
+                            .foregroundStyle(palette.textSecondary)
                             .lineLimit(1)
                             .truncationMode(.middle)
                         if let username {
                             Text(username)
-                                .font(.caption2)
-                                .foregroundStyle(.tertiary)
+                                .amgiFont(.caption)
+                                .foregroundStyle(palette.textTertiary)
                         }
                     }
                     Spacer()
@@ -222,18 +225,18 @@ private struct SyncSheetContent: View {
                         Button("Logout", role: .destructive) { onLogout() }
                     } label: {
                         Image(systemName: "ellipsis.circle")
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(palette.textSecondary)
                     }
                 }
                 .padding(.horizontal)
             } else if syncMode == .local {
                 HStack {
                     Label("Syncing is disabled", systemImage: "iphone")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .amgiFont(.caption)
+                        .foregroundStyle(palette.textSecondary)
                     Spacer()
                     Button("Set Up Server") { onSetUpServer() }
-                        .font(.caption)
+                        .amgiFont(.caption)
                 }
                 .padding(.horizontal)
             }
@@ -245,12 +248,12 @@ private struct SyncSheetContent: View {
         VStack(spacing: 12) {
             Image(systemName: "server.rack")
                 .font(.system(size: 48))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(palette.textSecondary)
             Text("No Server Configured")
-                .font(.title3.weight(.semibold))
+                .amgiFont(.sectionHeading)
             Text("Set up a sync server to keep your collection in sync across devices.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                .amgiFont(.caption)
+                .foregroundStyle(palette.textSecondary)
                 .multilineTextAlignment(.center)
             Button("Set Up Server") { onSetUpServer() }
                 .buttonStyle(.borderedProminent)
@@ -267,9 +270,9 @@ private struct SyncSheetContent: View {
                             HStack(alignment: .top, spacing: 8) {
                                 Text(entry.timestamp, format: .dateTime.hour().minute().second())
                                     .font(.caption2.monospaced())
-                                    .foregroundStyle(.secondary)
+                                    .foregroundStyle(palette.textSecondary)
                                 Text(entry.message)
-                                    .font(.caption)
+                                    .amgiFont(.caption)
                                     .foregroundStyle(color(for: entry.level))
                             }
                             .id(entry.id)
@@ -279,7 +282,7 @@ private struct SyncSheetContent: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .frame(maxHeight: 160)
-                .background(Color.secondary.opacity(0.08))
+                .background(palette.surface)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .onChange(of: logEntries.count) { _, _ in
                     if let last = logEntries.last {
@@ -295,13 +298,13 @@ private struct SyncSheetContent: View {
         VStack(alignment: .leading, spacing: 6) {
             Text(lastSyncedLabel)
                 .font(.footnote)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(palette.textSecondary)
 
             if let footerError {
                 HStack {
                     Text(footerError)
                         .font(.footnote)
-                        .foregroundStyle(.red)
+                        .foregroundStyle(palette.danger)
                     Spacer()
                     Button("Retry") { onRetryFooter() }
                         .font(.footnote.weight(.semibold))
@@ -314,12 +317,12 @@ private struct SyncSheetContent: View {
         VStack(spacing: 16) {
             Image(systemName: "arrow.triangle.2.circlepath")
                 .font(.system(size: 48))
-                .foregroundStyle(.orange)
+                .foregroundStyle(palette.warning)
             Text("Full Sync Required")
-                .font(.title3.weight(.semibold))
+                .amgiFont(.sectionHeading)
             Text("Your collection has changed in a way that requires replacing one copy entirely.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                .amgiFont(.caption)
+                .foregroundStyle(palette.textSecondary)
                 .multilineTextAlignment(.center)
 
             VStack(spacing: 8) {
@@ -347,9 +350,9 @@ private struct SyncSheetContent: View {
         VStack(spacing: 12) {
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 48))
-                .foregroundStyle(.green)
+                .foregroundStyle(palette.positive)
             Text("Sync Complete")
-                .font(.title3.weight(.semibold))
+                .amgiFont(.sectionHeading)
             VStack(alignment: .leading, spacing: 4) {
                 if summary.cardsPulled > 0 { Text("\u{2193} \(summary.cardsPulled) cards received") }
                 if summary.cardsPushed > 0 { Text("\u{2191} \(summary.cardsPushed) cards sent") }
@@ -359,8 +362,8 @@ private struct SyncSheetContent: View {
                     Text("Everything up to date")
                 }
             }
-            .font(.caption)
-            .foregroundStyle(.secondary)
+            .amgiFont(.caption)
+            .foregroundStyle(palette.textSecondary)
         }
     }
 
@@ -369,12 +372,12 @@ private struct SyncSheetContent: View {
         VStack(spacing: 12) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.system(size: 48))
-                .foregroundStyle(.orange)
+                .foregroundStyle(palette.warning)
             Text("Sync Failed")
-                .font(.title3.weight(.semibold))
+                .amgiFont(.sectionHeading)
             Text(message)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                .amgiFont(.caption)
+                .foregroundStyle(palette.textSecondary)
                 .multilineTextAlignment(.center)
             Button("Retry") { onStartSync() }
                 .buttonStyle(.borderedProminent)
@@ -383,9 +386,9 @@ private struct SyncSheetContent: View {
 
     private func color(for level: SyncLogEntry.Level) -> Color {
         switch level {
-        case .info: return .primary
-        case .warning: return .orange
-        case .error: return .red
+        case .info: return palette.textPrimary
+        case .warning: return palette.warning
+        case .error: return palette.danger
         }
     }
 }
