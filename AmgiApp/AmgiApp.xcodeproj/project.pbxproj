@@ -175,6 +175,15 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		0755321AD324D516549A526B /* Sources/Reader */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = Sources/Reader;
+			sourceTree = "<group>";
+		};
 		169934E0D4D20865BDD342DA /* Sources/Decks */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			explicitFileTypes = {
@@ -458,6 +467,7 @@
 				852CFC1C0D03FE7967E700AA /* Sources */,
 				B80F105F226F114CA84ABC7D /* Sources/Browse */,
 				169934E0D4D20865BDD342DA /* Sources/Decks */,
+				0755321AD324D516549A526B /* Sources/Reader */,
 				F5B2DE6E1923311DA3D66601 /* Sources/Review */,
 				CDEDAA97FC57CD3D496264A1 /* Sources/Settings */,
 				3EA0CB2F1D9F1FE7F8EDD0DC /* Sources/Shared */,
@@ -494,6 +504,7 @@
 			fileSystemSynchronizedGroups = (
 				B80F105F226F114CA84ABC7D /* Sources/Browse */,
 				169934E0D4D20865BDD342DA /* Sources/Decks */,
+				0755321AD324D516549A526B /* Sources/Reader */,
 				F5B2DE6E1923311DA3D66601 /* Sources/Review */,
 				CDEDAA97FC57CD3D496264A1 /* Sources/Settings */,
 				3EA0CB2F1D9F1FE7F8EDD0DC /* Sources/Shared */,

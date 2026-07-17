@@ -47,6 +47,7 @@ targets:
     sources:
       - path: Sources/Browse
       - path: Sources/Decks
+      - path: Sources/Reader
       - path: Sources/Review
       - path: Sources/Settings
       - path: Sources/Shared
