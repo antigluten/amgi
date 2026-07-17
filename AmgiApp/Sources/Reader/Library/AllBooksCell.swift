@@ -1,9 +1,12 @@
+import AmgiTheme
 import SwiftUI
 
 struct AllBooksCell: View {
     let item: BookCellItem
 
     private static let coverAspect: CGFloat = 100.0 / 136.0
+
+    @Environment(\.palette) private var palette
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -17,14 +20,14 @@ struct AllBooksCell: View {
             .clipShape(RoundedRectangle(cornerRadius: 8))
 
             Text(item.title)
-                .font(.subheadline.weight(.semibold))
+                .amgiFont(.bodyEmphasis)
                 .lineLimit(2)
-                .foregroundStyle(.primary)
+                .foregroundStyle(palette.textPrimary)
 
             if let author = item.author {
                 Text(author)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .amgiFont(.caption)
+                    .foregroundStyle(palette.textSecondary)
                     .lineLimit(1)
             }
         }

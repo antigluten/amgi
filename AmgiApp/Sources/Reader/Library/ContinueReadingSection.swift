@@ -1,10 +1,13 @@
 import AmgiReader
+import AmgiTheme
 import SwiftUI
 
 struct ContinueReadingSection: View {
     let items: [ContinueReadingItem]
     let bookForId: (String) -> ReaderBook?
     let progress: ReaderProgressCoordinator
+
+    @Environment(\.palette) private var palette
 
     var body: some View {
         if items.isEmpty {
@@ -37,7 +40,7 @@ struct ContinueReadingSection: View {
         Text("CONTINUE READING")
             .font(.caption2.weight(.semibold))
             .tracking(1.4)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(palette.textSecondary)
             .padding(.horizontal, 16)
     }
 }

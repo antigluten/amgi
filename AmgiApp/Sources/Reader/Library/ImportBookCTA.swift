@@ -1,17 +1,20 @@
+import AmgiTheme
 import SwiftUI
 
 struct ImportBookCTA: View {
     let action: () -> Void
 
+    @Environment(\.palette) private var palette
+
     var body: some View {
         Button(action: action) {
             Label("Import EPUB", systemImage: "plus")
-                .font(.system(size: 16, weight: .semibold))
+                .amgiFont(.body)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 14)
         }
         .buttonStyle(.plain)
-        .background(Color.accentColor.opacity(0.15), in: RoundedRectangle(cornerRadius: 14))
+        .background(palette.accent.opacity(0.15), in: RoundedRectangle(cornerRadius: AmgiRadius.hero))
         .foregroundStyle(.tint)
         .padding(.horizontal, 16)
     }
