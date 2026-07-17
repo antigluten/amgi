@@ -82,44 +82,44 @@ struct PeriodStatsCard: View {
 
             if period == .day {
                 HStack {
-                    statItem(title: "Reviewed", value: "\(today.answerCount)", color: .primary)
+                    statItem(title: "Reviewed", value: "\(today.answerCount)", color: palette.textPrimary)
                     Spacer()
-                    statItem(title: "Time", value: formatMillis(UInt64(today.answerMillis)), color: .primary)
+                    statItem(title: "Time", value: formatMillis(UInt64(today.answerMillis)), color: palette.textPrimary)
                     Spacer()
-                    statItem(title: "Correct", value: todayAccuracy, color: .green)
+                    statItem(title: "Correct", value: todayAccuracy, color: palette.positive)
                     Spacer()
-                    statItem(title: "Mature%", value: todayMatureAccuracy, color: .purple)
+                    statItem(title: "Mature%", value: todayMatureAccuracy, color: palette.cardStateMature)
                 }
                 Divider()
                 HStack {
-                    statBadge("New", count: today.learnCount, color: .cyan)
+                    statBadge("New", count: today.learnCount, color: palette.cardStateNew)
                     Spacer()
-                    statBadge("Relearn", count: today.relearnCount, color: .orange)
+                    statBadge("Relearn", count: today.relearnCount, color: palette.cardStateRelearn)
                     Spacer()
-                    statBadge("Review", count: today.reviewCount, color: .green)
+                    statBadge("Review", count: today.reviewCount, color: palette.cardStateLearning)
                     Spacer()
-                    statBadge("Again", count: today.answerCount - today.correctCount, color: .red)
+                    statBadge("Again", count: today.answerCount - today.correctCount, color: palette.danger)
                 }
             } else {
                 let agg = aggregated
                 HStack {
-                    statItem(title: "Reviewed", value: "\(agg.total)", color: .primary)
+                    statItem(title: "Reviewed", value: "\(agg.total)", color: palette.textPrimary)
                     Spacer()
-                    statItem(title: "Time", value: formatMillis(agg.timeMillis), color: .primary)
+                    statItem(title: "Time", value: formatMillis(agg.timeMillis), color: palette.textPrimary)
                     Spacer()
-                    statItem(title: "Young", value: "\(agg.young)", color: .green)
+                    statItem(title: "Young", value: "\(agg.young)", color: palette.cardStateLearning)
                     Spacer()
-                    statItem(title: "Mature", value: "\(agg.mature)", color: .purple)
+                    statItem(title: "Mature", value: "\(agg.mature)", color: palette.cardStateMature)
                 }
                 Divider()
                 HStack {
-                    statBadge("New", count: agg.learn, color: .cyan)
+                    statBadge("New", count: agg.learn, color: palette.cardStateNew)
                     Spacer()
-                    statBadge("Relearn", count: agg.relearn, color: .orange)
+                    statBadge("Relearn", count: agg.relearn, color: palette.cardStateRelearn)
                     Spacer()
-                    statBadge("Young", count: agg.young, color: .green)
+                    statBadge("Young", count: agg.young, color: palette.cardStateLearning)
                     Spacer()
-                    statBadge("Mature", count: agg.mature, color: .purple)
+                    statBadge("Mature", count: agg.mature, color: palette.cardStateMature)
                 }
             }
         }

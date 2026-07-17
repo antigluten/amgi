@@ -98,6 +98,13 @@ struct DesignConformanceTests {
         // of shortened. `Color.accentColor` is intentionally excluded — already
         // reported by the "Color.accentColor" pattern above; don't double-count it.
         ("hardcoded role color (Color.<role> form)", #"\bColor\.(red|green|orange|blue|purple|cyan|yellow|gray|grey|secondary|primary|white|black)\b"#),
+        // Catches a system hue passed as a labeled argument — `statBadge(..., color: .green)` —
+        // which the modifier-chain and `Color.<role>` patterns above both miss because there's
+        // no `.foregroundStyle(...)`/`Color.` spelling at all, just a bare `.role` literal handed
+        // to a `color:`/`tint:`/`fill:` parameter. Scoped to those three labels (not e.g.
+        // `background:`) and to the same known system-hue name list used above, so it can't
+        // false-positive on an unrelated non-Color argument that happens to end in "color:".
+        ("hardcoded role color (argument-label form)", #"\b(color|tint|fill):\s*\.(red|green|orange|blue|purple|cyan|yellow|gray|grey|pink|mint|teal|indigo|brown|primary|secondary)\b"#),
         ("raw corner radius", #"cornerRadius:\s*\d"#),
         ("shadow", #"\.shadow\("#),
     ]
