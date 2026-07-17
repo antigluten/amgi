@@ -89,7 +89,7 @@ private struct ThemeCard: View {
             .padding(AmgiSpacing.md)
             .frame(maxWidth: .infinity)
             .background(
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: AmgiRadius.inset)
                     .stroke(isSelected ? preview.accent : preview.border, lineWidth: isSelected ? 2 : 1)
             )
         }
@@ -125,7 +125,7 @@ private struct PreviewCard: View {
                 .buttonStyle(AmgiPrimaryButtonStyle())
         }
         .padding(AmgiSpacing.lg)
-        .background(palette.surface, in: RoundedRectangle(cornerRadius: 12))
+        .background(palette.surface, in: RoundedRectangle(cornerRadius: AmgiRadius.inset))
     }
 }
 

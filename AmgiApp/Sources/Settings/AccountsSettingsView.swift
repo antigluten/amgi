@@ -1,4 +1,5 @@
 import SwiftUI
+import AmgiTheme
 
 /// Profile picker / manager. Each row is one `AmgiAccount`; the active
 /// row shows a checkmark, others can be tapped to schedule a switch on
@@ -11,6 +12,8 @@ struct AccountsSettingsView: View {
     @State private var addError: String?
     @State private var pendingDelete: AmgiAccount?
     @State private var deleteError: String?
+
+    @Environment(\.palette) private var palette
 
     var body: some View {
         Form {
@@ -59,12 +62,12 @@ struct AccountsSettingsView: View {
             Section {
                 VStack(alignment: .leading, spacing: 6) {
                     Label("Restart to switch to \(target.displayName)", systemImage: "arrow.triangle.2.circlepath")
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(palette.warning)
                     Text("Force-quit and relaunch the app to apply.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .amgiFont(.caption)
+                        .foregroundStyle(palette.textSecondary)
                     Button("Cancel switch") { store.clearPending() }
-                        .font(.caption)
+                        .amgiFont(.caption)
                 }
             }
         }
@@ -101,7 +104,7 @@ struct AccountsSettingsView: View {
                         .autocorrectionDisabled()
                 }
                 if let addError {
-                    Text(addError).foregroundStyle(.red).font(.caption)
+                    Text(addError).foregroundStyle(palette.danger).amgiFont(.caption)
                 }
             }
             .navigationTitle("New profile")
@@ -132,16 +135,16 @@ private extension AccountsSettingsView {
         } label: {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(account.displayName).foregroundStyle(.primary)
+                    Text(account.displayName).foregroundStyle(palette.textPrimary)
                     Text("Created \(account.createdAt.formatted(date: .abbreviated, time: .omitted))")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
+                        .amgiFont(.caption)
+                        .foregroundStyle(palette.textSecondary)
                 }
                 Spacer()
                 if account.id == store.selectedID {
-                    Image(systemName: "checkmark").foregroundStyle(Color.accentColor)
+                    Image(systemName: "checkmark").foregroundStyle(palette.accent)
                 } else if account.id == store.pendingSwitchID {
-                    Image(systemName: "arrow.triangle.2.circlepath").foregroundStyle(.orange)
+                    Image(systemName: "arrow.triangle.2.circlepath").foregroundStyle(palette.warning)
                 }
             }
         }

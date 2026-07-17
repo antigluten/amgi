@@ -18,17 +18,6 @@ struct DesignConformanceTests {
     /// 5 brief-listed files are now clean (dropped) and 20 files the brief
     /// never mentioned are genuine violations (added, grouped below).
     private static let pendingSweep: Set<String> = [
-        // Task 10 — Settings + Review
-        // (SyncSettingsView/AboutView/MaintenanceView: not in the original
-        //  brief seed — found by the scanner)
-        "Settings/AppearanceSettingsView.swift",
-        "Settings/CodeEditorSettingsView.swift",
-        "Settings/AccountsSettingsView.swift",
-        "Settings/ReaderSettingsView.swift",
-        "Settings/SyncSettingsView.swift",
-        "Settings/AboutView.swift",
-        "Settings/MaintenanceView.swift",
-        "Review/ReviewView.swift",
         // Not covered by any Task 5–10 group in the brief — flagged for the
         // sweep owner to fold into an existing task or open a new one.
         "DebugView.swift",
@@ -79,6 +68,12 @@ struct DesignConformanceTests {
         "Browse/ImageOcclusionWorkspaceView.swift":
             "ImageOcclusion UIKit canvas: mask/handle fills are drawing state, not app chrome. " +
             "Chrome radii were fixed; canvas fills are the exempt part.",
+        "Settings/AppearanceSettingsView.swift":
+            "Radius literals with no AmgiRadius equivalent; changing them would be a layout change (R29 is no-layout).",
+        "Settings/CodeEditorSettingsView.swift":
+            "Radius literals with no AmgiRadius equivalent; changing them would be a layout change (R29 is no-layout).",
+        "Review/ReviewView.swift":
+            "64pt display numeral; no AmgiFont role at this size.",
     ]
 
     private static let bannedPatterns: [(name: String, regex: String)] = [

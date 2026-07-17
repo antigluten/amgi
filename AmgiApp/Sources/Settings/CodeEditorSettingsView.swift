@@ -64,7 +64,7 @@ struct CodeEditorSettingsView: View {
     private var previewRow: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text("Preview")
-                .font(.caption)
+                .amgiFont(.caption)
                 .foregroundStyle(palette.textSecondary)
             Text("{{Front}}")
                 .font(.system(size: fontSize, design: .monospaced))
