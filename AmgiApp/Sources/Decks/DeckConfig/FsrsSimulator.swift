@@ -1,4 +1,5 @@
 import SwiftUI
+import AmgiTheme
 import AnkiKit
 
 // MARK: - Context
@@ -158,6 +159,8 @@ struct FsrsSimulatorResultsSections: View {
     let workloadRows: [(label: String, value: String)]
     let errorMessage: String?
 
+    @Environment(\.palette) private var palette
+
     var body: some View {
         if !summary.isEmpty {
             Section("Summary") {
@@ -175,7 +178,7 @@ struct FsrsSimulatorResultsSections: View {
         }
         if let errorMessage {
             Section {
-                Text(errorMessage).foregroundStyle(.red)
+                Text(errorMessage).foregroundStyle(palette.danger)
             }
         }
     }

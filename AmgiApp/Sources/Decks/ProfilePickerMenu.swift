@@ -1,4 +1,5 @@
 import SwiftUI
+import AmgiTheme
 
 /// Compact toolbar menu that exposes profile switching from the Decks
 /// tab without forcing the user into Settings. Active profile shows a
@@ -11,6 +12,7 @@ import SwiftUI
 /// menu is a fast picker, not a full manager.
 struct ProfilePickerMenu: View {
     @State private var store = AccountStore.shared
+    @Environment(\.palette) private var palette
 
     var body: some View {
         Menu {
@@ -41,7 +43,7 @@ struct ProfilePickerMenu: View {
                 Image(systemName: store.pendingSwitchID == nil
                       ? "person.crop.circle"
                       : "person.crop.circle.badge.exclamationmark")
-                    .foregroundStyle(store.pendingSwitchID == nil ? Color.accentColor : .orange)
+                    .foregroundStyle(store.pendingSwitchID == nil ? palette.accent : palette.warning)
                 Text(store.current.displayName)
                     .font(.subheadline.weight(.medium))
                     .lineLimit(1)

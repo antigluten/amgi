@@ -17,19 +17,7 @@ struct DesignConformanceTests {
     /// which predates those tasks. See task-4-report.md for the full diff:
     /// 5 brief-listed files are now clean (dropped) and 20 files the brief
     /// never mentioned are genuine violations (added, grouped below).
-    private static let pendingSweep: Set<String> = [
-        // Not covered by any Task 5–10 group in the brief — flagged for the
-        // sweep owner to fold into an existing task or open a new one.
-        "DebugView.swift",
-        "Decks/ProfilePickerMenu.swift",
-        "Decks/DeckConfig/DeckConfigSections.swift",
-        "Decks/DeckConfig/DeckConfigView.swift",
-        "Decks/DeckConfig/FsrsSimulator.swift",
-        "Decks/DeckTemplateList/NotetypeFieldManagerView.swift",
-        "Decks/DeckTemplateList/TemplateEditorView.swift",
-        "Shared/DeckCountsView.swift",
-        "Widgets/LargeWidgetView.swift",
-    ]
+    private static let pendingSweep: Set<String> = []
 
     /// Deliberately off-system, with the reason. These never drain.
     private static let permanentlyExempt: [String: String] = [
@@ -74,6 +62,10 @@ struct DesignConformanceTests {
             "Radius literals with no AmgiRadius equivalent; changing them would be a layout change (R29 is no-layout).",
         "Review/ReviewView.swift":
             "64pt display numeral; no AmgiFont role at this size.",
+        "Decks/DeckTemplateList/TemplateEditorView.swift":
+            "Radius literals with no AmgiRadius equivalent; changing them would be a layout change (R29 is no-layout).",
+        "Widgets/LargeWidgetView.swift":
+            "Separate target (shares only AmgiTheme + AnkiKit). Renders in the system's context and cannot observe ThemeManager at render time, so palette adoption is a design decision, not a conformance sweep. Tracked separately if widget theming is wanted.",
     ]
 
     private static let bannedPatterns: [(name: String, regex: String)] = [

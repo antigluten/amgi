@@ -1,24 +1,27 @@
 import SwiftUI
+import AmgiTheme
 import AnkiKit
 
 struct DeckCountsView: View {
     let counts: DeckCounts
 
+    @Environment(\.palette) private var palette
+
     var body: some View {
         HStack(spacing: 8) {
             if counts.newCount > 0 {
-                countBadge(counts.newCount, color: .blue)
+                countBadge(counts.newCount, color: palette.cardStateNew)
             }
             if counts.learnCount > 0 {
-                countBadge(counts.learnCount, color: .orange)
+                countBadge(counts.learnCount, color: palette.cardStateLearning)
             }
             if counts.reviewCount > 0 {
-                countBadge(counts.reviewCount, color: .green)
+                countBadge(counts.reviewCount, color: palette.cardStateReview)
             }
             if counts.total == 0 {
                 Text("\u{2713}")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .amgiFont(.caption)
+                    .foregroundStyle(palette.textSecondary)
             }
         }
         // Counts are colour-coded (blue/orange/green); collapse into one
