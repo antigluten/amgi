@@ -47,14 +47,14 @@ struct HourlyChart: View {
                 Text("Hourly Breakdown").amgiFont(.bodyEmphasis)
 
                 if entries.allSatisfy({ $0.total == 0 }) {
-                    Text("No review data").foregroundStyle(.secondary).frame(height: 180)
+                    Text("No review data").foregroundStyle(palette.textSecondary).frame(height: 180)
                 } else {
                     Chart(entries) { entry in
                         BarMark(
                             x: .value("Hour", entry.hour),
                             y: .value("Reviews", entry.total)
                         )
-                        .foregroundStyle(.purple.gradient)
+                        .foregroundStyle(palette.accent.gradient)
                     }
                     .chartXAxis {
                         AxisMarks(values: [0, 4, 8, 12, 16, 20]) { value in
@@ -72,14 +72,14 @@ struct HourlyChart: View {
                             x: .value("Hour", entry.hour),
                             y: .value("Correct %", entry.correctPct)
                         )
-                        .foregroundStyle(.green)
+                        .foregroundStyle(palette.positive)
                         .interpolationMethod(.catmullRom)
 
                         AreaMark(
                             x: .value("Hour", entry.hour),
                             y: .value("Correct %", entry.correctPct)
                         )
-                        .foregroundStyle(.green.opacity(0.1))
+                        .foregroundStyle(palette.positive.opacity(0.1))
                         .interpolationMethod(.catmullRom)
                     }
                     .chartXAxis {

@@ -32,19 +32,19 @@ struct EaseChart: View {
                     Text("Card Ease").amgiFont(.bodyEmphasis)
                     Spacer()
                     Text("Avg: \(averageEase)")
-                        .font(.caption.weight(.medium))
-                        .foregroundStyle(.secondary)
+                        .amgiFont(.captionBold)
+                        .foregroundStyle(palette.textSecondary)
                 }
 
                 if chartData.isEmpty {
-                    Text("No ease data").foregroundStyle(.secondary).frame(height: 180)
+                    Text("No ease data").foregroundStyle(palette.textSecondary).frame(height: 180)
                 } else {
                     Chart(chartData, id: \.ease) { item in
                         BarMark(
                             x: .value("Ease", item.ease),
                             y: .value("Cards", item.count)
                         )
-                        .foregroundStyle(.indigo.gradient)
+                        .foregroundStyle(palette.accent.gradient)
                     }
                     .chartXAxis {
                         AxisMarks(values: .automatic(desiredCount: 5)) { value in

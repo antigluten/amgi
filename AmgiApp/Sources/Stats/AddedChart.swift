@@ -39,14 +39,14 @@ struct AddedChart: View {
                 Text("Cards Added").amgiFont(.bodyEmphasis)
 
                 if filteredData.isEmpty {
-                    Text("No cards added").foregroundStyle(.secondary).frame(height: 180)
+                    Text("No cards added").foregroundStyle(palette.textSecondary).frame(height: 180)
                 } else {
                     Chart(filteredData, id: \.day) { item in
                         BarMark(
                             x: .value("Day", item.day),
                             y: .value("Cards", item.count)
                         )
-                        .foregroundStyle(.cyan.gradient)
+                        .foregroundStyle(palette.accent.gradient)
                     }
                     .chartXAxis {
                         AxisMarks(values: .automatic(desiredCount: 5)) { _ in
@@ -61,7 +61,6 @@ struct AddedChart: View {
                     footerItem("Total", value: "\(totalAdded)")
                     footerItem("Avg/day", value: String(format: "%.1f", avgPerDay))
                 }
-                .font(.caption2)
             }
         }
     }
@@ -70,8 +69,8 @@ struct AddedChart: View {
 private extension AddedChart {
     func footerItem(_ label: String, value: String) -> some View {
         VStack(spacing: 2) {
-            Text(value).font(.caption.weight(.semibold).monospacedDigit())
-            Text(label).foregroundStyle(.secondary)
+            Text(value).amgiFont(.captionBold).monospacedDigit()
+            Text(label).amgiFont(.caption).foregroundStyle(palette.textSecondary)
         }
         .frame(maxWidth: .infinity)
     }

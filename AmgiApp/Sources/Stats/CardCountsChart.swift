@@ -12,13 +12,13 @@ struct CardCountsChart: View {
     private var chartData: [(name: String, count: Int, color: Color)] {
         let c = cardCounts.excludingInactive
         return [
-            ("New", Int(c.newCards), .cyan),
-            ("Learning", Int(c.learn), .blue),
-            ("Relearning", Int(c.relearn), .orange),
-            ("Young", Int(c.young), .green),
-            ("Mature", Int(c.mature), .purple),
-            ("Suspended", Int(c.suspended), .gray),
-            ("Buried", Int(c.buried), .brown),
+            ("New", Int(c.newCards), palette.cardStateNew),
+            ("Learning", Int(c.learn), palette.cardStateLearning),
+            ("Relearning", Int(c.relearn), palette.cardStateRelearn),
+            ("Young", Int(c.young), palette.cardStateReview),
+            ("Mature", Int(c.mature), palette.cardStateMature),
+            ("Suspended", Int(c.suspended), palette.cardStateSuspended),
+            ("Buried", Int(c.buried), palette.textTertiary),
         ].filter { $0.count > 0 }
     }
 
@@ -35,11 +35,11 @@ struct CardCountsChart: View {
                 HStack {
                     Text("Card Counts").amgiFont(.bodyEmphasis)
                     Spacer()
-                    Text("\(total) total").font(.caption).foregroundStyle(.secondary)
+                    Text("\(total) total").amgiFont(.caption).foregroundStyle(palette.textSecondary)
                 }
 
                 if chartData.isEmpty {
-                    Text("No cards").foregroundStyle(.secondary).frame(height: 180)
+                    Text("No cards").foregroundStyle(palette.textSecondary).frame(height: 180)
                 } else {
                     Chart(chartData, id: \.name) { item in
                         SectorMark(
@@ -55,9 +55,9 @@ struct CardCountsChart: View {
                         ForEach(chartData, id: \.name) { item in
                             HStack(spacing: 4) {
                                 Circle().fill(item.color).frame(width: 8, height: 8)
-                                Text(item.name).font(.caption)
+                                Text(item.name).amgiFont(.caption)
                                 Spacer()
-                                Text("\(item.count)").font(.caption.monospacedDigit().weight(.medium))
+                                Text("\(item.count)").amgiFont(.captionBold).monospacedDigit()
                             }
                         }
                     }

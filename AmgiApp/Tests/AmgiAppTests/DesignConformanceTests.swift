@@ -18,22 +18,6 @@ struct DesignConformanceTests {
     /// 5 brief-listed files are now clean (dropped) and 20 files the brief
     /// never mentioned are genuine violations (added, grouped below).
     private static let pendingSweep: Set<String> = [
-        // Task 8 — Stats remainder
-        // (ButtonsChart/HourlyChart/IntervalsChart/EaseChart/FutureDueChart:
-        //  not in the original brief seed — found by the scanner. Original
-        //  seed also listed TodayStatsCard.swift, now clean — dropped.)
-        "Stats/HeatmapChartOptimized.swift",
-        "Stats/StatsChartTooltip.swift",
-        "Stats/StatsDashboardView.swift",
-        "Stats/ReviewsChart.swift",
-        "Stats/RetentionChart.swift",
-        "Stats/CardCountsChart.swift",
-        "Stats/AddedChart.swift",
-        "Stats/ButtonsChart.swift",
-        "Stats/HourlyChart.swift",
-        "Stats/IntervalsChart.swift",
-        "Stats/EaseChart.swift",
-        "Stats/FutureDueChart.swift",
         // Task 9 — Browse
         // (BatchTagSheet.swift: not in the original brief seed. Original
         //  seed also listed RichNoteFieldEditor.swift, now clean — dropped.)
@@ -96,6 +80,10 @@ struct DesignConformanceTests {
             "Implements the palette.elevation-driven shadow branch itself (AmgiCard's " +
             "ring-vs-shadow switch) — the mechanism other views delegate to, not a " +
             "screen that should delegate to it. Not in the original brief seed.",
+        "Stats/HeatmapChartOptimized.swift":
+            "Radius literals with no AmgiRadius equivalent; changing them would be a layout change " +
+            "(R29 is no-layout). The heatmap cell's cornerRadius: 2 (grid squares + legend swatches) " +
+            "is not a card and must stay 2, not round to AmgiRadius.control (10).",
     ]
 
     private static let bannedPatterns: [(name: String, regex: String)] = [

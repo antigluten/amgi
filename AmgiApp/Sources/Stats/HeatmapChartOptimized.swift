@@ -163,7 +163,7 @@ private extension HeatmapChartOptimized {
                 if currentStreak > 0 {
                     Label("\(currentStreak)-day streak", systemImage: "flame.fill")
                         .amgiFont(.captionBold)
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(palette.warning)
                 }
             }
 
@@ -276,7 +276,8 @@ private extension HeatmapChartOptimized {
     func summaryItem(value: String, label: String) -> some View {
         VStack(spacing: 2) {
             Text(value)
-                .font(.subheadline.weight(.semibold).monospacedDigit())
+                .amgiFont(.bodyEmphasis)
+                .monospacedDigit()
             Text(label)
                 .amgiFont(.micro)
                 .foregroundStyle(palette.textSecondary)
