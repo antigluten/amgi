@@ -22,7 +22,7 @@ struct AnkiMobileAttributionView: View {
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(palette.surface.opacity(0.5))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(RoundedRectangle(cornerRadius: AmgiRadius.inset))
     }
 }
 
