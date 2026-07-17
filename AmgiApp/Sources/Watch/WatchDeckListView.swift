@@ -2,7 +2,10 @@ import AnkiClients
 import AnkiKit
 import AnkiSync
 import Dependencies
+import os
 import SwiftUI
+
+private let logger = Logger(subsystem: "com.amgiapp.AmgiApp", category: "WatchDeckList")
 
 struct WatchDeckListView: View {
     @Dependency(\.deckClient) var deckClient
@@ -89,7 +92,7 @@ struct WatchDeckListView: View {
             _ = try await syncClient.sync()
             await loadDecks()
         } catch {
-            print("[WatchDeckList] Sync failed: \(error)")
+            logger.error("Sync error: \(error)")
         }
         isSyncing = false
     }

@@ -2,7 +2,10 @@ import AnkiClients
 import AnkiKit
 import AnkiSync
 import Dependencies
+import os
 import SwiftUI
+
+private let logger = Logger(subsystem: "com.amgiapp.AmgiApp", category: "WatchLogin")
 
 struct WatchLoginView: View {
     @State private var username = ""
@@ -72,7 +75,7 @@ struct WatchLoginView: View {
             onLoginSuccess()
         } catch {
             errorMessage = "Login failed. Check your credentials."
-            print("[WatchLogin] Error: \(error)")
+            logger.error("Login failed: \(error)")
         }
         isLoading = false
     }
