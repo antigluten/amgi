@@ -1,5 +1,6 @@
 import AmgiReader
 import AmgiReaderDictionary
+import AmgiTheme
 import Dependencies
 import Sharing
 import SwiftUI
@@ -29,6 +30,8 @@ struct ReaderDictionarySettingsView: View {
 
     @State private var showImporter = false
 
+    @Environment(\.palette) private var palette
+
     private static let zipType = UTType(filenameExtension: "zip") ?? .data
 
     var body: some View {
@@ -46,7 +49,7 @@ struct ReaderDictionarySettingsView: View {
                     }
                 }
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Source URL template").font(.caption).foregroundStyle(.secondary)
+                    Text("Source URL template").amgiFont(.caption).foregroundStyle(palette.textSecondary)
                     TextField(
                         LookupAudioDefaults.defaultTemplate,
                         text: Binding($audioTemplate),
@@ -75,7 +78,7 @@ struct ReaderDictionarySettingsView: View {
             Section {
                 if model.dictionaries.isEmpty {
                     Text("No \(model.selectedKind.label) dictionaries imported yet.")
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(palette.textSecondary)
                 } else {
                     ForEach(model.dictionaries) { dict in
                         DictionaryRow(
@@ -152,14 +155,16 @@ private struct DictionaryRow: View {
     let onToggle: () -> Void
     let onDelete: () -> Void
 
+    @Environment(\.palette) private var palette
+
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
-                Text(info.title).font(.body)
+                Text(info.title).amgiFont(.body)
                 if !info.index.revision.isEmpty {
                     Text("rev \(info.index.revision)")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .amgiFont(.caption)
+                        .foregroundStyle(palette.textSecondary)
                 }
             }
             Spacer()

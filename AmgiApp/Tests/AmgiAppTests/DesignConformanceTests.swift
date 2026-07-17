@@ -18,19 +18,6 @@ struct DesignConformanceTests {
     /// 5 brief-listed files are now clean (dropped) and 20 files the brief
     /// never mentioned are genuine violations (added, grouped below).
     private static let pendingSweep: Set<String> = [
-        // Task 5 — Reader chrome
-        // (ReaderDictionarySettingsView.swift, EPUBChapterPageController.swift:
-        //  not in the original brief seed — found by the scanner)
-        "Reader/EPUBChapterReaderView.swift",
-        "Reader/ReaderBookDetailView.swift",
-        "Reader/ChapterListView.swift",
-        "Reader/ChapterReaderView.swift",
-        "Reader/ReaderCoverImage.swift",
-        "Reader/LookupEntryView.swift",
-        "Reader/ReaderTypographySettingsView.swift",
-        "Reader/ReaderConfigurationView.swift",
-        "Reader/ReaderDictionarySettingsView.swift",
-        "Reader/EPUBChapterPageController.swift",
         // Task 6 — Reader library
         "Reader/Library/ImportBookCTA.swift",
         "Reader/Library/ContinueReadingCard.swift",
@@ -103,6 +90,16 @@ struct DesignConformanceTests {
             "Reader content typography — user-controlled, not app chrome.",
         "Reader/ReaderFontOption.swift":
             "Reader content font list.",
+        "Reader/EPUBChapterPageController.swift":
+            "UIColor.color(fromHex:) parses the reading theme's hex background for the WKWebView " +
+            "hosting the book page — reading surface, not chrome, per the same boundary as " +
+            "ReaderThemeColor.swift. No SwiftUI/palette-facing chrome lives in this file.",
+        "Reader/ReaderBookDetailView.swift":
+            "Radius literals with no AmgiRadius equivalent; changing them would be a layout change (R29 is no-layout).",
+        "Reader/ReaderCoverImage.swift":
+            "Radius literals with no AmgiRadius equivalent; changing them would be a layout change (R29 is no-layout).",
+        "Reader/ChapterReaderView.swift":
+            "Radius literals with no AmgiRadius equivalent; changing them would be a layout change (R29 is no-layout).",
         "Theme/AmgiModifiers.swift":
             "Implements the palette.elevation-driven shadow branch itself (AmgiCard's " +
             "ring-vs-shadow switch) — the mechanism other views delegate to, not a " +

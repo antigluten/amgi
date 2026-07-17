@@ -1,4 +1,5 @@
 import AmgiReader
+import AmgiTheme
 import Sharing
 import SwiftUI
 
@@ -20,6 +21,7 @@ struct EPUBChapterReaderView: View {
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.palette) private var palette
 
     @State private var model = EPUBChapterReaderModel()
 
@@ -177,10 +179,10 @@ struct EPUBChapterReaderView: View {
         } label: {
             Image(systemName: "xmark")
                 .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(palette.textSecondary)
                 .frame(width: 44, height: 44)
                 .background(.regularMaterial, in: Circle())
-                .shadow(color: .black.opacity(0.08), radius: 4, y: 2)
+                .amgiChromeShadow(Circle())
         }
         .accessibilityLabel("Close")
         .padding(.top, 8)
@@ -193,11 +195,11 @@ struct EPUBChapterReaderView: View {
     private var pagesLeftCapsule: some View {
         Text(pagesLeftText)
             .font(.footnote.weight(.medium))
-            .foregroundStyle(.secondary)
+            .foregroundStyle(palette.textSecondary)
             .padding(.horizontal, 14)
             .padding(.vertical, 6)
             .background(.regularMaterial, in: Capsule())
-            .shadow(color: .black.opacity(0.08), radius: 4, y: 2)
+            .amgiChromeShadow(Capsule())
             .padding(.top, 8)
             .opacity(chromeVisible ? 1 : 0)
             .allowsHitTesting(false)
@@ -207,11 +209,11 @@ struct EPUBChapterReaderView: View {
     private var pageNumberCapsule: some View {
         Text("\(pageIndex + 1) of \(pageCount)")
             .font(.caption.monospacedDigit())
-            .foregroundStyle(.secondary)
+            .foregroundStyle(palette.textSecondary)
             .padding(.horizontal, 12)
             .padding(.vertical, 4)
             .background(.regularMaterial, in: Capsule())
-            .shadow(color: .black.opacity(0.08), radius: 4, y: 2)
+            .amgiChromeShadow(Capsule())
             .allowsHitTesting(false)
     }
 
@@ -222,10 +224,10 @@ struct EPUBChapterReaderView: View {
         } label: {
             Image(systemName: "line.3.horizontal")
                 .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(.primary)
+                .foregroundStyle(palette.textPrimary)
                 .frame(width: 44, height: 44)
                 .background(.regularMaterial, in: Circle())
-                .shadow(color: .black.opacity(0.08), radius: 4, y: 2)
+                .amgiChromeShadow(Circle())
         }
         .accessibilityLabel("Reading Style")
         .opacity(chromeVisible ? 1 : 0)

@@ -1,4 +1,5 @@
 import AmgiReader
+import AmgiTheme
 import SwiftUI
 
 /// Font sizes + layout toggles shared by every dictionary-entry view in
@@ -29,6 +30,7 @@ struct LookupEntryHeaderView: View {
     let onMakeNote: () -> Void
 
     @State private var isResolvingAudio = false
+    @Environment(\.palette) private var palette
 
     var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: 8) {
@@ -37,14 +39,14 @@ struct LookupEntryHeaderView: View {
             if let reading, !reading.isEmpty, reading != term {
                 Text(reading)
                     .font(.system(size: styling.readingFontSize))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(palette.textSecondary)
             }
             Spacer()
             if let frequency, !frequency.isEmpty {
                 Text(frequency)
                     .font(.system(size: styling.frequencyFontSize))
                     .padding(.horizontal, 6).padding(.vertical, 2)
-                    .background(Color.secondary.opacity(0.15), in: Capsule())
+                    .background(palette.separator, in: Capsule())
             }
             Button {
                 Task { await playAudio() }
@@ -111,6 +113,8 @@ struct LookupEntryView: View {
     let onMakeNote: () -> Void
     let onLookupRequested: ((String) -> Void)?
 
+    @Environment(\.palette) private var palette
+
     var body: some View {
         VStack(alignment: .leading, spacing: styling.compactGlossaries ? 2 : 6) {
             LookupEntryHeaderView(
@@ -128,8 +132,8 @@ struct LookupEntryView: View {
                 HStack(spacing: 4) {
                     Image(systemName: "arrow.triangle.2.circlepath").font(.caption2)
                     Text(entry.deinflectionTrace.map(\.name).joined(separator: " → "))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .amgiFont(.caption)
+                        .foregroundStyle(palette.textSecondary)
                         .lineLimit(1)
                 }
             }
@@ -137,7 +141,7 @@ struct LookupEntryView: View {
             if let pitch = entry.pitch, !pitch.isEmpty {
                 HStack(spacing: 4) {
                     Image(systemName: "waveform").font(.caption2)
-                    Text(pitch).font(.caption).foregroundStyle(.secondary)
+                    Text(pitch).amgiFont(.caption).foregroundStyle(palette.textSecondary)
                 }
             }
 
@@ -207,14 +211,14 @@ private extension LookupEntryView {
             } label: {
                 Text(group.dictionary.isEmpty ? "Definitions" : group.dictionary)
                     .font(.system(size: styling.dictionaryNameFontSize))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(palette.textSecondary)
             }
         } else {
             VStack(alignment: .leading, spacing: styling.compactGlossaries ? 1 : 4) {
                 if !group.dictionary.isEmpty {
                     Text(group.dictionary)
                         .font(.system(size: styling.dictionaryNameFontSize))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(palette.textSecondary)
                 }
                 inner
             }
