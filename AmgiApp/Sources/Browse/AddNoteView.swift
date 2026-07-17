@@ -1,5 +1,6 @@
 import SwiftUI
 import AnkiKit
+import AmgiTheme
 
 /// Add Note container: owns the modal chrome (navigation, toolbar, dismissal)
 /// and drives an `AddNoteModel` for deck/notetype loading and the note write.
@@ -51,6 +52,7 @@ struct AddNoteView: View {
 /// tags field. Bound to an `AddNoteModel`; owns no I/O of its own, so it
 /// renders in a `#Preview` from a seeded model.
 struct AddNoteContent: View {
+    @Environment(\.palette) private var palette
     @Bindable var model: AddNoteModel
 
     var body: some View {
@@ -78,8 +80,8 @@ struct AddNoteContent: View {
                 ForEach(Array(model.fieldNames.enumerated()), id: \.offset) { index, name in
                     VStack(alignment: .leading, spacing: 4) {
                         Text(name)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .amgiFont(.caption)
+                            .foregroundStyle(palette.textSecondary)
                         RichNoteFieldEditor(htmlText: model.fieldBinding(for: index))
                     }
                 }
@@ -94,8 +96,8 @@ struct AddNoteContent: View {
             if let errorMessage = model.errorMessage {
                 Section {
                     Text(errorMessage)
-                        .foregroundStyle(.red)
-                        .font(.caption)
+                        .foregroundStyle(palette.danger)
+                        .amgiFont(.caption)
                 }
             }
         }
