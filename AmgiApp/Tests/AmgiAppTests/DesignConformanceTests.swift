@@ -18,14 +18,6 @@ struct DesignConformanceTests {
     /// 5 brief-listed files are now clean (dropped) and 20 files the brief
     /// never mentioned are genuine violations (added, grouped below).
     private static let pendingSweep: Set<String> = [
-        // Task 9 — Browse
-        // (BatchTagSheet.swift: not in the original brief seed. Original
-        //  seed also listed RichNoteFieldEditor.swift, now clean — dropped.)
-        "Browse/BrowseView.swift",
-        "Browse/ImageOcclusionWorkspaceView.swift",
-        "Browse/NoteEditorView.swift",
-        "Browse/AddNoteView.swift",
-        "Browse/BatchTagSheet.swift",
         // Task 10 — Settings + Review
         // (SyncSettingsView/AboutView/MaintenanceView: not in the original
         //  brief seed — found by the scanner)
@@ -84,6 +76,9 @@ struct DesignConformanceTests {
             "Radius literals with no AmgiRadius equivalent; changing them would be a layout change " +
             "(R29 is no-layout). The heatmap cell's cornerRadius: 2 (grid squares + legend swatches) " +
             "is not a card and must stay 2, not round to AmgiRadius.control (10).",
+        "Browse/ImageOcclusionWorkspaceView.swift":
+            "ImageOcclusion UIKit canvas: mask/handle fills are drawing state, not app chrome. " +
+            "Chrome radii were fixed; canvas fills are the exempt part.",
     ]
 
     private static let bannedPatterns: [(name: String, regex: String)] = [

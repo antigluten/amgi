@@ -229,6 +229,7 @@ struct BrowseView: View {
 /// state from the model and drives mutations through it, but owns no I/O of
 /// its own — so it renders in a `#Preview` from a seeded model.
 struct BrowseContent: View {
+    @Environment(\.palette) private var palette
     @Bindable var model: BrowseModel
     @Binding var selectionState: BrowseSelectionState
     let onSwipeDelete: (NoteRecord) -> Void
@@ -293,7 +294,7 @@ struct BrowseContent: View {
         HStack {
             if selectionState.isSelectMode {
                 Image(systemName: selectionState.contains(note.id) ? "checkmark.circle.fill" : "circle")
-                    .foregroundStyle(selectionState.contains(note.id) ? Color.accentColor : Color.secondary)
+                    .foregroundStyle(selectionState.contains(note.id) ? palette.accent : palette.textSecondary)
                 NoteRowView(note: note, notetypeName: model.notetypeNames[note.mid])
                     .contentShape(Rectangle())
                     .onTapGesture {
@@ -422,11 +423,11 @@ private extension BrowseContent {
     ) -> some View {
         Button(action: action) {
             Text(label)
-                .font(small ? .caption : .subheadline)
+                .amgiFont(small ? .caption : .body)
                 .padding(.horizontal, small ? 10 : 12)
                 .padding(.vertical, small ? 4 : 6)
-                .background(isSelected ? Color.accentColor : Color(.secondarySystemFill))
-                .foregroundStyle(isSelected ? .white : .primary)
+                .background(isSelected ? palette.accent : palette.surface)
+                .foregroundStyle(isSelected ? .white : palette.textPrimary)
                 .clipShape(Capsule())
         }
         .buttonStyle(.plain)
@@ -472,6 +473,7 @@ struct NoteContextMenuButton: View {
 // MARK: - NoteRowView
 
 struct NoteRowView: View {
+    @Environment(\.palette) private var palette
     let note: NoteRecord
     let notetypeName: String?
 
@@ -482,8 +484,8 @@ struct NoteRowView: View {
                 .lineLimit(1)
             if let subtitle = composeNoteSubtitle(notetypeName: notetypeName, tags: note.tags) {
                 Text(subtitle)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .amgiFont(.caption)
+                    .foregroundStyle(palette.textSecondary)
                     .lineLimit(1)
                     .truncationMode(.tail)
             }

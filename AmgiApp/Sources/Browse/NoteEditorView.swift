@@ -1,5 +1,6 @@
 import SwiftUI
 import AnkiKit
+import AmgiTheme
 
 /// Edit Note container: owns the toolbar and the transient "Saved" toast, and
 /// drives a `NoteEditorModel` for the notetype lookup + note write. The form
@@ -66,6 +67,7 @@ struct NoteEditorView: View {
 /// `NoteEditorModel`; owns no I/O, so it renders in a `#Preview` from a
 /// seeded model.
 struct NoteEditorContent: View {
+    @Environment(\.palette) private var palette
     @Bindable var model: NoteEditorModel
 
     var body: some View {
@@ -74,8 +76,8 @@ struct NoteEditorContent: View {
                 ForEach(Array(model.fieldNames.enumerated()), id: \.offset) { index, name in
                     VStack(alignment: .leading, spacing: 4) {
                         Text(name)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .amgiFont(.caption)
+                            .foregroundStyle(palette.textSecondary)
                         RichNoteFieldEditor(htmlText: model.fieldBinding(for: index))
                     }
                 }
