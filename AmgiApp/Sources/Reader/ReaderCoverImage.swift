@@ -131,11 +131,11 @@ private struct CoverPlaceholder: View {
     @Environment(\.palette) private var palette
 
     var body: some View {
-        RoundedRectangle(cornerRadius: 8)
+        RoundedRectangle(cornerRadius: AmgiRadius.small)
             .fill(.gray.opacity(0.25))
             .overlay {
                 Image(systemName: "book.closed")
-                    .font(.largeTitle)
+                    .amgiFont(.displayHero)
                     .foregroundStyle(palette.textSecondary)
             }
             .frame(width: 120)

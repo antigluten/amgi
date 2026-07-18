@@ -50,7 +50,7 @@ struct NoteEditorView: View {
             VStack {
                 Spacer()
                 Text("Saved")
-                    .font(.subheadline.weight(.medium))
+                    .amgiFont(.bodyEmphasis)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)
                     .background(.ultraThinMaterial, in: Capsule())

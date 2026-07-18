@@ -35,15 +35,7 @@ struct DesignConformanceTests {
             "UIColor.color(fromHex:) parses the reading theme's hex background for the WKWebView " +
             "hosting the book page — reading surface, not chrome, per the same boundary as " +
             "ReaderThemeColor.swift. No SwiftUI/palette-facing chrome lives in this file.",
-        "Reader/ReaderBookDetailView.swift":
-            "Radius literals with no AmgiRadius equivalent; changing them would be a layout change (R29 is no-layout).",
-        "Reader/ReaderCoverImage.swift":
-            "Radius literals with no AmgiRadius equivalent; changing them would be a layout change (R29 is no-layout).",
         "Reader/ChapterReaderView.swift":
-            "Radius literals with no AmgiRadius equivalent; changing them would be a layout change (R29 is no-layout).",
-        "Reader/Library/AllBooksCell.swift":
-            "Radius literals with no AmgiRadius equivalent; changing them would be a layout change (R29 is no-layout).",
-        "Sync/SyncSheet.swift":
             "Radius literals with no AmgiRadius equivalent; changing them would be a layout change (R29 is no-layout).",
         "Theme/AmgiModifiers.swift":
             "Implements the palette.elevation-driven shadow branch itself (AmgiCard's " +
@@ -89,6 +81,7 @@ struct DesignConformanceTests {
         ("hardcoded role color (argument-label form)", #"\b(color|tint|fill):\s*\.(red|green|orange|blue|purple|cyan|yellow|gray|grey|pink|mint|teal|indigo|brown|primary|secondary)\b"#),
         ("raw corner radius", #"cornerRadius:\s*\d"#),
         ("shadow", #"\.shadow\("#),
+        ("raw system font style", #"\.font\(\s*\.(largeTitle|title|title2|title3|headline|subheadline|body|callout|footnote|caption|caption2)\b"#),
     ]
 
     private static var sourceRoot: URL {

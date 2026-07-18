@@ -17,7 +17,7 @@ struct AllBooksCell: View {
                 seed: item.id
             )
             .aspectRatio(Self.coverAspect, contentMode: .fit)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .clipShape(RoundedRectangle(cornerRadius: AmgiRadius.small))
 
             Text(item.title)
                 .amgiFont(.bodyEmphasis)

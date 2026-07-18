@@ -62,19 +62,19 @@ struct ReaderTypographySettingsView: View {
             HStack {
                 Button { decreaseFontSize() } label: {
                     Image(systemName: "textformat.size.smaller")
-                        .font(.title3)
+                        .amgiFont(.cardTitle)
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.bordered)
                 .disabled(fontSize <= 12)
 
                 Text("\(fontSize) pt")
-                    .font(.body.monospacedDigit())
+                    .font(.system(size: AmgiFont.body.size, weight: AmgiFont.body.weight).monospacedDigit())
                     .frame(width: 64)
 
                 Button { increaseFontSize() } label: {
                     Image(systemName: "textformat.size.larger")
-                        .font(.title3)
+                        .amgiFont(.cardTitle)
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.bordered)
@@ -105,7 +105,7 @@ struct ReaderTypographySettingsView: View {
                     Text("Line Height")
                     Spacer()
                     Text(String(format: "%.1f", lineHeight))
-                        .font(.body.monospacedDigit())
+                        .font(.system(size: AmgiFont.body.size, weight: AmgiFont.body.weight).monospacedDigit())
                         .foregroundStyle(palette.textSecondary)
                 }
             }
@@ -209,7 +209,7 @@ private struct ThemeSwatchButton: View {
                     )
                 )
             Text("Aa")
-                .font(.callout.weight(.semibold))
+                .amgiFont(.bodyEmphasis)
                 .foregroundStyle(Color(hex: theme.foregroundHex) ?? palette.textPrimary)
         }
     }
