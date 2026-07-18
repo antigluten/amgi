@@ -44,7 +44,7 @@ private extension DeckCountsView {
 
     func countBadge(_ count: Int, color: Color) -> some View {
         Text("\(count)")
-            .font(.caption.weight(.medium))
+            .amgiFont(.captionBold)
             .foregroundStyle(color)
             .monospacedDigit()
     }

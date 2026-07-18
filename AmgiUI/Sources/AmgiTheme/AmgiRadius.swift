@@ -5,6 +5,8 @@ public import CoreGraphics
 /// slots. A per-theme override can be added later without breaking
 /// theme JSONs.
 public enum AmgiRadius {
+    /// Small chips, thumbnails, and cover art corners.
+    public static let small: CGFloat = 8
     /// Inner tiles, list-card surfaces, insets. (was 14)
     public static let inset: CGFloat = 12
     /// Hero cards and top-level card chrome. (was 16–18)

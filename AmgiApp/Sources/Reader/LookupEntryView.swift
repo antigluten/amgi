@@ -54,7 +54,7 @@ struct LookupEntryHeaderView: View {
                 if isResolvingAudio {
                     ProgressView().controlSize(.small)
                 } else {
-                    Image(systemName: "speaker.wave.2.fill").font(.title3)
+                    Image(systemName: "speaker.wave.2.fill").amgiFont(.cardTitle)
                 }
             }
             .buttonStyle(.plain)
@@ -63,7 +63,7 @@ struct LookupEntryHeaderView: View {
             Button {
                 ReaderTTS.shared.speak(term, languageHint: languageHint)
             } label: {
-                Image(systemName: "waveform.badge.mic").font(.title3)
+                Image(systemName: "waveform.badge.mic").amgiFont(.cardTitle)
             }
             .buttonStyle(.plain)
             .accessibilityLabel("Speak with TTS")
@@ -71,7 +71,7 @@ struct LookupEntryHeaderView: View {
                 onMakeNote()
             } label: {
                 Image(systemName: "plus.circle")
-                    .font(.title3)
+                    .amgiFont(.cardTitle)
             }
             .buttonStyle(.plain)
             .accessibilityLabel("Make note from this entry")
@@ -130,7 +130,7 @@ struct LookupEntryView: View {
 
             if !entry.deinflectionTrace.isEmpty {
                 HStack(spacing: 4) {
-                    Image(systemName: "arrow.triangle.2.circlepath").font(.caption2)
+                    Image(systemName: "arrow.triangle.2.circlepath").amgiFont(.micro)
                     Text(entry.deinflectionTrace.map(\.name).joined(separator: " → "))
                         .amgiFont(.caption)
                         .foregroundStyle(palette.textSecondary)
@@ -140,7 +140,7 @@ struct LookupEntryView: View {
 
             if let pitch = entry.pitch, !pitch.isEmpty {
                 HStack(spacing: 4) {
-                    Image(systemName: "waveform").font(.caption2)
+                    Image(systemName: "waveform").amgiFont(.micro)
                     Text(pitch).amgiFont(.caption).foregroundStyle(palette.textSecondary)
                 }
             }

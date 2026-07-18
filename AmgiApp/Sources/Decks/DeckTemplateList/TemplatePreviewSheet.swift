@@ -215,7 +215,7 @@ private extension TemplatePreviewBody {
     func placeholder(systemImage: String, text: String, tint: Color) -> some View {
         VStack(spacing: AmgiSpacing.sm) {
             Image(systemName: systemImage)
-                .font(.title2)
+                .amgiFont(.sectionHeading)
                 .foregroundStyle(tint)
             Text(text)
                 .amgiFont(.body)

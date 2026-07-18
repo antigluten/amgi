@@ -45,7 +45,7 @@ struct ProfilePickerMenu: View {
                       : "person.crop.circle.badge.exclamationmark")
                     .foregroundStyle(store.pendingSwitchID == nil ? palette.accent : palette.warning)
                 Text(store.current.displayName)
-                    .font(.subheadline.weight(.medium))
+                    .amgiFont(.bodyEmphasis)
                     .lineLimit(1)
             }
         }

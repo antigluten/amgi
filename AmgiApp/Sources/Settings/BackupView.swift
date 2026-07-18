@@ -72,7 +72,7 @@ struct BackupView: View {
             .disabled(isCreating)
         } footer: {
             Text("Backups live in this device's Documents folder for the current profile. Use Share to copy a backup to Files, iCloud Drive, or another device.")
-                .font(.caption)
+                .amgiFont(.caption)
                 .foregroundStyle(palette.textSecondary)
         }
     }
@@ -188,7 +188,7 @@ private struct BackupRow: View {
                 Text(entry.formattedDate)
                     .foregroundStyle(palette.textPrimary)
                 Text(entry.fileSize)
-                    .font(.caption)
+                    .amgiFont(.caption)
                     .foregroundStyle(palette.textSecondary)
             }
             Spacer()

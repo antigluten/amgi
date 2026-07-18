@@ -480,7 +480,7 @@ struct NoteRowView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(note.sfld)
-                .font(.body)
+                .amgiFont(.body)
                 .lineLimit(1)
             if let subtitle = composeNoteSubtitle(notetypeName: notetypeName, tags: note.tags) {
                 Text(subtitle)

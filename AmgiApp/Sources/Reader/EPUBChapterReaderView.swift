@@ -194,7 +194,7 @@ struct EPUBChapterReaderView: View {
     @ViewBuilder
     private var pagesLeftCapsule: some View {
         Text(pagesLeftText)
-            .font(.footnote.weight(.medium))
+            .amgiFont(.captionBold)
             .foregroundStyle(palette.textSecondary)
             .padding(.horizontal, 14)
             .padding(.vertical, 6)
@@ -208,7 +208,7 @@ struct EPUBChapterReaderView: View {
     @ViewBuilder
     private var pageNumberCapsule: some View {
         Text("\(pageIndex + 1) of \(pageCount)")
-            .font(.caption.monospacedDigit())
+            .font(.system(size: AmgiFont.caption.size, weight: AmgiFont.caption.weight).monospacedDigit())
             .foregroundStyle(palette.textSecondary)
             .padding(.horizontal, 12)
             .padding(.vertical, 4)
@@ -256,7 +256,7 @@ struct EPUBChapterReaderView: View {
     private var endOfBookToast: some View {
         if endOfBookToastVisible {
             Text("End of book")
-                .font(.footnote.weight(.medium))
+                .amgiFont(.captionBold)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
                 .background(.thinMaterial, in: Capsule())

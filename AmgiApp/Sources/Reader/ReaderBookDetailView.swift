@@ -159,9 +159,9 @@ private struct BookHeaderView: View {
                 Spacer()
                 cover
                     .frame(width: 140, height: 190)
-                    .background(palette.separator, in: RoundedRectangle(cornerRadius: 8))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .amgiChromeShadow(RoundedRectangle(cornerRadius: 8), radius: 8, y: 4, opacity: 0.18)
+                    .background(palette.separator, in: RoundedRectangle(cornerRadius: AmgiRadius.small))
+                    .clipShape(RoundedRectangle(cornerRadius: AmgiRadius.small))
+                    .amgiChromeShadow(RoundedRectangle(cornerRadius: AmgiRadius.small), radius: 8, y: 4, opacity: 0.18)
                 Spacer()
             }
             .padding(.top, 8)

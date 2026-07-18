@@ -269,7 +269,7 @@ private struct SyncSheetContent: View {
                         ForEach(logEntries) { entry in
                             HStack(alignment: .top, spacing: 8) {
                                 Text(entry.timestamp, format: .dateTime.hour().minute().second())
-                                    .font(.caption2.monospaced())
+                                    .font(.system(size: AmgiFont.micro.size, weight: AmgiFont.micro.weight, design: .monospaced))
                                     .foregroundStyle(palette.textSecondary)
                                 Text(entry.message)
                                     .amgiFont(.caption)
@@ -283,7 +283,7 @@ private struct SyncSheetContent: View {
                 }
                 .frame(maxHeight: 160)
                 .background(palette.surface)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: AmgiRadius.small))
                 .onChange(of: logEntries.count) { _, _ in
                     if let last = logEntries.last {
                         withAnimation { proxy.scrollTo(last.id, anchor: .bottom) }
@@ -297,17 +297,17 @@ private struct SyncSheetContent: View {
     private var statusFooter: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(lastSyncedLabel)
-                .font(.footnote)
+                .amgiFont(.caption)
                 .foregroundStyle(palette.textSecondary)
 
             if let footerError {
                 HStack {
                     Text(footerError)
-                        .font(.footnote)
+                        .amgiFont(.caption)
                         .foregroundStyle(palette.danger)
                     Spacer()
                     Button("Retry") { onRetryFooter() }
-                        .font(.footnote.weight(.semibold))
+                        .amgiFont(.captionBold)
                 }
             }
         }
