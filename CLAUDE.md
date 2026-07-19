@@ -59,7 +59,7 @@ dictionary UI, widgets.
 | `AnkiBackend` | Swift class wrapping the Rust C FFI; owns the backend pointer, dispatches `Request<R>`, decodes responses. Carries the `RPCObserver` hook. |
 | `AnkiProtoBridge` | The sole sanctioned bridge between protobufs and Swift mirrors. Exposes `Request<R>` factories (`.deckNames`, `.getDeckTree`, …), `ServiceCatalog`, and `*Method` typed dispatch wrappers. Conversions live in `Sources/AnkiProtoBridge/Conversions/`. |
 | `AnkiServices` | High-level service facades (`DecksService`, `SchedulerService`, `SyncService`, `StatsService`, `NotesService`, `NotetypesService`, `CardRenderingService`, `ImportExportService`, `CollectionService`). |
-| `AnkiClients` | `@DependencyClient` structs + `liveValue` implementations. The UI's only entry point into the Anki engine. |
+| `AnkiClients` | `@DependencyClient` structs + `liveValue` implementations. The UI's preferred entry point into the Anki engine; where no client wrapper exists, feature code may use an `AnkiServices` facade directly (sanctioned second tier — don't add thin pass-through clients just to avoid it). Direct `AnkiBackend` use is reserved for the composition root and low-level asset/config plumbing. |
 | `AnkiSync` | KeychainHelper for sync credentials. |
 | `AmgiCardWeb` | WebKit-based card renderer host. |
 | `AnkiRustLib` | `binaryTarget` pointing at `AnkiRust.xcframework`. iOS-only. |
@@ -123,6 +123,22 @@ Rust/proto scripts and `xcodegen` below.
 3. `BuildProject` with that tab — compiles the AmgiApp scheme, resolves SPM
    deps, returns structured errors. This is the ground truth for "it builds".
 4. On failure, `GetBuildLog` for detail beyond the returned error summary.
+
+**Gotcha — `xcodegen generate` resets the run destination.** Regenerating the
+project recreates the scheme, which can leave the active run destination unset;
+`BuildProject` then fails with a spurious "requires a development team" signing
+error (no team is configured — this repo builds for the simulator). Fix by
+re-selecting a simulator, either in Xcode's toolbar or headlessly:
+```bash
+osascript -e 'tell application "Xcode"
+  set ws to first workspace document
+  repeat with d in run destinations of ws
+    if (name of d) is "iPhone 17 Pro" then set active run destination of ws to d
+  end repeat
+end tell'
+```
+Then rerun `BuildProject`. A signing error right after regeneration is this,
+not a real signing problem.
 
 ### Other Xcode MCP tools
 - `RenderPreview` — render a SwiftUI `#Preview` without launching the simulator.
