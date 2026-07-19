@@ -10,7 +10,6 @@ public struct TagClient: Sendable {
     public var removeTagFromNotes: @Sendable (_ tag: String, _ noteIDs: [NoteID]) async throws -> Void
     public var removeTag: @Sendable (_ tag: String) async throws -> Void
     public var renameTag: @Sendable (_ oldName: String, _ newName: String) async throws -> Void
-    public var findNotesByTag: @Sendable (_ tag: String) async throws -> [NoteID]
 }
 
 extension TagClient: TestDependencyKey {

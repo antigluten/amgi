@@ -8,7 +8,6 @@ public struct SyncClient: Sendable {
     public var sync: @Sendable () async throws -> SyncSummary
     public var fullSync: @Sendable (_ direction: SyncDirection) async throws -> Void
     public var syncMedia: @Sendable () async throws -> Void
-    public var lastSyncDate: @Sendable () -> Date? = { nil }
 }
 
 extension SyncClient: TestDependencyKey {
