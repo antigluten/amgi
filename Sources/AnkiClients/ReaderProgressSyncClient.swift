@@ -22,11 +22,6 @@ public struct ReaderProgressSyncClient: Sendable {
         _ bookID: String,
         _ payload: ReaderSavedProgress
     ) async throws -> ReaderProgressManifest
-    /// Replaces the manifest wholesale — used by tests and by the
-    /// optional "reset reader sync" maintenance action.
-    public var saveManifest: @Sendable (_ manifest: ReaderProgressManifest) async throws -> Void
-    /// Removes the reader-progress key from the Anki collection config.
-    public var clearManifest: @Sendable () async throws -> Void
 }
 
 extension ReaderProgressSyncClient: TestDependencyKey {

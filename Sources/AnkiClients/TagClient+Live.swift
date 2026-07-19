@@ -85,16 +85,6 @@ extension TagClient: DependencyKey {
                     logger.error("renameTag failed: \(error)")
                     throw error
                 }
-            },
-            findNotesByTag: { tag in
-                do {
-                    let ids = try await backend.invoke(.searchNoteIds(query: "tag:\(tag)"))
-                    logger.info("Found \(ids.count) notes with tag '\(tag)'")
-                    return ids
-                } catch {
-                    logger.error("findNotesByTag failed for '\(tag)': \(error)")
-                    throw error
-                }
             }
         )
     }()

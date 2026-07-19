@@ -35,16 +35,6 @@ extension ReaderProgressSyncClient: DependencyKey {
                     try backend.setConfigJSONValue(manifest, for: collectionConfigKey)
                     return manifest
                 }
-            },
-            saveManifest: { manifest in
-                try await backendOffload {
-                    try backend.setConfigJSONValue(manifest, for: collectionConfigKey)
-                }
-            },
-            clearManifest: {
-                try await backendOffload {
-                    try backend.removeConfigValue(for: collectionConfigKey)
-                }
             }
         )
     }()

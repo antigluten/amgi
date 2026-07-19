@@ -1,21 +1,6 @@
 import SwiftUI
 import AmgiTheme
 
-// MARK: - Section Background
-
-extension View {
-    func amgiSectionBackground() -> some View {
-        modifier(AmgiSectionBackgroundModifier())
-    }
-}
-
-private struct AmgiSectionBackgroundModifier: ViewModifier {
-    @Environment(\.palette) private var palette
-    func body(content: Content) -> some View {
-        content.background(palette.background)
-    }
-}
-
 // MARK: - Button Styles
 
 struct AmgiPrimaryButtonStyle: ButtonStyle {
@@ -69,24 +54,6 @@ enum AmgiStatusTone {
         }
     }
 
-    fileprivate func backgroundColor(_ palette: Palette) -> Color {
-        switch self {
-        case .accent:   return palette.accent.opacity(0.12)
-        case .positive: return palette.positive.opacity(0.14)
-        case .warning:  return palette.warning.opacity(0.16)
-        case .danger:   return palette.danger.opacity(0.14)
-        case .info:     return palette.info.opacity(0.14)
-        case .neutral:  return palette.surface
-        }
-    }
-
-    fileprivate func borderColor(_ palette: Palette) -> Color {
-        switch self {
-        case .neutral: return palette.border.opacity(0.32)
-        default:       return foregroundColor(palette).opacity(0.28)
-        }
-    }
-
     fileprivate func toolbarForegroundColor(_ palette: Palette) -> Color {
         switch self {
         case .neutral: return palette.textPrimary
@@ -133,18 +100,6 @@ extension View {
 
     func amgiCapsuleControl(horizontalPadding: CGFloat = 10, verticalPadding: CGFloat = 6) -> some View {
         modifier(AmgiCapsuleControlModifier(horizontalPadding: horizontalPadding, verticalPadding: verticalPadding))
-    }
-
-    func amgiStatusBadge(_ tone: AmgiStatusTone, horizontalPadding: CGFloat = 8, verticalPadding: CGFloat = 4) -> some View {
-        modifier(AmgiStatusBadgeModifier(tone: tone, horizontalPadding: horizontalPadding, verticalPadding: verticalPadding))
-    }
-
-    func amgiStatusPanel(_ tone: AmgiStatusTone, elevated: Bool = false) -> some View {
-        modifier(AmgiStatusPanelModifier(tone: tone, elevated: elevated))
-    }
-
-    func amgiSegmentedPicker() -> some View {
-        pickerStyle(.segmented)
     }
 
     func amgiStatusText(_ tone: AmgiStatusTone, font: AmgiFont = .captionBold) -> some View {
@@ -194,55 +149,6 @@ private struct AmgiCapsuleControlModifier: ViewModifier {
     }
 }
 
-private struct AmgiStatusBadgeModifier: ViewModifier {
-    @Environment(\.palette) private var palette
-    let tone: AmgiStatusTone
-    let horizontalPadding: CGFloat
-    let verticalPadding: CGFloat
-    func body(content: Content) -> some View {
-        content
-            .amgiFont(.captionBold)
-            .foregroundStyle(tone.foregroundColor(palette))
-            .padding(.horizontal, horizontalPadding)
-            .padding(.vertical, verticalPadding)
-            .background(tone.backgroundColor(palette))
-            .overlay(
-                Capsule().stroke(tone.borderColor(palette), lineWidth: 1)
-            )
-            .clipShape(Capsule())
-    }
-}
-
-private struct AmgiStatusPanelModifier: ViewModifier {
-    @Environment(\.palette) private var palette
-    let tone: AmgiStatusTone
-    let elevated: Bool
-    func body(content: Content) -> some View {
-        content
-            .padding(AmgiSpacing.lg)
-            .background(
-                RoundedRectangle(cornerRadius: AmgiRadius.inset, style: .continuous)
-                    .fill(palette.surfaceElevated)
-            )
-            .background(
-                RoundedRectangle(cornerRadius: AmgiRadius.inset, style: .continuous)
-                    .fill(tone.backgroundColor(palette))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: AmgiRadius.inset, style: .continuous)
-                    .stroke(tone.borderColor(palette), lineWidth: 1)
-            )
-            .shadow(
-                color: (elevated && palette.elevation != .ring)
-                    ? .black.opacity(palette.shadows.md.opacity)
-                    : .clear,
-                radius: palette.shadows.md.radius,
-                x: palette.shadows.md.dx,
-                y: palette.shadows.md.dy
-            )
-    }
-}
-
 private struct AmgiStatusTextModifier: ViewModifier {
     @Environment(\.palette) private var palette
     let tone: AmgiStatusTone
@@ -266,8 +172,7 @@ extension View {
     ///
     /// Lives here rather than at the call site because the design
     /// conformance guard bans raw `.shadow(` in every screen file — this
-    /// is the one mechanism other views delegate to, mirroring
-    /// `AmgiStatusPanelModifier` above.
+    /// is the one mechanism other views delegate to.
     func amgiChromeShadow<S: InsettableShape>(
         _ shape: S,
         radius: CGFloat = 4,
