@@ -90,11 +90,7 @@ public struct DeckHeroTile: View {
     }
 
     private func mixed(_ lhs: Color, with rhs: Color, by fraction: Double) -> Color {
-        if #available(iOS 18.0, macOS 15.0, *) {
-            return lhs.mix(with: rhs, by: fraction, in: .perceptual)
-        } else {
-            return lhs
-        }
+        lhs.mix(with: rhs, by: fraction, in: .perceptual)
     }
 }
 
