@@ -126,6 +126,10 @@ targets:
         # standard alongside SWIFT_CXX_INTEROPERABILITY_MODE — without
         # the language-standard hint Clang's dependency scanner rejects
         # the CHoshiDicts modulemap's `requires cplusplus`.
+        # The OTHER_SWIFT_FLAGS copy of the same switch looks redundant
+        # but is required: the build setting alone doesn't reach the
+        # dependency scanner (verified 2026-07: removing it fails with
+        # "module 'CHoshiDicts' requires feature 'cplusplus'").
         SWIFT_CXX_INTEROPERABILITY_MODE: default
         CLANG_CXX_LANGUAGE_STANDARD: "c++20"
         CLANG_CXX_LIBRARY: "libc++"
@@ -166,7 +170,8 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
         # Tests inherit @testable AmgiApp's transitive Cxx-mode import
         # of AmgiReaderDictionary, so they need the same Clang+Swift
-        # interop flags as the app target.
+        # interop flags as the app target (incl. the OTHER_SWIFT_FLAGS
+        # copy — see the app target's comment).
         SWIFT_CXX_INTEROPERABILITY_MODE: default
         CLANG_CXX_LANGUAGE_STANDARD: "c++20"
         CLANG_CXX_LIBRARY: "libc++"
