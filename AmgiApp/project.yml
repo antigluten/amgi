@@ -96,8 +96,6 @@ targets:
       - package: AnkiBridge
         product: AnkiBackend
       - package: AnkiBridge
-        product: AnkiProto
-      - package: AnkiBridge
         product: AmgiCardWeb
       - package: AmgiReader
         product: AmgiReader
