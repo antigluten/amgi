@@ -69,7 +69,6 @@ let package = Package(
     platforms: [.iOS(.v18), .macOS(.v15)],
     products: [
         .library(name: "AnkiKit", targets: ["AnkiKit"]),
-        .library(name: "AnkiProto", targets: ["AnkiProto"]),
         .library(name: "AnkiBackend", targets: ["AnkiBackend"]),
         .library(name: "AnkiServices", targets: ["AnkiServices"]),
         .library(name: "AnkiClients", targets: ["AnkiClients"]),
@@ -135,7 +134,6 @@ let package = Package(
                 "AnkiKit",
                 "AnkiBackend",
                 "AnkiProtoBridge",
-                "AnkiProto",
                 "AnkiSync",
                 .product(name: "SwiftProtobuf", package: "swift-protobuf"),
                 .product(name: "Dependencies", package: "swift-dependencies"),
@@ -149,7 +147,6 @@ let package = Package(
             dependencies: [
                 "AnkiKit",
                 "AnkiBackend",
-                "AnkiProto",
                 "AnkiServices",
                 "AnkiSync",
                 .product(name: "AmgiReader", package: "AmgiReader"),
