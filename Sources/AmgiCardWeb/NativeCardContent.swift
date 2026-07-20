@@ -1,4 +1,4 @@
-import Foundation
+public import Foundation
 
 /// Structured content for the native card renderer (R11): the rendered HTML
 /// of an allowlist-simple card reduced to display blocks plus extracted audio
@@ -68,8 +68,10 @@ public struct NativeCardContent: Sendable, Equatable {
     )
 
     /// Inline emphasis tags handled during text-run construction.
+    /// (`<u>` is allowlisted but renders plain — underline attributes need a
+    /// UI framework scope this Foundation-only module doesn't import.)
     private static let inlineTagRegex = try! NSRegularExpression(
-        pattern: #"</?(b|strong|i|em|u)\b[^>]*>"#,
+        pattern: #"</?(b|strong|i|em)\b[^>]*>"#,
         options: [.caseInsensitive]
     )
 
@@ -94,7 +96,6 @@ public struct NativeCardContent: Sendable, Equatable {
         var result = AttributedString()
         var boldDepth = 0
         var italicDepth = 0
-        var underlineDepth = 0
 
         let ns = fragment as NSString
         var cursor = 0
@@ -107,7 +108,6 @@ public struct NativeCardContent: Sendable, Equatable {
             if boldDepth > 0 { intent.insert(.stronglyEmphasized) }
             if italicDepth > 0 { intent.insert(.emphasized) }
             if !intent.isEmpty { run.inlinePresentationIntent = intent }
-            if underlineDepth > 0 { run.underlineStyle = .single }
             result += run
         }
 
@@ -122,7 +122,6 @@ public struct NativeCardContent: Sendable, Equatable {
             switch name {
             case "b", "strong": boldDepth = max(0, boldDepth + delta)
             case "i", "em": italicDepth = max(0, italicDepth + delta)
-            case "u": underlineDepth = max(0, underlineDepth + delta)
             default: break
             }
         }
