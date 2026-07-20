@@ -23,6 +23,9 @@ struct SettingsView: View {
                 NavigationLink("Review Behavior") {
                     ReviewSettingsView()
                 }
+                NavigationLink("Card Rendering") {
+                    CardRenderingSettingsView()
+                }
             }
 
             Section("Reader") {
