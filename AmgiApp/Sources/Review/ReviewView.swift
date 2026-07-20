@@ -126,8 +126,14 @@ private struct ReviewContent: View {
                 }
             }
             .background(palette.background)
-            .overlay { toastOverlay }
-            .animation(.easeInOut(duration: 0.15), value: session.pendingToast)
+            .overlay {
+                // Scope the fade to the toast subtree only. Attaching
+                // `.animation(value:)` to the whole VStack also animated the
+                // card swap on advance (content lands in the same transaction
+                // as `pendingToast → nil`), producing a jumpy cross-fade.
+                toastOverlay
+                    .animation(.easeInOut(duration: 0.15), value: session.pendingToast)
+            }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -385,9 +391,7 @@ private struct ReviewCardArea: View {
             .padding(.horizontal)
             .padding(.vertical, 4)
 
-            FlipContainer(showBack: session.showAnswer) { isBack in
-                cardSurface(isBack: isBack)
-            }
+            cardFlipRegion
             .onChange(of: session.stopAudioRequestID) { _, _ in
                 if isNativeMode { nativeAudioPlayer.stop() }
             }
@@ -425,6 +429,20 @@ private struct ReviewCardArea: View {
     private var isNativeMode: Bool {
         if case .native = session.resolvedMode { return true }
         return false
+    }
+
+    /// The reveal region. Native cards get the 3D flip (pure SwiftUI, crisp);
+    /// WebView cards swap sides without rotation, because 3D-rotating a live
+    /// `WKWebView` rasterizes to a blurred frame mid-flip.
+    @ViewBuilder
+    private var cardFlipRegion: some View {
+        if isNativeMode {
+            FlipContainer(showBack: session.showAnswer) { isBack in
+                cardSurface(isBack: isBack)
+            }
+        } else {
+            cardSurface(isBack: session.showAnswer)
+        }
     }
 
     private var renderModeSheet: some View {
