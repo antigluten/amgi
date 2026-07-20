@@ -1,6 +1,9 @@
 import SwiftUI
+import AmgiCardWeb
 import AmgiTheme
+import AnkiBackend
 import AnkiKit
+import Dependencies
 import Sharing
 
 /// Container: owns the `ReviewSession`, the review preferences, the sheet
@@ -106,6 +109,8 @@ private struct ReviewContent: View {
     let onDismiss: () -> Void
 
     @Environment(\.palette) private var palette
+    @State private var showRenderModeSheet = false
+    @State private var nativeAudioPlayer = NativeCardAudioPlayer()
 
     var body: some View {
         NavigationStack {
@@ -248,25 +253,31 @@ private struct ReviewContent: View {
     @ViewBuilder
     private var cardView: some View {
         VStack(spacing: 0) {
-            CardWebView(
-                html: session.showAnswer ? session.backHTML : session.frontHTML,
-                cardCSS: session.cardCSS,
-                isAnswerSide: session.showAnswer,
-                cardOrdinal: session.currentCardOrdinal,
-                replayRequestID: session.replayRequestID,
-                stopAudioRequestID: session.stopAudioRequestID,
-                typedAnswerRequestID: session.typedAnswerRequestID,
-                openLinksExternally: openLinksExternally,
-                contentAlignment: CardWebViewContentAlignment(rawValue: cardContentAlignment) ?? .center,
-                onTypedAnswerSubmitted: { typed in session.submitTypedAnswer(typed) },
-                onAudioStateChange: { playing in session.updateAudioPlaying(playing) },
-                onCardBackgroundColorChange: { color, isDark in
-                    session.updateCardChrome(color: color, isDark: isDark)
-                },
-                onLookupRequested: tapLookup ? { text, _, _ in
-                    if let text, !text.isEmpty { lookupQuery = text }
-                } : nil
+            RenderModeChipRow(
+                isNative: isNativeMode,
+                isAuto: session.resolvedByAuto,
+                templateName: session.templateName,
+                onTap: { showRenderModeSheet = true }
             )
+            .padding(.horizontal)
+            .padding(.vertical, 4)
+
+            FlipContainer(showBack: session.showAnswer) { isBack in
+                cardSurface(isBack: isBack)
+            }
+            .onChange(of: session.stopAudioRequestID) { _, _ in
+                if isNativeMode { nativeAudioPlayer.stop() }
+            }
+            .onChange(of: session.currentCardId) { _, _ in playNativeAudio() }
+            .onChange(of: session.showAnswer) { _, shown in
+                if shown { playNativeAudio() }
+            }
+            .onChange(of: session.replayRequestID) { _, _ in playNativeAudio() }
+            .onChange(of: nativeAudioPlayer.isPlaying) { _, playing in
+                if isNativeMode { session.updateAudioPlaying(playing) }
+            }
+            .onDisappear { nativeAudioPlayer.stop() }
+            .sheet(isPresented: $showRenderModeSheet) { renderModeSheet }
 
             Spacer()
 
@@ -286,6 +297,106 @@ private struct ReviewContent: View {
                 .padding()
             }
         }
+    }
+
+    private var isNativeMode: Bool {
+        if case .native = session.resolvedMode { return true }
+        return false
+    }
+
+    private var renderModeSheet: some View {
+        RenderModeSheet(
+            explainer: renderModeExplainer,
+            template: session.currentTemplateTarget,
+            templateName: session.templateName,
+            onChanged: { session.reresolveCurrentCard() }
+        )
+    }
+
+    private var mediaFolder: URL? {
+        @Dependency(\.ankiBackend) var backend
+        guard let path = backend.currentMediaFolderPath else { return nil }
+        return URL(fileURLWithPath: path)
+    }
+
+    private var renderModeExplainer: String {
+        switch session.resolvedMode {
+        case .native:
+            return "rendered natively — passes the simplicity check."
+        case .html:
+            let prefs = currentRenderEnginePreferences(
+                mid: session.currentNote?.mid,
+                ord: Int(session.currentCardOrdinal)
+            )
+            if (prefs.override ?? prefs.global) == .alwaysHTML {
+                return "rendered as HTML — selected for this card."
+            }
+            return "rendered as HTML — uses features the native renderer doesn't support."
+        }
+    }
+
+    @ViewBuilder
+    private func cardSurface(isBack: Bool) -> some View {
+        switch session.resolvedMode {
+        case .native(let front, let back):
+            NativeCardView(
+                content: isBack ? back : front,
+                isAnswerSide: isBack,
+                mediaFolder: mediaFolder
+            )
+        case .html:
+            VStack(spacing: 0) {
+                webChromeStrip
+                CardWebView(
+                    html: isBack ? session.backHTML : session.frontHTML,
+                    cardCSS: session.cardCSS,
+                    isAnswerSide: isBack,
+                    cardOrdinal: session.currentCardOrdinal,
+                    replayRequestID: session.replayRequestID,
+                    stopAudioRequestID: session.stopAudioRequestID,
+                    typedAnswerRequestID: session.typedAnswerRequestID,
+                    openLinksExternally: openLinksExternally,
+                    contentAlignment: CardWebViewContentAlignment(rawValue: cardContentAlignment) ?? .center,
+                    onTypedAnswerSubmitted: { typed in session.submitTypedAnswer(typed) },
+                    onAudioStateChange: { playing in session.updateAudioPlaying(playing) },
+                    onCardBackgroundColorChange: { color, isDark in
+                        session.updateCardChrome(color: color, isDark: isDark)
+                    },
+                    onLookupRequested: tapLookup ? { text, _, _ in
+                        if let text, !text.isEmpty { lookupQuery = text }
+                    } : nil
+                )
+            }
+        }
+    }
+
+    /// Slim chrome above the sandboxed WebView card (R11): HTML badge ·
+    /// template name · "sandboxed".
+    private var webChromeStrip: some View {
+        HStack(spacing: 8) {
+            Text("HTML")
+                .amgiFont(.caption)
+                .fontWeight(.semibold)
+                .foregroundStyle(palette.warning)
+            if let name = session.templateName {
+                Text(name)
+                    .font(.caption.monospaced())
+                    .foregroundStyle(palette.textTertiary)
+            }
+            Spacer()
+            Text("sandboxed")
+                .amgiFont(.caption)
+                .foregroundStyle(palette.textTertiary)
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 4)
+    }
+
+    private func playNativeAudio() {
+        guard case .native(let front, let back) = session.resolvedMode else { return }
+        let files = session.showAnswer ? back.audioFiles : front.audioFiles
+        guard !files.isEmpty else { return }
+        nativeAudioPlayer.play(files: files, mediaFolder: mediaFolder)
     }
 
     private var answerButtons: some View {
