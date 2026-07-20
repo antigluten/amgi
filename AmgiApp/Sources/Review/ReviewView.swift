@@ -36,9 +36,6 @@ struct ReviewView: View {
     @Shared(.appStorage(ReviewPreferences.Keys.showNextReviewTime))
     private var showNextReviewTime: Bool = true
 
-    @Shared(.appStorage(ReviewPreferences.Keys.disperseAnswerButtons))
-    private var disperseAnswerButtons: Bool = false
-
     @Shared(.appStorage(ReaderPreferences.Keys.tapLookup))
     private var tapLookup: Bool = true
 
@@ -66,7 +63,6 @@ struct ReviewView: View {
             openLinksExternally: openLinksExternally,
             cardContentAlignment: cardContentAlignment,
             tapLookup: tapLookup,
-            disperseAnswerButtons: disperseAnswerButtons,
             showNextReviewTime: showNextReviewTime,
             editingNote: $editingNote,
             editingTemplate: $editingTemplate,
@@ -101,7 +97,6 @@ private struct ReviewContent: View {
     let openLinksExternally: Bool
     let cardContentAlignment: String
     let tapLookup: Bool
-    let disperseAnswerButtons: Bool
     let showNextReviewTime: Bool
     @Binding var editingNote: NoteRecord?
     @Binding var editingTemplate: ReviewSession.TemplateTarget?
@@ -134,6 +129,8 @@ private struct ReviewContent: View {
                 }
             }
             .background(palette.background)
+            .overlay { toastOverlay }
+            .animation(.easeInOut(duration: 0.15), value: session.pendingToast)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -400,14 +397,20 @@ private struct ReviewContent: View {
     }
 
     private var answerButtons: some View {
-        HStack(spacing: disperseAnswerButtons ? 16 : 8) {
-            ratingButton(.again, color: palette.danger)
-            ratingButton(.hard, color: palette.warning)
-            ratingButton(.good, color: palette.positive)
-            ratingButton(.easy, color: palette.info)
+        RatingBar(
+            intervals: session.nextIntervals,
+            showIntervals: showNextReviewTime,
+            isDisabled: session.isAdvancing,
+            onRate: { rating in session.answer(rating: rating) }
+        )
+    }
+
+    @ViewBuilder
+    private var toastOverlay: some View {
+        if let toast = session.pendingToast {
+            RatingToastView(toast: toast)
+                .transition(.opacity.combined(with: .scale(scale: 0.9)))
         }
-        .padding(.horizontal, disperseAnswerButtons ? 20 : 16)
-        .padding(.vertical, 16)
     }
 
     private var finishedView: some View {
@@ -436,35 +439,6 @@ private struct ReviewContent: View {
 }
 
 private extension ReviewContent {
-    func ratingButton(_ rating: Rating, color: Color) -> some View {
-        Button {
-            session.answer(rating: rating)
-        } label: {
-            VStack(spacing: 4) {
-                if showNextReviewTime {
-                    Text(session.nextIntervals[rating] ?? "")
-                        .amgiFont(.caption)
-                }
-                Text(ratingLabel(rating))
-                    .amgiFont(.bodyEmphasis)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 10)
-        }
-        .buttonStyle(.bordered)
-        .tint(color)
-        .disabled(session.isAdvancing)
-    }
-
-    func ratingLabel(_ rating: Rating) -> String {
-        switch rating {
-        case .again: "Again"
-        case .hard: "Hard"
-        case .good: "Good"
-        case .easy: "Easy"
-        }
-    }
-
     func flagColor(for value: UInt32) -> Color {
         switch value & 0b111 {
         case 1: return .red
@@ -500,7 +474,6 @@ private struct ReviewLookupQuery: Identifiable {
         openLinksExternally: true,
         cardContentAlignment: CardWebViewContentAlignment.center.rawValue,
         tapLookup: true,
-        disperseAnswerButtons: false,
         showNextReviewTime: true,
         editingNote: .constant(nil),
         editingTemplate: .constant(nil),
@@ -519,7 +492,6 @@ private struct ReviewLookupQuery: Identifiable {
         openLinksExternally: true,
         cardContentAlignment: CardWebViewContentAlignment.center.rawValue,
         tapLookup: true,
-        disperseAnswerButtons: false,
         showNextReviewTime: true,
         editingNote: .constant(nil),
         editingTemplate: .constant(nil),
@@ -538,7 +510,6 @@ private struct ReviewLookupQuery: Identifiable {
         openLinksExternally: true,
         cardContentAlignment: CardWebViewContentAlignment.center.rawValue,
         tapLookup: true,
-        disperseAnswerButtons: false,
         showNextReviewTime: true,
         editingNote: .constant(nil),
         editingTemplate: .constant(nil),
