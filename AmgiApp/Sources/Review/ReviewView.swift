@@ -104,28 +104,25 @@ private struct ReviewContent: View {
     let onDismiss: () -> Void
 
     @Environment(\.palette) private var palette
-    @State private var showRenderModeSheet = false
-    @State private var nativeAudioPlayer = NativeCardAudioPlayer()
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
                 if showRemainingDays {
-                    HStack(spacing: 12) {
-                        DeckCountsView(counts: session.remainingCounts)
-                        Spacer()
-                        Text("\(session.sessionStats.reviewed) reviewed")
-                            .amgiFont(.caption)
-                            .foregroundStyle(palette.textSecondary)
-                    }
-                    .padding(.horizontal)
-                    .padding(.vertical, 8)
+                    progressBar
                 }
 
                 if session.isFinished {
                     finishedView
                 } else {
-                    cardView
+                    ReviewCardArea(
+                        session: session,
+                        openLinksExternally: openLinksExternally,
+                        cardContentAlignment: cardContentAlignment,
+                        tapLookup: tapLookup,
+                        showNextReviewTime: showNextReviewTime,
+                        lookupQuery: $lookupQuery
+                    )
                 }
             }
             .background(palette.background)
@@ -134,77 +131,31 @@ private struct ReviewContent: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Done") { onDismiss() }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        session.undo()
+                        onDismiss()
                     } label: {
-                        Image(systemName: "arrow.uturn.backward")
+                        Image(systemName: "xmark")
                     }
-                    .disabled(!session.canUndo)
-                    .accessibilityLabel("Undo")
+                    .accessibilityLabel("Close")
                 }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        editingNote = session.currentNote
-                    } label: {
-                        Image(systemName: "pencil")
-                    }
-                    .disabled(session.currentNote == nil)
-                    .accessibilityLabel("Edit note")
+                ToolbarItem(placement: .principal) {
+                    Text(session.deckName)
+                        .amgiFont(.bodyEmphasis)
+                        .foregroundStyle(palette.textPrimary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                 }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        // Empty initial query opens the popup focused
-                        // for typing. Future enhancement: forward
-                        // CardWebView text-selection so the query is
-                        // pre-populated.
-                        lookupQuery = ""
-                    } label: {
-                        Image(systemName: "character.book.closed")
-                    }
-                    .accessibilityLabel("Look up word")
-                }
-                if showAudioReplayButton {
+                if showRemainingDays {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            if session.isAudioPlaying {
-                                session.bumpStopAudioRequest()
-                            } else {
-                                session.bumpReplayRequest()
-                            }
-                        } label: {
-                            Image(systemName: session.isAudioPlaying ? "pause.circle" : "play.circle")
-                        }
-                        .disabled(session.currentNote == nil)
-                        .accessibilityLabel(session.isAudioPlaying ? "Stop audio" : "Replay audio")
+                        Text("\(cardPosition)/\(max(sessionTotal, 1))")
+                            .amgiFont(.caption)
+                            .monospacedDigit()
+                            .foregroundStyle(palette.textSecondary)
+                            .accessibilityLabel("Card \(cardPosition) of \(max(sessionTotal, 1))")
                     }
                 }
-                if showContextMenuButton {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Menu {
-                            if let cardId = session.currentCardId {
-                                CardContextMenu(cardId: cardId, noteId: session.currentNote?.id)
-                            }
-                            Divider()
-                            Button {
-                                editingTemplate = session.currentTemplateTarget
-                            } label: {
-                                Label("Edit Template", systemImage: "square.and.pencil")
-                            }
-                            .disabled(session.currentTemplateTarget == nil)
-                        } label: {
-                            if session.currentFlag != 0 {
-                                Image(systemName: "flag.fill")
-                                    .foregroundStyle(flagColor(for: session.currentFlag))
-                            } else {
-                                Image(systemName: "ellipsis.circle")
-                            }
-                        }
-                        .disabled(session.currentNote == nil)
-                        .accessibilityLabel("Card options")
-                    }
+                ToolbarItem(placement: .topBarTrailing) {
+                    cardActionsMenu
                 }
             }
             .toolbarBackground(
@@ -248,7 +199,182 @@ private struct ReviewContent: View {
     }
 
     @ViewBuilder
-    private var cardView: some View {
+    private var toastOverlay: some View {
+        if let toast = session.pendingToast {
+            RatingToastView(toast: toast)
+                .transition(.opacity.combined(with: .scale(scale: 0.9)))
+        }
+    }
+
+    // MARK: - Progress
+
+    /// Total cards in this session = already reviewed + still queued. The
+    /// queued total shifts as learning cards re-enter the queue, so this
+    /// tracks the session rather than a fixed count.
+    private var sessionTotal: Int {
+        session.sessionStats.reviewed + session.remainingCounts.total
+    }
+
+    /// 1-indexed position of the current card, clamped so it never exceeds
+    /// the (moving) total.
+    private var cardPosition: Int {
+        min(session.sessionStats.reviewed + 1, max(sessionTotal, 1))
+    }
+
+    private var progressFraction: Double {
+        sessionTotal > 0 ? Double(session.sessionStats.reviewed) / Double(sessionTotal) : 0
+    }
+
+    /// Thin session-progress bar under the navigation bar (replaces the old
+    /// counts row). The numeric position lives in the toolbar.
+    private var progressBar: some View {
+        GeometryReader { geo in
+            ZStack(alignment: .leading) {
+                Capsule().fill(palette.separator)
+                Capsule()
+                    .fill(palette.accent)
+                    .frame(width: max(0, geo.size.width * progressFraction))
+            }
+        }
+        .frame(height: 3)
+        .padding(.horizontal)
+        .padding(.top, 6)
+        .padding(.bottom, 2)
+        .animation(.easeInOut(duration: 0.3), value: progressFraction)
+    }
+
+    // MARK: - Card actions
+
+    /// The single overflow menu that replaces the row of toolbar icons:
+    /// undo, edit note, look up, replay audio, and card/template options.
+    /// Individual items carry their own disabled state so undo stays
+    /// reachable even when there's no current note (e.g. finished screen).
+    @ViewBuilder
+    private var cardActionsMenu: some View {
+        Menu {
+            Button {
+                session.undo()
+            } label: {
+                Label("Undo", systemImage: "arrow.uturn.backward")
+            }
+            .disabled(!session.canUndo)
+
+            Button {
+                editingNote = session.currentNote
+            } label: {
+                Label("Edit Note", systemImage: "pencil")
+            }
+            .disabled(session.currentNote == nil)
+
+            Button {
+                // Empty initial query opens the popup focused for typing.
+                // Future enhancement: forward CardWebView text-selection so
+                // the query is pre-populated.
+                lookupQuery = ""
+            } label: {
+                Label("Look Up", systemImage: "character.book.closed")
+            }
+
+            if showAudioReplayButton {
+                Button {
+                    if session.isAudioPlaying {
+                        session.bumpStopAudioRequest()
+                    } else {
+                        session.bumpReplayRequest()
+                    }
+                } label: {
+                    Label(
+                        session.isAudioPlaying ? "Stop Audio" : "Replay Audio",
+                        systemImage: session.isAudioPlaying ? "pause.circle" : "play.circle"
+                    )
+                }
+                .disabled(session.currentNote == nil)
+            }
+
+            if showContextMenuButton {
+                Divider()
+                if let cardId = session.currentCardId {
+                    CardContextMenu(cardId: cardId, noteId: session.currentNote?.id)
+                }
+                Button {
+                    editingTemplate = session.currentTemplateTarget
+                } label: {
+                    Label("Edit Template", systemImage: "square.and.pencil")
+                }
+                .disabled(session.currentTemplateTarget == nil)
+            }
+        } label: {
+            if session.currentFlag != 0 {
+                Image(systemName: "flag.fill")
+                    .foregroundStyle(flagColor(for: session.currentFlag))
+            } else {
+                Image(systemName: "ellipsis.circle")
+            }
+        }
+        .accessibilityLabel("Card options")
+    }
+
+    private var finishedView: some View {
+        VStack(spacing: AmgiSpacing.lg) {
+            Spacer()
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 64))
+                .foregroundStyle(palette.positive)
+            Text("Congratulations!")
+                .amgiFont(.sectionHeading)
+                .foregroundStyle(palette.textPrimary)
+            Text("You've reviewed \(session.sessionStats.reviewed) cards")
+                .amgiFont(.body)
+                .foregroundStyle(palette.textSecondary)
+            if session.sessionStats.reviewed > 0 {
+                Text("Accuracy: \(Int(session.sessionStats.accuracy * 100))%")
+                    .amgiFont(.body)
+                    .foregroundStyle(palette.textSecondary)
+            }
+            Spacer()
+            Button("Done") { onDismiss() }
+                .buttonStyle(AmgiPrimaryButtonStyle())
+                .padding()
+        }
+    }
+}
+
+private extension ReviewContent {
+    func flagColor(for value: UInt32) -> Color {
+        switch value & 0b111 {
+        case 1: return .red
+        case 2: return .orange
+        case 3: return .green
+        case 4: return .blue
+        case 5: return .pink
+        case 6: return .cyan
+        case 7: return .purple
+        default: return .secondary
+        }
+    }
+}
+
+// MARK: - Card Area
+
+/// The card region of the reviewer: render-mode chip, the flip surface, and
+/// the reveal/rating controls. Extracted from `ReviewContent` so that session
+/// mutations it doesn't read (audio-playing toggles, toast, deck counts) skip
+/// its body — otherwise every such change re-runs `CardWebView.updateUIView`
+/// and its regex HTML processing. Owns the render-mode sheet flag and the
+/// native audio player, which are only relevant here.
+private struct ReviewCardArea: View {
+    let session: ReviewSession
+    let openLinksExternally: Bool
+    let cardContentAlignment: String
+    let tapLookup: Bool
+    let showNextReviewTime: Bool
+    @Binding var lookupQuery: String?
+
+    @Environment(\.palette) private var palette
+    @State private var showRenderModeSheet = false
+    @State private var nativeAudioPlayer = NativeCardAudioPlayer()
+
+    var body: some View {
         VStack(spacing: 0) {
             RenderModeChipRow(
                 isNative: isNativeMode,
@@ -403,53 +529,6 @@ private struct ReviewContent: View {
             isDisabled: session.isAdvancing,
             onRate: { rating in session.answer(rating: rating) }
         )
-    }
-
-    @ViewBuilder
-    private var toastOverlay: some View {
-        if let toast = session.pendingToast {
-            RatingToastView(toast: toast)
-                .transition(.opacity.combined(with: .scale(scale: 0.9)))
-        }
-    }
-
-    private var finishedView: some View {
-        VStack(spacing: AmgiSpacing.lg) {
-            Spacer()
-            Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 64))
-                .foregroundStyle(palette.positive)
-            Text("Congratulations!")
-                .amgiFont(.sectionHeading)
-                .foregroundStyle(palette.textPrimary)
-            Text("You've reviewed \(session.sessionStats.reviewed) cards")
-                .amgiFont(.body)
-                .foregroundStyle(palette.textSecondary)
-            if session.sessionStats.reviewed > 0 {
-                Text("Accuracy: \(Int(session.sessionStats.accuracy * 100))%")
-                    .amgiFont(.body)
-                    .foregroundStyle(palette.textSecondary)
-            }
-            Spacer()
-            Button("Done") { onDismiss() }
-                .buttonStyle(AmgiPrimaryButtonStyle())
-                .padding()
-        }
-    }
-}
-
-private extension ReviewContent {
-    func flagColor(for value: UInt32) -> Color {
-        switch value & 0b111 {
-        case 1: return .red
-        case 2: return .orange
-        case 3: return .green
-        case 4: return .blue
-        case 5: return .pink
-        case 6: return .cyan
-        case 7: return .purple
-        default: return .secondary
-        }
     }
 }
 

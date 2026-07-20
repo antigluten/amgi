@@ -39,6 +39,7 @@ final class ReviewSession {
     private(set) var showAnswer: Bool = false
     private(set) var sessionStats: SessionStats = .init()
     private(set) var remainingCounts: DeckCounts = .zero
+    private(set) var deckName: String = ""
     private(set) var isFinished: Bool = false
     private(set) var canUndo: Bool = false
     private(set) var nextIntervals: [Rating: String] = [:]
@@ -135,11 +136,13 @@ final class ReviewSession {
         Task {
             defer { isAdvancing = false }
             do {
-                let queue = try await Task.detached {
+                let (queue, name) = try await Task.detached { () -> (QueuedCardsResult, String) in
                     try decks.setCurrentDeck(deckId)
-                    return try scheduler.getQueuedCards(200)
+                    let name = (try? decks.getCurrentDeck().name) ?? ""
+                    return (try scheduler.getQueuedCards(200), name)
                 }.value
                 cardQueue = queue.cards
+                deckName = name
                 remainingCounts = DeckCounts(
                     newCount: queue.newCount,
                     learnCount: queue.learningCount,
@@ -554,6 +557,14 @@ private func prepareCard(
             override: prefs.override,
             global: prefs.global
         )
+        if case .html = resolution.mode {
+            let issue = CardComplexity.complexityIssue(
+                renderedFront: rendered.frontHTML,
+                renderedBack: rendered.backHTML,
+                css: rendered.cardCSS
+            ) ?? "engine preference (global: \(prefs.global.rawValue), override: \(prefs.override?.rawValue ?? "none"))"
+            print("[ReviewSession] card \(queued.card.id.rawValue) → HTML: \(issue); front=\(String(rendered.frontHTML.prefix(200)))")
+        }
         return PreparedCard(
             note: note,
             renderedFrontHTML: rendered.frontHTML,
@@ -726,6 +737,7 @@ extension ReviewSession {
         session.isFinished = isFinished
         session.sessionStats = SessionStats(reviewed: reviewed, correct: 6, totalTimeMs: 42_000)
         session.remainingCounts = counts
+        session.deckName = "한국어 · Vocab Typing"
         session.nextIntervals = [.again: "<1m", .hard: "8m", .good: "1d", .easy: "4d"]
         session.canUndo = reviewed > 0
         session.templateName = "Card 1"
