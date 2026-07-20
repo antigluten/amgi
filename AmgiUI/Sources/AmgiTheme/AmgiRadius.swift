@@ -15,4 +15,6 @@ public enum AmgiRadius {
     public static let control: CGFloat = 10
     /// R24's 56px floating tab pill. Reserved here so the token set is complete.
     public static let pill: CGFloat = 28
+    /// R11's native review-card surface.
+    public static let card: CGFloat = 24
 }
