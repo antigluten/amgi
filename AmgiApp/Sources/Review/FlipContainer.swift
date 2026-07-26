@@ -1,41 +1,36 @@
 import SwiftUI
 
-/// 3D flip for the review card surface (R12). The content builder receives
-/// the *displayed* side, which swaps at the 90° seam — so the WebView path's
-/// `isAnswerSide` reload happens during the back half of the animation, and
-/// the native path swaps its parsed content the same way.
+/// Answer reveal for the native card surface (R12).
 ///
-/// Reveal (`showBack` false→true) animates; reset (→false, on advance or
-/// undo) snaps instantly so a new card never plays a stale reverse flip.
+/// A 3D `rotation3DEffect` flip rasterizes SwiftUI text into an offscreen
+/// texture and samples it at low effective resolution at steep angles, so the
+/// answer settles in visibly blurred for ~200ms before snapping crisp. Instead
+/// the two sides cross-dissolve with a small settle-in scale — vector-crisp
+/// throughout, and still reads as a reveal.
+///
+/// Reveal (`showBack` false→true) animates; reset (→false, on advance or undo)
+/// snaps instantly so a new card never plays a stale reverse animation.
+///
+/// Only the native path uses this; WebView cards swap sides directly, because a
+/// live `WKWebView` rasterizes even worse under a transform.
 struct FlipContainer<Content: View>: View {
     let showBack: Bool
     @ViewBuilder let content: (_ isBack: Bool) -> Content
 
     @State private var displayedBack = false
-    @State private var angle: Double = 0
-
-    private static var halfDuration: Double { 0.175 }
 
     var body: some View {
         content(displayedBack)
-            .rotation3DEffect(.degrees(angle), axis: (x: 0, y: 1, z: 0), perspective: 0.35)
+            .id(displayedBack)
+            .transition(.opacity.combined(with: .scale(scale: 0.96)))
             .onChange(of: showBack) { _, newValue in
                 if newValue {
-                    flipToBack()
+                    withAnimation(.easeInOut(duration: 0.22)) { displayedBack = true }
                 } else {
-                    displayedBack = false
-                    angle = 0
+                    var snap = Transaction()
+                    snap.disablesAnimations = true
+                    withTransaction(snap) { displayedBack = false }
                 }
             }
-    }
-
-    private func flipToBack() {
-        withAnimation(.easeIn(duration: Self.halfDuration)) { angle = 90 }
-        Task { @MainActor in
-            try? await Task.sleep(for: .seconds(Self.halfDuration))
-            displayedBack = true
-            angle = -90
-            withAnimation(.easeOut(duration: Self.halfDuration)) { angle = 0 }
-        }
     }
 }
