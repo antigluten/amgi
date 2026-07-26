@@ -58,6 +58,14 @@ jobs:
           toolchain: "1.95"
           targets: aarch64-apple-ios,aarch64-apple-ios-sim,x86_64-apple-ios
 
+      # ── 4.5. Install nightly + rust-src (watchOS build-std) ───────
+      # build-xcframework.sh builds the tier-3 watchOS sim slice with
+      # `cargo +nightly -Z build-std`, which compiles std from source and
+      # therefore needs rust-src. Plain `rustup toolchain install` (not the
+      # dtolnay action) so stable 1.95 above stays the default toolchain.
+      - name: Install Rust nightly with rust-src
+        run: rustup toolchain install nightly --profile minimal --component rust-src
+
       # ── 5. Cache Rust build artifacts ─────────────────────────────
       - name: Cache Rust build artifacts
         uses: actions/cache@v4
