@@ -408,11 +408,15 @@ private struct ReviewCardArea: View {
 
             Spacer()
 
+            if session.requiresTypedAnswerInput {
+                TypedAnswerField(session: session)
+            }
+
             if session.showAnswer {
                 answerButtons
             } else {
                 Button {
-                    Task { await session.revealAnswer() }
+                    session.revealAnswer()
                 } label: {
                     Text("Show Answer")
                         .amgiFont(.bodyEmphasis)
@@ -495,15 +499,15 @@ private struct ReviewCardArea: View {
                     cardOrdinal: session.currentCardOrdinal,
                     replayRequestID: session.replayRequestID,
                     stopAudioRequestID: session.stopAudioRequestID,
-                    typedAnswerRequestID: session.typedAnswerRequestID,
                     openLinksExternally: openLinksExternally,
                     contentAlignment: CardWebViewContentAlignment(rawValue: cardContentAlignment) ?? .center,
-                    onTypedAnswerSubmitted: { typed in session.submitTypedAnswer(typed) },
                     onAudioStateChange: { playing in session.updateAudioPlaying(playing) },
                     onCardBackgroundColorChange: { color, isDark in
                         session.updateCardChrome(color: color, isDark: isDark)
                     },
-                    onLookupRequested: tapLookup ? { text, _, _ in
+                    // No tap-lookup while the typed-answer input is up — the
+                    // dictionary would hand over the answer to be typed.
+                    onLookupRequested: tapLookup && !session.requiresTypedAnswerInput ? { text, _, _ in
                         if let text, !text.isEmpty { lookupQuery = text }
                     } : nil
                 )
@@ -547,6 +551,26 @@ private struct ReviewCardArea: View {
             isDisabled: session.isAdvancing,
             onRate: { rating in session.answer(rating: rating) }
         )
+    }
+}
+
+/// Native input for typed-answer (`{{type:}}`) cards. Native rather than an
+/// in-card HTML input because WKWebView ignores web keyboard attributes and
+/// the predictive bar would offer the answer as a suggestion.
+private struct TypedAnswerField: View {
+    @Bindable var session: ReviewSession
+    @FocusState private var focused: Bool
+
+    var body: some View {
+        TextField("Type the answer", text: $session.typedAnswer)
+            .textFieldStyle(.roundedBorder)
+            .autocorrectionDisabled()
+            .textInputAutocapitalization(.never)
+            .submitLabel(.done)
+            .onSubmit { session.revealAnswer() }
+            .focused($focused)
+            .padding(.horizontal)
+            .onAppear { focused = true }
     }
 }
 

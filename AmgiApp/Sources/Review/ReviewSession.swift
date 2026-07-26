@@ -43,7 +43,6 @@ final class ReviewSession {
     private(set) var isFinished: Bool = false
     private(set) var canUndo: Bool = false
     private(set) var nextIntervals: [Rating: String] = [:]
-    private(set) var typedAnswerRequestID: Int = 0
     private(set) var replayRequestID: Int = 0       // plumbed; consumer is PR 1b
     private(set) var stopAudioRequestID: Int = 0    // plumbed; consumer is PR 1b
     private(set) var isAudioPlaying: Bool = false
@@ -72,15 +71,15 @@ final class ReviewSession {
     private var renderedFrontHTML: String = ""
     private var renderedBackHTML: String = ""
     private var typedAnswerState: TypedAnswerState?
-    private var typedAnswerContinuation: CheckedContinuation<String?, Never>?
-    /// Monotonic token identifying the in-flight typed-answer read, so a
-    /// stale timeout task can't drain a *later* cycle's continuation.
-    private var typedAnswerGeneration: Int = 0
+    /// Bound to the native typed-answer field in ReviewView. Native (not an
+    /// in-card HTML input) so keyboard traits fully apply — the predictive
+    /// bar would otherwise offer the answer as a suggestion.
+    var typedAnswer: String = ""
 
     // MARK: - Computed
 
     var requiresTypedAnswerInput: Bool {
-        typedAnswerState != nil && !showAnswer
+        typedAnswerState?.expected.isEmpty == false && !showAnswer
     }
 
     var currentCardOrdinal: UInt32 {
@@ -157,28 +156,13 @@ final class ReviewSession {
         }
     }
 
-    func revealAnswer() async {
-        if typedAnswerState == nil {
-            backHTML = strippingTypedAnswerPlaceholders(from: renderedBackHTML)
-            showAnswer = true
-            return
-        }
-
-        typedAnswerRequestID += 1  // triggers JS to read <input> via updateUIView
-
-        let typed = await readTypedAnswerWithTimeout()
+    func revealAnswer() {
         if let state = typedAnswerState {
-            backHTML = makeTypedAnswerBackHTML(state: state, typedAnswer: typed ?? "")
+            backHTML = makeTypedAnswerBackHTML(state: state, typedAnswer: typedAnswer)
         } else {
             backHTML = strippingTypedAnswerPlaceholders(from: renderedBackHTML)
         }
         showAnswer = true
-    }
-
-    /// Called by CardWebViewCoordinator when JS delivers the typed answer.
-    func submitTypedAnswer(_ typed: String?) {
-        typedAnswerContinuation?.resume(returning: typed)
-        typedAnswerContinuation = nil
     }
 
     func answer(rating: Rating) {
@@ -314,12 +298,12 @@ final class ReviewSession {
                 notetypes: notetypes,
                 cardRendering: cardRendering
             )
-            frontHTML = makeTypedAnswerFrontHTML(state: typedAnswerState, raw: renderedFrontHTML)
+            frontHTML = strippingTypedAnswerPlaceholders(from: renderedFrontHTML)
 
             if showAnswer, let state = typedAnswerState {
-                // Re-substitute back placeholder with diff using empty typed value.
-                // We don't have the user's original typed text after a sheet round-trip.
-                backHTML = makeTypedAnswerBackHTML(state: state, typedAnswer: "")
+                // Re-substitute back placeholder with the diff; the typed text
+                // survives the sheet round-trip in `typedAnswer`.
+                backHTML = makeTypedAnswerBackHTML(state: state, typedAnswer: typedAnswer)
             } else {
                 backHTML = renderedBackHTML
             }
@@ -391,6 +375,7 @@ private extension ReviewSession {
         renderedBackHTML = prepared.renderedBackHTML
         cardCSS = prepared.cardCSS
         typedAnswerState = prepared.typedAnswerState
+        typedAnswer = ""
         frontHTML = prepared.frontHTML
         backHTML = prepared.renderedBackHTML  // back substitution happens at reveal
         nextIntervals = next.nextIntervals
@@ -418,26 +403,6 @@ private extension ReviewSession {
         }
     }
 
-    // MARK: - Typed-answer async read
-
-    func readTypedAnswerWithTimeout() async -> String? {
-        // Suspend until JS calls submitTypedAnswer or 100 ms elapses.
-        // The generation token guards against a stale timeout task draining
-        // a continuation registered by a *later* reveal cycle.
-        typedAnswerGeneration += 1
-        let generation = typedAnswerGeneration
-        return await withCheckedContinuation { (cont: CheckedContinuation<String?, Never>) in
-            typedAnswerContinuation = cont
-            Task { @MainActor [weak self] in
-                try? await Task.sleep(for: .milliseconds(100))
-                guard let self,
-                      self.typedAnswerGeneration == generation,
-                      let pending = self.typedAnswerContinuation else { return }
-                pending.resume(returning: nil)
-                self.typedAnswerContinuation = nil
-            }
-        }
-    }
 }
 
 // MARK: - Off-main card preparation
@@ -571,7 +536,7 @@ private func prepareCard(
             renderedBackHTML: rendered.backHTML,
             cardCSS: rendered.cardCSS,
             typedAnswerState: typedState,
-            frontHTML: makeTypedAnswerFrontHTML(state: typedState, raw: rendered.frontHTML),
+            frontHTML: strippingTypedAnswerPlaceholders(from: rendered.frontHTML),
             resolvedMode: resolution.mode,
             resolvedByAuto: resolution.byAuto,
             templateName: templateName,
@@ -687,21 +652,6 @@ private func firstTypedAnswerPlaceholder(in html: String, cardOrdinal: UInt32) -
         combining: combining,
         clozeOrdinal: clozeOrdinal
     )
-}
-
-private func makeTypedAnswerFrontHTML(state: TypedAnswerState?, raw: String) -> String {
-    guard let state, raw.contains(state.placeholder) else {
-        return strippingTypedAnswerPlaceholders(from: raw)
-    }
-    if state.expected.isEmpty {
-        return raw.replacingOccurrences(of: state.placeholder, with: "")
-    }
-    let inputHTML = """
-    <center>
-    <input type="text" id="typeans" autocapitalize="none" autocomplete="off" autocorrect="off" spellcheck="false" onkeypress="return amgiHandleTypeAnswerKey(event);" style="font-family: '\(state.fontName)'; font-size: \(state.fontSize)px;">
-    </center>
-    """
-    return raw.replacingOccurrences(of: state.placeholder, with: inputHTML)
 }
 
 private func strippingTypedAnswerPlaceholders(from html: String) -> String {
