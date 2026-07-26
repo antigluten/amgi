@@ -19,53 +19,42 @@ final class ThemeManagerTests: XCTestCase {
 
     func testDefaultValuesOnEmptyStore() {
         let manager = ThemeManager(defaults: defaults)
-        XCTAssertEqual(manager.theme, .vivid)
+        XCTAssertEqual(manager.themeID, .vivid)
         XCTAssertEqual(manager.appearance, .system)
     }
 
-    func testSettingThemePersistsAcrossInstances() {
+    func testSettingThemeIDPersists() {
         let m1 = ThemeManager(defaults: defaults)
-        m1.theme = .muted
+        m1.themeID = .sepia
         m1.appearance = .dark
 
         let m2 = ThemeManager(defaults: defaults)
-        XCTAssertEqual(m2.theme, .muted)
+        XCTAssertEqual(m2.themeID, .sepia)
         XCTAssertEqual(m2.appearance, .dark)
     }
 
-    func testInvalidStoredValueFallsBackToDefault() {
-        defaults.set("garbage", forKey: "theme.selection")
-        defaults.set("nonsense", forKey: "theme.appearance")
-
+    func testPaletteResolvesThroughRegistry() {
         let manager = ThemeManager(defaults: defaults)
-        XCTAssertEqual(manager.theme, .vivid)
-        XCTAssertEqual(manager.appearance, .system)
+        manager.themeID = .sepia
+        let palette = manager.palette(for: .light)
+        let expected = ThemeRegistry.shared.palette(id: .sepia, scheme: .light)
+        XCTAssertEqual(palette.background, expected.background)
+        XCTAssertEqual(palette.accent, expected.accent)
     }
 
-    func testPaletteForSystemSchemeFollowsSystem() {
+    func testAppearanceLightOverridesSystemScheme() {
         let manager = ThemeManager(defaults: defaults)
-        manager.theme = .muted
-        manager.appearance = .system
-
-        XCTAssertEqual(manager.palette(for: .light), .mutedLight)
-        XCTAssertEqual(manager.palette(for: .dark), .mutedDark)
-    }
-
-    func testPaletteForLightOverrideIgnoresSystem() {
-        let manager = ThemeManager(defaults: defaults)
-        manager.theme = .muted
         manager.appearance = .light
-
-        XCTAssertEqual(manager.palette(for: .light), .mutedLight)
-        XCTAssertEqual(manager.palette(for: .dark), .mutedLight)
+        // Even with systemScheme=.dark, .light appearance should pick the light palette
+        let palette = manager.palette(for: .dark)
+        let expected = ThemeRegistry.shared.palette(id: .vivid, scheme: .light)
+        XCTAssertEqual(palette.background, expected.background)
     }
 
-    func testPaletteForDarkOverrideIgnoresSystem() {
+    func testReadsLegacyThemeKeyOnFirstUpgrade() {
+        // Pre-populate the suite with only the legacy key
+        defaults.set("muted", forKey: "theme.selection")
         let manager = ThemeManager(defaults: defaults)
-        manager.theme = .vivid
-        manager.appearance = .dark
-
-        XCTAssertEqual(manager.palette(for: .light), .vividDark)
-        XCTAssertEqual(manager.palette(for: .dark), .vividDark)
+        XCTAssertEqual(manager.themeID, .muted)
     }
 }

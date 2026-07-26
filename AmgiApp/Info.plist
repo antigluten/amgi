@@ -13,9 +13,9 @@
     <key>CFBundleIdentifier</key>
     <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
     <key>CFBundleVersion</key>
-    <string>4</string>
+    <string>1</string>
     <key>CFBundleShortVersionString</key>
-    <string>0.0.4</string>
+    <string>0.1.0</string>
     <key>CFBundleIconName</key>
     <string>AppIcon</string>
     <key>UILaunchScreen</key>
@@ -33,9 +33,9 @@
     </array>
     <key>UIAppFonts</key>
     <array>
-        <string>SarasaMonoK-Regular.ttf</string>
-        <string>NanumMyeongjo-Regular.ttf</string>
-        <string>NanumGothic-Regular.ttf</string>
+        <string>Fonts/SarasaMonoK-Regular.ttf</string>
+        <string>Fonts/NanumMyeongjo-Regular.ttf</string>
+        <string>Fonts/NanumGothic-Regular.ttf</string>
     </array>
     <key>UIBackgroundModes</key>
     <array>

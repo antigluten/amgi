@@ -8,14 +8,10 @@ public enum SyncDirection: Sendable {
 public struct SyncError: Error, LocalizedError, Sendable, Equatable {
     public let message: String
     public let isRetryable: Bool
-    /// When set, an in-progress merge failed and the local-collection backup
-    /// .apkg has been left on disk at this path so the user can recover.
-    public let recoveryBackupPath: String?
 
-    public init(message: String, isRetryable: Bool = true, recoveryBackupPath: String? = nil) {
+    public init(message: String, isRetryable: Bool = true) {
         self.message = message
         self.isRetryable = isRetryable
-        self.recoveryBackupPath = recoveryBackupPath
     }
 
     public var errorDescription: String? { message }
@@ -42,6 +38,49 @@ public struct SyncSummary: Sendable, Equatable {
         self.notesPushed = notesPushed
         self.notesPulled = notesPulled
         self.conflictsResolved = conflictsResolved
+    }
+}
+
+/// Backend sync credentials. `endpoint` may be rewritten by the
+/// backend mid-sync (server redirect) — call sites must use the
+/// auth returned in `SyncCollectionResult` for subsequent RPCs.
+public struct SyncAuth: Sendable, Equatable {
+    public let hkey: String
+    public let endpoint: String
+
+    public init(hkey: String, endpoint: String) {
+        self.hkey = hkey
+        self.endpoint = endpoint
+    }
+}
+
+/// Mirror of `Anki_Sync_SyncCollectionResponse.ChangesRequired`.
+public enum SyncRequiredAction: Sendable, Equatable {
+    case noChanges
+    case normalSync
+    case fullSync
+    /// Local collection has no cards — upload is not an option.
+    case fullDownload
+    /// Remote collection has no cards — download is not an option.
+    case fullUpload
+    /// An enum case the backend introduced that we don't understand yet.
+    case unrecognized(Int)
+}
+
+/// Decoded `SyncCollectionResponse`. `newEndpoint` is non-nil only
+/// when the backend issued a redirect; callers should rebuild their
+/// `SyncAuth` with this value before issuing follow-up RPCs.
+public struct SyncCollectionResult: Sendable, Equatable {
+    public let required: SyncRequiredAction
+    public let newEndpoint: String?
+    public let serverMediaUsn: Int32
+    public let serverMessage: String
+
+    public init(required: SyncRequiredAction, newEndpoint: String?, serverMediaUsn: Int32, serverMessage: String) {
+        self.required = required
+        self.newEndpoint = newEndpoint
+        self.serverMediaUsn = serverMediaUsn
+        self.serverMessage = serverMessage
     }
 }
 

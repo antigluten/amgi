@@ -1,6 +1,6 @@
 import AnkiBackend
-import AnkiProto
-public import AnkiKit
+import AnkiProtoBridge
+import AnkiKit
 public import Dependencies
 import DependenciesMacros
 
@@ -18,10 +18,7 @@ extension CollectionService: DependencyKey {
                 try backend.checkDatabase()
             },
             undoLast: {
-                try backend.callVoid(
-                    service: AnkiBackend.Service.collectionOps,
-                    method: AnkiBackend.CollectionOpsMethod.undo
-                )
+                try backend.invoke(.undoLastAction)
             }
         )
     }()

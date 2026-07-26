@@ -5,6 +5,7 @@ import AmgiReader
 import AmgiReaderDictionary
 import AmgiTheme
 import AnkiBackend
+import AnkiKit
 import AnkiSync
 import Dependencies
 import Foundation
@@ -14,7 +15,8 @@ import Sharing
 struct AnkiAppApp: App {
     @Shared(.onboardingCompleted) private var onboardingCompleted
     @Environment(\.scenePhase) private var scenePhase
-    @State private var pendingReviewDeckId: Int64? = nil
+    @State private var pendingReviewDeckId: DeckID? = nil
+    @AppStorage("appFont") private var appFontRaw: String = AppFont.system.rawValue
 
     private var destination: Destination {
         onboardingCompleted ? .main : .onboarding
@@ -97,9 +99,10 @@ struct AnkiAppApp: App {
                           .queryItems?.first(where: { $0.name == "deckId" })?.value,
                       let deckId = Int64(deckIdStr)
                 else { return }
-                pendingReviewDeckId = deckId
+                pendingReviewDeckId = DeckID(deckId)
             }
             .themedRoot()
+            .environment(\.appFont, AppFont(rawValue: appFontRaw) ?? .system)
         }
     }
 }

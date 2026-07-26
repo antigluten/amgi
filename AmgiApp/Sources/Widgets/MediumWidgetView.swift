@@ -78,7 +78,10 @@ struct MediumWidgetView: View {
         .widgetURL(URL(string: "amgi://review?deckId=\(snapshot.deckId)"))
     }
 
-    private func countRow(dot: Color, label: String, count: Int) -> some View {
+}
+
+private extension MediumWidgetView {
+    func countRow(dot: Color, label: String, count: Int) -> some View {
         HStack {
             Circle()
                 .fill(dot)

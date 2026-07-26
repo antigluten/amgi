@@ -17,14 +17,21 @@ struct LookupPopupView: View {
     /// BCP-47 / loose hint forwarded into entry rows for TTS voice
     /// selection (`book.language`). Nil falls back to script sniffing.
     var languageHint: String? = nil
+    /// Extra Anki tags appended to every `AddNoteDraft` built from a
+    /// dictionary entry while this popup is on screen. Used by the EPUB
+    /// reader to source-tag cards (e.g. `amgi::book::<id>::ch::<idx>`)
+    /// so the book detail screen can count cards per chapter without a
+    /// schema change. Defaults to empty for existing callers.
+    var extraTags: [String] = []
+    /// Fires after `AddNoteView` reports a successful `addNote`. The
+    /// EPUB reader uses this to post a `.amgiReaderCardAdded` notification
+    /// so the book detail screen can refresh card counts live.
+    var onAddedNote: (() -> Void)? = nil
     let onDismiss: () -> Void
 
-    @Dependency(\.dictionaryLookupClient) var dictionary
+    @State private var model = LookupPopupModel()
 
     @State private var query: String = ""
-    @State private var result: DictionaryLookupResult?
-    @State private var isLoading = false
-    @State private var lookupError: String?
     @State private var pendingNoteDraft: NoteDraft?
 
     /// JSON-encoded `ReaderLookupNoteTemplate` stored in user prefs.
@@ -111,17 +118,17 @@ struct LookupPopupView: View {
                     }
                 }
                 .onSubmit(of: .search) {
-                    Task { await runLookup() }
+                    Task { await performLookup() }
                 }
                 .task {
                     query = initialQuery
-                    await runLookup()
+                    await performLookup()
                 }
                 .navigationDestination(for: LookupPathEntry.self) { pushed in
                     LookupChildPane(
                         query: pushed.query,
                         languageHint: languageHint,
-                        styling: childStyling,
+                        styling: entryStyling,
                         audioTemplate: audioTemplate,
                         audioPlaybackMode: LookupAudioDefaults.resolvedPlaybackMode(audioPlaybackModeRaw),
                         scanLength: scanLength,
@@ -143,9 +150,10 @@ struct LookupPopupView: View {
         .presentationDragIndicator(popupSwipeToDismiss ? .visible : .hidden)
     }
 
-    /// Reused styling block for child panes — derived from the same
-    /// styling prefs so the visual baseline matches the root.
-    private var childStyling: LookupEntryStyling {
+    /// Styling block derived from the user's popup prefs, shared by the
+    /// root result list and every pushed child pane so the visual baseline
+    /// is identical everywhere.
+    private var entryStyling: LookupEntryStyling {
         LookupEntryStyling(
             termFontSize: popupFontSize + 3,
             readingFontSize: popupKanaFontSize,
@@ -165,47 +173,34 @@ struct LookupPopupView: View {
 
     @ViewBuilder
     private var content: some View {
-        if isLoading {
+        if model.isLoading {
             ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else if let lookupError {
+        } else if let lookupError = model.lookupError {
             ContentUnavailableView {
                 Label("Lookup failed", systemImage: "exclamationmark.triangle")
             } description: {
                 Text(lookupError)
             } actions: {
-                Button("Retry") { Task { await runLookup() } }
+                Button("Retry") { Task { await performLookup() } }
             }
-        } else if let result, !result.entries.isEmpty {
-            List {
-                ForEach(result.entries) { entry in
-                    LookupEntryView(
-                        entry: entry,
-                        dictionaryStyles: result.dictionaryStyles,
-                        audioTemplate: audioTemplate,
-                        audioPlaybackMode: LookupAudioDefaults.resolvedPlaybackMode(audioPlaybackModeRaw),
-                        styling: LookupEntryStyling(
-                            termFontSize: popupFontSize + 3,
-                            readingFontSize: popupKanaFontSize,
-                            frequencyFontSize: popupFrequencyFontSize,
-                            dictionaryNameFontSize: popupDictionaryNameFontSize,
-                            contentFontSize: popupContentFontSize,
-                            collapseDictionaries: popupCollapseDictionaries,
-                            compactGlossaries: popupCompactGlossaries
-                        ),
-                        collapsedDictionaries: collapsedDictionaries,
-                        onSetCollapsed: { dict, collapsed in
-                            setCollapsed(dict, collapsed: collapsed)
-                        },
-                        languageHint: languageHint,
-                        onMakeNote: {
-                            pendingNoteDraft = NoteDraft(draft: makeNoteDraft(for: entry))
-                        },
-                        onLookupRequested: { tappedText in
-                            lookupPath.append(LookupPathEntry(query: tappedText))
-                        }
-                    )
+        } else if let result = model.result, !result.entries.isEmpty {
+            LookupResultList(
+                result: result,
+                styling: entryStyling,
+                audioTemplate: audioTemplate,
+                audioPlaybackMode: LookupAudioDefaults.resolvedPlaybackMode(audioPlaybackModeRaw),
+                collapsedDictionaries: collapsedDictionaries,
+                onSetCollapsed: { dict, collapsed in
+                    setCollapsed(dict, collapsed: collapsed)
+                },
+                languageHint: languageHint,
+                onMakeNote: { entry in
+                    pendingNoteDraft = NoteDraft(draft: makeNoteDraft(for: entry))
+                },
+                onLookupRequested: { tappedText in
+                    lookupPath.append(LookupPathEntry(query: tappedText))
                 }
-            }
+            )
             .onAppear {
                 // Autoplay first entry once per query — never re-fire
                 // when the popup re-renders for SwiftUI state changes.
@@ -218,13 +213,13 @@ struct LookupPopupView: View {
                     }
                 }
             }
-            .listStyle(.plain)
             .sheet(item: $pendingNoteDraft) { wrapped in
                 AddNoteView(initialDraft: wrapped.draft) {
                     pendingNoteDraft = nil
+                    onAddedNote?()
                 }
             }
-        } else if result?.isPlaceholder == true {
+        } else if model.result?.isPlaceholder == true {
             ContentUnavailableView {
                 Label("Engine not ready", systemImage: "hourglass")
             } description: {
@@ -232,39 +227,6 @@ struct LookupPopupView: View {
             }
         } else {
             ContentUnavailableView.search(text: query)
-        }
-    }
-
-    private func playAudio(term: String, reading: String?) async {
-        guard let url = await LookupAudioResolver.resolve(
-            term: term,
-            reading: reading,
-            template: audioTemplate
-        ) else { return }
-        await LookupAudioPlayer.shared.play(
-            url: url,
-            mode: LookupAudioDefaults.resolvedPlaybackMode(audioPlaybackModeRaw)
-        )
-    }
-
-    private func runLookup() async {
-        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else {
-            result = nil
-            return
-        }
-        isLoading = true
-        lookupError = nil
-        autoplayedEntryID = nil
-        defer { isLoading = false }
-        do {
-            result = try await dictionary.lookup(trimmed, maxResults, scanLength)
-            if let result, !result.entries.isEmpty {
-                recordHistory(trimmed)
-            }
-        } catch {
-            lookupError = error.localizedDescription
-            result = nil
         }
     }
 
@@ -277,15 +239,6 @@ struct LookupPopupView: View {
         return decoded
     }
 
-    private func recordHistory(_ entry: String) {
-        var history = searchHistory.filter { $0 != entry }
-        history.insert(entry, at: 0)
-        if history.count > 20 { history = Array(history.prefix(20)) }
-        guard let data = try? JSONEncoder().encode(history),
-              let json = String(data: data, encoding: .utf8) else { return }
-        $serializedSearchHistory.withLock { $0 = json }
-    }
-
     // MARK: Per-dictionary collapsed-state persistence
 
     private var collapsedDictionaries: Set<String> {
@@ -295,7 +248,45 @@ struct LookupPopupView: View {
         return Set(decoded)
     }
 
-    private func setCollapsed(_ dictionary: String, collapsed: Bool) {
+}
+
+private extension LookupPopupView {
+    func playAudio(term: String, reading: String?) async {
+        guard let url = await LookupAudioResolver.resolve(
+            term: term,
+            reading: reading,
+            template: audioTemplate
+        ) else { return }
+        await LookupAudioPlayer.shared.play(
+            url: url,
+            mode: LookupAudioDefaults.resolvedPlaybackMode(audioPlaybackModeRaw)
+        )
+    }
+
+    func performLookup() async {
+        // Reset autoplay tracking so a fresh query re-fires the first-entry
+        // autoplay; the model owns the lookup I/O and reports the trimmed
+        // query to record on a non-empty result.
+        autoplayedEntryID = nil
+        if let recorded = await model.runLookup(
+            query: query,
+            maxResults: maxResults,
+            scanLength: scanLength
+        ) {
+            recordHistory(recorded)
+        }
+    }
+
+    func recordHistory(_ entry: String) {
+        var history = searchHistory.filter { $0 != entry }
+        history.insert(entry, at: 0)
+        if history.count > 20 { history = Array(history.prefix(20)) }
+        guard let data = try? JSONEncoder().encode(history),
+              let json = String(data: data, encoding: .utf8) else { return }
+        $serializedSearchHistory.withLock { $0 = json }
+    }
+
+    func setCollapsed(_ dictionary: String, collapsed: Bool) {
         var current = collapsedDictionaries
         if collapsed { current.insert(dictionary) } else { current.remove(dictionary) }
         guard let data = try? JSONEncoder().encode(Array(current).sorted()),
@@ -308,7 +299,7 @@ struct LookupPopupView: View {
     /// the template hasn't been configured the projection falls back to
     /// common Basic-notetype field names so the user still gets a
     /// usable draft.
-    private func makeNoteDraft(for entry: DictionaryLookupEntry) -> AddNoteDraft {
+    func makeNoteDraft(for entry: DictionaryLookupEntry) -> AddNoteDraft {
         let template: ReaderLookupNoteTemplate = serializedTemplate.isEmpty
             ? .empty
             : ReaderLookupNoteTemplate.decode(from: serializedTemplate)
@@ -333,11 +324,18 @@ struct LookupPopupView: View {
             rules: entry.rules.joined(separator: ", ").nilIfBlank
         )
 
-        return template.makeDraft(
+        var draft = template.makeDraft(
             payload: payload,
             fallbackDeckID: nil,
             sourceDescription: "Reader lookup"
         )
+        if !extraTags.isEmpty {
+            // Preserve template-derived tags; just append source-tags so
+            // the book detail screen can count cards per chapter without
+            // a schema change.
+            draft.tags.append(contentsOf: extraTags)
+        }
+        return draft
     }
 }
 
@@ -370,58 +368,38 @@ private struct LookupChildPane: View {
     let onMakeNote: (DictionaryLookupEntry) -> Void
     let onPushLookup: (String) -> Void
 
-    @Dependency(\.dictionaryLookupClient) private var dictionary
-    @State private var result: DictionaryLookupResult?
-    @State private var isLoading = false
-    @State private var lookupError: String?
+    @State private var model = LookupPopupModel()
 
     var body: some View {
         Group {
-            if isLoading {
+            if model.isLoading {
                 ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let lookupError {
+            } else if let lookupError = model.lookupError {
                 ContentUnavailableView {
                     Label("Lookup failed", systemImage: "exclamationmark.triangle")
                 } description: {
                     Text(lookupError)
                 }
-            } else if let result, !result.entries.isEmpty {
-                List {
-                    ForEach(result.entries) { entry in
-                        LookupEntryView(
-                            entry: entry,
-                            dictionaryStyles: result.dictionaryStyles,
-                            audioTemplate: audioTemplate,
-                            audioPlaybackMode: audioPlaybackMode,
-                            styling: styling,
-                            collapsedDictionaries: collapsedDictionaries,
-                            onSetCollapsed: onSetCollapsed,
-                            languageHint: languageHint,
-                            onMakeNote: { onMakeNote(entry) },
-                            onLookupRequested: onPushLookup
-                        )
-                    }
-                }
-                .listStyle(.plain)
+            } else if let result = model.result, !result.entries.isEmpty {
+                LookupResultList(
+                    result: result,
+                    styling: styling,
+                    audioTemplate: audioTemplate,
+                    audioPlaybackMode: audioPlaybackMode,
+                    collapsedDictionaries: collapsedDictionaries,
+                    onSetCollapsed: onSetCollapsed,
+                    languageHint: languageHint,
+                    onMakeNote: onMakeNote,
+                    onLookupRequested: onPushLookup
+                )
             } else {
                 ContentUnavailableView.search(text: query)
             }
         }
         .navigationTitle(query)
         .navigationBarTitleDisplayMode(.inline)
-        .task { await runLookup() }
-    }
-
-    private func runLookup() async {
-        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
-        isLoading = true
-        defer { isLoading = false }
-        do {
-            result = try await dictionary.lookup(trimmed, maxResults, scanLength)
-        } catch {
-            lookupError = error.localizedDescription
-            result = nil
+        .task {
+            await model.runLookup(query: query, maxResults: maxResults, scanLength: scanLength)
         }
     }
 }
@@ -433,183 +411,28 @@ private extension String {
     }
 }
 
-struct LookupEntryStyling {
-    var termFontSize: Double = 20
-    var readingFontSize: Double = 15
-    var frequencyFontSize: Double = 12
-    var dictionaryNameFontSize: Double = 11
-    var contentFontSize: Double = 17
-    var collapseDictionaries: Bool = false
-    var compactGlossaries: Bool = false
+// MARK: - Preview
+
+#if DEBUG
+#Preview {
+    // Override just the lookup closure so the populated result list renders;
+    // the popup's @Shared prefs fall back to their appStorage defaults.
+    let _ = prepareDependencies {
+        $0.dictionaryLookupClient.lookup = { text, _, _ in
+            DictionaryLookupResult(
+                query: text,
+                entries: [
+                    DictionaryLookupEntry(
+                        term: text,
+                        reading: "ねこ",
+                        glossaries: ["a cat", "a feline kept as a pet"],
+                        frequency: "1,240",
+                        source: "JMdict"
+                    ),
+                ]
+            )
+        }
+    }
+    return LookupPopupView(initialQuery: "猫", onDismiss: {})
 }
-
-private struct LookupEntryView: View {
-    let entry: DictionaryLookupEntry
-    let dictionaryStyles: [String: String]
-    let audioTemplate: String
-    let audioPlaybackMode: LookupAudioPlaybackMode
-    let styling: LookupEntryStyling
-    /// Names of dictionaries the user has explicitly collapsed. The
-    /// initial collapsed/expanded state for any given dictionary is the
-    /// union of `styling.collapseDictionaries` (the default-collapsed
-    /// pref) and membership in this set.
-    let collapsedDictionaries: Set<String>
-    let onSetCollapsed: (String, Bool) -> Void
-    let languageHint: String?
-    let onMakeNote: () -> Void
-    let onLookupRequested: ((String) -> Void)?
-
-    @State private var isResolvingAudio = false
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: styling.compactGlossaries ? 2 : 6) {
-            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text(entry.term)
-                    .font(.system(size: styling.termFontSize, weight: .bold))
-                if let reading = entry.reading, !reading.isEmpty, reading != entry.term {
-                    Text(reading)
-                        .font(.system(size: styling.readingFontSize))
-                        .foregroundStyle(.secondary)
-                }
-                Spacer()
-                if let frequency = entry.frequency, !frequency.isEmpty {
-                    Text(frequency)
-                        .font(.system(size: styling.frequencyFontSize))
-                        .padding(.horizontal, 6).padding(.vertical, 2)
-                        .background(Color.secondary.opacity(0.15), in: Capsule())
-                }
-                Button {
-                    Task { await playAudio() }
-                } label: {
-                    if isResolvingAudio {
-                        ProgressView().controlSize(.small)
-                    } else {
-                        Image(systemName: "speaker.wave.2.fill").font(.title3)
-                    }
-                }
-                .buttonStyle(.plain)
-                .disabled(isResolvingAudio)
-                .accessibilityLabel("Play pronunciation")
-                Button {
-                    ReaderTTS.shared.speak(entry.term, languageHint: languageHint)
-                } label: {
-                    Image(systemName: "waveform.badge.mic").font(.title3)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Speak with TTS")
-                Button {
-                    onMakeNote()
-                } label: {
-                    Image(systemName: "plus.circle")
-                        .font(.title3)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Make note from this entry")
-            }
-
-            if !entry.deinflectionTrace.isEmpty {
-                HStack(spacing: 4) {
-                    Image(systemName: "arrow.triangle.2.circlepath").font(.caption2)
-                    Text(entry.deinflectionTrace.map(\.name).joined(separator: " → "))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
-            }
-
-            if let pitch = entry.pitch, !pitch.isEmpty {
-                HStack(spacing: 4) {
-                    Image(systemName: "waveform").font(.caption2)
-                    Text(pitch).font(.caption).foregroundStyle(.secondary)
-                }
-            }
-
-            // Structured glossaries get rendered by the bundled Yomitan
-            // popup.js inside a WKWebView so we get rich formatting:
-            // ordered lists, nested tables, links, pitch diagrams, and
-            // dictionary-bundled images. Group by dictionary so each
-            // dictionary's CSS is scoped to its own entries.
-            if !entry.structuredGlossaries.isEmpty {
-                ForEach(groupedStructured, id: \.dictionary) { group in
-                    structuredGroup(group)
-                }
-            } else {
-                // Plain-text fallback for entries that ship no structured
-                // content (rare — frequency/pitch-only dicts, or older
-                // term dicts that store flat strings).
-                ForEach(Array(entry.glossaries.enumerated()), id: \.offset) { _, gloss in
-                    Text(gloss).font(.system(size: styling.contentFontSize))
-                }
-            }
-        }
-        .padding(.vertical, styling.compactGlossaries ? 1 : 4)
-    }
-
-    @ViewBuilder
-    private func structuredGroup(_ group: StructuredGroup) -> some View {
-        let inner = LookupStructuredContentView(
-            dictionary: group.dictionary,
-            glossaries: group.glossaries,
-            dictionaryStyle: dictionaryStyles[group.dictionary] ?? "",
-            onLookupRequested: onLookupRequested
-        )
-        .frame(maxWidth: .infinity, minHeight: 40)
-
-        // Per-dictionary collapsed state: an explicit toggle in
-        // `collapsedDictionaries` overrides the default. When neither
-        // collapse-by-default nor explicit collapse is set, we render
-        // a flat VStack instead of a DisclosureGroup so the section is
-        // visible without an extra tap.
-        let isExplicitlyCollapsed = collapsedDictionaries.contains(group.dictionary)
-        let shouldShowDisclosure = styling.collapseDictionaries || isExplicitlyCollapsed
-        if shouldShowDisclosure {
-            DisclosureGroup(
-                isExpanded: Binding(
-                    get: { !isExplicitlyCollapsed },
-                    set: { expanded in onSetCollapsed(group.dictionary, !expanded) }
-                )
-            ) {
-                inner
-            } label: {
-                Text(group.dictionary.isEmpty ? "Definitions" : group.dictionary)
-                    .font(.system(size: styling.dictionaryNameFontSize))
-                    .foregroundStyle(.secondary)
-            }
-        } else {
-            VStack(alignment: .leading, spacing: styling.compactGlossaries ? 1 : 4) {
-                if !group.dictionary.isEmpty {
-                    Text(group.dictionary)
-                        .font(.system(size: styling.dictionaryNameFontSize))
-                        .foregroundStyle(.secondary)
-                }
-                inner
-            }
-        }
-    }
-
-    private func playAudio() async {
-        isResolvingAudio = true
-        defer { isResolvingAudio = false }
-        guard let url = await LookupAudioResolver.resolve(
-            term: entry.term,
-            reading: entry.reading,
-            template: audioTemplate
-        ) else { return }
-        await LookupAudioPlayer.shared.play(url: url, mode: audioPlaybackMode)
-    }
-
-    private struct StructuredGroup {
-        let dictionary: String
-        let glossaries: [DictionaryLookupGlossary]
-    }
-
-    private var groupedStructured: [StructuredGroup] {
-        var order: [String] = []
-        var bucket: [String: [DictionaryLookupGlossary]] = [:]
-        for g in entry.structuredGlossaries {
-            if bucket[g.dictionary] == nil { order.append(g.dictionary) }
-            bucket[g.dictionary, default: []].append(g)
-        }
-        return order.map { StructuredGroup(dictionary: $0, glossaries: bucket[$0] ?? []) }
-    }
-}
+#endif

@@ -81,7 +81,10 @@ struct OnboardingView: View {
         .background(palette.background)
     }
 
-    private func saveAndContinue() {
+}
+
+private extension OnboardingView {
+    func saveAndContinue() {
         var url = serverURL.trimmingCharacters(in: .whitespacesAndNewlines)
         if !url.hasPrefix("http://") && !url.hasPrefix("https://") {
             url = "https://" + url
@@ -90,4 +93,10 @@ struct OnboardingView: View {
         $syncMode.withLock { $0 = .custom }
         $onboardingCompleted.withLock { $0 = true }
     }
+}
+
+// MARK: - Preview
+
+#Preview {
+    OnboardingView()
 }

@@ -1,5 +1,4 @@
 import AnkiKit
-import AnkiProto
 import AnkiServices
 public import Dependencies
 import DependenciesMacros

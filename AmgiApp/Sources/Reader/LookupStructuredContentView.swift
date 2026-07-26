@@ -126,17 +126,6 @@ struct LookupStructuredContentView: UIViewRepresentable {
             }
         }
 
-        private func updateContentHeight(for webView: WKWebView) {
-            let script = """
-            Math.ceil(document.getElementById('content')?.getBoundingClientRect().height || 0)
-            """
-            webView.evaluateJavaScript(script) { value, _ in
-                guard let n = value as? NSNumber,
-                      let sizing = webView as? SizingWebView else { return }
-                sizing.setContentHeight(CGFloat(truncating: n))
-            }
-        }
-
         // MARK: WKScriptMessageHandler
 
         func userContentController(_ controller: WKUserContentController, didReceive message: WKScriptMessage) {
@@ -188,113 +177,126 @@ struct LookupStructuredContentView: UIViewRepresentable {
         }
 
         func webView(_ webView: WKWebView, stop urlSchemeTask: WKURLSchemeTask) {}
+    }
+}
 
-        // MARK: HTML
-
-        private static func makeHTML(
-            dictionary: String,
-            glossaries: [DictionaryLookupGlossary],
-            dictionaryStyle: String
-        ) -> String {
-            let dictionaryData = (try? JSONEncoder().encode(glossaries))
-                .flatMap { String(data: $0, encoding: .utf8) } ?? "[]"
-            let escapedDictionary = dictionary
-                .replacingOccurrences(of: "\\", with: "\\\\")
-                .replacingOccurrences(of: "\"", with: "\\\"")
-            // Backticks would close the template literal we drop the
-            // dictionary CSS into below — escape them.
-            let escapedStyle = dictionaryStyle
-                .replacingOccurrences(of: "\\", with: "\\\\")
-                .replacingOccurrences(of: "`", with: "\\`")
-
-            return """
-            <!doctype html>
-            <html>
-            <head>
-            <meta charset="utf-8">
-            <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-            <style>\(ReaderLookupStructuredContentResources.popupCSS)</style>
-            <script>\(ReaderLookupStructuredContentResources.popupJS)</script>
-            <style>
-            body { padding: 0; margin: 0; }
-            #content { padding: 0; }
-            .glossary-content { padding: 0; }
-            </style>
-            </head>
-            <body>
-            <div id="content" data-dictionary="\(escapedDictionary)"></div>
-            <script>
-            (function() {
-                const dictName = "\(escapedDictionary)";
-                const glossaryItems = \(dictionaryData);
-                window.dictionaryStyles = { [dictName]: `\(escapedStyle)` };
-                window.compactGlossaries = false;
-
-                const contentRoot = document.getElementById('content');
-                const dictStyle = window.dictionaryStyles?.[dictName] ?? '';
-                if (dictStyle) {
-                    const style = document.createElement('style');
-                    style.textContent = constructDictCss(dictStyle, dictName);
-                    document.head.appendChild(style);
-                }
-
-                const termTags = [...new Set(parseTags(glossaryItems[0]?.termTags))];
-                const termTagsRow = createGlossaryTags(termTags);
-                if (termTagsRow) {
-                    contentRoot.appendChild(termTagsRow);
-                }
-
-                const renderContent = (parent, content) => {
-                    try {
-                        renderStructuredContent(parent, JSON.parse(content), null, dictName);
-                    } catch {
-                        renderStructuredContent(parent, content, null, dictName);
-                    }
-                };
-
-                if (glossaryItems.length > 1) {
-                    const ol = el('ol');
-                    glossaryItems.forEach((item) => {
-                        const li = el('li');
-                        const parsedTags = parseTags(item.definitionTags).filter(tag => !NUMERIC_TAG.test(tag));
-                        const tags = createGlossaryTags(parsedTags);
-                        if (tags) li.appendChild(tags);
-                        const wrapper = el('div', { className: 'glossary-content' });
-                        renderContent(wrapper, item.content);
-                        li.appendChild(wrapper);
-                        ol.appendChild(li);
-                    });
-                    contentRoot.appendChild(ol);
-                } else {
-                    glossaryItems.forEach((item, index) => {
-                        const wrapper = el('div');
-                        const tags = createGlossaryTags(parseTags(item.definitionTags).filter(tag => !NUMERIC_TAG.test(tag)));
-                        if (tags) wrapper.appendChild(tags);
-                        const content = el('div', { className: 'glossary-content' });
-                        renderContent(content, item.content);
-                        wrapper.appendChild(content);
-                        if (index > 0) contentRoot.appendChild(document.createElement('hr'));
-                        contentRoot.appendChild(wrapper);
-                    });
-                }
-            })();
-            </script>
-            </body>
-            </html>
-            """
+private extension LookupStructuredContentView.Coordinator {
+    func updateContentHeight(for webView: WKWebView) {
+        let script = """
+        Math.ceil(document.getElementById('content')?.getBoundingClientRect().height || 0)
+        """
+        webView.evaluateJavaScript(script) { value, _ in
+            guard let n = value as? NSNumber,
+                  let sizing = webView as? SizingWebView else { return }
+            sizing.setContentHeight(CGFloat(truncating: n))
         }
+    }
 
-        private static func mimeType(for path: String) -> String {
-            switch URL(fileURLWithPath: path).pathExtension.lowercased() {
-            case "png": return "image/png"
-            case "jpg", "jpeg": return "image/jpeg"
-            case "gif": return "image/gif"
-            case "webp": return "image/webp"
-            case "avif": return "image/avif"
-            case "heic": return "image/heic"
-            case "svg": return "image/svg+xml"
-            default: return "application/octet-stream"
+    // MARK: HTML
+
+    static func makeHTML(
+        dictionary: String,
+        glossaries: [DictionaryLookupGlossary],
+        dictionaryStyle: String
+    ) -> String {
+        let dictionaryData = (try? JSONEncoder().encode(glossaries))
+            .flatMap { String(data: $0, encoding: .utf8) } ?? "[]"
+        let escapedDictionary = dictionary
+            .replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "\"", with: "\\\"")
+        // Backticks would close the template literal we drop the
+        // dictionary CSS into below — escape them.
+        let escapedStyle = dictionaryStyle
+            .replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "`", with: "\\`")
+
+        return """
+        <!doctype html>
+        <html>
+        <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+        <style>\(ReaderLookupStructuredContentResources.popupCSS)</style>
+        <script>\(ReaderLookupStructuredContentResources.popupJS)</script>
+        <style>
+        body { padding: 0; margin: 0; }
+        #content { padding: 0; }
+        .glossary-content { padding: 0; }
+        </style>
+        </head>
+        <body>
+        <div id="content" data-dictionary="\(escapedDictionary)"></div>
+        <script>
+        (function() {
+            const dictName = "\(escapedDictionary)";
+            const glossaryItems = \(dictionaryData);
+            window.dictionaryStyles = { [dictName]: `\(escapedStyle)` };
+            window.compactGlossaries = false;
+
+            const contentRoot = document.getElementById('content');
+            const dictStyle = window.dictionaryStyles?.[dictName] ?? '';
+            if (dictStyle) {
+                const style = document.createElement('style');
+                style.textContent = constructDictCss(dictStyle, dictName);
+                document.head.appendChild(style);
             }
+
+            const termTags = [...new Set(parseTags(glossaryItems[0]?.termTags))];
+            const termTagsRow = createGlossaryTags(termTags);
+            if (termTagsRow) {
+                contentRoot.appendChild(termTagsRow);
+            }
+
+            const renderContent = (parent, content) => {
+                try {
+                    renderStructuredContent(parent, JSON.parse(content), null, dictName);
+                } catch {
+                    renderStructuredContent(parent, content, null, dictName);
+                }
+            };
+
+            if (glossaryItems.length > 1) {
+                const ol = el('ol');
+                glossaryItems.forEach((item) => {
+                    const li = el('li');
+                    const parsedTags = parseTags(item.definitionTags).filter(tag => !NUMERIC_TAG.test(tag));
+                    const tags = createGlossaryTags(parsedTags);
+                    if (tags) li.appendChild(tags);
+                    const wrapper = el('div', { className: 'glossary-content' });
+                    renderContent(wrapper, item.content);
+                    li.appendChild(wrapper);
+                    ol.appendChild(li);
+                });
+                contentRoot.appendChild(ol);
+            } else {
+                glossaryItems.forEach((item, index) => {
+                    const wrapper = el('div');
+                    const tags = createGlossaryTags(parseTags(item.definitionTags).filter(tag => !NUMERIC_TAG.test(tag)));
+                    if (tags) wrapper.appendChild(tags);
+                    const content = el('div', { className: 'glossary-content' });
+                    renderContent(content, item.content);
+                    wrapper.appendChild(content);
+                    if (index > 0) contentRoot.appendChild(document.createElement('hr'));
+                    contentRoot.appendChild(wrapper);
+                });
+            }
+        })();
+        </script>
+        </body>
+        </html>
+        """
+    }
+
+    static func mimeType(for path: String) -> String {
+        switch URL(fileURLWithPath: path).pathExtension.lowercased() {
+        case "png": return "image/png"
+        case "jpg", "jpeg": return "image/jpeg"
+        case "gif": return "image/gif"
+        case "webp": return "image/webp"
+        case "avif": return "image/avif"
+        case "heic": return "image/heic"
+        case "svg": return "image/svg+xml"
+        default: return "application/octet-stream"
         }
     }
 }
@@ -318,3 +320,29 @@ private final class SizingWebView: WKWebView {
         CGSize(width: UIView.noIntrinsicMetric, height: max(44, contentHeight))
     }
 }
+
+// MARK: - Preview
+
+#if DEBUG
+#Preview {
+    // The bundled popup.js renderer drives layout; the @Dependency resolves
+    // to its preview value (no media is referenced by these plain glossaries).
+    LookupStructuredContentView(
+        dictionary: "JMdict",
+        glossaries: [
+            DictionaryLookupGlossary(
+                dictionary: "JMdict",
+                content: "to go; to move; to proceed",
+                definitionTags: "v5k-s, vi"
+            ),
+            DictionaryLookupGlossary(
+                dictionary: "JMdict",
+                content: "to pass; to elapse"
+            ),
+        ],
+        dictionaryStyle: "",
+        onLookupRequested: nil
+    )
+    .padding()
+}
+#endif

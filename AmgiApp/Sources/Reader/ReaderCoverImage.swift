@@ -15,25 +15,71 @@ import SwiftUI
 ///
 /// When nothing resolves, fall through to `placeholder`.
 struct ReaderCoverImage<Placeholder: View>: View {
-    let path: String?
+    enum Source {
+        case ankiMediaPath(String?)
+        case fileURL(URL?)
+    }
+
+    let source: Source
+    let isEPUB: Bool
     @ViewBuilder let placeholder: () -> Placeholder
 
+    init(path: String?, isEPUB: Bool = false, @ViewBuilder placeholder: @escaping () -> Placeholder) {
+        self.source = .ankiMediaPath(path)
+        self.isEPUB = isEPUB
+        self.placeholder = placeholder
+    }
+
+    init(fileURL: URL?, isEPUB: Bool = false, @ViewBuilder placeholder: @escaping () -> Placeholder) {
+        self.source = .fileURL(fileURL)
+        self.isEPUB = isEPUB
+        self.placeholder = placeholder
+    }
+
     var body: some View {
-        if let url = resolveCoverURL(path) {
-            AsyncImage(url: url) { phase in
-                switch phase {
-                case .success(let image):
-                    image.resizable().scaledToFill()
-                default:
-                    placeholder()
-                }
+        ZStack(alignment: .topTrailing) {
+            content
+            if isEPUB {
+                Text("EPUB")
+                    .font(.system(size: 9, weight: .heavy))
+                    .padding(.horizontal, 5)
+                    .padding(.vertical, 2)
+                    .background(.thinMaterial, in: Capsule())
+                    .foregroundStyle(.primary)
+                    .padding(4)
             }
-        } else {
-            placeholder()
         }
     }
 
-    private func resolveCoverURL(_ raw: String?) -> URL? {
+    @ViewBuilder
+    private var content: some View {
+        switch source {
+        case .ankiMediaPath(let path):
+            if let url = resolveCoverURL(path) {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image.resizable().scaledToFill()
+                    default:
+                        placeholder()
+                    }
+                }
+            } else {
+                placeholder()
+            }
+        case .fileURL(let url):
+            if let url, let image = UIImage(contentsOfFile: url.path) {
+                Image(uiImage: image).resizable().scaledToFill()
+            } else {
+                placeholder()
+            }
+        }
+    }
+
+}
+
+private extension ReaderCoverImage {
+    func resolveCoverURL(_ raw: String?) -> URL? {
         guard let raw, !raw.isEmpty else { return nil }
 
         // Case 1: already a real URL.
@@ -58,7 +104,7 @@ struct ReaderCoverImage<Placeholder: View>: View {
     /// Pulls the first `src="…"` (or `src='…'`) value from an HTML
     /// fragment. Anki cover fields are typically a single `<img>`, so we
     /// don't need a real HTML parser here.
-    private func extractImgSrc(from html: String) -> String? {
+    func extractImgSrc(from html: String) -> String? {
         guard html.contains("<img"), let match = html.range(
             of: #"src=["']([^"']+)["']"#,
             options: .regularExpression
@@ -74,4 +120,29 @@ struct ReaderCoverImage<Placeholder: View>: View {
         }
         return String(segment[afterOpen..<valueEnd])
     }
+}
+
+// MARK: - Preview
+
+private struct CoverPlaceholder: View {
+    var body: some View {
+        RoundedRectangle(cornerRadius: 8)
+            .fill(.gray.opacity(0.25))
+            .overlay {
+                Image(systemName: "book.closed")
+                    .font(.largeTitle)
+                    .foregroundStyle(.secondary)
+            }
+            .frame(width: 120)
+    }
+}
+
+#Preview {
+    // The unresolved (placeholder) case — needs no media folder or backend.
+    HStack(spacing: 16) {
+        ReaderCoverImage(fileURL: nil) { CoverPlaceholder() }
+        ReaderCoverImage(path: nil, isEPUB: true) { CoverPlaceholder() }
+    }
+    .frame(height: 180)
+    .padding()
 }

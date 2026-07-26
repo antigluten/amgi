@@ -1,3 +1,4 @@
+import AnkiKit
 import Testing
 @testable import AmgiApp
 
@@ -13,9 +14,9 @@ struct BrowseSelectionTests {
 
     @Test func enterSelectModePreselectsRow() {
         var s = BrowseSelectionState()
-        s.enterSelectMode(preselect: 42)
+        s.enterSelectMode(preselect: NoteID(42))
         #expect(s.isSelectMode)
-        #expect(s.contains(42))
+        #expect(s.contains(NoteID(42)))
         #expect(s.count == 1)
     }
 
@@ -29,17 +30,17 @@ struct BrowseSelectionTests {
     @Test func toggleAddsThenRemoves() {
         var s = BrowseSelectionState()
         s.enterSelectMode()
-        s.toggle(7)
-        #expect(s.contains(7))
-        s.toggle(7)
-        #expect(!s.contains(7))
+        s.toggle(NoteID(7))
+        #expect(s.contains(NoteID(7)))
+        s.toggle(NoteID(7))
+        #expect(!s.contains(NoteID(7)))
     }
 
     @Test func exitClearsEverything() {
         var s = BrowseSelectionState()
-        s.enterSelectMode(preselect: 1)
-        s.toggle(2)
-        s.toggle(3)
+        s.enterSelectMode(preselect: NoteID(1))
+        s.toggle(NoteID(2))
+        s.toggle(NoteID(3))
         s.exitSelectMode()
         #expect(!s.isSelectMode)
         #expect(s.isEmpty)

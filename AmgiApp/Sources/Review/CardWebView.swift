@@ -232,7 +232,7 @@ struct CardWebView: UIViewRepresentable {
         let targetInset = bottomContentInset
         DispatchQueue.main.async {
             webView.scrollView.contentInset.bottom = targetInset
-            webView.scrollView.scrollIndicatorInsets.bottom = targetInset
+            webView.scrollView.verticalScrollIndicatorInsets.bottom = targetInset
         }
     }
 
@@ -252,10 +252,53 @@ struct CardWebView: UIViewRepresentable {
         return str
     }()
 
+    /// Tap-to-lookup user script. Listens for click events at the
+    /// capture phase, skips when there's an active selection (so taps
+    /// that dismiss selection don't also fire a lookup), grabs ~32
+    /// chars of text from the caret point, and posts to the native
+    /// `amgiLookupText` handler with the phrase + tap coordinates +
+    /// surrounding sentence context. Mirrors the chapter reader's
+    /// gesture so reviewer + reader behave the same.
+    private static let tapLookupBootstrapJS = """
+    document.addEventListener('click', function(e) {
+      const sel = window.getSelection();
+      if (sel && sel.toString().length > 0) { return; }
+      const range = document.caretRangeFromPoint(e.clientX, e.clientY);
+      if (!range) { return; }
+      let phrase = '';
+      let node = range.startContainer;
+      let offset = range.startOffset;
+      while (node && phrase.length < 32) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          const t = node.nodeValue || '';
+          phrase += t.substring(offset);
+          offset = 0;
+        }
+        if (node.firstChild) {
+          node = node.firstChild;
+        } else {
+          while (node && !node.nextSibling) { node = node.parentNode; }
+          node = node && node.nextSibling;
+        }
+      }
+      phrase = phrase.replace(/\\s+/g, ' ').trim();
+      if (phrase.length > 0) {
+        window.webkit.messageHandlers.amgiLookupText.postMessage({
+          text: phrase,
+          sentence: '',
+          x: e.clientX,
+          y: e.clientY
+        });
+      }
+    }, true);
+    """
+}
+
+private extension CardWebView {
     /// Builds the static HTML frame page (no card content). Card HTML is injected
     /// later via evaluateJavaScript (_showQuestion/_showAnswer) so that arbitrary
     /// HTML never lives inside a <script> literal in the page source.
-    private static func buildFrameHTML(
+    static func buildFrameHTML(
         htmlClass: String,
         isDarkMode: Bool,
         playIconHTML: String,
@@ -303,7 +346,7 @@ struct CardWebView: UIViewRepresentable {
     /// Builds the evaluateJavaScript call that shows the card.
     /// HTML content is passed as JS string arguments – never embedded inside
     /// a <script> tag in the page source – eliminating </script> injection risk.
-    private static func showCardScript(
+    static func showCardScript(
         processedHTML: String,
         prefetchHTML: String?,
         cardCSS: String,
@@ -332,7 +375,7 @@ struct CardWebView: UIViewRepresentable {
     }
 
     /// Converts Anki `[sound:filename.ext]` markers to a hidden `<audio>` + styled play button.
-    private static func expandSoundTags(
+    static func expandSoundTags(
         _ html: String,
         isDarkMode: Bool,
         showReplayButtons: Bool
@@ -362,7 +405,7 @@ struct CardWebView: UIViewRepresentable {
         return result
     }
 
-    private static func expandTTSTags(
+    static func expandTTSTags(
         in html: String,
         isDarkMode: Bool,
         showReplayButtons: Bool
@@ -401,7 +444,7 @@ struct CardWebView: UIViewRepresentable {
         return result
     }
 
-    private static func deferCardScripts(in html: String) -> String {
+    static func deferCardScripts(in html: String) -> String {
         guard let regex = try? NSRegularExpression(
             pattern: #"<script\b([^>]*)>"#,
             options: [.caseInsensitive]
@@ -434,7 +477,7 @@ struct CardWebView: UIViewRepresentable {
         return result
     }
 
-    private static func parseTTSAttributes(_ raw: String) -> [String: String] {
+    static func parseTTSAttributes(_ raw: String) -> [String: String] {
         guard let regex = try? NSRegularExpression(
             pattern: #"([A-Za-z_]+)=([^\s\]]+)"#,
             options: []
@@ -451,7 +494,7 @@ struct CardWebView: UIViewRepresentable {
         return result
     }
 
-    private static func htmlAttributeEscaped(_ value: String) -> String {
+    static func htmlAttributeEscaped(_ value: String) -> String {
         value
             .replacingOccurrences(of: "&", with: "&amp;")
             .replacingOccurrences(of: "\"", with: "&quot;")
@@ -460,7 +503,7 @@ struct CardWebView: UIViewRepresentable {
             .replacingOccurrences(of: ">", with: "&gt;")
     }
 
-    private static func audioButtonIconHTML(systemName: String, alt: String, isDarkMode: Bool) -> String {
+    static func audioButtonIconHTML(systemName: String, alt: String, isDarkMode: Bool) -> String {
         let configuration = UIImage.SymbolConfiguration(pointSize: 24, weight: .regular, scale: .medium)
         let tint = isDarkMode ? UIColor.white : UIColor(red: 26 / 255, green: 26 / 255, blue: 26 / 255, alpha: 1)
         guard let baseImage = UIImage(systemName: systemName, withConfiguration: configuration) else {
@@ -480,7 +523,7 @@ struct CardWebView: UIViewRepresentable {
         return "<img class=\"amgi-inline-icon\" src=\"data:image/png;base64,\(data.base64EncodedString())\" alt=\"\(alt)\" draggable=\"false\" style=\"width:28px;height:28px;max-width:none;display:block;flex:none;\" />"
     }
 
-    private static func jsStringLiteral(_ value: String) -> String {
+    static func jsStringLiteral(_ value: String) -> String {
         let escaped = value
             .replacingOccurrences(of: "\\", with: "\\\\")
             .replacingOccurrences(of: "'", with: "\\'")
@@ -491,7 +534,7 @@ struct CardWebView: UIViewRepresentable {
         return "'\(escaped)'"
     }
 
-    private static func bodyClasses(cardOrdinal: UInt32, isDarkMode: Bool) -> String {
+    static func bodyClasses(cardOrdinal: UInt32, isDarkMode: Bool) -> String {
         var classes = ["card", "card\(Int(cardOrdinal) + 1)"]
         if isDarkMode {
             classes.append("nightMode")
@@ -500,7 +543,7 @@ struct CardWebView: UIViewRepresentable {
         return classes.joined(separator: " ")
     }
 
-    private static func htmlClasses(isDarkMode: Bool) -> String {
+    static func htmlClasses(isDarkMode: Bool) -> String {
         var classes: [String] = []
 
         switch UIDevice.current.userInterfaceIdiom {
@@ -523,45 +566,4 @@ struct CardWebView: UIViewRepresentable {
 
         return classes.joined(separator: " ")
     }
-
-    /// Tap-to-lookup user script. Listens for click events at the
-    /// capture phase, skips when there's an active selection (so taps
-    /// that dismiss selection don't also fire a lookup), grabs ~32
-    /// chars of text from the caret point, and posts to the native
-    /// `amgiLookupText` handler with the phrase + tap coordinates +
-    /// surrounding sentence context. Mirrors the chapter reader's
-    /// gesture so reviewer + reader behave the same.
-    private static let tapLookupBootstrapJS = """
-    document.addEventListener('click', function(e) {
-      const sel = window.getSelection();
-      if (sel && sel.toString().length > 0) { return; }
-      const range = document.caretRangeFromPoint(e.clientX, e.clientY);
-      if (!range) { return; }
-      let phrase = '';
-      let node = range.startContainer;
-      let offset = range.startOffset;
-      while (node && phrase.length < 32) {
-        if (node.nodeType === Node.TEXT_NODE) {
-          const t = node.nodeValue || '';
-          phrase += t.substring(offset);
-          offset = 0;
-        }
-        if (node.firstChild) {
-          node = node.firstChild;
-        } else {
-          while (node && !node.nextSibling) { node = node.parentNode; }
-          node = node && node.nextSibling;
-        }
-      }
-      phrase = phrase.replace(/\\s+/g, ' ').trim();
-      if (phrase.length > 0) {
-        window.webkit.messageHandlers.amgiLookupText.postMessage({
-          text: phrase,
-          sentence: '',
-          x: e.clientX,
-          y: e.clientY
-        });
-      }
-    }, true);
-    """
 }

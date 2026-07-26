@@ -1,9 +1,9 @@
 import AnkiBackend
-import AnkiProto
+import AnkiKit
+import AnkiProtoBridge
 public import Dependencies
 import Foundation
 import Logging
-import SwiftProtobuf
 
 private let logger = Logger(label: "com.amgiapp.media.client")
 
@@ -28,40 +28,18 @@ extension MediaClient: DependencyKey {
                 try FileManager.default.removeItem(at: url)
             },
             checkMedia: {
-                let resp: Anki_Media_CheckMediaResponse = try backend.invoke(
-                    service: AnkiBackend.Service.media,
-                    method: AnkiBackend.MediaMethod.checkMedia
-                )
-                return MediaCheckResult(
-                    missing: resp.missing,
-                    unused: resp.unused,
-                    missingNoteIDs: resp.missingMediaNotes,
-                    report: resp.report,
-                    haveTrash: resp.haveTrash
-                )
+                try backend.invoke(.checkMedia)
             },
             trashMediaFiles: { filenames in
-                var req = Anki_Media_TrashMediaFilesRequest()
-                req.fnames = filenames
-                try backend.callVoid(
-                    service: AnkiBackend.Service.media,
-                    method: AnkiBackend.MediaMethod.trashMediaFiles,
-                    request: req
-                )
+                try backend.invoke(.trashMediaFiles(filenames: filenames))
                 logger.info("Moved \(filenames.count) media files to trash")
             },
             emptyTrash: {
-                try backend.callVoid(
-                    service: AnkiBackend.Service.media,
-                    method: AnkiBackend.MediaMethod.emptyTrash
-                )
+                try backend.invoke(.emptyMediaTrash)
                 logger.info("Media trash emptied")
             },
             restoreTrash: {
-                try backend.callVoid(
-                    service: AnkiBackend.Service.media,
-                    method: AnkiBackend.MediaMethod.restoreTrash
-                )
+                try backend.invoke(.restoreMediaTrash)
                 logger.info("Media trash restored")
             }
         )

@@ -5,73 +5,54 @@ import AnkiSync
 import Dependencies
 import Sharing
 
+/// The distinct render states of the sync sheet. Lifted out of the view so
+/// `SyncSheetContent` is a pure function of it and each `#Preview` varies
+/// one argument.
+enum SyncSheetState {
+    case idle
+    case syncing(String)
+    case success(SyncSummary)
+    case error(String)
+    case needsFullSync
+    case noServer
+}
+
+/// Container: owns the sync dependencies, the in-flight `syncState`, and the
+/// login/server-setup sheets. Derives plain snapshots (endpoint, log
+/// entries, last-synced label) from the engine and hands them to the pure
+/// `SyncSheetContent`, translating its callbacks back into engine calls.
 struct SyncSheet: View {
     @Binding var isPresented: Bool
     @Dependency(\.syncClient) var syncClient
     @Dependency(\.syncCoordinator) private var coordinator
 
-    @State private var syncState: SyncState = .idle
+    @State private var syncState: SyncSheetState = .idle
     @State private var showLogin = false
     @State private var showServerSetup = false
-    @State private var pendingDestructiveChoice: SyncDirection?
     @Shared(.syncMode) private var syncMode
 
-    private var lastSyncedLabel: String {
-        guard let last = coordinator.lastSuccessfulSync else { return "Never synced" }
-        return "Last synced \(last.formatted(.relative(presentation: .numeric)))"
-    }
-
-    enum SyncState {
-        case idle
-        case syncing(String)
-        case success(SyncSummary)
-        case error(String)
-        case needsFullSync
-        case noServer
-    }
-
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 20) {
-                serverConfigSection
-                    .padding(.top)
-
-                if isAnkiWeb {
-                    AnkiMobileAttributionView()
-                        .padding(.horizontal)
-                }
-
-                Spacer()
-                switch syncState {
-                case .idle:
-                    ProgressView("Preparing sync...")
-                case .syncing(let message):
-                    ProgressView(message)
-                case .success(let summary):
-                    successView(summary)
-                case .error(let message):
-                    errorView(message)
-                case .needsFullSync:
-                    fullSyncChoiceView
-                case .noServer:
-                    noServerView
-                }
-                Spacer()
-
-                syncLogPanel
-                    .padding(.horizontal)
-                statusFooter
-                    .padding(.horizontal)
-            }
-            .padding()
-            .navigationTitle("Sync")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") { isPresented = false }
-                }
-            }
-        }
+        // Read the endpoint once per render — `body` re-evaluates on every
+        // sync-log line (coordinator.logEntries), and isAnkiWeb derives from
+        // the same value, so we avoid the extra keychain lookups.
+        let endpoint = KeychainHelper.loadEndpoint()
+        return SyncSheetContent(
+            state: syncState,
+            endpoint: endpoint,
+            username: KeychainHelper.loadUsername(),
+            syncMode: syncMode,
+            isAnkiWeb: endpoint?.contains("ankiweb") ?? false,
+            logEntries: coordinator.logEntries,
+            lastSyncedLabel: lastSyncedLabel,
+            footerError: footerError,
+            onDone: { isPresented = false },
+            onChangeServer: { showServerSetup = true },
+            onLogout: { logout() },
+            onSetUpServer: { showServerSetup = true },
+            onRetryFooter: { Task { await coordinator.startSync() } },
+            onStartSync: { Task { await startSync() } },
+            onFullSync: { direction in Task { await fullSync(direction) } }
+        )
         .sheet(isPresented: $showLogin) {
             LoginSheet(isPresented: $showLogin) {
                 Task { await startSync() }
@@ -85,62 +66,19 @@ struct SyncSheet: View {
         .task { await startSync() }
     }
 
-    private var isAnkiWeb: Bool {
-        let endpoint = KeychainHelper.loadEndpoint() ?? ""
-        return endpoint.contains("ankiweb")
+    private var lastSyncedLabel: String {
+        guard let last = coordinator.lastSuccessfulSync else { return "Never synced" }
+        return "Last synced \(last.formatted(.relative(presentation: .numeric)))"
     }
 
-    @ViewBuilder
-    private var serverConfigSection: some View {
-        VStack(spacing: 8) {
-            if let endpoint = KeychainHelper.loadEndpoint() {
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Server")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Text(endpoint)
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                            .truncationMode(.middle)
-                        if let username = KeychainHelper.loadUsername() {
-                            Text(username)
-                                .font(.caption2)
-                                .foregroundStyle(.tertiary)
-                        }
-                    }
-                    Spacer()
-                    Menu {
-                        Button("Change Server") {
-                            showServerSetup = true
-                        }
-                        Button("Logout", role: .destructive) {
-                            logout()
-                        }
-                    } label: {
-                        Image(systemName: "ellipsis.circle")
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                .padding(.horizontal)
-            } else if syncMode == .local {
-                HStack {
-                    Label("Syncing is disabled", systemImage: "iphone")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Button("Set Up Server") {
-                        showServerSetup = true
-                    }
-                    .font(.caption)
-                }
-                .padding(.horizontal)
-            }
-        }
+    private var footerError: String? {
+        if case .error(let message) = coordinator.state { return message }
+        return nil
     }
+}
 
-    private func startSync() async {
+private extension SyncSheet {
+    func startSync() async {
         guard KeychainHelper.loadEndpoint() != nil else {
             syncState = .noServer
             return
@@ -168,11 +106,138 @@ struct SyncSheet: View {
         }
     }
 
-    private func logout() {
+    func logout() {
         KeychainHelper.deleteHostKey()
         KeychainHelper.deleteUsername()
-        KeychainHelper.deleteCurrentEndpoint()
         syncState = .idle
+    }
+
+    func fullSync(_ direction: SyncDirection) async {
+        syncState = .syncing(
+            direction == .download ? "Downloading collection..." : "Uploading collection..."
+        )
+        do {
+            try await syncClient.fullSync(direction)
+            syncState = .success(SyncSummary())
+        } catch {
+            syncState = .error(error.localizedDescription)
+        }
+    }
+}
+
+// MARK: - Content
+
+/// Pure render surface for the sync sheet — no `@Dependency`, no data
+/// loading. Every dynamic value arrives as a `let`; every action is a
+/// closure the Container fulfils.
+private struct SyncSheetContent: View {
+    let state: SyncSheetState
+    let endpoint: String?
+    let username: String?
+    let syncMode: SyncMode
+    let isAnkiWeb: Bool
+    let logEntries: [SyncLogEntry]
+    let lastSyncedLabel: String
+    let footerError: String?
+    let onDone: () -> Void
+    let onChangeServer: () -> Void
+    let onLogout: () -> Void
+    let onSetUpServer: () -> Void
+    let onRetryFooter: () -> Void
+    let onStartSync: () -> Void
+    let onFullSync: (SyncDirection) -> Void
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 20) {
+                serverConfigSection
+                    .padding(.top)
+
+                if isAnkiWeb {
+                    AnkiMobileAttributionView()
+                        .padding(.horizontal)
+                }
+
+                Spacer()
+                stateView
+                Spacer()
+
+                syncLogPanel
+                    .padding(.horizontal)
+                statusFooter
+                    .padding(.horizontal)
+            }
+            .padding()
+            .navigationTitle("Sync")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Done") { onDone() }
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var stateView: some View {
+        switch state {
+        case .idle:
+            ProgressView("Preparing sync...")
+        case .syncing(let message):
+            ProgressView(message)
+        case .success(let summary):
+            successView(summary)
+        case .error(let message):
+            errorView(message)
+        case .needsFullSync:
+            fullSyncChoiceView
+        case .noServer:
+            noServerView
+        }
+    }
+
+    @ViewBuilder
+    private var serverConfigSection: some View {
+        VStack(spacing: 8) {
+            if let endpoint {
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Server")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text(endpoint)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                        if let username {
+                            Text(username)
+                                .font(.caption2)
+                                .foregroundStyle(.tertiary)
+                        }
+                    }
+                    Spacer()
+                    Menu {
+                        Button("Change Server") { onChangeServer() }
+                        Button("Logout", role: .destructive) { onLogout() }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .padding(.horizontal)
+            } else if syncMode == .local {
+                HStack {
+                    Label("Syncing is disabled", systemImage: "iphone")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Button("Set Up Server") { onSetUpServer() }
+                        .font(.caption)
+                }
+                .padding(.horizontal)
+            }
+        }
     }
 
     @ViewBuilder
@@ -187,10 +252,93 @@ struct SyncSheet: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
-            Button("Set Up Server") {
-                showServerSetup = true
+            Button("Set Up Server") { onSetUpServer() }
+                .buttonStyle(.borderedProminent)
+        }
+    }
+
+    @ViewBuilder
+    private var syncLogPanel: some View {
+        if !logEntries.isEmpty {
+            ScrollViewReader { proxy in
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 4) {
+                        ForEach(logEntries) { entry in
+                            HStack(alignment: .top, spacing: 8) {
+                                Text(entry.timestamp, format: .dateTime.hour().minute().second())
+                                    .font(.caption2.monospaced())
+                                    .foregroundStyle(.secondary)
+                                Text(entry.message)
+                                    .font(.caption)
+                                    .foregroundStyle(color(for: entry.level))
+                            }
+                            .id(entry.id)
+                        }
+                    }
+                    .padding(8)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .frame(maxHeight: 160)
+                .background(Color.secondary.opacity(0.08))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .onChange(of: logEntries.count) { _, _ in
+                    if let last = logEntries.last {
+                        withAnimation { proxy.scrollTo(last.id, anchor: .bottom) }
+                    }
+                }
             }
-            .buttonStyle(.borderedProminent)
+        }
+    }
+
+    @ViewBuilder
+    private var statusFooter: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(lastSyncedLabel)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+
+            if let footerError {
+                HStack {
+                    Text(footerError)
+                        .font(.footnote)
+                        .foregroundStyle(.red)
+                    Spacer()
+                    Button("Retry") { onRetryFooter() }
+                        .font(.footnote.weight(.semibold))
+                }
+            }
+        }
+    }
+
+    private var fullSyncChoiceView: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "arrow.triangle.2.circlepath")
+                .font(.system(size: 48))
+                .foregroundStyle(.orange)
+            Text("Full Sync Required")
+                .font(.title3.weight(.semibold))
+            Text("Your collection has changed in a way that requires replacing one copy entirely.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+
+            VStack(spacing: 8) {
+                Button {
+                    onFullSync(.download)
+                } label: {
+                    Label("Download from Server", systemImage: "arrow.down.circle")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+
+                Button {
+                    onFullSync(.upload)
+                } label: {
+                    Label("Upload to Server", systemImage: "arrow.up.circle")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+            }
         }
     }
 
@@ -228,43 +376,8 @@ struct SyncSheet: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
-            Button("Retry") {
-                Task { await startSync() }
-            }
-            .buttonStyle(.borderedProminent)
-        }
-    }
-
-    @ViewBuilder
-    private var syncLogPanel: some View {
-        if !coordinator.logEntries.isEmpty {
-            ScrollViewReader { proxy in
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 4) {
-                        ForEach(coordinator.logEntries) { entry in
-                            HStack(alignment: .top, spacing: 8) {
-                                Text(entry.timestamp, format: .dateTime.hour().minute().second())
-                                    .font(.caption2.monospaced())
-                                    .foregroundStyle(.secondary)
-                                Text(entry.message)
-                                    .font(.caption)
-                                    .foregroundStyle(color(for: entry.level))
-                            }
-                            .id(entry.id)
-                        }
-                    }
-                    .padding(8)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .frame(maxHeight: 160)
-                .background(Color.secondary.opacity(0.08))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .onChange(of: coordinator.logEntries.count) { _, _ in
-                    if let last = coordinator.logEntries.last {
-                        withAnimation { proxy.scrollTo(last.id, anchor: .bottom) }
-                    }
-                }
-            }
+            Button("Retry") { onStartSync() }
+                .buttonStyle(.borderedProminent)
         }
     }
 
@@ -273,145 +386,6 @@ struct SyncSheet: View {
         case .info: return .primary
         case .warning: return .orange
         case .error: return .red
-        }
-    }
-
-    @ViewBuilder
-    private var statusFooter: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(lastSyncedLabel)
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-
-            if case .error(let message) = coordinator.state {
-                HStack {
-                    Text(message)
-                        .font(.footnote)
-                        .foregroundStyle(.red)
-                    Spacer()
-                    Button("Retry") {
-                        Task { await coordinator.startSync() }
-                    }
-                    .font(.footnote.weight(.semibold))
-                }
-            }
-        }
-    }
-
-    private var fullSyncChoiceView: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "arrow.triangle.2.circlepath")
-                .font(.system(size: 48))
-                .foregroundStyle(.orange)
-            Text("Full Sync Required")
-                .font(.title3.weight(.semibold))
-            Text("Your local and server collections have diverged. Choose how to reconcile them — Merge is the safest option.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-
-            VStack(spacing: 8) {
-                Button {
-                    Task { await mergeFullSync() }
-                } label: {
-                    VStack(spacing: 2) {
-                        Label("Merge (combine both)", systemImage: "arrow.triangle.merge")
-                            .frame(maxWidth: .infinity)
-                        Text("Keeps cards from both sides; conflicts use newest")
-                            .font(.caption2)
-                            .foregroundStyle(.white.opacity(0.85))
-                    }
-                }
-                .buttonStyle(.borderedProminent)
-
-                Button(role: .destructive) {
-                    pendingDestructiveChoice = .download
-                } label: {
-                    VStack(spacing: 2) {
-                        Label("Replace local with server", systemImage: "arrow.down.circle")
-                            .frame(maxWidth: .infinity)
-                        Text("Local-only changes will be lost")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                .buttonStyle(.bordered)
-
-                Button(role: .destructive) {
-                    pendingDestructiveChoice = .upload
-                } label: {
-                    VStack(spacing: 2) {
-                        Label("Replace server with local", systemImage: "arrow.up.circle")
-                            .frame(maxWidth: .infinity)
-                        Text("Server-only changes will be lost")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                .buttonStyle(.bordered)
-            }
-        }
-        .confirmationDialog(
-            destructiveDialogTitle,
-            isPresented: Binding(
-                get: { pendingDestructiveChoice != nil },
-                set: { if !$0 { pendingDestructiveChoice = nil } }
-            ),
-            titleVisibility: .visible,
-            presenting: pendingDestructiveChoice
-        ) { choice in
-            Button(destructiveButtonLabel(choice), role: .destructive) {
-                Task { await fullSync(choice) }
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: { choice in
-            Text(destructiveDialogMessage(choice))
-        }
-    }
-
-    private var destructiveDialogTitle: String { "This cannot be undone" }
-
-    private func destructiveButtonLabel(_ choice: SyncDirection) -> String {
-        switch choice {
-        case .download: return "Replace Local"
-        case .upload: return "Replace Server"
-        }
-    }
-
-    private func destructiveDialogMessage(_ choice: SyncDirection) -> String {
-        switch choice {
-        case .download:
-            return "Your local collection will be permanently overwritten with the server's copy. Any cards or reviews that exist only locally will be lost."
-        case .upload:
-            return "The server's collection will be permanently overwritten with your local copy. Any cards or reviews that exist only on the server will be lost."
-        }
-    }
-
-    private func fullSync(_ direction: SyncDirection) async {
-        syncState = .syncing(
-            direction == .download ? "Downloading collection..." : "Uploading collection..."
-        )
-        do {
-            try await syncClient.fullSync(direction)
-            syncState = .success(SyncSummary())
-        } catch {
-            syncState = .error(error.localizedDescription)
-        }
-    }
-
-    private func mergeFullSync() async {
-        syncState = .syncing("Preparing merge...")
-        do {
-            try await syncClient.merge { message in
-                Task { @MainActor in
-                    syncState = .syncing(message)
-                }
-            }
-            syncState = .success(SyncSummary())
-        } catch let syncError as SyncError where syncError.recoveryBackupPath != nil {
-            syncState = .error(syncError.message)
-        } catch {
-            syncState = .error(error.localizedDescription)
         }
     }
 }
@@ -457,7 +431,10 @@ private struct ServerSetupSheet: View {
         }
     }
 
-    private func save() {
+}
+
+private extension ServerSetupSheet {
+    func save() {
         var url = serverURL.trimmingCharacters(in: .whitespacesAndNewlines)
         if !url.hasPrefix("http://") && !url.hasPrefix("https://") {
             url = "https://" + url
@@ -466,8 +443,71 @@ private struct ServerSetupSheet: View {
         $syncMode.withLock { $0 = .custom }
         // Clear existing auth since server changed
         KeychainHelper.deleteHostKey()
-        KeychainHelper.deleteCurrentEndpoint()
         isPresented = false
         onComplete()
     }
 }
+
+// MARK: - Previews
+
+#if DEBUG
+#Preview("Success") {
+    SyncSheetContent(
+        state: .success(SyncSummary(cardsPushed: 4, cardsPulled: 12, notesPushed: 2, notesPulled: 7)),
+        endpoint: "https://sync.example.com",
+        username: "vlad",
+        syncMode: .custom,
+        isAnkiWeb: false,
+        logEntries: [],
+        lastSyncedLabel: "Last synced 2 minutes ago",
+        footerError: nil,
+        onDone: {},
+        onChangeServer: {},
+        onLogout: {},
+        onSetUpServer: {},
+        onRetryFooter: {},
+        onStartSync: {},
+        onFullSync: { _ in }
+    )
+}
+
+#Preview("No server") {
+    SyncSheetContent(
+        state: .noServer,
+        endpoint: nil,
+        username: nil,
+        syncMode: .local,
+        isAnkiWeb: false,
+        logEntries: [],
+        lastSyncedLabel: "Never synced",
+        footerError: nil,
+        onDone: {},
+        onChangeServer: {},
+        onLogout: {},
+        onSetUpServer: {},
+        onRetryFooter: {},
+        onStartSync: {},
+        onFullSync: { _ in }
+    )
+}
+
+#Preview("Full sync required") {
+    SyncSheetContent(
+        state: .needsFullSync,
+        endpoint: "https://sync.example.com",
+        username: "vlad",
+        syncMode: .custom,
+        isAnkiWeb: false,
+        logEntries: [],
+        lastSyncedLabel: "Last synced yesterday",
+        footerError: "Previous sync failed",
+        onDone: {},
+        onChangeServer: {},
+        onLogout: {},
+        onSetUpServer: {},
+        onRetryFooter: {},
+        onStartSync: {},
+        onFullSync: { _ in }
+    )
+}
+#endif

@@ -1,0 +1,114 @@
+/* EPUBReaderStyles.css
+ *
+ * Injected at document-end into every EPUB chapter that the paginated
+ * reader displays. Drives layout (CSS multi-column pagination on the
+ * <html> element) and theme via CSS custom properties set per-load by
+ * Swift through user-script source. Token underline matches the
+ * screenshot's dashed hint.
+ *
+ * Pagination contract (rev 2):
+ *   - Swift pushes --page-width / --page-height (px) on every layout
+ *     pass; those equal the WKWebView scrollView bounds.
+ *   - <html> is the multi-column container AND the WKWebView's
+ *     scrollable root. column-width = --page-width, column-fill: auto,
+ *     and an explicit height force the browser to break content into
+ *     page-width columns and scroll horizontally.
+ *   - <body> is the column-flow content. Padding on body becomes the
+ *     reader's page gutter; it flows with the columns so every page
+ *     has consistent margins without breaking the contentSize ==
+ *     pageCount * pageWidth invariant UIScrollView.isPagingEnabled
+ *     relies on.
+ *   - There is no #__amgi-content wrapper. No JS-forced body.style.width.
+ */
+
+:root {
+  color-scheme: light dark;
+  --reader-fg: #1f2a26;
+  --reader-bg: #faf7f2;
+  --reader-tok-underline: rgba(120, 120, 120, 0.55);
+  --reader-writing-mode: horizontal-tb;
+  --reader-font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  --reader-font-size: 17px;
+  --reader-line-height: 1.55;
+  --reader-text-align: justify;
+  --reader-page-margin: 24px;
+  --reader-page-padding: 28px;
+  /* Initial fallback; Swift overwrites this on first layout. */
+  --page-width: 100vw;
+  --page-height: 100vh;
+}
+
+/* <html> is the multi-column container and the WKWebView's scrollable
+ * root. Explicit height + column-fill: auto stops columns growing
+ * vertically; overflow-x: auto lets the scroll view see the full
+ * column-flow width. */
+html {
+  height: var(--page-height);
+  column-width: var(--page-width, 100vw) !important;
+  column-gap: 0 !important;
+  column-fill: auto !important;
+  overflow-y: hidden;
+  overflow-x: auto;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  writing-mode: var(--reader-writing-mode);
+  text-orientation: mixed;
+}
+
+/* Body is the column flow content. Padding here becomes the page
+ * gutter — multicol handles it correctly per-column. */
+body {
+  margin: 0;
+  padding: var(--reader-page-padding) var(--reader-page-margin) !important;
+  box-sizing: border-box;
+  background: var(--reader-bg);
+  color: var(--reader-fg);
+}
+
+/* Typography overrides — applied with !important + broad selectors so
+ * the book's own stylesheet can't beat us. html sets the rem root via
+ * --reader-font-size; body elements rescale via 1em so heading
+ * hierarchy is preserved while the slider drives the whole document. */
+html {
+  font-size: var(--reader-font-size) !important;
+  line-height: var(--reader-line-height) !important;
+  color: var(--reader-fg) !important;
+  background: var(--reader-bg) !important;
+}
+
+body, body * {
+  font-family: var(--reader-font-family) !important;
+  color: inherit !important;
+  background: transparent !important;
+}
+
+body p, body li, body span, body div, body td, body th, body blockquote,
+body article, body section, body figcaption, body small, body strong,
+body em, body i, body b {
+  font-size: 1em !important;
+}
+body h1 { font-size: 1.8em !important; }
+body h2 { font-size: 1.5em !important; }
+body h3 { font-size: 1.3em !important; }
+body h4 { font-size: 1.15em !important; }
+body h5 { font-size: 1.05em !important; }
+body h6 { font-size: 1em !important; }
+
+body p, body li, body blockquote {
+  line-height: var(--reader-line-height) !important;
+  text-align: var(--reader-text-align) !important;
+}
+
+p { margin: 0 0 0.9em 0; }
+img, svg, video { max-width: 100% !important; height: auto !important; }
+table { max-width: 100% !important; }
+
+.amgi-tok {
+  text-decoration: underline dashed var(--reader-tok-underline);
+  text-underline-offset: 2px;
+  -webkit-tap-highlight-color: rgba(0, 122, 255, 0.18);
+  cursor: pointer;
+}

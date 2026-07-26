@@ -1,112 +1,109 @@
 import SwiftUI
 import AnkiKit
-import AnkiClients
-import AnkiServices
-import Dependencies
 
+/// Edit Note container: owns the toolbar and the transient "Saved" toast, and
+/// drives a `NoteEditorModel` for the notetype lookup + note write. The form
+/// is `NoteEditorContent`, bound to the model.
 struct NoteEditorView: View {
-    let note: NoteRecord
+    @State private var model: NoteEditorModel
     let onSave: () -> Void
 
-    @Dependency(\.noteClient) var noteClient
-    @Dependency(\.notetypesService) var notetypesService
-
-    @State private var fieldValues: [String] = []
-    @State private var fieldNames: [String] = []
-    @State private var tags: String = ""
-    @State private var isSaving = false
     @State private var showSavedConfirmation = false
-    @Environment(\.dismiss) private var dismiss
+
+    init(note: NoteRecord, onSave: @escaping () -> Void) {
+        _model = State(initialValue: NoteEditorModel(note: note))
+        self.onSave = onSave
+    }
+
+    var body: some View {
+        NoteEditorContent(model: model)
+            .navigationTitle("Edit Note")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        Task {
+                            if await model.save() {
+                                withAnimation { showSavedConfirmation = true }
+                                try? await Task.sleep(for: .seconds(1.5))
+                                withAnimation { showSavedConfirmation = false }
+                                onSave()
+                            }
+                        }
+                    }
+                    // Stay disabled across the "Saved" toast too — the model's
+                    // isSaving flag clears the instant the write returns, but a
+                    // second tap during the 1.5s toast would re-save and re-fire
+                    // onSave (the pre-extraction save() held isSaving across the
+                    // toast).
+                    .disabled(model.isSaving || showSavedConfirmation)
+                }
+            }
+            .overlay { savedToast }
+            .task { model.loadNote() }
+    }
+
+    @ViewBuilder
+    private var savedToast: some View {
+        if showSavedConfirmation {
+            VStack {
+                Spacer()
+                Text("Saved")
+                    .font(.subheadline.weight(.medium))
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(.ultraThinMaterial, in: Capsule())
+                    .padding(.bottom, 32)
+            }
+            .transition(.move(edge: .bottom).combined(with: .opacity))
+        }
+    }
+}
+
+// MARK: - NoteEditorContent
+
+/// The Edit Note form: the note-type's fields and a tags field. Bound to a
+/// `NoteEditorModel`; owns no I/O, so it renders in a `#Preview` from a
+/// seeded model.
+struct NoteEditorContent: View {
+    @Bindable var model: NoteEditorModel
 
     var body: some View {
         Form {
             Section("Fields") {
-                ForEach(Array(fieldNames.enumerated()), id: \.offset) { index, name in
+                ForEach(Array(model.fieldNames.enumerated()), id: \.offset) { index, name in
                     VStack(alignment: .leading, spacing: 4) {
                         Text(name)
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                        RichNoteFieldEditor(htmlText: fieldBinding(for: index))
+                        RichNoteFieldEditor(htmlText: model.fieldBinding(for: index))
                     }
                 }
             }
 
             Section("Tags") {
-                TextField("Tags (space-separated)", text: $tags)
+                TextField("Tags (space-separated)", text: $model.tags)
                     .autocorrectionDisabled()
                     .textInputAutocapitalization(.never)
             }
         }
-        .navigationTitle("Edit Note")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .confirmationAction) {
-                Button("Save") {
-                    Task { await save() }
-                }
-                .disabled(isSaving)
-            }
-        }
-        .overlay {
-            if showSavedConfirmation {
-                VStack {
-                    Spacer()
-                    Text("Saved")
-                        .font(.subheadline.weight(.medium))
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(.ultraThinMaterial, in: Capsule())
-                        .padding(.bottom, 32)
-                }
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-            }
-        }
-        .task { loadNote() }
-    }
-
-    private func fieldBinding(for index: Int) -> Binding<String> {
-        Binding(
-            get: { index < fieldValues.count ? fieldValues[index] : "" },
-            set: { newValue in
-                if index < fieldValues.count { fieldValues[index] = newValue }
-            }
-        )
-    }
-
-    private func loadNote() {
-        do {
-            let notetype = try notetypesService.getNotetype(note.mid)
-            fieldNames = notetype.fieldNames
-        } catch {
-            print("[NoteEditorView] Error loading notetype: \(error)")
-        }
-
-        fieldValues = note.flds
-            .split(separator: "\u{1f}", omittingEmptySubsequences: false)
-            .map(String.init)
-        while fieldValues.count < fieldNames.count { fieldValues.append("") }
-        tags = note.tags.trimmingCharacters(in: .whitespaces)
-    }
-
-    private func save() async {
-        isSaving = true
-        let newFlds = fieldValues.joined(separator: "\u{1f}")
-        let newSfld = fieldValues.first ?? ""
-        let newCsum = Int64(newSfld.hashValue & 0xFFFFFFFF)
-
-        var updatedNote = note
-        updatedNote.flds = newFlds
-        updatedNote.sfld = newSfld
-        updatedNote.csum = newCsum
-        updatedNote.tags = " \(tags) "
-
-        do {
-            try noteClient.save(updatedNote)
-            withAnimation { showSavedConfirmation = true }
-            try? await Task.sleep(for: .seconds(1.5))
-            withAnimation { showSavedConfirmation = false }
-            onSave()
-        } catch {}
-        isSaving = false
     }
 }
+
+// MARK: - Preview
+
+#if DEBUG
+#Preview {
+    let model = NoteEditorModel(note: NoteRecord(
+        id: NoteID(1), guid: "g1", mid: NotetypeID(1), mod: 0, flds: "", sfld: "", csum: 0
+    ))
+    model.fieldNames = ["Front", "Back"]
+    model.fieldValues = ["안녕하세요", "Hello"]
+    model.tags = "vocab korean"
+    return NavigationStack {
+        NoteEditorContent(model: model)
+            .navigationTitle("Edit Note")
+            .navigationBarTitleDisplayMode(.inline)
+    }
+}
+#endif

@@ -1,3 +1,4 @@
+public import AnkiKit
 public import Dependencies
 import DependenciesMacros
 public import Foundation
@@ -13,8 +14,8 @@ public struct ImageOcclusionClient: Sendable {
         _ header: String,
         _ backExtra: String,
         _ tags: [String],
-        _ deckID: Int64,
-        _ notetypeID: Int64
+        _ deckID: DeckID,
+        _ notetypeID: NotetypeID
     ) throws -> Void
 
     /// Ensures the image-occlusion notetype exists in the collection.
@@ -23,25 +24,16 @@ public struct ImageOcclusionClient: Sendable {
 
     /// Fetches an existing image occlusion note for editing.
     /// Returns (imageData, imageName, occlusions, header, backExtra, tags).
-    public var getNote: @Sendable (_ noteId: Int64) throws -> ImageOcclusionNoteData
+    public var getNote: @Sendable (_ noteId: NoteID) throws -> ImageOcclusionNoteData
 
     /// Updates an existing image occlusion note.
     public var updateNote: @Sendable (
-        _ noteId: Int64,
+        _ noteId: NoteID,
         _ occlusions: String,
         _ header: String,
         _ backExtra: String,
         _ tags: [String]
     ) throws -> Void
-}
-
-public struct ImageOcclusionNoteData: Sendable {
-    public var imageData: Data
-    public var imageName: String
-    public var occlusions: String
-    public var header: String
-    public var backExtra: String
-    public var tags: [String]
 }
 
 extension ImageOcclusionClient: TestDependencyKey {

@@ -3,12 +3,44 @@ options:
   bundleIdPrefix: com.amgiapp
   deploymentTarget:
     iOS: "18.0"
-    watchOS: "11.0"
   defaultSourceDirectoryType: syncedFolder
+  # Nest the Resources/* folder references under a single "Resources" group in
+  # the navigator instead of scattering them at the project root. Each entry
+  # below stays a `type: folder` reference at its original path, so the bundle
+  # layout is unchanged — only the Xcode group tree is tidied.
+  createIntermediateGroups: true
 settings:
   base:
     SWIFT_VERSION: "6.0"
     SWIFT_STRICT_CONCURRENCY: complete
+    # Must match the SPM packages: NonisolatedNonsendingByDefault changes the
+    # mangling of `nonisolated async` function types, so the app target has to
+    # opt in too or async @DependencyClient closures fail to link across the
+    # package ↔ app boundary. Keep in lockstep with the package manifests.
+    OTHER_SWIFT_FLAGS: "$(inherited) -enable-upcoming-feature NonisolatedNonsendingByDefault"
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    LOCALIZED_STRING_SWIFTUI_SUPPORT: YES
+    STRING_CATALOG_GENERATE_SYMBOLS: YES
+    # Build perf: CAS-backed compilation caching. The CAS path and explicit
+    # modules are already configured by Xcode; this turns the cache on so
+    # unchanged inputs are served from it. Measured here: warm-cache clean
+    # builds 50.9s → 25.8s (−49%); the cache persists in shared DerivedData so
+    # this is the steady state (branch switches / Clean Build Folder). One-time
+    # cost: first cold build is ~20s slower while the CAS populates. No
+    # incremental-build change. See .build-benchmark/optimization-plan.md.
+    COMPILATION_CACHE_ENABLE_CACHING: YES
+  configs:
+    Debug:
+      # Eager linking: let downstream targets link against generated stubs
+      # before upstream linking completes, trimming the serial link tail of
+      # this multi-module graph. Low-risk experiment — verify clean builds
+      # still succeed and re-benchmark for the (small, uncertain) delta.
+      EAGER_LINKING: YES
+    Release:
+      # Release-config hygiene only — NO effect on Debug iteration build time.
+      GCC_OPTIMIZATION_LEVEL: s
+      ONLY_ACTIVE_ARCH: NO
+      ENABLE_TESTABILITY: NO
 packages:
   AnkiBridge:
     path: ..
@@ -34,36 +66,23 @@ schemes:
       config: Debug
       targets:
         - AmgiAppTests
-  AmgiWatchApp:
-    build:
-      targets:
-        AmgiWatchApp: all
-    run:
-      config: Debug
 targets:
   AmgiApp:
     type: application
     platform: iOS
     sources:
-      - path: Sources/Browse
-      - path: Sources/Decks
-      - path: Sources/Reader
-      - path: Sources/Review
-      - path: Sources/Settings
-      - path: Sources/Shared
-      - path: Sources/Stats
-      - path: Sources/Sync
-      - path: Sources/Theme
-      - path: Sources/AmgiAppApp.swift
-      - path: Sources/ContentView.swift
-      - path: Sources/DebugView.swift
-      - path: Sources/WriteWidgetSnapshot.swift
-      - path: Assets.xcassets
+      - path: Sources
+        type: group
+        excludes:
+          - "Widgets"
+      - path: Resources/Assets.xcassets
       - path: Resources/mathjax
         type: folder
       - path: Resources/Review
         type: folder
       - path: Resources/Fonts
+        type: folder
+      - path: Resources/EPUBReader
         type: folder
     dependencies:
       - package: AnkiBridge
@@ -86,8 +105,12 @@ targets:
         product: AmgiReaderDictionary
       - package: AmgiUI
         product: AmgiTheme
+      - package: AmgiUI
+        product: AmgiUI
       - package: swift-navigation
         product: SwiftNavigation
+      - package: swift-navigation
+        product: SwiftUINavigation
       - package: swift-navigation
         product: UIKitNavigation
       - package: swift-sharing
@@ -131,74 +154,6 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.amgiapp.AmgiApp.widget
         INFOPLIST_FILE: Sources/Widgets/Info.plist
         CODE_SIGN_ENTITLEMENTS: AmgiWidget.entitlements
-
-  AmgiWatchApp:
-    type: application
-    platform: watchOS
-    sources:
-      - path: Sources/Watch
-        type: group
-      - path: Sources/Shared
-        type: group
-        excludes:
-          - ShareSheet.swift
-          - CardContextMenu.swift
-          - TagsView.swift
-      - path: Sources/Theme/AmgiSpacing.swift
-      - path: Sources/Theme/AmgiTypography.swift
-      - path: Sources/Decks
-        type: group
-        excludes:
-          - DeckListView.swift
-          - DeckDetailView.swift
-          - DeckTemplateListView.swift
-          - TemplateSourceEditor.swift
-          - DeckConfigView.swift
-          - DecksReviewsChart.swift
-          - ProfilePickerMenu.swift
-      - path: Sources/Review
-        type: group
-        excludes:
-          - ReviewView.swift
-          - CardAssetScheme.swift
-          - CardWebView.swift
-          - CardWebViewCoordinator.swift
-      - path: Sources/Stats/PeriodPicker.swift
-      - path: Sources/Stats/TodayStatsCard.swift
-      - path: Sources/Stats/FutureDueChart.swift
-      - path: Sources/Stats/ReviewsChart.swift
-      - path: Sources/Stats/CardCountsChart.swift
-      - path: Sources/Stats/IntervalsChart.swift
-      - path: Sources/Stats/EaseChart.swift
-      - path: Sources/Stats/HourlyChart.swift
-      - path: Sources/Stats/ButtonsChart.swift
-      - path: Sources/Stats/AddedChart.swift
-      - path: Sources/Stats/RetentionChart.swift
-    dependencies:
-      - package: AnkiBridge
-        product: AnkiKit
-      - package: AmgiUI
-        product: AmgiTheme
-      - package: AnkiBridge
-        product: AnkiServices
-      - package: AnkiBridge
-        product: AnkiClients
-      - package: AnkiBridge
-        product: AnkiSync
-      - package: AnkiBridge
-        product: AnkiBackend
-      - package: AnkiBridge
-        product: AnkiProto
-      - package: swift-navigation
-        product: SwiftNavigation
-      - package: swift-sharing
-        product: Sharing
-    settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.amgiapp.AmgiApp.watch
-        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-        GENERATE_INFOPLIST_FILE: YES
-        INFOPLIST_KEY_WKCompanionAppBundleIdentifier: com.amgiapp.AmgiApp
 
   AmgiAppTests:
     type: bundle.unit-test

@@ -1,10 +1,10 @@
 import SwiftUI
 import AmgiTheme
 import Charts
-import AnkiProto
+import AnkiKit
 
 struct FutureDueChart: View {
-    let futureDue: Anki_Stats_GraphsResponse.FutureDue
+    let futureDue: FutureDueSeries
     let period: StatsPeriod
     @Environment(\.palette) private var palette
     @State private var includeBacklog = false
@@ -67,12 +67,21 @@ struct FutureDueChart: View {
         }
         .amgiCard()
     }
+}
 
-    private func footerItem(_ label: String, value: String) -> some View {
+private extension FutureDueChart {
+    func footerItem(_ label: String, value: String) -> some View {
         VStack(spacing: AmgiSpacing.xxs) {
             Text(value).amgiFont(.captionBold).monospacedDigit()
             Text(label).amgiFont(.micro).foregroundStyle(palette.textSecondary)
         }
         .frame(maxWidth: .infinity)
     }
+}
+
+// MARK: - Preview
+
+#Preview {
+    FutureDueChart(futureDue: .sample, period: .month)
+        .padding()
 }

@@ -713,6 +713,24 @@ function amgiStopTts() {
     try { window.webkit.messageHandlers.amgiStopTts.postMessage(null); } catch(e) {}
 }
 window.amgiStopTts = amgiStopTts;
+// Shared hidden queue player. WKWebView's per-element <audio>.play() loses
+// the autoplay chain when fields embed multiple [sound:] tags; routing the
+// whole queue through one element keeps autoplay stable across iOS.
+function amgiQueuePlayer() {
+    var player = document.getElementById('amgi-audio-queue-player');
+    if (player) return player;
+    player = document.createElement('audio');
+    player.id = 'amgi-audio-queue-player';
+    player.preload = 'auto';
+    player.style.display = 'none';
+    document.body.appendChild(player);
+    return player;
+}
+// Exclude the internal queue player from "template-managed media" detection
+// so its presence on the page doesn't make us skip autoplay.
+function amgiHasTemplateManagedMedia() {
+    return document.querySelector('audio:not(.anki-sound-audio):not(#amgi-audio-queue-player), video') !== null;
+}
 function stopAllSystemAudio() {
     amgiStopTts();
     document.querySelectorAll('.anki-sound-audio').forEach(function(a) {
@@ -721,12 +739,34 @@ function stopAllSystemAudio() {
         setAudioButtonState(a.nextElementSibling, 'play');
         a.onended = null;
     });
+    var queuePlayer = document.getElementById('amgi-audio-queue-player');
+    if (queuePlayer) {
+        queuePlayer.pause();
+        queuePlayer.currentTime = 0;
+        queuePlayer.onended = null;
+        queuePlayer.onerror = null;
+        queuePlayer.removeAttribute('src');
+        queuePlayer.load();
+    }
     notifyAudioState(false);
 }
 window.amgiStopAllAudio = stopAllSystemAudio;
 function collectAudioQueue(mode) {
     var all = Array.from(document.querySelectorAll('.anki-sound-audio'));
-    if (mode === 'question') return all;
+    if (mode === 'question' || mode === 'answerWithQuestion') return all;
+    // answerOnly: exclude audio already played on the question side. Handles
+    // back-template audio fields placed before <hr id=answer> (e.g. {{发音}}
+    // between {{FrontSide}} and the marker) which the pure DOM-position
+    // filter would otherwise miss.
+    var questionSrcs = window.__amgiQuestionAudioSrcs;
+    if (questionSrcs && questionSrcs.size > 0) {
+        var newAudio = all.filter(function(a) {
+            var src = a.getAttribute('src') || '';
+            return src && !questionSrcs.has(src);
+        });
+        return newAudio.length > 0 ? newAudio : all;
+    }
+    // Fallback when question srcs aren't recorded yet.
     var marker = document.getElementById('answer');
     if (!marker) return all;
     var after = all.filter(function(a) {
@@ -753,20 +793,32 @@ function replaySequential(queue) {
     stopAllSystemAudio();
     if (!queue || !queue.length) return;
     var idx = 0;
+    var currentBtn = null;
+    var player = amgiQueuePlayer();
     notifyAudioState(true);
+    function clearCurrentButton() {
+        if (!currentBtn) return;
+        setAudioButtonState(currentBtn, 'play');
+        currentBtn = null;
+    }
     function playNext() {
+        clearCurrentButton();
         if (idx >= queue.length) { notifyAudioState(false); return; }
         var audio = queue[idx];
-        var btn = audio.nextElementSibling;
-        audio.currentTime = 0;
-        audio.play().catch(function() { idx++; playNext(); });
-        setAudioButtonState(btn, 'pause');
-        audio.onended = function() { setAudioButtonState(btn, 'play'); idx++; playNext(); };
+        var src = audio.currentSrc || audio.src;
+        if (!src) { idx++; playNext(); return; }
+        currentBtn = audio.nextElementSibling;
+        setAudioButtonState(currentBtn, 'pause');
+        player.src = src;
+        player.currentTime = 0;
+        player.play().catch(function() { idx++; playNext(); });
     }
+    player.onended = function() { idx++; playNext(); };
+    player.onerror = function() { idx++; playNext(); };
     playNext();
 }
 function amgiReplayAll(mode) {
-    if (document.querySelector('audio:not(.anki-sound-audio), video')) return;
+    if (amgiHasTemplateManagedMedia()) return;
     replaySequential(collectAudioQueue(mode));
 }
 window.amgiReplayAll = amgiReplayAll;
@@ -1214,12 +1266,22 @@ function _showQuestion(html, prefetchHTML, bodyclass, autoplay, replayMode, alig
             },
             function() {
                 window.scrollTo(0, 0);
+                // Reset for the new card so the answer side can use the
+                // question-srcs exclusion path on the next flip.
+                window.__amgiQuestionAudioSrcs = null;
             },
             function() {
                 var typeans = document.getElementById('typeans');
                 if (typeans) typeans.focus();
-                var hasTemplateManagedMedia = document.querySelector('audio:not(.anki-sound-audio), video') !== null;
+                var hasTemplateManagedMedia = amgiHasTemplateManagedMedia();
                 if (amgiAutoplayEnabled() && !hasTemplateManagedMedia) amgiReplayAll(amgiReplayModeValue());
+                // Record question-side audio srcs so `answerOnly` mode can
+                // exclude them without relying on <hr id=answer> position.
+                window.__amgiQuestionAudioSrcs = new Set(
+                    Array.from(document.querySelectorAll('.anki-sound-audio')).map(function(a) {
+                        return a.getAttribute('src') || '';
+                    }).filter(Boolean)
+                );
                 var ph = amgiPrefetchHTMLValue();
                 if (amgiContainsMathJaxMarkup(html || '') || amgiContainsMathJaxMarkup(ph || '')) {
                     void amgiEnsureMathJaxReady(1500);
@@ -1254,7 +1316,7 @@ function _showAnswer(html, bodyclass, autoplay, replayMode, alignTop, bodyPaddin
                 });
             },
             function() {
-                var hasTemplateManagedMedia = document.querySelector('audio:not(.anki-sound-audio), video') !== null;
+                var hasTemplateManagedMedia = amgiHasTemplateManagedMedia();
                 if (amgiAutoplayEnabled() && !hasTemplateManagedMedia) amgiReplayAll(amgiReplayModeValue());
             }
         );

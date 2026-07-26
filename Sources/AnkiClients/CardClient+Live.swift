@@ -1,6 +1,6 @@
 import AnkiBackend
 import AnkiKit
-import AnkiProto
+import AnkiProtoBridge
 import AnkiServices
 public import Dependencies
 import DependenciesMacros
@@ -49,57 +49,23 @@ extension CardClient: DependencyKey {
             suspend: { _ in },
             bury: { _ in },
             flag: { cardId, value in
-                var req = Anki_Cards_SetFlagRequest()
-                req.cardIds = [cardId]
-                req.flag = value
-                try backend.callVoid(
-                    service: AnkiBackend.Service.cards,
-                    method: AnkiBackend.CardsMethod.setFlag,
-                    request: req
-                )
+                try backend.invoke(.setFlag(cardIds: [cardId], flag: value))
             },
             resetToNew: { cardId in
-                var req = Anki_Scheduler_ScheduleCardsAsNewRequest()
-                req.cardIds = [cardId]
-                req.log = true
-                try backend.callVoid(
-                    service: AnkiBackend.Service.scheduler,
-                    method: AnkiBackend.SchedulerMethod.scheduleCardsAsNew,
-                    request: req
-                )
+                try backend.invoke(.scheduleCardsAsNew(cardIds: [cardId], log: true))
             },
             undoLast: {
-                _ = try backend.call(
-                    service: AnkiBackend.Service.collectionOps,
-                    method: AnkiBackend.CollectionOpsMethod.undo
-                )
+                try backend.invoke(.undoLastAction)
             },
             getCardFlags: { cardId in
-                var req = Anki_Cards_CardId()
-                req.cid = cardId
-                let card: Anki_Cards_Card = try backend.invoke(
-                    service: AnkiBackend.Service.cards,
-                    method: AnkiBackend.CardsMethod.getCard,
-                    request: req
-                )
-                return card.flags & 0b111
+                let card = try backend.invoke(.getCard(id: cardId))
+                return UInt32(card.flags) & 0b111
             },
             hasUndoableAction: {
-                let status: Anki_Collection_UndoStatus = try backend.invoke(
-                    service: AnkiBackend.Service.collectionOps,
-                    method: AnkiBackend.CollectionOpsMethod.getUndoStatus,
-                    request: Anki_Generic_Empty()
-                )
-                return !status.undo.isEmpty
+                try backend.invoke(.hasUndoableAction)
             },
             removeCards: { cardIds in
-                var req = Anki_Cards_RemoveCardsRequest()
-                req.cardIds = cardIds
-                try backend.callVoid(
-                    service: AnkiBackend.Service.cards,
-                    method: AnkiBackend.CardsMethod.removeCards,
-                    request: req
-                )
+                try backend.invoke(.removeCards(cardIds: cardIds))
                 logger.info("Removed \(cardIds.count) cards")
             }
         )

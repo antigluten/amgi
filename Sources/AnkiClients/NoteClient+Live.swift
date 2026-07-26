@@ -27,7 +27,7 @@ extension NoteClient: DependencyKey {
 
                 for nid in bounded.dropFirst(firstPageSize) {
                     results.append(NoteRecord(
-                        id: nid, guid: "", mid: 0, mod: 0,
+                        id: nid, guid: "", mid: NotetypeID(0), mod: 0,
                         tags: "", flds: "", sfld: "Loading...", csum: 0
                     ))
                 }

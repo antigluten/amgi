@@ -1,9 +1,9 @@
 import SwiftUI
 import Charts
-import AnkiProto
+import AnkiKit
 
 struct ReviewsChart: View {
-    let reviews: Anki_Stats_GraphsResponse.ReviewCountsAndTimes
+    let reviews: ReviewCountsAndTimes
     let period: StatsPeriod
 
     private struct ReviewEntry: Identifiable {
@@ -16,7 +16,7 @@ struct ReviewsChart: View {
 
     private var entries: [ReviewEntry] {
         let maxDay = period.days
-        let types: [(String, KeyPath<Anki_Stats_GraphsResponse.ReviewCountsAndTimes.Reviews, UInt32>, Color)] = [
+        let types: [(String, KeyPath<ReviewCountsAndTimes.Reviews, Int>, Color)] = [
             ("Learn", \.learn, .blue),
             ("Relearn", \.relearn, .orange),
             ("Young", \.young, .green),
@@ -24,11 +24,10 @@ struct ReviewsChart: View {
             ("Filtered", \.filtered, .gray),
         ]
         var result: [ReviewEntry] = []
-        for (dayOffset, rev) in reviews.count {
-            let day = Int(dayOffset)
+        for (day, rev) in reviews.count {
             guard day <= 0, abs(day) <= maxDay else { continue }
             for (name, kp, color) in types {
-                let value = Int(rev[keyPath: kp])
+                let value = rev[keyPath: kp]
                 if value > 0 {
                     result.append(ReviewEntry(day: day, type: name, count: value, color: color))
                 }
@@ -85,12 +84,21 @@ struct ReviewsChart: View {
         }
         .amgiCard()
     }
+}
 
-    private func footerItem(_ label: String, value: String) -> some View {
+private extension ReviewsChart {
+    func footerItem(_ label: String, value: String) -> some View {
         VStack(spacing: 2) {
             Text(value).font(.caption.weight(.semibold).monospacedDigit())
             Text(label).foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity)
     }
+}
+
+// MARK: - Preview
+
+#Preview {
+    ReviewsChart(reviews: .sampleYear, period: .month)
+        .padding()
 }

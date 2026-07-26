@@ -4,7 +4,7 @@ import DependenciesMacros
 
 @DependencyClient
 public struct NoteClient: Sendable {
-    public var fetch: @Sendable (_ noteId: Int64) throws -> NoteRecord?
+    public var fetch: @Sendable (_ noteId: NoteID) throws -> NoteRecord?
     /// Browser-friendly search — returns the first 50 hits with full
     /// fields and the rest as lazy placeholders ("Loading…" sfld) so the
     /// list doesn't stall on large results. Callers that need every
@@ -16,7 +16,7 @@ public struct NoteClient: Sendable {
     /// caller reads `flds` immediately.
     public var searchAll: @Sendable (_ query: String, _ limit: Int?) throws -> [NoteRecord]
     public var save: @Sendable (_ note: NoteRecord) throws -> Void
-    public var delete: @Sendable (_ noteId: Int64) throws -> Void
+    public var delete: @Sendable (_ noteId: NoteID) throws -> Void
 }
 
 extension NoteClient: TestDependencyKey {

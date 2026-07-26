@@ -41,13 +41,13 @@ public struct QueuedReviewCard: Sendable {
     }
 
     /// Convenience factory for tests and SwiftUI previews.
-    public static func preview(cardId: Int64, noteId: Int64, ord: Int32) -> QueuedReviewCard {
+    public static func preview(cardId: CardID, noteId: NoteID, ord: Int32) -> QueuedReviewCard {
         let emptyToken = SchedulingStateToken(Data())
         let states = ReviewSchedulingStates(
             current: emptyToken, again: emptyToken,
             hard: emptyToken, good: emptyToken, easy: emptyToken
         )
-        let card = CardRecord(id: cardId, nid: noteId, did: 1, ord: ord, mod: 0)
+        let card = CardRecord(id: cardId, nid: noteId, did: DeckID(1), ord: ord, mod: 0)
         return QueuedReviewCard(card: card, states: states, nextIntervals: [:])
     }
 }

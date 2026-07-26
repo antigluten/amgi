@@ -1,11 +1,11 @@
 import SwiftUI
 import AmgiTheme
-import AnkiProto
+import AnkiKit
 
 struct PeriodStatsCard: View {
     let period: StatsPeriod
-    let today: Anki_Stats_GraphsResponse.Today
-    let reviews: Anki_Stats_GraphsResponse.ReviewCountsAndTimes
+    let today: TodayCounts
+    let reviews: ReviewCountsAndTimes
     @Environment(\.palette) private var palette
 
     private var periodTitle: String {
@@ -100,38 +100,52 @@ struct PeriodStatsCard: View {
                 }
                 Divider()
                 HStack {
-                    statBadge("New", count: UInt32(agg.learn), color: .cyan)
+                    statBadge("New", count: agg.learn, color: .cyan)
                     Spacer()
-                    statBadge("Relearn", count: UInt32(agg.relearn), color: .orange)
+                    statBadge("Relearn", count: agg.relearn, color: .orange)
                     Spacer()
-                    statBadge("Young", count: UInt32(agg.young), color: .green)
+                    statBadge("Young", count: agg.young, color: .green)
                     Spacer()
-                    statBadge("Mature", count: UInt32(agg.mature), color: .purple)
+                    statBadge("Mature", count: agg.mature, color: .purple)
                 }
             }
         }
         .amgiCard(elevated: true)
     }
+}
 
-    private func statItem(title: String, value: String, color: Color) -> some View {
+private extension PeriodStatsCard {
+    func statItem(title: String, value: String, color: Color) -> some View {
         VStack(spacing: AmgiSpacing.xxs) {
             Text(value).amgiFont(.sectionHeading).foregroundStyle(color)
             Text(title).amgiFont(.caption).foregroundStyle(palette.textSecondary)
         }
     }
 
-    private func statBadge(_ title: String, count: UInt32, color: Color) -> some View {
+    func statBadge(_ title: String, count: Int, color: Color) -> some View {
         VStack(spacing: AmgiSpacing.xxs) {
             Text("\(count)").amgiFont(.bodyEmphasis).foregroundStyle(color)
             Text(title).amgiFont(.micro).foregroundStyle(palette.textSecondary)
         }
     }
 
-    private func formatMillis(_ ms: UInt64) -> String {
+    func formatMillis(_ ms: UInt64) -> String {
         let seconds = ms / 1000
         if seconds < 60 { return "\(seconds)s" }
         let minutes = seconds / 60
         if minutes < 60 { return "\(minutes)m" }
         return "\(minutes / 60)h \(minutes % 60)m"
     }
+}
+
+// MARK: - Preview
+
+#Preview("Today") {
+    PeriodStatsCard(period: .day, today: .sample, reviews: .sampleYear)
+        .padding()
+}
+
+#Preview("Last Month") {
+    PeriodStatsCard(period: .month, today: .sample, reviews: .sampleYear)
+        .padding()
 }

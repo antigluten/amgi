@@ -1,16 +1,16 @@
 import AnkiBackend
-import AnkiProto
+import AnkiProtoBridge
 public import AnkiKit
 public import Dependencies
 import DependenciesMacros
 
 @DependencyClient
 public struct NotetypesService: Sendable {
-    public var getNotetypeNames: @Sendable () throws -> [(id: Int64, name: String)]
-    public var getNotetype: @Sendable (_ id: Int64) throws -> NotetypeInfo
+    public var getNotetypeNames: @Sendable () throws -> [(id: NotetypeID, name: String)]
+    public var getNotetype: @Sendable (_ id: NotetypeID) throws -> NotetypeInfo
     /// Returns full per-field info (name, ordinal, font, size) for a notetype.
     /// Used by typed-answer rendering in ReviewSession.
-    public var getNotetypeFields: @Sendable (_ id: Int64) throws -> [NotetypeFieldInfo]
+    public var getNotetypeFields: @Sendable (_ id: NotetypeID) throws -> [NotetypeFieldInfo]
 }
 
 extension NotetypesService: DependencyKey {
@@ -18,20 +18,10 @@ extension NotetypesService: DependencyKey {
         @Dependency(\.ankiBackend) var backend
         return Self(
             getNotetypeNames: {
-                let resp: Anki_Notetypes_NotetypeNames = try backend.invoke(
-                    service: AnkiBackend.Service.notetypes,
-                    method: AnkiBackend.NotetypesMethod.getNotetypeNames
-                )
-                return resp.entries.map { ($0.id, $0.name) }
+                try backend.invoke(.notetypeNames).map { (id: $0.id, name: $0.name) }
             },
             getNotetype: { id in
-                var req = Anki_Notetypes_NotetypeId()
-                req.ntid = id
-                let notetype: Anki_Notetypes_Notetype = try backend.invoke(
-                    service: AnkiBackend.Service.notetypes,
-                    method: AnkiBackend.NotetypesMethod.getNotetype,
-                    request: req
-                )
+                let notetype = try backend.invoke(.notetype(for: id))
                 return NotetypeInfo(
                     id: notetype.id,
                     name: notetype.name,
@@ -39,19 +29,13 @@ extension NotetypesService: DependencyKey {
                 )
             },
             getNotetypeFields: { id in
-                var req = Anki_Notetypes_NotetypeId()
-                req.ntid = id
-                let notetype: Anki_Notetypes_Notetype = try backend.invoke(
-                    service: AnkiBackend.Service.notetypes,
-                    method: AnkiBackend.NotetypesMethod.getNotetype,
-                    request: req
-                )
+                let notetype = try backend.invoke(.notetype(for: id))
                 return notetype.fields.map { field in
                     NotetypeFieldInfo(
                         name: field.name,
-                        ordinal: Int(field.ord.val),
+                        ordinal: field.ord ?? 0,
                         fontName: field.config.fontName.isEmpty ? "-apple-system" : field.config.fontName,
-                        fontSize: field.config.fontSize == 0 ? 18 : Int(field.config.fontSize)
+                        fontSize: field.config.fontSize == 0 ? 18 : field.config.fontSize
                     )
                 }
             }

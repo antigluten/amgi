@@ -1,18 +1,17 @@
 import SwiftUI
 import AnkiClients
+import AnkiKit
 import Dependencies
 
 struct BatchTagSheet: View {
-    let noteIDs: Set<Int64>
+    let noteIDs: Set<NoteID>
     let onApplied: () -> Void
 
     @Environment(\.dismiss) private var dismiss
-    @Dependency(\.tagClient) private var tagClient
 
-    @State private var allTags: [String] = []
+    @State private var model = BatchTagModel()
     @State private var checkedTags: Set<String> = []
     @State private var newTagName: String = ""
-    @State private var isApplying = false
 
     var body: some View {
         NavigationStack {
@@ -26,9 +25,9 @@ struct BatchTagSheet: View {
                             let trimmed = newTagName.trimmingCharacters(in: .whitespacesAndNewlines)
                             guard !trimmed.isEmpty else { return }
                             checkedTags.insert(trimmed)
-                            if !allTags.contains(trimmed) {
-                                allTags.append(trimmed)
-                                allTags.sort()
+                            if !model.allTags.contains(trimmed) {
+                                model.allTags.append(trimmed)
+                                model.allTags.sort()
                             }
                             newTagName = ""
                         }
@@ -37,10 +36,10 @@ struct BatchTagSheet: View {
                 }
 
                 Section("Existing tags") {
-                    if allTags.isEmpty {
+                    if model.allTags.isEmpty {
                         Text("No tags yet").foregroundStyle(.secondary)
                     } else {
-                        ForEach(allTags, id: \.self) { tag in
+                        ForEach(model.allTags, id: \.self) { tag in
                             Button {
                                 if checkedTags.contains(tag) {
                                     checkedTags.remove(tag)
@@ -67,30 +66,32 @@ struct BatchTagSheet: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Apply") { apply() }
-                        .disabled(checkedTags.isEmpty || isApplying)
+                        .disabled(checkedTags.isEmpty || model.isApplying)
                 }
             }
-            .task {
-                if let tags = try? tagClient.getAllTags() {
-                    allTags = tags.sorted()
-                }
-            }
+            .task { await model.loadTags() }
         }
     }
 
-    private func apply() {
-        isApplying = true
-        let ids = Array(noteIDs)
-        let tags = checkedTags
+}
+
+private extension BatchTagSheet {
+    func apply() {
         Task {
-            for tag in tags {
-                try? tagClient.addTagToNotes(tag, ids)
-            }
-            await MainActor.run {
-                isApplying = false
-                onApplied()
-                dismiss()
-            }
+            await model.apply(noteIDs: noteIDs, tags: checkedTags)
+            onApplied()
+            dismiss()
         }
     }
 }
+
+// MARK: - Preview
+
+#if DEBUG
+#Preview {
+    let _ = prepareDependencies {
+        $0.tagClient.getAllTags = { ["grammar", "vocab", "n5", "verb", "adjective"] }
+    }
+    return BatchTagSheet(noteIDs: [NoteID(1), NoteID(2)], onApplied: {})
+}
+#endif

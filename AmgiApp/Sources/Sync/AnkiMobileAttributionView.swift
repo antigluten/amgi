@@ -24,8 +24,10 @@ struct AnkiMobileAttributionView: View {
         .background(palette.surface.opacity(0.5))
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
+}
 
-    private func openAnkiMobile() {
+private extension AnkiMobileAttributionView {
+    func openAnkiMobile() {
         guard let url = URL(string: "itms-apps://itunes.apple.com/app/id373493387") else { return }
         UIApplication.shared.open(url)
     }

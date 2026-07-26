@@ -1,16 +1,16 @@
-import XCTest
+import Testing
 import AnkiKit
 
-final class RenderedCardTests: XCTestCase {
-    func testCardCSSField() {
+@Suite struct RenderedCardTests {
+    @Test func cardCSSField() {
         let r = RenderedCard(frontHTML: "<p>q</p>", backHTML: "<p>a</p>", cardCSS: ".card { color: red; }")
-        XCTAssertEqual(r.frontHTML, "<p>q</p>")
-        XCTAssertEqual(r.backHTML, "<p>a</p>")
-        XCTAssertEqual(r.cardCSS, ".card { color: red; }")
+        #expect(r.frontHTML == "<p>q</p>")
+        #expect(r.backHTML == "<p>a</p>")
+        #expect(r.cardCSS == ".card { color: red; }")
     }
 
-    func testCardCSSEmptyDefault() {
+    @Test func cardCSSEmptyDefault() {
         let r = RenderedCard(frontHTML: "f", backHTML: "b", cardCSS: "")
-        XCTAssertTrue(r.cardCSS.isEmpty)
+        #expect(r.cardCSS.isEmpty)
     }
 }

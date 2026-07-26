@@ -1,79 +1,60 @@
 import SwiftUI
 import AmgiTheme
 import AnkiKit
-import AnkiClients
-import AnkiServices
-import Dependencies
 
-extension NoteRecord: Identifiable {}
-
+/// Empty Cards container: owns navigation, the delete/success/error alerts,
+/// and the note-editor sheets, and drives an `EmptyCardsModel` for the
+/// report scan + card removal. Rendering is delegated to `EmptyCardsContent`.
 struct EmptyCardsView: View {
-    @Dependency(\.cardRenderingService) var cardRenderingService
-    @Dependency(\.cardClient) var cardClient
-    @Dependency(\.deckClient) var deckClient
-    @Dependency(\.noteClient) var noteClient
+    @State private var model = EmptyCardsModel()
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.palette) private var palette
 
-    @State private var isLoading = true
-    @State private var report: String = ""
-    @State private var noteEntries: [NoteEntry] = []
-    @State private var isDeletingAll = false
     @State private var showDeleteConfirm = false
-    @State private var errorMessage: String?
-    @State private var showError = false
     @State private var showSuccess = false
     @State private var editingNote: NoteRecord?
 
-    struct NoteEntry: Identifiable {
-        let id: Int64
-        let cardIds: [Int64]
-        let totalCards: Int
-        let emptyCards: Int
-        let deckName: String
-        let willDeleteNote: Bool
-    }
-
     var body: some View {
-        Group {
-            if isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(palette.background)
-            } else {
-                resultsList
-            }
-        }
+        EmptyCardsContent(
+            model: model,
+            onOpenNote: { id in
+                if let note = model.fetchNote(id) { editingNote = note }
+            },
+            onRequestDeleteAll: { showDeleteConfirm = true }
+        )
         .navigationTitle("Empty Cards")
         .navigationBarTitleDisplayMode(.inline)
         .alert("Delete empty cards?", isPresented: $showDeleteConfirm) {
             Button("Cancel", role: .cancel) {}
             Button("Delete", role: .destructive) {
-                Task { await deleteAllEmpty() }
+                Task {
+                    if await model.deleteAllEmpty() { showSuccess = true }
+                }
             }
         } message: {
-            let count = noteEntries.reduce(0) { $0 + $1.cardIds.count }
-            Text("Delete \(count) empty cards? This cannot be undone.")
+            Text("Delete \(model.totalEmptyCards) empty cards? This cannot be undone.")
         }
         .alert("Done", isPresented: $showSuccess) {
             Button("OK", role: .cancel) { dismiss() }
         } message: {
             Text("Empty cards deleted.")
         }
-        .alert("Error", isPresented: $showError) {
+        .alert("Error", isPresented: Binding(
+            get: { model.errorMessage != nil },
+            set: { if !$0 { model.errorMessage = nil } }
+        )) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text(errorMessage ?? "An unknown error occurred.")
+            Text(model.errorMessage ?? "An unknown error occurred.")
         }
-        .task { await loadEmptyCards() }
+        .task { await model.loadEmptyCards() }
         .sheet(item: regularEditingNoteBinding) { note in
             NoteEditingDestinationView(note: note, embedInNavigationStack: true) {
-                Task { await loadEmptyCards() }
+                Task { await model.loadEmptyCards() }
             }
         }
         .fullScreenCover(item: imageOcclusionEditingNoteBinding) { note in
             NoteEditingDestinationView(note: note, embedInNavigationStack: true) {
-                Task { await loadEmptyCards() }
+                Task { await model.loadEmptyCards() }
             }
         }
     }
@@ -109,10 +90,36 @@ struct EmptyCardsView: View {
             }
         )
     }
+}
+
+// MARK: - EmptyCardsContent
+
+/// Pure rendering for the Empty Cards screen: the loading spinner, the
+/// "found N notes" summary with report disclosure, the affected-notes list,
+/// and the delete-all button. Reads state from the model and reports user
+/// intent through closures, so it renders in a `#Preview` from a seeded model.
+struct EmptyCardsContent: View {
+    let model: EmptyCardsModel
+    let onOpenNote: (NoteID) -> Void
+    let onRequestDeleteAll: () -> Void
+
+    @Environment(\.palette) private var palette
+
+    var body: some View {
+        Group {
+            if model.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(palette.background)
+            } else {
+                resultsList
+            }
+        }
+    }
 
     private var resultsList: some View {
         List {
-            if noteEntries.isEmpty {
+            if model.noteEntries.isEmpty {
                 Section {
                     Label("No empty cards found", systemImage: "checkmark.circle")
                         .amgiStatusText(.positive)
@@ -121,136 +128,108 @@ struct EmptyCardsView: View {
                         .listRowBackground(palette.surfaceElevated)
                 }
             } else {
-                Section {
-                    let totalEmpty = noteEntries.reduce(0) { $0 + $1.cardIds.count }
-                    Label(
-                        "Found \(totalEmpty) notes with empty cards",
-                        systemImage: "rectangle.stack.badge.minus"
-                    )
-                    .amgiStatusText(.warning)
-                    .listRowBackground(palette.surfaceElevated)
-
-                    if !report.isEmpty {
-                        DisclosureGroup("Report") {
-                            Text(report)
-                                .amgiFont(.caption)
-                                .foregroundStyle(palette.textSecondary)
-                        }
-                        .listRowBackground(palette.surfaceElevated)
-                    }
-                }
-
-                Section("Affected notes") {
-                    ForEach(noteEntries) { entry in
-                        Button {
-                            Task { await openNoteEditor(noteId: entry.id) }
-                        } label: {
-                            HStack(alignment: .top, spacing: AmgiSpacing.sm) {
-                                VStack(alignment: .leading, spacing: AmgiSpacing.xxs) {
-                                    Text("Note id: \(entry.id)")
-                                        .font(.subheadline.monospacedDigit())
-                                        .foregroundStyle(palette.textPrimary)
-                                    Text("\(entry.emptyCards) of \(entry.totalCards) cards empty")
-                                        .amgiFont(.caption)
-                                        .foregroundStyle(palette.textSecondary)
-                                    Text("Deck: \(entry.deckName)")
-                                        .amgiFont(.caption)
-                                        .foregroundStyle(palette.textSecondary)
-                                    if entry.willDeleteNote {
-                                        Text("Will also delete the note (all cards empty)")
-                                            .amgiStatusText(.danger, font: .caption)
-                                    }
-                                }
-                                Spacer(minLength: 8)
-                                Image(systemName: "square.and.pencil")
-                                    .foregroundStyle(palette.textSecondary)
-                            }
-                        }
-                        .buttonStyle(.plain)
-                        .contentShape(Rectangle())
-                        .listRowBackground(palette.surfaceElevated)
-                    }
-                }
-
-                Section {
-                    Button(role: .destructive) {
-                        showDeleteConfirm = true
-                    } label: {
-                        if isDeletingAll {
-                            HStack {
-                                Text("Delete All Empty Cards")
-                                Spacer()
-                                ProgressView()
-                            }
-                        } else {
-                            Label("Delete All Empty Cards", systemImage: "trash")
-                        }
-                    }
-                    .disabled(isDeletingAll)
-                    .listRowBackground(palette.surfaceElevated)
-                }
+                summarySection
+                affectedNotesSection
+                deleteSection
             }
         }
         .scrollContentBackground(.hidden)
         .background(palette.background)
     }
 
-    private func loadEmptyCards() async {
-        let cardRenderingServiceCapture = cardRenderingService
-        let capturedCardClient = cardClient
-        let capturedDeckClient = deckClient
-        do {
-            let emptyReport: EmptyCardsReport = try await Task.detached {
-                try cardRenderingServiceCapture.getEmptyCardsReport()
-            }.value
-            report = emptyReport.report
+    @ViewBuilder
+    private var summarySection: some View {
+        Section {
+            Label(
+                "Found \(model.totalEmptyCards) notes with empty cards",
+                systemImage: "rectangle.stack.badge.minus"
+            )
+            .amgiStatusText(.warning)
+            .listRowBackground(palette.surfaceElevated)
 
-            let deckById = (try? capturedDeckClient.fetchAll())?.reduce(into: [Int64: String]()) { partial, deck in
-                partial[deck.id] = deck.name
-            } ?? [:]
-
-            noteEntries = emptyReport.notes.map { note in
-                let cards = (try? capturedCardClient.fetchByNote(note.noteID)) ?? []
-                let totalCards = max(cards.count, note.cardIDs.count)
-                let deckName = cards.first.flatMap { deckById[$0.did] } ?? "-"
-                return NoteEntry(
-                    id: note.noteID,
-                    cardIds: note.cardIDs,
-                    totalCards: totalCards,
-                    emptyCards: note.cardIDs.count,
-                    deckName: deckName,
-                    willDeleteNote: note.willDeleteNote
-                )
+            if !model.report.isEmpty {
+                DisclosureGroup("Report") {
+                    Text(model.report)
+                        .amgiFont(.caption)
+                        .foregroundStyle(palette.textSecondary)
+                }
+                .listRowBackground(palette.surfaceElevated)
             }
-        } catch {
-            errorMessage = error.localizedDescription
-            showError = true
         }
-        isLoading = false
     }
 
-    private func deleteAllEmpty() async {
-        isDeletingAll = true
-        let allCardIds = noteEntries.flatMap { $0.cardIds }
-        let cardClientCapture = cardClient
-        do {
-            try await Task.detached {
-                try cardClientCapture.removeCards(allCardIds)
-            }.value
-            showSuccess = true
-        } catch {
-            errorMessage = error.localizedDescription
-            showError = true
+    private var affectedNotesSection: some View {
+        Section("Affected notes") {
+            ForEach(model.noteEntries) { entry in
+                Button {
+                    onOpenNote(entry.id)
+                } label: {
+                    HStack(alignment: .top, spacing: AmgiSpacing.sm) {
+                        VStack(alignment: .leading, spacing: AmgiSpacing.xxs) {
+                            Text("Note id: \(entry.id)")
+                                .font(.subheadline.monospacedDigit())
+                                .foregroundStyle(palette.textPrimary)
+                            Text("\(entry.emptyCards) of \(entry.totalCards) cards empty")
+                                .amgiFont(.caption)
+                                .foregroundStyle(palette.textSecondary)
+                            Text("Deck: \(entry.deckName)")
+                                .amgiFont(.caption)
+                                .foregroundStyle(palette.textSecondary)
+                            if entry.willDeleteNote {
+                                Text("Will also delete the note (all cards empty)")
+                                    .amgiStatusText(.danger, font: .caption)
+                            }
+                        }
+                        Spacer(minLength: 8)
+                        Image(systemName: "square.and.pencil")
+                            .foregroundStyle(palette.textSecondary)
+                    }
+                }
+                .buttonStyle(.plain)
+                .contentShape(Rectangle())
+                .listRowBackground(palette.surfaceElevated)
+            }
         }
-        isDeletingAll = false
     }
 
-    private func openNoteEditor(noteId: Int64) async {
-        guard let note = try? noteClient.fetch(noteId) else {
-            errorMessage = "An unknown error occurred."
-            showError = true
-            return
+    private var deleteSection: some View {
+        Section {
+            Button(role: .destructive) {
+                onRequestDeleteAll()
+            } label: {
+                if model.isDeletingAll {
+                    HStack {
+                        Text("Delete All Empty Cards")
+                        Spacer()
+                        ProgressView()
+                    }
+                } else {
+                    Label("Delete All Empty Cards", systemImage: "trash")
+                }
+            }
+            .disabled(model.isDeletingAll)
+            .listRowBackground(palette.surfaceElevated)
         }
-        editingNote = note
     }
 }
+
+// MARK: - Preview
+
+#if DEBUG
+#Preview {
+    let model = EmptyCardsModel()
+    model.isLoading = false
+    model.report = "Note 1: 2 of 3 cards empty\nNote 2: 1 of 1 cards empty (note will be deleted)"
+    model.noteEntries = [
+        .init(id: NoteID(1), cardIds: [CardID(10), CardID(11)], totalCards: 3,
+              emptyCards: 2, deckName: "Japanese::Vocabulary", willDeleteNote: false),
+        .init(id: NoteID(2), cardIds: [CardID(20)], totalCards: 1,
+              emptyCards: 1, deckName: "Default", willDeleteNote: true),
+    ]
+    return NavigationStack {
+        EmptyCardsContent(model: model, onOpenNote: { _ in }, onRequestDeleteAll: {})
+            .navigationTitle("Empty Cards")
+            .navigationBarTitleDisplayMode(.inline)
+    }
+}
+#endif

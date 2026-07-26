@@ -1,12 +1,11 @@
 import AnkiBackend
-import AnkiProto
+import AnkiProtoBridge
 import AnkiSync
 public import AnkiKit
 public import Dependencies
 import DependenciesMacros
 import Foundation
 import Logging
-import SwiftProtobuf
 
 private let logger = Logger(label: "com.ankiapp.sync.service")
 
@@ -23,67 +22,36 @@ extension SyncService: DependencyKey {
         @Dependency(\.ankiBackend) var backend
         return Self(
             sync: { endpoint, hostKey in
-                var auth = Anki_Sync_SyncAuth()
-                auth.hkey = hostKey
-                auth.endpoint = endpoint
-
-                var req = Anki_Sync_SyncCollectionRequest()
-                req.auth = auth
-                req.syncMedia = true
+                var auth = SyncAuth(hkey: hostKey, endpoint: endpoint)
 
                 do {
-                    let responseBytes = try backend.call(
-                        service: AnkiBackend.Service.sync,
-                        method: AnkiBackend.SyncMethod.syncCollection,
-                        request: req
-                    )
-                    let response = try Anki_Sync_SyncCollectionResponse(serializedBytes: responseBytes)
-                    logger.info("SyncCollection: required=\(response.required), message='\(response.serverMessage)'")
+                    let result = try backend.invoke(.syncCollection(auth: auth, syncMedia: true))
+                    logger.info("SyncCollection: required=\(result.required), message='\(result.serverMessage)'")
 
-                    if response.hasNewEndpoint, !response.newEndpoint.isEmpty {
-                        auth.endpoint = response.newEndpoint
-                        try? KeychainHelper.saveCurrentEndpoint(response.newEndpoint)
+                    if let newEndpoint = result.newEndpoint {
+                        auth = SyncAuth(hkey: auth.hkey, endpoint: newEndpoint)
                     }
 
-                    switch response.required {
-                    case .noChanges:
+                    switch result.required {
+                    case .noChanges, .normalSync:
                         return SyncSummary()
 
-                    case .normalSync:
-                        return SyncSummary()
-
-                    case .fullSync:
-                        logger.info("Full sync required - user must choose direction")
-                        throw SyncError.fullSyncRequired
-
-                    case .fullDownload:
-                        logger.info("Full download required (local collection empty)")
-                        var dlReq = Anki_Sync_FullUploadOrDownloadRequest()
-                        dlReq.auth = auth
-                        dlReq.upload = false
-                        dlReq.serverUsn = response.serverMediaUsn
-                        try backend.callVoid(
-                            service: AnkiBackend.Service.sync,
-                            method: AnkiBackend.SyncMethod.fullUploadOrDownload,
-                            request: dlReq
-                        )
+                    case .fullSync, .fullDownload:
+                        logger.info("Full download required")
+                        try backend.invoke(.fullUploadOrDownload(
+                            auth: auth, upload: false, serverUsn: result.serverMediaUsn
+                        ))
                         try? backend.checkDatabase()
                         return SyncSummary()
 
                     case .fullUpload:
                         logger.info("Full upload required")
-                        var ulReq = Anki_Sync_FullUploadOrDownloadRequest()
-                        ulReq.auth = auth
-                        ulReq.upload = true
-                        ulReq.serverUsn = response.serverMediaUsn
-                        try backend.callVoid(
-                            service: AnkiBackend.Service.sync,
-                            method: AnkiBackend.SyncMethod.fullUploadOrDownload,
-                            request: ulReq
-                        )
+                        try backend.invoke(.fullUploadOrDownload(
+                            auth: auth, upload: true, serverUsn: result.serverMediaUsn
+                        ))
                         return SyncSummary()
 
-                    case .UNRECOGNIZED(let v):
+                    case .unrecognized(let v):
                         logger.warning("Unrecognized sync required: \(v)")
                         return SyncSummary()
                     }
@@ -94,55 +62,32 @@ extension SyncService: DependencyKey {
                 }
             },
             fullSync: { endpoint, hostKey, direction in
-                var auth = Anki_Sync_SyncAuth()
-                auth.hkey = hostKey
-                auth.endpoint = endpoint
-
-                var req = Anki_Sync_FullUploadOrDownloadRequest()
-                req.auth = auth
-                req.upload = (direction == .upload)
-
+                let auth = SyncAuth(hkey: hostKey, endpoint: endpoint)
                 do {
-                    try backend.callVoid(
-                        service: AnkiBackend.Service.sync,
-                        method: AnkiBackend.SyncMethod.fullUploadOrDownload,
-                        request: req
-                    )
+                    try backend.invoke(.fullUploadOrDownload(
+                        auth: auth, upload: direction == .upload, serverUsn: 0
+                    ))
                 } catch let error as BackendError {
                     if error.isSyncAuthError { throw SyncError.authFailed }
                     throw SyncError(message: error.message)
                 }
             },
             syncMedia: { endpoint, hostKey in
-                var auth = Anki_Sync_SyncAuth()
-                auth.hkey = hostKey
-                auth.endpoint = endpoint
-
+                let auth = SyncAuth(hkey: hostKey, endpoint: endpoint)
                 do {
-                    try backend.callVoid(
-                        service: AnkiBackend.Service.sync,
-                        method: AnkiBackend.SyncMethod.syncMedia,
-                        request: auth
-                    )
+                    try backend.invoke(.syncMedia(auth: auth))
                 } catch let error as BackendError {
                     if error.isSyncAuthError { throw SyncError.authFailed }
                     throw SyncError(message: error.message)
                 }
             },
             login: { endpoint, username, password in
-                var req = Anki_Sync_SyncLoginRequest()
-                req.username = username
-                req.password = password
-                req.endpoint = endpoint
-
                 do {
-                    let auth: Anki_Sync_SyncAuth = try backend.invoke(
-                        service: AnkiBackend.Service.sync,
-                        method: AnkiBackend.SyncMethod.syncLogin,
-                        request: req
-                    )
+                    let hkey = try backend.invoke(.syncLogin(
+                        endpoint: endpoint, username: username, password: password
+                    ))
                     logger.info("Login successful for \(username)")
-                    return auth.hkey
+                    return hkey
                 } catch let error as BackendError {
                     logger.error("Login failed: \(error.message)")
                     throw SyncError.authFailed

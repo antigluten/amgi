@@ -1,7 +1,7 @@
-import XCTest
+import Testing
 
-final class PlaceholderTest: XCTestCase {
-    func testPlaceholder() {
-        XCTAssertTrue(true)
+@Suite struct PlaceholderTest {
+    @Test func placeholder() {
+        #expect(true)
     }
 }

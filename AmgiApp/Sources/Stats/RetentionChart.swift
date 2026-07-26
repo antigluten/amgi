@@ -1,8 +1,8 @@
 import SwiftUI
-import AnkiProto
+import AnkiKit
 
 struct RetentionChart: View {
-    let trueRetention: Anki_Stats_GraphsResponse.TrueRetentionStats
+    let trueRetention: TrueRetentionStats
 
     private struct RetentionRow: Identifiable {
         let id: String
@@ -13,7 +13,7 @@ struct RetentionChart: View {
     }
 
     private var rows: [RetentionRow] {
-        func row(_ label: String, _ r: Anki_Stats_GraphsResponse.TrueRetentionStats.TrueRetention) -> RetentionRow {
+        func row(_ label: String, _ r: TrueRetentionStats.TrueRetention) -> RetentionRow {
             let youngTotal = r.youngPassed + r.youngFailed
             let matureTotal = r.maturePassed + r.matureFailed
             let youngRate = youngTotal > 0 ? Double(r.youngPassed) / Double(youngTotal) : 0
@@ -58,17 +58,26 @@ struct RetentionChart: View {
         }
         .amgiCard()
     }
+}
 
-    private func retentionBadge(_ rate: Double) -> some View {
+private extension RetentionChart {
+    func retentionBadge(_ rate: Double) -> some View {
         Text(rate > 0 ? "\(Int(rate * 100))%" : "---")
             .font(.caption.monospacedDigit().weight(.medium))
             .foregroundStyle(retentionColor(rate))
     }
 
-    private func retentionColor(_ rate: Double) -> Color {
+    func retentionColor(_ rate: Double) -> Color {
         if rate <= 0 { return .secondary }
         if rate >= 0.9 { return .green }
         if rate >= 0.8 { return .orange }
         return .red
     }
+}
+
+// MARK: - Preview
+
+#Preview {
+    RetentionChart(trueRetention: .sample)
+        .padding()
 }

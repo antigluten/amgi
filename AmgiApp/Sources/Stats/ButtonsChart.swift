@@ -1,12 +1,12 @@
 import SwiftUI
 import Charts
-import AnkiProto
+import AnkiKit
 
 struct ButtonsChart: View {
-    let buttons: Anki_Stats_GraphsResponse.Buttons
+    let buttons: ButtonsBuckets
     let period: StatsPeriod
 
-    private var buttonCounts: Anki_Stats_GraphsResponse.Buttons.ButtonCounts {
+    private var buttonCounts: ButtonsBuckets.ButtonCounts {
         switch period {
         case .day, .week, .month: buttons.oneMonth
         case .threeMonths: buttons.threeMonths
@@ -27,7 +27,7 @@ struct ButtonsChart: View {
 
     private var entries: [ButtonEntry] {
         let bc = buttonCounts
-        let sources: [(String, [UInt32])] = [
+        let sources: [(String, [Int])] = [
             ("Learning", bc.learning),
             ("Young", bc.young),
             ("Mature", bc.mature),
@@ -39,7 +39,7 @@ struct ButtonsChart: View {
                     result.append(ButtonEntry(
                         button: buttonLabels[index],
                         cardType: typeName,
-                        count: Int(count)
+                        count: count
                     ))
                 }
             }
@@ -71,4 +71,11 @@ struct ButtonsChart: View {
         }
         .amgiCard()
     }
+}
+
+// MARK: - Preview
+
+#Preview {
+    ButtonsChart(buttons: .sample, period: .month)
+        .padding()
 }

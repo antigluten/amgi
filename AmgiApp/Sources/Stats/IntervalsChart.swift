@@ -1,9 +1,9 @@
 import SwiftUI
 import Charts
-import AnkiProto
+import AnkiKit
 
 struct IntervalsChart: View {
-    let intervals: Anki_Stats_GraphsResponse.Intervals
+    let intervals: IntervalsBuckets
 
     private struct Bucket: Identifiable {
         let id: String
@@ -13,7 +13,7 @@ struct IntervalsChart: View {
     }
 
     private var buckets: [Bucket] {
-        let bucketDefs: [(label: String, range: ClosedRange<UInt32>)] = [
+        let bucketDefs: [(label: String, range: ClosedRange<Int>)] = [
             ("1d", 0...1),
             ("2d", 2...2),
             ("3-7d", 3...7),
@@ -22,7 +22,7 @@ struct IntervalsChart: View {
             ("1-3m", 31...90),
             ("3-6m", 91...180),
             ("6-12m", 181...365),
-            ("1y+", 366...UInt32.max),
+            ("1y+", 366...Int.max),
         ]
 
         return bucketDefs.enumerated().map { index, def in
@@ -30,7 +30,7 @@ struct IntervalsChart: View {
                 .filter { def.range.contains($0.key) }
                 .values
                 .reduce(0, +)
-            return Bucket(id: def.label, label: def.label, count: Int(count), order: index)
+            return Bucket(id: def.label, label: def.label, count: count, order: index)
         }
         .filter { $0.count > 0 }
     }
@@ -59,4 +59,11 @@ struct IntervalsChart: View {
         }
         .amgiCard()
     }
+}
+
+// MARK: - Preview
+
+#Preview {
+    IntervalsChart(intervals: .sample)
+        .padding()
 }

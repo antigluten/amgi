@@ -33,7 +33,13 @@ struct NoteFieldHTMLPreview: UIViewRepresentable {
         webView.loadHTMLString(document, baseURL: CardAssetPath.mediaBaseURL)
     }
 
-    private func htmlDocument(for fragment: String) -> String {
+    final class Coordinator {
+        var lastHTML = ""
+    }
+}
+
+private extension NoteFieldHTMLPreview {
+    func htmlDocument(for fragment: String) -> String {
         let textColor = colorScheme == .dark ? "#F2F4F8" : "#17212F"
         let linkColor = colorScheme == .dark ? "#8FB8FF" : "#1E5BB8"
 
@@ -77,9 +83,5 @@ struct NoteFieldHTMLPreview: UIViewRepresentable {
         <body>\(fragment)</body>
         </html>
         """
-    }
-
-    final class Coordinator {
-        var lastHTML = ""
     }
 }

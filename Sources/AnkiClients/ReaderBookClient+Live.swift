@@ -1,7 +1,6 @@
 import AmgiReader
 import AnkiBackend
 import AnkiKit
-import AnkiProto
 public import Dependencies
 import DependenciesMacros
 import Foundation
@@ -55,7 +54,7 @@ private func fetchNotes(
     // `search` would silently drop chapter content past the first 50.
     var notes = try noteClient.searchAll(query, nil)
     if let notetypeID = configuration.notetypeID {
-        notes = notes.filter { $0.mid == notetypeID }
+        notes = notes.filter { $0.mid.rawValue == notetypeID }
     }
     return notes
 }
@@ -78,7 +77,7 @@ private func buildBooks(
     configuration: ReaderLibraryConfiguration,
     notetypesClient: NotetypesClient
 ) throws -> [ReaderBook] {
-    var fieldNamesByNotetypeID: [Int64: [String]] = [:]
+    var fieldNamesByNotetypeID: [NotetypeID: [String]] = [:]
     var chaptersByBookID: [String: [ReaderChapter]] = [:]
     var coverImagePathByBookID: [String: String] = [:]
 
@@ -88,13 +87,13 @@ private func buildBooks(
         // crash the whole batch with a "no such notetype" backend
         // error. The eager fetcher above shouldn't produce these, but
         // belt-and-braces.
-        guard note.mid != 0 else { continue }
+        guard note.mid.rawValue != 0 else { continue }
 
         let fieldNames: [String]
         if let cached = fieldNamesByNotetypeID[note.mid] {
             fieldNames = cached
         } else {
-            let notetype = try notetypesClient.getRaw(note.mid)
+            let notetype = try notetypesClient.get(note.mid)
             let names = notetype.fields.map(\.name)
             fieldNamesByNotetypeID[note.mid] = names
             fieldNames = names
@@ -152,7 +151,7 @@ private func makeChapterRecord(
 
     return ReaderChapterRecord(
         chapter: ReaderChapter(
-            id: note.id,
+            id: note.id.rawValue,
             bookID: bookID,
             bookTitle: bookTitle,
             title: chapterTitle,

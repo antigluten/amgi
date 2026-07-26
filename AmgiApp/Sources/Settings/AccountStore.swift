@@ -170,16 +170,6 @@ final class AccountStore {
 
     // MARK: - Persistence
 
-    private func persistAccounts() {
-        if let data = try? JSONEncoder().encode(accounts) {
-            UserDefaults.standard.set(data, forKey: Self.accountsKey)
-        }
-    }
-
-    private func persistSelection() {
-        UserDefaults.standard.set(selectedID, forKey: Self.selectedKey)
-    }
-
     // MARK: - Slug
 
     /// Filesystem- and pref-key-safe slug. Lowercased, alphanumerics +
@@ -212,5 +202,17 @@ enum AccountStoreError: LocalizedError {
         case .cannotDeleteLast: return "You need at least one profile."
         case .cannotDeleteActive: return "Switch to another profile before deleting this one."
         }
+    }
+}
+
+private extension AccountStore {
+    func persistAccounts() {
+        if let data = try? JSONEncoder().encode(accounts) {
+            UserDefaults.standard.set(data, forKey: Self.accountsKey)
+        }
+    }
+
+    func persistSelection() {
+        UserDefaults.standard.set(selectedID, forKey: Self.selectedKey)
     }
 }

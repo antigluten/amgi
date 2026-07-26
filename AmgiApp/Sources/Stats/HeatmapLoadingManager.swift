@@ -1,7 +1,7 @@
 import Foundation
 import os
 import SwiftUI
-import AnkiProto
+import AnkiKit
 
 /// Manages incremental loading of heatmap data with configurable date range
 public actor HeatmapLoadingManager: Sendable {
@@ -26,7 +26,7 @@ public actor HeatmapLoadingManager: Sendable {
     // MARK: - Public API
 
     /// Load or reload all data from response
-    public func loadAllData(_ reviews: Anki_Stats_GraphsResponse.ReviewCountsAndTimes) {
+    public func loadAllData(_ reviews: ReviewCountsAndTimes) {
         var data: [Int: ReviewCount] = [:]
         for (dayOffset, rev) in reviews.count {
             let total = Int(rev.learn + rev.relearn + rev.young + rev.mature + rev.filtered)
@@ -85,8 +85,10 @@ public actor HeatmapLoadingManager: Sendable {
     }
 
     // MARK: - Private Helpers
+}
 
-    private func filterDataByDateRange() -> [Int: ReviewCount] {
+private extension HeatmapLoadingManager {
+    func filterDataByDateRange() -> [Int: ReviewCount] {
         allData.filter { dayOffset, _ in
             dayOffset >= -currentVisibleDays && dayOffset <= 0
         }

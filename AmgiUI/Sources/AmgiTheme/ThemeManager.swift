@@ -3,10 +3,10 @@ public import SwiftUI
 
 @Observable
 public final class ThemeManager: @unchecked Sendable {
-    nonisolated(unsafe) public static let shared = ThemeManager()
+    public static let shared = ThemeManager()
 
-    public var theme: Theme {
-        didSet { defaults.set(theme.rawValue, forKey: Keys.theme) }
+    public var themeID: ThemeID {
+        didSet { defaults.set(themeID.rawValue, forKey: Keys.themeID) }
     }
 
     public var appearance: Appearance {
@@ -14,12 +14,20 @@ public final class ThemeManager: @unchecked Sendable {
     }
 
     private let defaults: UserDefaults
+    private let registry: ThemeRegistry
 
-    public init(defaults: UserDefaults = .amgiAppGroup) {
+    public init(defaults: UserDefaults = .amgiAppGroup, registry: ThemeRegistry = .shared) {
         self.defaults = defaults
-        let storedTheme = defaults.string(forKey: Keys.theme).flatMap(Theme.init(rawValue:))
+        self.registry = registry
+        // First-upgrade backfill: read the legacy "theme.selection" key when
+        // the new "theme.id" key isn't present yet. The didSet on themeID
+        // will write the new key on the next change, so this only fires once.
+        let storedRaw = defaults.string(forKey: Keys.themeID)
+            ?? defaults.string(forKey: Keys.legacyTheme)
+        let stored = storedRaw.map(ThemeID.init(rawValue:))
         let storedAppearance = defaults.string(forKey: Keys.appearance).flatMap(Appearance.init(rawValue:))
-        self.theme = storedTheme ?? .vivid
+        // Unknown IDs are fine — registry.palette(id:scheme:) falls back to Vivid.
+        self.themeID = stored ?? .vivid
         self.appearance = storedAppearance ?? .system
     }
 
@@ -30,11 +38,12 @@ public final class ThemeManager: @unchecked Sendable {
         case .light: resolved = .light
         case .dark: resolved = .dark
         }
-        return Palette.resolve(theme: theme, scheme: resolved)
+        return registry.palette(id: themeID, scheme: resolved)
     }
 
     private enum Keys {
-        static let theme = "theme.selection"
+        static let themeID = "theme.id"
+        static let legacyTheme = "theme.selection"
         static let appearance = "theme.appearance"
     }
 }

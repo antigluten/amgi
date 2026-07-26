@@ -10,7 +10,7 @@ import SwiftUI
 struct ReaderConfigurationView: View {
     let onDismiss: () -> Void
 
-    @Dependency(\.deckClient) var deckClient
+    @State private var model = ReaderConfigurationModel()
 
     @Shared(.appStorage(ReaderPreferenceKey.deckName)) private var deckName: String = ""
     @Shared(.appStorage(ReaderPreferenceKey.bookIDField)) private var bookIDField: String = ""
@@ -21,18 +21,15 @@ struct ReaderConfigurationView: View {
     @Shared(.appStorage(ReaderPreferenceKey.contentField)) private var contentField: String = ""
     @Shared(.appStorage(ReaderPreferenceKey.languageField)) private var languageField: String = ""
 
-    @State private var decks: [DeckInfo] = []
-    @State private var loadError: String?
-
     var body: some View {
         Form {
             Section("Deck") {
-                if decks.isEmpty {
+                if model.decks.isEmpty {
                     Text("Loading decks…").foregroundStyle(.secondary)
                 } else {
                     Picker("Deck", selection: Binding($deckName)) {
                         Text("Select a deck").tag("")
-                        ForEach(decks, id: \.id) { deck in
+                        ForEach(model.decks, id: \.id) { deck in
                             Text(deck.name).tag(deck.name)
                         }
                     }
@@ -74,7 +71,7 @@ struct ReaderConfigurationView: View {
                 Text("Field names from the notetype that holds your book chapters. Each note becomes a chapter; chapters with the same Book ID collapse into one book.")
             }
 
-            if let loadError {
+            if let loadError = model.loadError {
                 Section { Text(loadError).foregroundStyle(.red) }
             }
         }
@@ -85,14 +82,19 @@ struct ReaderConfigurationView: View {
                 Button("Done") { onDismiss() }
             }
         }
-        .task { await loadDecks() }
-    }
-
-    private func loadDecks() async {
-        do {
-            decks = try deckClient.fetchAll().sorted { $0.name < $1.name }
-        } catch {
-            loadError = "Failed to load decks: \(error.localizedDescription)"
-        }
+        .task { await model.loadDecks() }
     }
 }
+
+// MARK: - Preview
+
+#if DEBUG
+#Preview {
+    // deckClient.previewValue feeds the deck picker; the field-mapping rows
+    // read their @Shared appStorage defaults.
+    let _ = prepareDependencies { $0.deckClient = .previewValue }
+    return NavigationStack {
+        ReaderConfigurationView(onDismiss: {})
+    }
+}
+#endif

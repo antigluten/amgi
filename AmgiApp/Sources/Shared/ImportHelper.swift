@@ -1,3 +1,4 @@
+import AnkiKit
 import AnkiServices
 import Dependencies
 import Foundation
@@ -46,7 +47,7 @@ enum ImportHelper {
     /// returns the URL. The default options preserve scheduling, deck configs,
     /// and media — matching upstream Anki's "Export including media" preset.
     static func exportDeck(
-        deckId: Int64,
+        deckId: DeckID,
         deckName: String,
         withScheduling: Bool = true,
         withDeckConfigs: Bool = true,

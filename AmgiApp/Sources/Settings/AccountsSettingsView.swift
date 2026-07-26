@@ -78,40 +78,6 @@ struct AccountsSettingsView: View {
         }
     }
 
-    @ViewBuilder
-    private func profileRow(_ account: AmgiAccount) -> some View {
-        Button {
-            if account.id == store.selectedID {
-                store.clearPending()
-            } else {
-                store.scheduleSwitch(to: account)
-            }
-        } label: {
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(account.displayName).foregroundStyle(.primary)
-                    Text("Created \(account.createdAt.formatted(date: .abbreviated, time: .omitted))")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                }
-                Spacer()
-                if account.id == store.selectedID {
-                    Image(systemName: "checkmark").foregroundStyle(Color.accentColor)
-                } else if account.id == store.pendingSwitchID {
-                    Image(systemName: "arrow.triangle.2.circlepath").foregroundStyle(.orange)
-                }
-            }
-        }
-        .swipeActions(edge: .trailing) {
-            Button(role: .destructive) {
-                pendingDelete = account
-            } label: {
-                Label("Delete", systemImage: "trash")
-            }
-            .disabled(account.id == store.selectedID || store.accounts.count <= 1)
-        }
-    }
-
     private var addSection: some View {
         Section {
             Button {
@@ -152,7 +118,44 @@ struct AccountsSettingsView: View {
         }
     }
 
-    private func attemptAdd() {
+}
+
+private extension AccountsSettingsView {
+    @ViewBuilder
+    func profileRow(_ account: AmgiAccount) -> some View {
+        Button {
+            if account.id == store.selectedID {
+                store.clearPending()
+            } else {
+                store.scheduleSwitch(to: account)
+            }
+        } label: {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(account.displayName).foregroundStyle(.primary)
+                    Text("Created \(account.createdAt.formatted(date: .abbreviated, time: .omitted))")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                if account.id == store.selectedID {
+                    Image(systemName: "checkmark").foregroundStyle(Color.accentColor)
+                } else if account.id == store.pendingSwitchID {
+                    Image(systemName: "arrow.triangle.2.circlepath").foregroundStyle(.orange)
+                }
+            }
+        }
+        .swipeActions(edge: .trailing) {
+            Button(role: .destructive) {
+                pendingDelete = account
+            } label: {
+                Label("Delete", systemImage: "trash")
+            }
+            .disabled(account.id == store.selectedID || store.accounts.count <= 1)
+        }
+    }
+
+    func attemptAdd() {
         do {
             _ = try store.add(displayName: newName)
             showAddSheet = false
@@ -161,7 +164,7 @@ struct AccountsSettingsView: View {
         }
     }
 
-    private func attemptDelete(_ account: AmgiAccount, deleteFiles: Bool) {
+    func attemptDelete(_ account: AmgiAccount, deleteFiles: Bool) {
         do {
             try store.remove(account, deleteFiles: deleteFiles)
         } catch {
@@ -169,4 +172,10 @@ struct AccountsSettingsView: View {
         }
         pendingDelete = nil
     }
+}
+
+// MARK: - Preview
+
+#Preview {
+    NavigationStack { AccountsSettingsView() }
 }

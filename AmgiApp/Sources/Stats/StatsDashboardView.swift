@@ -2,35 +2,28 @@ import SwiftUI
 import AmgiTheme
 import AnkiKit
 import AnkiClients
-import AnkiProto
 import Dependencies
-import SwiftProtobuf
 
 struct StatsDashboardView: View {
     @Environment(\.palette) private var palette
-    @Dependency(\.statsClient) var statsClient
-    @Dependency(\.deckClient) var deckClient
 
-    @State private var graphs: Anki_Stats_GraphsResponse?
-    @State private var isLoading = true
-    @State private var errorMessage: String?
+    @State private var model = StatsDashboardModel()
     @State private var period: StatsPeriod = .month
-    @State private var decks: [DeckInfo] = []
     @State private var selectedDeck: DeckInfo?
 
     var body: some View {
         ScrollView {
             LazyVStack(spacing: AmgiSpacing.lg) {
-                if isLoading {
+                if model.isLoading {
                     ProgressView("Loading statistics...")
                         .padding(.top, 40)
-                } else if let error = errorMessage {
+                } else if let error = model.errorMessage {
                     ContentUnavailableView(
                         "Failed to Load Stats",
                         systemImage: "exclamationmark.triangle",
                         description: Text(error)
                     )
-                } else if let graphs {
+                } else if let graphs = model.graphs {
                     // Filters row
                     HStack(spacing: AmgiSpacing.sm) {
                         deckMenu
@@ -58,18 +51,18 @@ struct StatsDashboardView: View {
         .background(palette.surface)
         .navigationTitle("Statistics")
         .task {
-            await loadDecks()
-            await loadStats()
+            await model.loadDecks()
+            await reloadStats()
         }
         .onAppear {
-            Task { await loadStats() }
+            Task { await reloadStats() }
         }
-        .refreshable { await loadStats() }
+        .refreshable { await reloadStats() }
         .onChange(of: selectedDeck) {
-            Task { await loadStats() }
+            Task { await reloadStats() }
         }
         .onChange(of: period) {
-            Task { await loadStats() }
+            Task { await reloadStats() }
         }
     }
 
@@ -82,7 +75,7 @@ struct StatsDashboardView: View {
                 else { Text("Whole Collection") }
             }
             Divider()
-            ForEach(decks.filter({ !$0.name.contains("::") })) { deck in
+            ForEach(model.decks.filter({ !$0.name.contains("::") })) { deck in
                 Button { selectedDeck = deck } label: {
                     if selectedDeck?.id == deck.id { Label(deck.name, systemImage: "checkmark") }
                     else { Text(deck.name) }
@@ -116,7 +109,11 @@ struct StatsDashboardView: View {
 
     // MARK: - Shared Capsule
 
-    private func filterCapsule(icon: String, label: String) -> some View {
+    // MARK: - Data
+}
+
+private extension StatsDashboardView {
+    func filterCapsule(icon: String, label: String) -> some View {
         HStack(spacing: 4) {
             Image(systemName: icon)
                 .font(.caption2)
@@ -132,22 +129,26 @@ struct StatsDashboardView: View {
         .clipShape(Capsule())
     }
 
-    // MARK: - Data
-
-    private func loadDecks() async {
-        decks = (try? deckClient.fetchAll()) ?? []
-    }
-
-    private func loadStats() async {
-        isLoading = graphs == nil
-        do {
-            let search = selectedDeck.map { "deck:\"\($0.name)\"" } ?? ""
-            let data = try statsClient.fetchGraphs(search, UInt32(period.days))
-            graphs = try Anki_Stats_GraphsResponse(serializedBytes: data)
-            errorMessage = nil
-        } catch {
-            errorMessage = error.localizedDescription
-        }
-        isLoading = false
+    /// Bridge the view's filter state into the model's stats load.
+    func reloadStats() async {
+        let search = selectedDeck.map { "deck:\"\($0.name)\"" } ?? ""
+        await model.loadStats(search: search, days: period.days)
     }
 }
+
+// MARK: - Preview
+
+#if DEBUG
+#Preview {
+    // `prepareDependencies` sets the defaults the view reads via @Dependency in
+    // its body; `.previewValue` returns a fully-populated snapshot so every
+    // chart renders.
+    let _ = prepareDependencies {
+        $0.statsClient = .previewValue
+        $0.deckClient = .previewValue
+    }
+    NavigationStack {
+        StatsDashboardView()
+    }
+}
+#endif

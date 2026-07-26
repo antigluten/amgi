@@ -1,9 +1,9 @@
 import SwiftUI
 import Charts
-import AnkiProto
+import AnkiKit
 
 struct EaseChart: View {
-    let eases: Anki_Stats_GraphsResponse.Eases
+    let eases: EaseBuckets
 
     private var chartData: [(ease: Int, count: Int)] {
         eases.eases
@@ -49,4 +49,11 @@ struct EaseChart: View {
         }
         .amgiCard()
     }
+}
+
+// MARK: - Preview
+
+#Preview {
+    EaseChart(eases: .sample)
+        .padding()
 }

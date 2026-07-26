@@ -1,173 +1,125 @@
 import SwiftUI
 import AnkiKit
-import AnkiClients
-import AnkiServices
-import Dependencies
 
+/// Add Note container: owns the modal chrome (navigation, toolbar, dismissal)
+/// and drives an `AddNoteModel` for deck/notetype loading and the note write.
+/// The form itself is `AddNoteContent`, bound to the model.
 struct AddNoteView: View {
     @Environment(\.dismiss) private var dismiss
-    @Dependency(\.deckClient) var deckClient
-    @Dependency(\.notetypesService) var notetypesService
-    @Dependency(\.notesService) var notesService
-
-    @State private var decks: [DeckInfo] = []
-    @State private var notetypeNames: [(id: Int64, name: String)] = []
-    @State private var selectedDeckId: Int64 = 1
-    @State private var selectedNotetypeId: Int64 = 0
-    @State private var fieldNames: [String] = []
-    @State private var fieldValues: [String] = []
-    @State private var tags: String = ""
-    @State private var isSaving = false
-    @State private var errorMessage: String?
-
-    let preselectedDeckId: Int64?
-    let initialDraft: AddNoteDraft?
+    @State private var model: AddNoteModel
     let onSave: () -> Void
 
     init(
-        preselectedDeckId: Int64? = nil,
+        preselectedDeckId: DeckID? = nil,
         initialDraft: AddNoteDraft? = nil,
         onSave: @escaping () -> Void
     ) {
-        self.preselectedDeckId = preselectedDeckId ?? initialDraft?.deckID
-        self.initialDraft = initialDraft
+        let resolved = preselectedDeckId ?? initialDraft?.deckID.map { DeckID($0) }
+        _model = State(initialValue: AddNoteModel(preselectedDeckId: resolved, initialDraft: initialDraft))
         self.onSave = onSave
     }
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section("Deck") {
-                    Picker("Deck", selection: $selectedDeckId) {
-                        ForEach(decks) { deck in
-                            Text(deck.name).tag(deck.id)
+            AddNoteContent(model: model)
+                .navigationTitle("Add Note")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") { dismiss() }
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Add") {
+                            Task {
+                                if await model.save() {
+                                    onSave()
+                                    dismiss()
+                                }
+                            }
                         }
+                        .disabled(model.isSaving || model.fieldValues.allSatisfy(\.isEmpty))
                     }
                 }
-
-                Section("Note Type") {
-                    Picker("Type", selection: $selectedNotetypeId) {
-                        ForEach(notetypeNames, id: \.id) { entry in
-                            Text(entry.name).tag(entry.id)
-                        }
-                    }
-                    .onChange(of: selectedNotetypeId) {
-                        loadFields()
-                    }
-                }
-
-                Section("Fields") {
-                    ForEach(Array(fieldNames.enumerated()), id: \.offset) { index, name in
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(name)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                            RichNoteFieldEditor(htmlText: fieldBinding(for: index))
-                        }
-                    }
-                }
-
-                Section("Tags") {
-                    TextField("Tags (space-separated)", text: $tags)
-                        .autocorrectionDisabled()
-                        .textInputAutocapitalization(.never)
-                }
-
-                if let errorMessage {
-                    Section {
-                        Text(errorMessage)
-                            .foregroundStyle(.red)
-                            .font(.caption)
-                    }
-                }
-            }
-            .navigationTitle("Add Note")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Add") {
-                        Task { await save() }
-                    }
-                    .disabled(isSaving || fieldValues.allSatisfy(\.isEmpty))
-                }
-            }
-            .task {
-                await loadData()
-            }
+                .task { await model.loadData() }
         }
-    }
-
-    private func fieldBinding(for index: Int) -> Binding<String> {
-        Binding(
-            get: { index < fieldValues.count ? fieldValues[index] : "" },
-            set: { newValue in
-                if index < fieldValues.count { fieldValues[index] = newValue }
-            }
-        )
-    }
-
-    private func loadData() async {
-        decks = (try? deckClient.fetchAll()) ?? []
-        if let preselectedDeckId, decks.contains(where: { $0.id == preselectedDeckId }) {
-            selectedDeckId = preselectedDeckId
-        } else if let first = decks.first {
-            selectedDeckId = first.id
-        }
-
-        do {
-            notetypeNames = try notetypesService.getNotetypeNames()
-            // Honour an incoming draft's preferred notetype when it
-            // matches one the user actually has; otherwise fall back to
-            // the first available.
-            let chosen = initialDraft?.notetypeID
-                .flatMap { id in notetypeNames.first(where: { $0.id == id }) }
-                ?? notetypeNames.first
-            if let chosen {
-                selectedNotetypeId = chosen.id
-                loadFields()
-            }
-        } catch {
-            print("[AddNote] Error loading notetypes: \(error)")
-        }
-
-        if let initialDraft, !initialDraft.tags.isEmpty {
-            tags = initialDraft.tags.joined(separator: " ")
-        }
-    }
-
-    private func loadFields() {
-        guard selectedNotetypeId != 0 else { return }
-        do {
-            let notetype = try notetypesService.getNotetype(selectedNotetypeId)
-            fieldNames = notetype.fieldNames
-            // Pre-fill from the incoming draft by mapping
-            // `fieldValues[name] → fieldValues[positionalIndex]` against
-            // the notetype's actual field-name list. Names not present
-            // on this notetype are silently dropped.
-            fieldValues = fieldNames.map { name in
-                initialDraft?.fieldValues[name] ?? ""
-            }
-        } catch {
-            print("[AddNote] Error loading fields: \(error)")
-        }
-    }
-
-    private func save() async {
-        isSaving = true
-        errorMessage = nil
-        do {
-            var template = try notesService.newNote(selectedNotetypeId)
-            template.fields = fieldValues
-            template.tags = tags.split(separator: " ").map(String.init)
-            try notesService.addNote(template, selectedDeckId)
-            onSave()
-            dismiss()
-        } catch {
-            errorMessage = "Failed to add note: \(error.localizedDescription)"
-        }
-        isSaving = false
     }
 }
+
+// MARK: - AddNoteContent
+
+/// The Add Note form: deck + note-type pickers, the note-type's fields, and a
+/// tags field. Bound to an `AddNoteModel`; owns no I/O of its own, so it
+/// renders in a `#Preview` from a seeded model.
+struct AddNoteContent: View {
+    @Bindable var model: AddNoteModel
+
+    var body: some View {
+        Form {
+            Section("Deck") {
+                Picker("Deck", selection: $model.selectedDeckId) {
+                    ForEach(model.decks) { deck in
+                        Text(deck.name).tag(deck.id)
+                    }
+                }
+            }
+
+            Section("Note Type") {
+                Picker("Type", selection: $model.selectedNotetypeId) {
+                    ForEach(model.notetypeNames, id: \.id) { entry in
+                        Text(entry.name).tag(entry.id)
+                    }
+                }
+                .onChange(of: model.selectedNotetypeId) {
+                    model.loadFields()
+                }
+            }
+
+            Section("Fields") {
+                ForEach(Array(model.fieldNames.enumerated()), id: \.offset) { index, name in
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(name)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        RichNoteFieldEditor(htmlText: model.fieldBinding(for: index))
+                    }
+                }
+            }
+
+            Section("Tags") {
+                TextField("Tags (space-separated)", text: $model.tags)
+                    .autocorrectionDisabled()
+                    .textInputAutocapitalization(.never)
+            }
+
+            if let errorMessage = model.errorMessage {
+                Section {
+                    Text(errorMessage)
+                        .foregroundStyle(.red)
+                        .font(.caption)
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Preview
+
+#if DEBUG
+#Preview {
+    // Seed the model directly: AddNoteContent has no `.task`, so the sample
+    // fields aren't overwritten by a load and no live backend is touched.
+    let model = AddNoteModel()
+    model.decks = [.sample, .filtered]
+    model.selectedDeckId = DeckInfo.sample.id
+    model.notetypeNames = [(NotetypeID(1), "Basic"), (NotetypeID(2), "Cloze")]
+    model.selectedNotetypeId = NotetypeID(1)
+    model.fieldNames = ["Front", "Back"]
+    model.fieldValues = ["안녕하세요", "Hello"]
+    model.tags = "vocab korean"
+    return NavigationStack {
+        AddNoteContent(model: model)
+            .navigationTitle("Add Note")
+            .navigationBarTitleDisplayMode(.inline)
+    }
+}
+#endif

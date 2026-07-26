@@ -1,6 +1,7 @@
 import SwiftUI
 import AmgiTheme
 import AnkiClients
+import AnkiKit
 import Dependencies
 
 /// View for managing tags in the collection.
@@ -9,8 +10,7 @@ import Dependencies
 /// manager.
 @MainActor
 struct TagsView: View {
-    @Dependency(\.tagClient) var tagClient
-    let targetNoteIDs: [Int64]
+    let targetNoteIDs: [NoteID]
     /// Controls behaviour when `targetNoteIDs` is non-empty.
     /// `.addToNotes` — tapping a tag immediately adds it to all selected notes.
     /// `.removeFromNotes` — tapping a tag immediately removes it from all selected notes.
@@ -22,22 +22,17 @@ struct TagsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.palette) private var palette
 
-    @State private var allTags: [String] = []
-    @State private var isLoading = true
-    @State private var errorMessage: String?
-    @State private var showError = false
+    @State private var model = TagsModel()
     @State private var showAddTag = false
     @State private var newTagName: String = ""
     @State private var selectedTag: String?
     @State private var showDeleteConfirm = false
-    @State private var isDeleting = false
     @State private var tagActionTag: String?
-    @State private var isApplying = false
     @State private var showRenameTag = false
     @State private var tagToRename: String?
     @State private var renameTagName = ""
 
-    init(targetNoteIDs: [Int64] = [], noteMode: NoteMode = .manage) {
+    init(targetNoteIDs: [NoteID] = [], noteMode: NoteMode = .manage) {
         self.targetNoteIDs = targetNoteIDs
         self.noteMode = noteMode
     }
@@ -47,10 +42,10 @@ struct TagsView: View {
 
     var body: some View {
         VStack {
-            if isLoading {
+            if model.isLoading {
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if allTags.isEmpty {
+            } else if model.allTags.isEmpty {
                 ContentUnavailableView(
                     "No Tags",
                     systemImage: "tag.slash",
@@ -67,9 +62,7 @@ struct TagsView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button(action: { showAddTag = true }) {
-                    Image(systemName: "plus")
-                }
+                Button("Add Tag", systemImage: "plus") { showAddTag = true }
             }
         }
         .sheet(isPresented: $showAddTag) {
@@ -99,13 +92,13 @@ struct TagsView: View {
             }
         } message: {
             if let tag = tagToRename {
-                Text("Delete \"\(tag)\"? This will remove it from all notes.")
+                Text("Enter a new name for \"\(tag)\". It will be updated on all notes that use it.")
             }
         }
-        .alert("Error", isPresented: $showError) {
+        .alert("Error", isPresented: $model.showError) {
             Button("OK") { }
         } message: {
-            Text(errorMessage ?? "An unknown error occurred.")
+            Text(model.errorMessage ?? "An unknown error occurred.")
         }
         .confirmationDialog(
             tagActionTag ?? "",
@@ -153,7 +146,7 @@ struct TagsView: View {
             }
 
             Section(isNoteMode ? "Available Tags" : "All Tags") {
-                ForEach(allTags.sorted(), id: \.self) { tag in
+                ForEach(model.allTags, id: \.self) { tag in
                     tagRow(tag)
                 }
             }
@@ -196,25 +189,13 @@ struct TagsView: View {
         }
     }
 
-    // MARK: - Row
+    // MARK: - Actions
+}
 
+private extension TagsView {
     @ViewBuilder
-    private func tagRow(_ tag: String) -> some View {
-        HStack {
-            Label(tag, systemImage: "tag.fill")
-                .foregroundStyle(palette.accent)
-            Spacer()
-            if isApplying && tagActionTag == tag {
-                ProgressView()
-                    .scaleEffect(0.8)
-            } else {
-                Image(systemName: "chevron.right")
-                    .font(AmgiFont.caption.font)
-                    .foregroundStyle(palette.textTertiary)
-            }
-        }
-        .contentShape(Rectangle())
-        .onTapGesture {
+    func tagRow(_ tag: String) -> some View {
+        Button {
             if isNoteMode {
                 switch noteMode {
                 case .addToNotes:
@@ -227,7 +208,23 @@ struct TagsView: View {
             } else {
                 selectedTag = tag
             }
+        } label: {
+            HStack {
+                Label(tag, systemImage: "tag.fill")
+                    .foregroundStyle(palette.accent)
+                Spacer()
+                if model.isApplying && tagActionTag == tag {
+                    ProgressView()
+                        .scaleEffect(0.8)
+                } else {
+                    Image(systemName: "chevron.right")
+                        .amgiFont(.caption)
+                        .foregroundStyle(palette.textTertiary)
+                }
+            }
+            .contentShape(Rectangle())
         }
+        .buttonStyle(.plain)
         .swipeActions(edge: .trailing) {
             if isNoteMode {
                 Button {
@@ -263,98 +260,61 @@ struct TagsView: View {
         }
     }
 
-    // MARK: - Actions
+    // Thin delegators to the model: do the engine work, then reset the
+    // view's selection/sheet/dialog state.
 
-    private func loadTags() async {
-        do {
-            allTags = try tagClient.getAllTags()
-            isLoading = false
-        } catch {
-            errorMessage = "Failed to load tags: \(error.localizedDescription)"
-            showError = true
-            isLoading = false
-        }
+    func loadTags() async {
+        await model.loadTags()
     }
 
-    private func createTag() async {
+    func createTag() async {
         let name = newTagName.trimmingCharacters(in: .whitespaces)
         guard !name.isEmpty else { return }
-
-        do {
-            if isNoteMode {
-                try tagClient.addTagToNotes(name, targetNoteIDs)
-            } else {
-                try tagClient.addTag(name)
-            }
+        if await model.createTag(name: name, targetNoteIDs: targetNoteIDs) {
             newTagName = ""
             showAddTag = false
-            await loadTags()
-        } catch {
-            errorMessage = "Failed to create tag: \(error.localizedDescription)"
-            showError = true
         }
     }
 
-    private func applyTag(_ tag: String) async {
-        isApplying = true
-        defer { isApplying = false; tagActionTag = nil }
-        do {
-            try tagClient.addTagToNotes(tag, targetNoteIDs)
-        } catch {
-            errorMessage = "Failed to apply tag: \(error.localizedDescription)"
-            showError = true
-        }
+    func applyTag(_ tag: String) async {
+        await model.applyTag(tag, targetNoteIDs: targetNoteIDs)
+        tagActionTag = nil
     }
 
-    private func removeTagFromSelectedNotes(_ tag: String) async {
-        isApplying = true
-        defer { isApplying = false; tagActionTag = nil }
-        do {
-            try tagClient.removeTagFromNotes(tag, targetNoteIDs)
-        } catch {
-            errorMessage = "Failed to remove tag: \(error.localizedDescription)"
-            showError = true
-        }
+    func removeTagFromSelectedNotes(_ tag: String) async {
+        await model.removeTagFromNotes(tag, targetNoteIDs: targetNoteIDs)
+        tagActionTag = nil
     }
 
-    private func deleteTag(_ tag: String) async {
-        isDeleting = true
-        defer { isDeleting = false }
-        do {
-            try tagClient.removeTag(tag)
-            selectedTag = nil
-            await loadTags()
-        } catch {
-            errorMessage = "Failed to delete tag: \(error.localizedDescription)"
-            showError = true
-        }
+    func deleteTag(_ tag: String) async {
+        await model.deleteTag(tag)
+        selectedTag = nil
     }
 
-    private func renameTagAction(from oldName: String, to newName: String) async {
-        let trimmed = newName.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty, trimmed != oldName else {
-            tagToRename = nil
-            return
-        }
-        do {
-            try tagClient.renameTag(oldName, trimmed)
-            tagToRename = nil
-            await loadTags()
-        } catch {
-            errorMessage = "Failed to rename tag: \(error.localizedDescription)"
-            showError = true
-        }
+    func renameTagAction(from oldName: String, to newName: String) async {
+        _ = await model.renameTag(from: oldName, to: newName)
+        tagToRename = nil
     }
 }
 
 #Preview {
-    TagsView()
-        .environment(\.palette, .vividDark)
-        .preferredColorScheme(.dark)
+    let _ = prepareDependencies {
+        $0.tagClient.getAllTags = { ["anatomy", "anatomy::heart", "grammar", "n5", "vocab"] }
+    }
+    return NavigationStack {
+        TagsView()
+    }
+    .environment(\.palette, .vividDark)
+    .preferredColorScheme(.dark)
 }
 
 #Preview("Note mode") {
-    TagsView(targetNoteIDs: [1, 2, 3])
-        .environment(\.palette, .vividDark)
-        .preferredColorScheme(.dark)
+    let _ = prepareDependencies {
+        $0.tagClient.getAllTags = { ["anatomy", "grammar", "n5", "vocab"] }
+    }
+    return NavigationStack {
+        TagsView(targetNoteIDs: [NoteID(1), NoteID(2), NoteID(3)])
+    }
+    .environment(\.palette, .vividDark)
+    .preferredColorScheme(.dark)
 }

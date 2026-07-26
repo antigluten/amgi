@@ -1,12 +1,12 @@
 import SwiftUI
 import Charts
-import AnkiProto
+import AnkiKit
 
 struct HourlyChart: View {
-    let hours: Anki_Stats_GraphsResponse.Hours
+    let hours: HoursBuckets
     let period: StatsPeriod
 
-    private var hourData: [Anki_Stats_GraphsResponse.Hours.Hour] {
+    private var hourData: [HoursBuckets.Hour] {
         switch period {
         case .day, .week, .month: hours.oneMonth
         case .threeMonths: hours.threeMonths
@@ -88,11 +88,20 @@ struct HourlyChart: View {
         }
         .amgiCard()
     }
+}
 
-    private func formatHour(_ hour: Int) -> String {
+private extension HourlyChart {
+    func formatHour(_ hour: Int) -> String {
         if hour == 0 { return "12a" }
         if hour < 12 { return "\(hour)a" }
         if hour == 12 { return "12p" }
         return "\(hour - 12)p"
     }
+}
+
+// MARK: - Preview
+
+#Preview {
+    HourlyChart(hours: .sample, period: .month)
+        .padding()
 }

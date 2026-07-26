@@ -47,8 +47,10 @@ final class CardAssetScheme: NSObject, WKURLSchemeHandler {
     }
 
     func webView(_ webView: WKWebView, stop urlSchemeTask: any WKURLSchemeTask) {}
+}
 
-    private func respond(
+private extension CardAssetScheme {
+    func respond(
         to task: any WKURLSchemeTask,
         url: URL,
         statusCode: Int,

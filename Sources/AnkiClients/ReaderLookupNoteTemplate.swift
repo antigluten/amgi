@@ -154,7 +154,7 @@ public struct ReaderLookupNoteTemplate: Codable, Hashable, Sendable {
         case deinflectionField, matchedField, sourceField, rulesField
     }
 
-    public init(from decoder: Decoder) throws {
+    public init(from decoder: any Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         deckID = try c.decodeIfPresent(Int64.self, forKey: .deckID)
         notetypeID = try c.decodeIfPresent(Int64.self, forKey: .notetypeID)

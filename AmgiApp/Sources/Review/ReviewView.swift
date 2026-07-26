@@ -3,11 +3,14 @@ import AmgiTheme
 import AnkiKit
 import Sharing
 
+/// Container: owns the `ReviewSession`, the review preferences, the sheet
+/// selection state, and the session lifecycle (`start()`, audio-session
+/// application, widget snapshot on disappear). Hands the session plus pref
+/// values and sheet bindings to the pure `ReviewContent`, which is what the
+/// `#Preview`s build with a stub session.
 struct ReviewView: View {
-    let deckId: Int64
+    let deckId: DeckID
     let onDismiss: () -> Void
-
-    @Environment(\.palette) private var palette
 
     @Shared(.appStorage(ReviewPreferences.Keys.showAudioReplayButton))
     private var showAudioReplayButton: Bool = true
@@ -44,11 +47,65 @@ struct ReviewView: View {
     @State private var editingTemplate: ReviewSession.TemplateTarget?
     @State private var lookupQuery: String?
 
-    init(deckId: Int64, onDismiss: @escaping () -> Void) {
+    init(deckId: DeckID, onDismiss: @escaping () -> Void) {
         self.deckId = deckId
         self.onDismiss = onDismiss
         self._session = State(initialValue: ReviewSession(deckId: deckId))
     }
+
+    var body: some View {
+        ReviewContent(
+            session: session,
+            showRemainingDays: showRemainingDays,
+            showAudioReplayButton: showAudioReplayButton,
+            showContextMenuButton: showContextMenuButton,
+            autoMatchCardBackground: autoMatchCardBackground,
+            openLinksExternally: openLinksExternally,
+            cardContentAlignment: cardContentAlignment,
+            tapLookup: tapLookup,
+            disperseAnswerButtons: disperseAnswerButtons,
+            showNextReviewTime: showNextReviewTime,
+            editingNote: $editingNote,
+            editingTemplate: $editingTemplate,
+            lookupQuery: $lookupQuery,
+            onDismiss: onDismiss
+        )
+        .task {
+            ReviewAudioSession.apply(playInSilent: playAudioInSilentMode)
+            session.start()
+        }
+        .onChange(of: playAudioInSilentMode) { _, newValue in
+            ReviewAudioSession.apply(playInSilent: newValue)
+        }
+        .onDisappear {
+            Task { await writeWidgetSnapshot() }
+        }
+    }
+}
+
+// MARK: - Content
+
+/// Pure render surface for a review session: the card/finished views,
+/// toolbar, and edit/lookup sheets. Takes the session read-only plus pref
+/// values and sheet bindings — no lifecycle, so a `#Preview` renders it
+/// with a stub session and no backend.
+private struct ReviewContent: View {
+    let session: ReviewSession
+    let showRemainingDays: Bool
+    let showAudioReplayButton: Bool
+    let showContextMenuButton: Bool
+    let autoMatchCardBackground: Bool
+    let openLinksExternally: Bool
+    let cardContentAlignment: String
+    let tapLookup: Bool
+    let disperseAnswerButtons: Bool
+    let showNextReviewTime: Bool
+    @Binding var editingNote: NoteRecord?
+    @Binding var editingTemplate: ReviewSession.TemplateTarget?
+    @Binding var lookupQuery: String?
+    let onDismiss: () -> Void
+
+    @Environment(\.palette) private var palette
 
     var body: some View {
         NavigationStack {
@@ -84,6 +141,7 @@ struct ReviewView: View {
                         Image(systemName: "arrow.uturn.backward")
                     }
                     .disabled(!session.canUndo)
+                    .accessibilityLabel("Undo")
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
@@ -92,6 +150,7 @@ struct ReviewView: View {
                         Image(systemName: "pencil")
                     }
                     .disabled(session.currentNote == nil)
+                    .accessibilityLabel("Edit note")
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
@@ -117,6 +176,7 @@ struct ReviewView: View {
                             Image(systemName: session.isAudioPlaying ? "pause.circle" : "play.circle")
                         }
                         .disabled(session.currentNote == nil)
+                        .accessibilityLabel(session.isAudioPlaying ? "Stop audio" : "Replay audio")
                     }
                 }
                 if showContextMenuButton {
@@ -141,6 +201,7 @@ struct ReviewView: View {
                             }
                         }
                         .disabled(session.currentNote == nil)
+                        .accessibilityLabel("Card options")
                     }
                 }
             }
@@ -182,16 +243,6 @@ struct ReviewView: View {
                 }
             }
         }
-        .task {
-            ReviewAudioSession.apply(playInSilent: playAudioInSilentMode)
-            session.start()
-        }
-        .onChange(of: playAudioInSilentMode) { _, newValue in
-            ReviewAudioSession.apply(playInSilent: newValue)
-        }
-        .onDisappear {
-            Task { await writeWidgetSnapshot() }
-        }
     }
 
     @ViewBuilder
@@ -231,6 +282,7 @@ struct ReviewView: View {
                         .padding()
                 }
                 .buttonStyle(.borderedProminent)
+                .disabled(session.isAdvancing)
                 .padding()
             }
         }
@@ -245,54 +297,6 @@ struct ReviewView: View {
         }
         .padding(.horizontal, disperseAnswerButtons ? 20 : 16)
         .padding(.vertical, 16)
-    }
-
-    private func ratingButton(_ rating: Rating, color: Color) -> some View {
-        Button {
-            session.answer(rating: rating)
-        } label: {
-            VStack(spacing: 4) {
-                if showNextReviewTime {
-                    Text(session.nextIntervals[rating] ?? "")
-                        .font(.caption2)
-                }
-                Text(ratingLabel(rating))
-                    .font(.subheadline.weight(.medium))
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 10)
-        }
-        .buttonStyle(.bordered)
-        .tint(color)
-    }
-
-    private func ratingLabel(_ rating: Rating) -> String {
-        switch rating {
-        case .again: "Again"
-        case .hard: "Hard"
-        case .good: "Good"
-        case .easy: "Easy"
-        }
-    }
-
-    private func flagColor(for value: UInt32) -> Color {
-        switch value & 0b111 {
-        case 1: return .red
-        case 2: return .orange
-        case 3: return .green
-        case 4: return .blue
-        case 5: return .pink
-        case 6: return .cyan
-        case 7: return .purple
-        default: return .secondary
-        }
-    }
-
-    private func formatInterval(_ days: Int) -> String {
-        if days == 0 { return "<1d" }
-        if days < 30 { return "\(days)d" }
-        if days < 365 { return "\(days / 30)mo" }
-        return String(format: "%.1fy", Double(days) / 365.0)
     }
 
     private var finishedView: some View {
@@ -320,6 +324,50 @@ struct ReviewView: View {
     }
 }
 
+private extension ReviewContent {
+    func ratingButton(_ rating: Rating, color: Color) -> some View {
+        Button {
+            session.answer(rating: rating)
+        } label: {
+            VStack(spacing: 4) {
+                if showNextReviewTime {
+                    Text(session.nextIntervals[rating] ?? "")
+                        .font(.caption2)
+                }
+                Text(ratingLabel(rating))
+                    .font(.subheadline.weight(.medium))
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 10)
+        }
+        .buttonStyle(.bordered)
+        .tint(color)
+        .disabled(session.isAdvancing)
+    }
+
+    func ratingLabel(_ rating: Rating) -> String {
+        switch rating {
+        case .again: "Again"
+        case .hard: "Hard"
+        case .good: "Good"
+        case .easy: "Easy"
+        }
+    }
+
+    func flagColor(for value: UInt32) -> Color {
+        switch value & 0b111 {
+        case 1: return .red
+        case 2: return .orange
+        case 3: return .green
+        case 4: return .blue
+        case 5: return .pink
+        case 6: return .cyan
+        case 7: return .purple
+        default: return .secondary
+        }
+    }
+}
+
 /// Identifiable wrapper so `.sheet(item:)` can distinguish "not
 /// presented" from "presented with empty query" — the toolbar button
 /// opens the lookup popup focused on the search bar with no query yet.
@@ -327,3 +375,64 @@ private struct ReviewLookupQuery: Identifiable {
     let id = UUID()
     let text: String
 }
+
+// MARK: - Previews
+
+#if DEBUG
+#Preview("Question") {
+    ReviewContent(
+        session: .preview(showAnswer: false),
+        showRemainingDays: true,
+        showAudioReplayButton: true,
+        showContextMenuButton: true,
+        autoMatchCardBackground: false,
+        openLinksExternally: true,
+        cardContentAlignment: CardWebViewContentAlignment.center.rawValue,
+        tapLookup: true,
+        disperseAnswerButtons: false,
+        showNextReviewTime: true,
+        editingNote: .constant(nil),
+        editingTemplate: .constant(nil),
+        lookupQuery: .constant(nil),
+        onDismiss: {}
+    )
+}
+
+#Preview("Answer") {
+    ReviewContent(
+        session: .preview(showAnswer: true),
+        showRemainingDays: true,
+        showAudioReplayButton: true,
+        showContextMenuButton: true,
+        autoMatchCardBackground: false,
+        openLinksExternally: true,
+        cardContentAlignment: CardWebViewContentAlignment.center.rawValue,
+        tapLookup: true,
+        disperseAnswerButtons: false,
+        showNextReviewTime: true,
+        editingNote: .constant(nil),
+        editingTemplate: .constant(nil),
+        lookupQuery: .constant(nil),
+        onDismiss: {}
+    )
+}
+
+#Preview("Finished") {
+    ReviewContent(
+        session: .preview(isFinished: true),
+        showRemainingDays: true,
+        showAudioReplayButton: true,
+        showContextMenuButton: true,
+        autoMatchCardBackground: false,
+        openLinksExternally: true,
+        cardContentAlignment: CardWebViewContentAlignment.center.rawValue,
+        tapLookup: true,
+        disperseAnswerButtons: false,
+        showNextReviewTime: true,
+        editingNote: .constant(nil),
+        editingTemplate: .constant(nil),
+        lookupQuery: .constant(nil),
+        onDismiss: {}
+    )
+}
+#endif

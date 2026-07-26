@@ -1,7 +1,7 @@
 public struct NoteRecord: Sendable, Hashable, Identifiable {
-    public let id: Int64
+    public let id: NoteID
     public var guid: String
-    public var mid: Int64
+    public var mid: NotetypeID
     public var mod: Int64
     public var usn: Int32
     public var tags: String
@@ -12,7 +12,7 @@ public struct NoteRecord: Sendable, Hashable, Identifiable {
     public var data: String
 
     public init(
-        id: Int64, guid: String, mid: Int64, mod: Int64,
+        id: NoteID, guid: String, mid: NotetypeID, mod: Int64,
         usn: Int32 = -1, tags: String = "", flds: String,
         sfld: String, csum: Int64, flags: Int32 = 0, data: String = ""
     ) {

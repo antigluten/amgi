@@ -79,8 +79,10 @@ actor LookupAudioPlayer {
     func stop() {
         stopPlayback(deactivateSession: true)
     }
+}
 
-    private func stopPlayback(deactivateSession: Bool) {
+private extension LookupAudioPlayer {
+    func stopPlayback(deactivateSession: Bool) {
         player?.pause()
         player = nil
 
@@ -98,7 +100,7 @@ actor LookupAudioPlayer {
         }
     }
 
-    private func categoryOptions(for mode: LookupAudioPlaybackMode) -> AVAudioSession.CategoryOptions {
+    func categoryOptions(for mode: LookupAudioPlaybackMode) -> AVAudioSession.CategoryOptions {
         switch mode {
         case .interrupt: return []
         case .duck: return [.mixWithOthers, .duckOthers]

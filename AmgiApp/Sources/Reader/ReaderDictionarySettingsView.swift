@@ -13,7 +13,7 @@ import UniformTypeIdentifiers
 /// list stays empty. The shape here is what the engine plugs into; no
 /// view-side changes needed when the real runtime ports.
 struct ReaderDictionarySettingsView: View {
-    @Dependency(\.dictionaryLookupClient) var dictionary
+    @State private var model = ReaderDictionarySettingsModel()
 
     @Shared(.appStorage(ReaderPreferences.Keys.dictionaryMaxResults))
     private var maxResults: Int = 16
@@ -27,21 +27,9 @@ struct ReaderDictionarySettingsView: View {
     @Shared(.appStorage(ReaderPreferences.Keys.popupAudioAutoplay))
     private var audioAutoplay: Bool = false
 
-    @State private var libraryState: AppDictionaryLibraryState = .empty
-    @State private var selectedKind: AppDictionaryKind = .term
-    @State private var isBusy = false
     @State private var showImporter = false
-    @State private var actionError: String?
 
     private static let zipType = UTType(filenameExtension: "zip") ?? .data
-
-    private var dictionaries: [AppDictionaryInfo] {
-        switch selectedKind {
-        case .term: return libraryState.termDictionaries
-        case .frequency: return libraryState.frequencyDictionaries
-        case .pitch: return libraryState.pitchDictionaries
-        }
-    }
 
     var body: some View {
         Form {
@@ -76,7 +64,7 @@ struct ReaderDictionarySettingsView: View {
             }
 
             Section {
-                Picker("Type", selection: $selectedKind) {
+                Picker("Type", selection: $model.selectedKind) {
                     Text("Term").tag(AppDictionaryKind.term)
                     Text("Frequency").tag(AppDictionaryKind.frequency)
                     Text("Pitch").tag(AppDictionaryKind.pitch)
@@ -85,43 +73,43 @@ struct ReaderDictionarySettingsView: View {
             }
 
             Section {
-                if dictionaries.isEmpty {
-                    Text("No \(selectedKind.label) dictionaries imported yet.")
+                if model.dictionaries.isEmpty {
+                    Text("No \(model.selectedKind.label) dictionaries imported yet.")
                         .foregroundStyle(.secondary)
                 } else {
-                    ForEach(dictionaries) { dict in
+                    ForEach(model.dictionaries) { dict in
                         DictionaryRow(
                             info: dict,
-                            isBusy: isBusy,
-                            onToggle: { Task { await toggle(dict) } },
-                            onDelete: { Task { await delete(dict) } }
+                            isBusy: model.isBusy,
+                            onToggle: { Task { await model.toggle(dict) } },
+                            onDelete: { Task { await model.delete(dict) } }
                         )
                     }
                     .onMove { source, destination in
-                        Task { await move(from: source, to: destination) }
+                        Task { await model.move(from: source, to: destination) }
                     }
                 }
 
                 Button {
                     showImporter = true
                 } label: {
-                    Label("Import \(selectedKind.label) archive…", systemImage: "square.and.arrow.down")
+                    Label("Import \(model.selectedKind.label) archive…", systemImage: "square.and.arrow.down")
                 }
-                .disabled(isBusy)
+                .disabled(model.isBusy)
 
                 Button {
-                    Task { await refresh() }
+                    Task { await model.refresh() }
                 } label: {
                     Label("Reload library", systemImage: "arrow.clockwise")
                 }
-                .disabled(isBusy)
+                .disabled(model.isBusy)
             } header: {
                 Text("Library")
             } footer: {
                 Text("Import Yomitan-format dictionary ZIP archives. Reordering and update-on-version-change land when the lookup engine is fully wired.")
             }
 
-            if isBusy {
+            if model.isBusy {
                 Section {
                     HStack(spacing: 8) {
                         ProgressView().controlSize(.small)
@@ -142,83 +130,19 @@ struct ReaderDictionarySettingsView: View {
             allowedContentTypes: [Self.zipType],
             allowsMultipleSelection: true
         ) { result in
-            handleImport(result)
+            model.handleImport(result)
         }
         .alert(
             "Dictionary",
             isPresented: Binding(
-                get: { actionError != nil },
-                set: { if !$0 { actionError = nil } }
+                get: { model.actionError != nil },
+                set: { if !$0 { model.actionError = nil } }
             ),
-            presenting: actionError
+            presenting: model.actionError
         ) { _ in
             Button("OK", role: .cancel) {}
         } message: { Text($0) }
-        .task { await refresh() }
-    }
-
-    // MARK: - Actions
-
-    private func refresh() async {
-        do {
-            libraryState = try await dictionary.loadState()
-        } catch {
-            actionError = "Failed to load library: \(error.localizedDescription)"
-        }
-    }
-
-    private func handleImport(_ result: Result<[URL], Error>) {
-        switch result {
-        case .success(let urls):
-            Task { await importArchives(urls) }
-        case .failure(let error):
-            actionError = "Could not select files: \(error.localizedDescription)"
-        }
-    }
-
-    private func importArchives(_ urls: [URL]) async {
-        isBusy = true
-        defer { isBusy = false }
-        do {
-            // The engine takes the URLs and copies/extracts as needed —
-            // host-side security-scoped resource access is its concern,
-            // mirroring how DreamAfar's importer drives FileManager.
-            libraryState = try await dictionary.importArchives(urls, selectedKind)
-        } catch {
-            actionError = "Import failed: \(error.localizedDescription)"
-        }
-    }
-
-    private func toggle(_ info: AppDictionaryInfo) async {
-        isBusy = true
-        defer { isBusy = false }
-        do {
-            libraryState = try await dictionary.setEnabled(selectedKind, info.id, !info.isEnabled)
-        } catch {
-            actionError = "Failed to update: \(error.localizedDescription)"
-        }
-    }
-
-    private func delete(_ info: AppDictionaryInfo) async {
-        isBusy = true
-        defer { isBusy = false }
-        do {
-            libraryState = try await dictionary.delete(selectedKind, info.id)
-        } catch {
-            actionError = "Failed to delete: \(error.localizedDescription)"
-        }
-    }
-
-    private func move(from source: IndexSet, to destination: Int) async {
-        var ids = dictionaries.map(\.id)
-        ids.move(fromOffsets: source, toOffset: destination)
-        isBusy = true
-        defer { isBusy = false }
-        do {
-            libraryState = try await dictionary.reorder(selectedKind, ids)
-        } catch {
-            actionError = "Failed to reorder: \(error.localizedDescription)"
-        }
+        .task { await model.refresh() }
     }
 }
 
@@ -263,3 +187,33 @@ private extension AppDictionaryKind {
         }
     }
 }
+
+// MARK: - Preview
+
+#if DEBUG
+#Preview {
+    // Seed the library so the term-dictionary list renders populated; the
+    // lookup-behavior and audio rows fall back to their appStorage defaults.
+    let _ = prepareDependencies {
+        $0.dictionaryLookupClient.loadState = {
+            AppDictionaryLibraryState(
+                termDictionaries: [
+                    AppDictionaryInfo(
+                        fileName: "jmdict.zip",
+                        index: AppDictionaryIndex(title: "JMdict", revision: "2025-06-01"),
+                        isEnabled: true
+                    ),
+                    AppDictionaryInfo(
+                        fileName: "daijirin.zip",
+                        index: AppDictionaryIndex(title: "大辞林", revision: "3.0"),
+                        isEnabled: false
+                    ),
+                ]
+            )
+        }
+    }
+    return NavigationStack {
+        ReaderDictionarySettingsView()
+    }
+}
+#endif

@@ -21,12 +21,39 @@ struct DeckCountsView: View {
                     .foregroundStyle(.secondary)
             }
         }
+        // Counts are colour-coded (blue/orange/green); collapse into one
+        // spoken label so the meaning isn't conveyed by colour alone.
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityLabel)
     }
 
-    private func countBadge(_ count: Int, color: Color) -> some View {
+}
+
+private extension DeckCountsView {
+    var accessibilityLabel: String {
+        guard counts.total > 0 else { return "No cards due" }
+        var parts: [String] = []
+        if counts.newCount > 0 { parts.append("\(counts.newCount) new") }
+        if counts.learnCount > 0 { parts.append("\(counts.learnCount) learning") }
+        if counts.reviewCount > 0 { parts.append("\(counts.reviewCount) to review") }
+        return parts.joined(separator: ", ")
+    }
+
+    func countBadge(_ count: Int, color: Color) -> some View {
         Text("\(count)")
             .font(.caption.weight(.medium))
             .foregroundStyle(color)
             .monospacedDigit()
     }
+}
+
+// MARK: - Preview
+
+#Preview {
+    VStack(alignment: .leading, spacing: 12) {
+        DeckCountsView(counts: .sampleHeavy)
+        DeckCountsView(counts: .sampleLight)
+        DeckCountsView(counts: .zero)
+    }
+    .padding()
 }

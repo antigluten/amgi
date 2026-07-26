@@ -29,11 +29,6 @@ Amgi wraps the official [ankitects/anki](https://github.com/ankitects/anki) Rust
 - **Note Browser** -- search notes across all decks, deck filter chips (top-level decks auto-include subdecks), lazy-load results (50 per page)
 - **Note Editor** -- edit note fields with accurate field names from the Rust notetype RPC
 - **Statistics Dashboard** -- full-year review heatmap (auto-scrolls to today), streak counter, retention rate, forecast chart, card count breakdown
-- **Reader** -- read books from your collection chapter-by-chapter; tap any word for a Yomitan-compatible dictionary lookup; chained popups, search history, per-dictionary collapsed memory; TTS speak button with language-aware voice selection; bundled Korean fonts (Sarasa Mono K, Nanum Myeongjo, Nanum Gothic); vertical writing mode and Latin/CJK auto-detection; cross-device progress sync
-- **Multi-Profile Accounts** -- isolated Anki collections per profile, fast picker in the decks toolbar, per-profile sync credentials and review history
-- **Image Occlusion** -- create and edit notes with rectangle, ellipse, polygon, and text masks; reviewer parity with upstream Anki
-- **Multi-Theme System** -- Vivid + Muted palettes, Light/Dark/Follow-System; persists across app and home-screen widgets via App Group
-- **Per-Deck Study Options** -- FSRS weights editor with optimizer + simulator, preset CRUD, Easy Days, bury rules, timer, auto-advance
 - **Offline-First** -- everything works offline; sync when you have a connection
 - **Swift 6.2 Strict Concurrency** -- zero data races, fully actor-isolated, `Sendable` throughout
 
@@ -78,8 +73,8 @@ For the full architecture walkthrough, see **[ARCHITECTURE.md](ARCHITECTURE.md)*
 ### 1. Clone with submodules
 
 ```bash
-git clone --recursive https://github.com/antigluten/amgi.git
-cd amgi
+git clone --recursive https://github.com/antigluten/anki-ios.git
+cd anki-ios
 ```
 
 ### 2. Install dependencies
@@ -87,7 +82,7 @@ cd amgi
 ```bash
 # Rust toolchain
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-rustup target add aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios
+rustup target add aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios-simulator
 
 # Protobuf compiler and Swift plugin
 brew install protobuf swift-protobuf
@@ -113,8 +108,8 @@ This cross-compiles the Rust bridge for iOS device and simulator, then packages 
 ### 5. Open in Xcode
 
 ```bash
-cd AmgiApp && xcodegen generate && cd ..
-open AmgiApp/AmgiApp.xcodeproj
+cd AnkiApp && xcodegen generate && cd ..
+open AnkiApp/AnkiApp.xcodeproj
 ```
 
 ### 6. Build and Run
@@ -138,11 +133,10 @@ The AGPL requires that if you distribute this software or run it as a network se
 
 ## Contributing
 
-Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines, code style, and the development setup. A list of contributors is maintained in [CONTRIBUTORS.md](CONTRIBUTORS.md).
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines, code style, and the development setup.
 
 ## Acknowledgments
 
 - **[Damien Elmes](https://github.com/dae)** and the [ankitects/anki](https://github.com/ankitects/anki) contributors for the Rust backend that powers this app
-- **[DreamAfar](https://github.com/DreamAfar)** for the v0.0.3 fork that contributed Image Occlusion, the multi-theme system, the Settings tab, the card template editor, retrievability stats, tag management, the rich note editor, and the GitHub Actions IPA workflow
 - **[AnkiDroid](https://github.com/ankidroid/Anki-Android)** for pioneering the Rust backend bridge pattern on mobile
 - **[Point-Free](https://www.pointfree.co/)** for [swift-dependencies](https://github.com/pointfreeco/swift-dependencies)

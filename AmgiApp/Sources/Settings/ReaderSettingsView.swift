@@ -226,3 +226,9 @@ extension ReaderThemeMode {
         }
     }
 }
+
+// MARK: - Preview
+
+#Preview {
+    NavigationStack { ReaderSettingsView() }
+}

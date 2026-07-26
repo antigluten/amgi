@@ -156,89 +156,6 @@ final class CardWebViewCoordinator: NSObject, WKNavigationDelegate, WKScriptMess
         onAudioStateChange?(false)
     }
 
-    private func speakTTS(from body: Any) {
-        guard let payload = body as? [String: Any] else { return }
-        let text = (payload["text"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        guard !text.isEmpty else { return }
-
-        stopTTS()
-
-        let utterance = AVSpeechUtterance(string: text)
-        let lang = ((payload["lang"] as? String) ?? "").replacingOccurrences(of: "_", with: "-")
-        let preferredVoices = ((payload["voices"] as? String) ?? "")
-            .split(separator: ",")
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
-
-        if let voice = preferredVoice(lang: lang, preferredNames: preferredVoices) {
-            utterance.voice = voice
-        } else if !lang.isEmpty {
-            utterance.voice = AVSpeechSynthesisVoice(language: lang)
-        }
-
-        let speedMultiplier = Float((payload["speed"] as? String) ?? "") ?? 1
-        let mappedRate = AVSpeechUtteranceDefaultSpeechRate * max(0.25, min(speedMultiplier, 2.0))
-        utterance.rate = min(max(mappedRate, AVSpeechUtteranceMinimumSpeechRate), AVSpeechUtteranceMaximumSpeechRate)
-        speechSynthesizer.speak(utterance)
-    }
-
-    private func preferredVoice(lang: String, preferredNames: [String]) -> AVSpeechSynthesisVoice? {
-        let voices = AVSpeechSynthesisVoice.speechVoices()
-
-        for preferredName in preferredNames {
-            if let voice = voices.first(where: { $0.identifier.caseInsensitiveCompare(preferredName) == .orderedSame }) {
-                return voice
-            }
-            if let voice = voices.first(where: { $0.name.caseInsensitiveCompare(preferredName) == .orderedSame }) {
-                return voice
-            }
-        }
-
-        guard !lang.isEmpty else { return nil }
-        return voices.first(where: { $0.language.caseInsensitiveCompare(lang) == .orderedSame })
-            ?? voices.first(where: { $0.language.lowercased().hasPrefix(lang.lowercased()) })
-    }
-
-    // MARK: - Link handling
-
-    private func openLink(_ href: String) {
-        let resolvedURL = URL(string: href, relativeTo: currentWebView?.url)?.absoluteURL
-            ?? URL(string: href)
-
-        guard let url = resolvedURL else { return }
-
-        let scheme = url.scheme?.lowercased()
-        let isWebLink = scheme == "http" || scheme == "https"
-
-        if isWebLink, !openLinksExternally {
-            currentWebView?.load(URLRequest(url: url))
-            return
-        }
-
-        DispatchQueue.main.async {
-            if url.scheme == "http" || url.scheme == "https" {
-                self.presentSafariView(url: url)
-            } else {
-                UIApplication.shared.open(url, options: [:], completionHandler: nil)
-            }
-        }
-    }
-
-    private func presentSafariView(url: URL) {
-        guard let scene = UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene }).first,
-              let root = scene.windows.first?.rootViewController else {
-            UIApplication.shared.open(url)
-            return
-        }
-        var topVC = root
-        while let presented = topVC.presentedViewController {
-            topVC = presented
-        }
-        let safari = SFSafariViewController(url: url)
-        topVC.present(safari, animated: true)
-    }
-
     // MARK: - WKNavigationDelegate
 
     func webView(
@@ -295,9 +212,95 @@ final class CardWebViewCoordinator: NSObject, WKNavigationDelegate, WKScriptMess
         print("[CardWebView] Provisional navigation failed: \(error)")
     }
 
+}
+
+private extension CardWebViewCoordinator {
+    func speakTTS(from body: Any) {
+        guard let payload = body as? [String: Any] else { return }
+        let text = (payload["text"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        guard !text.isEmpty else { return }
+
+        stopTTS()
+
+        let utterance = AVSpeechUtterance(string: text)
+        let lang = ((payload["lang"] as? String) ?? "").replacingOccurrences(of: "_", with: "-")
+        let preferredVoices = ((payload["voices"] as? String) ?? "")
+            .split(separator: ",")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+
+        if let voice = preferredVoice(lang: lang, preferredNames: preferredVoices) {
+            utterance.voice = voice
+        } else if !lang.isEmpty {
+            utterance.voice = AVSpeechSynthesisVoice(language: lang)
+        }
+
+        let speedMultiplier = Float((payload["speed"] as? String) ?? "") ?? 1
+        let mappedRate = AVSpeechUtteranceDefaultSpeechRate * max(0.25, min(speedMultiplier, 2.0))
+        utterance.rate = min(max(mappedRate, AVSpeechUtteranceMinimumSpeechRate), AVSpeechUtteranceMaximumSpeechRate)
+        speechSynthesizer.speak(utterance)
+    }
+
+    func preferredVoice(lang: String, preferredNames: [String]) -> AVSpeechSynthesisVoice? {
+        let voices = AVSpeechSynthesisVoice.speechVoices()
+
+        for preferredName in preferredNames {
+            if let voice = voices.first(where: { $0.identifier.caseInsensitiveCompare(preferredName) == .orderedSame }) {
+                return voice
+            }
+            if let voice = voices.first(where: { $0.name.caseInsensitiveCompare(preferredName) == .orderedSame }) {
+                return voice
+            }
+        }
+
+        guard !lang.isEmpty else { return nil }
+        return voices.first(where: { $0.language.caseInsensitiveCompare(lang) == .orderedSame })
+            ?? voices.first(where: { $0.language.lowercased().hasPrefix(lang.lowercased()) })
+    }
+
+    // MARK: - Link handling
+
+    func openLink(_ href: String) {
+        let resolvedURL = URL(string: href, relativeTo: currentWebView?.url)?.absoluteURL
+            ?? URL(string: href)
+
+        guard let url = resolvedURL else { return }
+
+        let scheme = url.scheme?.lowercased()
+        let isWebLink = scheme == "http" || scheme == "https"
+
+        if isWebLink, !openLinksExternally {
+            currentWebView?.load(URLRequest(url: url))
+            return
+        }
+
+        DispatchQueue.main.async {
+            if url.scheme == "http" || url.scheme == "https" {
+                self.presentSafariView(url: url)
+            } else {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            }
+        }
+    }
+
+    func presentSafariView(url: URL) {
+        guard let scene = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene }).first,
+              let root = scene.windows.first?.rootViewController else {
+            UIApplication.shared.open(url)
+            return
+        }
+        var topVC = root
+        while let presented = topVC.presentedViewController {
+            topVC = presented
+        }
+        let safari = SFSafariViewController(url: url)
+        topVC.present(safari, animated: true)
+    }
+
     // MARK: - CSS color parsing
 
-    private static func parseCSSColor(_ cssColor: String) -> UIColor? {
+    static func parseCSSColor(_ cssColor: String) -> UIColor? {
         let trimmed = cssColor.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         if trimmed.hasPrefix("#") {
             return parseHexColor(trimmed)
@@ -332,7 +335,7 @@ final class CardWebViewCoordinator: NSObject, WKNavigationDelegate, WKScriptMess
         return nil
     }
 
-    private static func parseHexColor(_ hex: String) -> UIColor? {
+    static func parseHexColor(_ hex: String) -> UIColor? {
         let value = String(hex.dropFirst())
         let chars = Array(value)
         func hexByte(_ a: Character, _ b: Character) -> UInt8 {

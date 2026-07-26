@@ -1,58 +1,154 @@
 # Amgi — Project Instructions — Project Instructions
 
+## Memory System
+
+At the start of every session, read these files to understand context:
+- `memory/user.md` — Who the user is, their experience and Swift preferences
+- `memory/preferences.md` — Code style, architecture patterns, tools & build setup
+- `memory/decisions.md` — Key architectural decisions and their rationale
+- `memory/people.md` — People involved and key repositories
+
+Update these files when you learn new information during the session.
+
 ## Project Overview
 
-An offline-first Anki-compatible iOS flashcard client with sync server support. Uses the official Anki Rust backend (AGPL-3.0) bridged to Swift via C FFI + protobuf serialization.
+Amgi is an offline-first, Anki-compatible iOS flashcard client with sync-server
+support, plus an EPUB reader with offline dictionary lookup. The Anki engine is
+the upstream Rust crate (`anki-upstream/`, AGPL-3.0) compiled into an XCFramework
+and called from Swift via C FFI + protobuf.
 
-## Architecture
+## Architecture (zoomed out)
 
 ```
-SwiftUI Views (AnkiApp/)
+AmgiApp (iOS app target — AmgiApp/, xcodegen → AmgiApp.xcodeproj)
+  ├─ depends on → AnkiBridge package (this repo's root Package.swift)
+  ├─ depends on → AmgiDomain  (sibling SPM, ./AmgiDomain)
+  ├─ depends on → AmgiReader  (sibling SPM, ./AmgiReader; vendors EPUBKit)
+  └─ depends on → AmgiUI      (sibling SPM, ./AmgiUI)
+
+AnkiBridge package — Anki engine surface
+  SwiftUI feature code (AmgiApp/Sources/{Decks,Review,Reader,Stats,…})
     ↓ @Dependency(\.xxxClient)
-@DependencyClient structs (AnkiClients/)
-    ↓ AnkiBackend.invoke(service:method:request:)
-AnkiBackend Swift wrapper (AnkiBackend/)
-    ↓ C FFI (4 functions)
-Rust static library (anki-bridge-rs/ → XCFramework)
-    ↓ protobuf RPC
-ankitects/anki rslib (anki-upstream/)
+  AnkiClients          ─ thin @DependencyClient structs, live values
+    ↓
+  AnkiServices         ─ high-level facades (Decks, Scheduler, Sync, Stats…)
+    ↓ backend.invoke(.factory(...))
+  AnkiProtoBridge      ─ typed Request<R> factories, ServiceID/*Method enums,
+                          protobuf ↔ Swift-mirror conversions
+    ↓
+  AnkiBackend          ─ Swift class wrapping the 4 C FFI symbols
+    ↓ C FFI: anki_open_backend / anki_run_method /
+              anki_free_response / anki_close_backend
+  AnkiRustLib (binaryTarget) = AnkiRust.xcframework
+    ↑ produced by ./scripts/build-xcframework.sh
+  anki-bridge-rs/      ─ Rust crate exposing the C ABI; links anki-upstream
+  anki-upstream/       ─ ankitects/anki rslib (vendored, AGPL-3.0)
 ```
 
-**Rust owns**: SQLite database, sync protocol, FSRS scheduling, card template rendering
-**Swift owns**: SwiftUI views, @DependencyClient wiring, navigation, charts
+**Rust owns**: SQLite collection DB, sync protocol, FSRS scheduling, card
+template rendering, search, import/export.
+**Swift owns**: SwiftUI views, navigation, charts, keychain, EPUB reader,
+dictionary UI, widgets.
 
 ## Module Map
 
+### `AnkiBridge` package (./Package.swift, root)
 | Module | Purpose |
 |---|---|
-| `AnkiKit` | Pure Swift domain types (Rating, FSRSState, DeckInfo, etc.) |
-| `AnkiDatabase` | @Table records, migrations, CollectionJSON types |
-| `AnkiProto` | Generated Swift protobuf types from 24 .proto files |
-| `AnkiBackend` | Swift wrapper around Rust C FFI (AnkiBackend class) |
-| `AnkiClients` | @DependencyClient structs + live implementations |
-| `AnkiFSRS` | Pure Swift FSRS engine (kept for local calculations) |
-| `AnkiCardRenderer` | TemplateEngine for card HTML rendering |
-| `AnkiSync` | KeychainHelper for credential storage |
+| `AnkiKit` | Pure Swift domain types (Rating, FSRSState, DeckInfo, …). No deps. |
+| `AnkiProto` | Generated SwiftProtobuf types from 24 .proto files. **Package-internal** — only `AnkiBackend` and `AnkiProtoBridge` may import it. |
+| `AnkiBackend` | Swift class wrapping the Rust C FFI; owns the backend pointer, dispatches `Request<R>`, decodes responses. Carries the `RPCObserver` hook. |
+| `AnkiProtoBridge` | The sole sanctioned bridge between protobufs and Swift mirrors. Exposes `Request<R>` factories (`.deckNames`, `.getDeckTree`, …), `ServiceCatalog`, and `*Method` typed dispatch wrappers. Conversions live in `Sources/AnkiProtoBridge/Conversions/`. |
+| `AnkiServices` | High-level service facades (`DecksService`, `SchedulerService`, `SyncService`, `StatsService`, `NotesService`, `NotetypesService`, `CardRenderingService`, `ImportExportService`, `CollectionService`). |
+| `AnkiClients` | `@DependencyClient` structs + `liveValue` implementations. The UI's only entry point into the Anki engine. |
+| `AnkiSync` | KeychainHelper for sync credentials. |
+| `AmgiCardWeb` | WebKit-based card renderer host. |
+| `AnkiRustLib` | `binaryTarget` pointing at `AnkiRust.xcframework`. iOS-only. |
 
-## Build Commands
+### Sibling SPM packages (path-resolved)
+| Package / Module | Purpose |
+|---|---|
+| `AmgiDomain` (./AmgiDomain) | App-domain types that aren't part of the Anki engine surface (reader book/chapter models, dictionary lookup shapes). Keeps "Amgi the app" decoupled from "Anki the engine". |
+| `AmgiReader` (./AmgiReader) | Pure-Swift reader domain types — no EPUB/Cxx deps. |
+| `AmgiReaderDictionary` (./AmgiReader) | Cxx-mode wrapper around `hoshidicts` (Yomitan-compatible offline dictionary). Isolated so importing `AmgiReader` stays Cxx-free. |
+| `AmgiReaderEPUB` (./AmgiReader) | EPUB parsing built on the vendored EPUBKit. |
+| `AmgiTheme` (./AmgiUI) | Palette data, theme tokens, resources. Themes are **data, not enum-bound code** (see memory). |
+| `AmgiUI` (./AmgiUI) | Shared SwiftUI components built on `AmgiTheme`. |
+| `EPUBKit` (./Libraries/EPUBKit) | Vendored MIT-licensed EPUB parser; consumed only by `AmgiReaderEPUB`. |
 
+### App target
+- `AmgiApp/` — Xcode project, generated by xcodegen from `project.yml`.
+- Feature folders: `AmgiApp/Sources/{Decks,Review,Browse,Reader,Stats,Study,Sync,Settings,Widgets,Shared,Theme}`.
+- Widget target shares `AmgiTheme` + `AnkiKit` only — keep its deps narrow.
+
+## Working with the Rust Backend
+
+The Rust engine is a black-box RPC service. You never call it directly — you go
+through the four layers in order:
+
+1. **Add / change a .proto** in `anki-upstream/proto/anki/*.proto` (rare — only
+   when upstream changes or you need a method we haven't surfaced).
+2. **Regenerate Swift protobuf types**: `./scripts/generate-protos.sh`.
+   Output lands in `Sources/AnkiProto/` as `Anki_<Service>_<Message>` types.
+3. **Add a `Request<R>` factory** in `Sources/AnkiProtoBridge/Requests/`. This
+   is where service ID + method ID + request/response types get bound:
+   ```swift
+   public static func getDeckTree(now: Int64 = 0) -> Request<Anki_Decks_DeckTreeNode> {
+       .init(
+           service: .decks,
+           method: DecksMethod.getDeckTree,
+           payload: Anki_Decks_DeckTreeRequest.with { $0.now = now }
+       )
+   }
+   ```
+   Add the service/method ID to `ServiceCatalog.swift` if it's not already there.
+4. **Expose it via a service facade** in `Sources/AnkiServices/` and (if
+   user-facing) a `@DependencyClient` in `Sources/AnkiClients/`.
+5. **Rebuild the XCFramework** *only* if you changed `anki-bridge-rs/` or
+   `anki-upstream/`. Pure protobuf/Swift changes do **not** require a rebuild.
+
+The four C symbols (in `anki-bridge-rs/src/lib.rs`) are stable: `anki_open_backend`,
+`anki_run_method`, `anki_free_response`, `anki_close_backend`. Don't add new FFI
+symbols unless absolutely necessary — prefer routing through `anki_run_method`
+with a new service/method pair.
+
+## Build & Run — prefer Xcode MCP
+
+Day-to-day builds, previews, and tests go through the Xcode MCP server, not the
+shell. The shell invocations below are a fallback for CI / when MCP is
+unavailable.
+
+### Xcode MCP (preferred)
+- `BuildProject` — compile the AmgiApp scheme. Use this instead of
+  `xcodebuild build`; it resolves SPM deps and surfaces structured diagnostics.
+- `RenderPreview` — render a SwiftUI `#Preview` without launching the simulator.
+- `RunAllTests` / `RunSomeTests` — run XCTest targets. Use the latter when you
+  know the suite name (see `Tests/README.md`). Note: SPM tests are
+  compile-verified only because `AnkiRustLib` is iOS-only (see memory).
+- `DocumentationSearch` — search Apple docs + indexed WWDC transcripts before
+  guessing API shapes.
+- `mcpbridge` — escape hatch for less common Xcode MCP calls.
+
+### Shell fallback
 ```bash
-# Build Rust XCFramework (required before Xcode build)
+# Rebuild the Rust XCFramework. Required when:
+#   - anki-bridge-rs/ changes
+#   - anki-upstream/ is updated
+#   - a .proto file is added/changed (and protos are regenerated)
 ./scripts/build-xcframework.sh
 
-# Regenerate Swift protobuf types
+# Regenerate Swift protobuf types from anki-upstream/proto/anki/*.proto
 ./scripts/generate-protos.sh
 
-# Build SPM package (macOS targets only — AnkiBackend needs iOS)
-swift build
+# SPM build — verifies individual macOS-safe targets only.
+# AnkiBackend / AnkiClients will NOT build here (iOS-only XCFramework).
+swift build --target AnkiKit
+swift build --target AnkiProtoBridge
 
-# Build iOS app
+# Full iOS build (use only when Xcode MCP can't)
 cd AmgiApp && xcodegen generate && cd ..
-xcodebuild build -project AnkiApp/AnkiApp.xcodeproj -scheme AnkiApp \
+xcodebuild build -project AmgiApp/AmgiApp.xcodeproj -scheme AmgiApp \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max'
-
-# Run tests
-swift test
 ```
 
 ## Key Patterns
@@ -111,4 +207,4 @@ let response: Anki_Decks_DeckTreeNode = try backend.invoke(
 - **SyncCollection returns FULL_DOWNLOAD for empty local DB**: Must auto-download, not just return "complete"
 - **SourceKit false positives**: The IDE shows errors that don't exist in actual builds. Trust `swift build` / `xcodebuild`
 - **Apple Compression framework has no zstd**: Rust handles zstd internally, no need for Swift-side compression
-- **XCFramework is iOS-only**: `swift build` on macOS can't build AnkiBackend. Use `xcodebuild` for full builds
+- **XCFramework is iOS-only**: `swift build` on macOS can't build AnkiBackend. Use `BuildProject` (Xcode MCP) or `xcodebuild` for full builds.

@@ -69,159 +69,6 @@ struct RichNoteFieldEditor: UIViewRepresentable {
         context.coordinator.lastPlainText = displayedText
     }
 
-    private func displayText(for html: String) -> String {
-        let normalized = Coordinator.normalizedStoredHTML(from: html)
-        return preservesSourceHTML ? normalized : Coordinator.plainText(from: normalized)
-    }
-
-    // MARK: - Toolbar
-
-    private func makeInputToolbar(for textView: UITextView, coordinator: Coordinator) -> UIView {
-        let container = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 44))
-        container.backgroundColor = .secondarySystemBackground
-
-        let divider = UIView()
-        divider.translatesAutoresizingMaskIntoConstraints = false
-        divider.backgroundColor = .separator
-        container.addSubview(divider)
-
-        let scrollView = UIScrollView()
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.showsHorizontalScrollIndicator = false
-        container.addSubview(scrollView)
-
-        let stackView = UIStackView()
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .horizontal
-        stackView.alignment = .center
-        stackView.spacing = 6
-        scrollView.addSubview(stackView)
-
-        stackView.addArrangedSubview(
-            makeSymbolButton(systemName: "arrow.uturn.backward") {
-                textView.undoManager?.undo()
-            }
-        )
-        stackView.addArrangedSubview(
-            makeSymbolButton(systemName: "arrow.uturn.forward") {
-                textView.undoManager?.redo()
-            }
-        )
-
-        stackView.addArrangedSubview(
-            makeFormatButton(systemName: "bold", title: boldTitle) {
-                coordinator.wrapSelection(prefix: "<b>", suffix: "</b>")
-            }
-        )
-        stackView.addArrangedSubview(
-            makeFormatButton(systemName: "italic", title: italicTitle) {
-                coordinator.wrapSelection(prefix: "<i>", suffix: "</i>")
-            }
-        )
-        stackView.addArrangedSubview(
-            makeFormatButton(systemName: "underline", title: underlineTitle) {
-                coordinator.wrapSelection(prefix: "<u>", suffix: "</u>")
-            }
-        )
-        stackView.addArrangedSubview(
-            makeFormatButton(systemName: "strikethrough", title: strikeTitle) {
-                coordinator.wrapSelection(prefix: "<s>", suffix: "</s>")
-            }
-        )
-        stackView.addArrangedSubview(
-            makeFormatButton(systemName: "textformat", title: clearFormatTitle) {
-                coordinator.clearFormattingInSelection()
-            }
-        )
-
-        stackView.addArrangedSubview(
-            makeTextButton(title: doneButtonTitle) {
-                textView.resignFirstResponder()
-            }
-        )
-
-        NSLayoutConstraint.activate([
-            divider.topAnchor.constraint(equalTo: container.topAnchor),
-            divider.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-            divider.trailingAnchor.constraint(equalTo: container.trailingAnchor),
-            divider.heightAnchor.constraint(equalToConstant: 0.5),
-
-            scrollView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
-            scrollView.topAnchor.constraint(equalTo: divider.bottomAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: container.bottomAnchor),
-
-            stackView.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor, constant: 10),
-            stackView.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor, constant: -10),
-            stackView.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor, constant: 6),
-            stackView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor, constant: -6),
-            stackView.heightAnchor.constraint(equalTo: scrollView.frameLayoutGuide.heightAnchor, constant: -12),
-        ])
-
-        return container
-    }
-
-    private func makeSymbolButton(systemName: String, action: @escaping () -> Void) -> UIButton {
-        let button = UIButton(type: .system)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.setImage(UIImage(systemName: systemName), for: .normal)
-        button.tintColor = .label
-        button.backgroundColor = .tertiarySystemFill
-        button.layer.cornerRadius = 8
-        var configuration = UIButton.Configuration.plain()
-        configuration.buttonSize = .small
-        configuration.baseBackgroundColor = .tertiarySystemFill
-        configuration.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(pointSize: 14, weight: .semibold)
-        configuration.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 6, bottom: 4, trailing: 6)
-        button.configuration = configuration
-        button.heightAnchor.constraint(equalToConstant: 28).isActive = true
-        button.widthAnchor.constraint(greaterThanOrEqualToConstant: 28).isActive = true
-        button.addAction(UIAction { _ in action() }, for: .touchUpInside)
-        return button
-    }
-
-    private func makeFormatButton(systemName: String, title: String, action: @escaping () -> Void) -> UIButton {
-        let button = UIButton(type: .system)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.setImage(UIImage(systemName: systemName), for: .normal)
-        button.tintColor = .systemBlue
-        button.backgroundColor = .tertiarySystemFill
-        button.layer.cornerRadius = 8
-        button.accessibilityLabel = title
-        var configuration = UIButton.Configuration.plain()
-        configuration.buttonSize = .small
-        configuration.baseBackgroundColor = .tertiarySystemFill
-        configuration.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(pointSize: 15, weight: .semibold)
-        configuration.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 6, bottom: 4, trailing: 6)
-        button.configuration = configuration
-        button.heightAnchor.constraint(equalToConstant: 28).isActive = true
-        button.widthAnchor.constraint(greaterThanOrEqualToConstant: 28).isActive = true
-        button.addAction(UIAction { _ in action() }, for: .touchUpInside)
-        return button
-    }
-
-    private func makeTextButton(title: String, action: @escaping () -> Void) -> UIButton {
-        let button = UIButton(type: .system)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(title, for: .normal)
-        button.setTitleColor(.label, for: .normal)
-        button.backgroundColor = .tertiarySystemFill
-        button.layer.cornerRadius = 8
-        button.titleLabel?.font = .systemFont(ofSize: 11, weight: .medium)
-        button.titleLabel?.adjustsFontSizeToFitWidth = true
-        button.titleLabel?.minimumScaleFactor = 0.8
-        button.titleLabel?.numberOfLines = 1
-        var configuration = UIButton.Configuration.plain()
-        configuration.buttonSize = .small
-        configuration.baseBackgroundColor = .tertiarySystemFill
-        configuration.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8)
-        button.configuration = configuration
-        button.heightAnchor.constraint(equalToConstant: 28).isActive = true
-        button.widthAnchor.constraint(greaterThanOrEqualToConstant: 44).isActive = true
-        button.addAction(UIAction { _ in action() }, for: .touchUpInside)
-        return button
-    }
-
     // MARK: - Coordinator
 
     final class Coordinator: NSObject, UITextViewDelegate {
@@ -250,13 +97,6 @@ struct RichNoteFieldEditor: UIViewRepresentable {
 
         func textViewDidChange(_ textView: UITextView) {
             commit(textView.text ?? "")
-        }
-
-        private func commit(_ plain: String) {
-            let normalized = Self.normalizedStoredHTML(from: plain)
-            lastPlainText = plain
-            lastRenderedValue = normalized
-            htmlText = normalized
         }
 
         func insert(_ string: String) {
@@ -383,36 +223,201 @@ struct RichNoteFieldEditor: UIViewRepresentable {
             return output
         }
 
-        private static func isLikelyHTML(_ text: String) -> Bool {
-            text.contains("<") && text.contains(">")
-        }
+    }
+}
 
-        private static func trimMathJaxBreaks(in text: String) -> String {
-            text
-                .replacingOccurrences(
-                    of: #"<br[ ]*/?>"#,
-                    with: "\n",
-                    options: [.regularExpression, .caseInsensitive]
-                )
-                .replacingOccurrences(of: #"^\n*"#, with: "", options: .regularExpression)
-                .replacingOccurrences(of: #"\n*$"#, with: "", options: .regularExpression)
-        }
+private extension RichNoteFieldEditor {
+    func displayText(for html: String) -> String {
+        let normalized = Coordinator.normalizedStoredHTML(from: html)
+        return preservesSourceHTML ? normalized : Coordinator.plainText(from: normalized)
+    }
 
-        private static func removeInlineHTMLFormatting(from text: String) -> String {
-            var output = text
-            let patterns = [
-                "(?i)</?(b|strong|i|em|u|s|strike|del)>",
-                "(?i)</?font[^>]*>",
-                "(?i)</?span[^>]*>"
-            ]
-            for pattern in patterns {
-                output = output.replacingOccurrences(
-                    of: pattern,
-                    with: "",
-                    options: .regularExpression
-                )
+    // MARK: - Toolbar
+
+    func makeInputToolbar(for textView: UITextView, coordinator: Coordinator) -> UIView {
+        let container = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 44))
+        container.backgroundColor = .secondarySystemBackground
+
+        let divider = UIView()
+        divider.translatesAutoresizingMaskIntoConstraints = false
+        divider.backgroundColor = .separator
+        container.addSubview(divider)
+
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.showsHorizontalScrollIndicator = false
+        container.addSubview(scrollView)
+
+        let stackView = UIStackView()
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = .horizontal
+        stackView.alignment = .center
+        stackView.spacing = 6
+        scrollView.addSubview(stackView)
+
+        stackView.addArrangedSubview(
+            makeSymbolButton(systemName: "arrow.uturn.backward") {
+                textView.undoManager?.undo()
             }
-            return output
+        )
+        stackView.addArrangedSubview(
+            makeSymbolButton(systemName: "arrow.uturn.forward") {
+                textView.undoManager?.redo()
+            }
+        )
+
+        stackView.addArrangedSubview(
+            makeFormatButton(systemName: "bold", title: boldTitle) {
+                coordinator.wrapSelection(prefix: "<b>", suffix: "</b>")
+            }
+        )
+        stackView.addArrangedSubview(
+            makeFormatButton(systemName: "italic", title: italicTitle) {
+                coordinator.wrapSelection(prefix: "<i>", suffix: "</i>")
+            }
+        )
+        stackView.addArrangedSubview(
+            makeFormatButton(systemName: "underline", title: underlineTitle) {
+                coordinator.wrapSelection(prefix: "<u>", suffix: "</u>")
+            }
+        )
+        stackView.addArrangedSubview(
+            makeFormatButton(systemName: "strikethrough", title: strikeTitle) {
+                coordinator.wrapSelection(prefix: "<s>", suffix: "</s>")
+            }
+        )
+        stackView.addArrangedSubview(
+            makeFormatButton(systemName: "textformat", title: clearFormatTitle) {
+                coordinator.clearFormattingInSelection()
+            }
+        )
+
+        stackView.addArrangedSubview(
+            makeTextButton(title: doneButtonTitle) {
+                textView.resignFirstResponder()
+            }
+        )
+
+        NSLayoutConstraint.activate([
+            divider.topAnchor.constraint(equalTo: container.topAnchor),
+            divider.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            divider.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            divider.heightAnchor.constraint(equalToConstant: 0.5),
+
+            scrollView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            scrollView.topAnchor.constraint(equalTo: divider.bottomAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: container.bottomAnchor),
+
+            stackView.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor, constant: 10),
+            stackView.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor, constant: -10),
+            stackView.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor, constant: 6),
+            stackView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor, constant: -6),
+            stackView.heightAnchor.constraint(equalTo: scrollView.frameLayoutGuide.heightAnchor, constant: -12),
+        ])
+
+        return container
+    }
+
+    func makeSymbolButton(systemName: String, action: @escaping () -> Void) -> UIButton {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(UIImage(systemName: systemName), for: .normal)
+        button.tintColor = .label
+        button.backgroundColor = .tertiarySystemFill
+        button.layer.cornerRadius = 8
+        var configuration = UIButton.Configuration.plain()
+        configuration.buttonSize = .small
+        configuration.baseBackgroundColor = .tertiarySystemFill
+        configuration.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(pointSize: 14, weight: .semibold)
+        configuration.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 6, bottom: 4, trailing: 6)
+        button.configuration = configuration
+        button.heightAnchor.constraint(equalToConstant: 28).isActive = true
+        button.widthAnchor.constraint(greaterThanOrEqualToConstant: 28).isActive = true
+        button.addAction(UIAction { _ in action() }, for: .touchUpInside)
+        return button
+    }
+
+    func makeFormatButton(systemName: String, title: String, action: @escaping () -> Void) -> UIButton {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(UIImage(systemName: systemName), for: .normal)
+        button.tintColor = .systemBlue
+        button.backgroundColor = .tertiarySystemFill
+        button.layer.cornerRadius = 8
+        button.accessibilityLabel = title
+        var configuration = UIButton.Configuration.plain()
+        configuration.buttonSize = .small
+        configuration.baseBackgroundColor = .tertiarySystemFill
+        configuration.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(pointSize: 15, weight: .semibold)
+        configuration.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 6, bottom: 4, trailing: 6)
+        button.configuration = configuration
+        button.heightAnchor.constraint(equalToConstant: 28).isActive = true
+        button.widthAnchor.constraint(greaterThanOrEqualToConstant: 28).isActive = true
+        button.addAction(UIAction { _ in action() }, for: .touchUpInside)
+        return button
+    }
+
+    func makeTextButton(title: String, action: @escaping () -> Void) -> UIButton {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle(title, for: .normal)
+        button.setTitleColor(.label, for: .normal)
+        button.backgroundColor = .tertiarySystemFill
+        button.layer.cornerRadius = 8
+        button.titleLabel?.font = .systemFont(ofSize: 11, weight: .medium)
+        button.titleLabel?.adjustsFontSizeToFitWidth = true
+        button.titleLabel?.minimumScaleFactor = 0.8
+        button.titleLabel?.numberOfLines = 1
+        var configuration = UIButton.Configuration.plain()
+        configuration.buttonSize = .small
+        configuration.baseBackgroundColor = .tertiarySystemFill
+        configuration.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8)
+        button.configuration = configuration
+        button.heightAnchor.constraint(equalToConstant: 28).isActive = true
+        button.widthAnchor.constraint(greaterThanOrEqualToConstant: 44).isActive = true
+        button.addAction(UIAction { _ in action() }, for: .touchUpInside)
+        return button
+    }
+}
+
+private extension RichNoteFieldEditor.Coordinator {
+    func commit(_ plain: String) {
+        let normalized = Self.normalizedStoredHTML(from: plain)
+        lastPlainText = plain
+        lastRenderedValue = normalized
+        htmlText = normalized
+    }
+
+    static func isLikelyHTML(_ text: String) -> Bool {
+        text.contains("<") && text.contains(">")
+    }
+
+    static func trimMathJaxBreaks(in text: String) -> String {
+        text
+            .replacingOccurrences(
+                of: #"<br[ ]*/?>"#,
+                with: "\n",
+                options: [.regularExpression, .caseInsensitive]
+            )
+            .replacingOccurrences(of: #"^\n*"#, with: "", options: .regularExpression)
+            .replacingOccurrences(of: #"\n*$"#, with: "", options: .regularExpression)
+    }
+
+    static func removeInlineHTMLFormatting(from text: String) -> String {
+        var output = text
+        let patterns = [
+            "(?i)</?(b|strong|i|em|u|s|strike|del)>",
+            "(?i)</?font[^>]*>",
+            "(?i)</?span[^>]*>"
+        ]
+        for pattern in patterns {
+            output = output.replacingOccurrences(
+                of: pattern,
+                with: "",
+                options: .regularExpression
+            )
         }
+        return output
     }
 }

@@ -30,3 +30,9 @@ struct AboutView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 }
+
+// MARK: - Preview
+
+#Preview {
+    NavigationStack { AboutView() }
+}

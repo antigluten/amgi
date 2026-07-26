@@ -1,7 +1,6 @@
 import SwiftUI
 import AnkiKit
 import AnkiClients
-import AnkiServices
 import Dependencies
 import AmgiTheme
 
@@ -11,296 +10,322 @@ enum BrowseSortOrder: String, CaseIterable, Sendable {
     case templateAsc = "Type (A→Z)"
 }
 
+/// Browse container: owns navigation, sheets, selection, and the toolbar,
+/// and drives a `BrowseModel` for load/search/paging + note mutations.
+/// Rendering is delegated to `BrowseContent`; the model owns all I/O so the
+/// View is thin presentation wiring with no direct engine access.
 struct BrowseView: View {
-    @Dependency(\.noteClient) var noteClient
-    @Dependency(\.deckClient) var deckClient
-    @Dependency(\.cardClient) var cardClient
-    @Dependency(\.tagClient) var tagClient
-    @Dependency(\.notetypesService) var notetypesService
-
-    @State private var searchText = ""
-    @State private var allNotes: [NoteRecord] = []
-    @State private var notes: [NoteRecord] = []
-    @State private var allDecks: [DeckInfo] = []
-    /// The top-level parent deck selected (stays set even when drilling into subdecks)
-    @State private var parentDeck: DeckInfo?
-    /// The actual deck filter applied (could be parent or a subdeck)
-    @State private var activeDeck: DeckInfo?
-    @State private var isLoading = false
-    @State private var hasMorePages = true
+    @State private var model: BrowseModel
+    @State private var selectionState = BrowseSelectionState()
     @State private var showAddNote = false
     @State private var showAddImageOcclusion = false
-    @State private var selectionState = BrowseSelectionState()
     @State private var showTagSheet = false
     @State private var showDeleteConfirm = false
     @State private var pendingSwipeDelete: NoteRecord?
-    @State private var allTags: [String] = []
-    @State private var activeTag: String?
-    @State private var sortOrder: BrowseSortOrder = .dateDesc
-    @State private var notetypeNames: [Int64: String] = [:]
 
-    private let pageSize = 50
+    init(model: BrowseModel = BrowseModel()) {
+        _model = State(initialValue: model)
+    }
 
+    // The body is split into small layered computed views: a single chained
+    // expression here blows past the Swift type-checker's time budget, so each
+    // layer applies only a few modifiers.
     var body: some View {
-        Group {
-            if notes.isEmpty && !isLoading && searchText.isEmpty && activeDeck == nil {
-                ContentUnavailableView(
-                    "Browse Notes",
-                    systemImage: "magnifyingglass",
-                    description: Text("Search by content, tags, or filter by deck.")
-                )
-            } else if notes.isEmpty && !isLoading {
-                ContentUnavailableView.search(text: searchText)
-            } else {
-                List {
-                    ForEach(sortedNotes(notes), id: \.id) { note in
-                        HStack {
-                            if selectionState.isSelectMode {
-                                Image(systemName: selectionState.contains(note.id) ? "checkmark.circle.fill" : "circle")
-                                    .foregroundStyle(selectionState.contains(note.id) ? Color.accentColor : Color.secondary)
-                                NoteRowView(note: note, notetypeName: notetypeNames[note.mid])
-                                    .contentShape(Rectangle())
-                                    .onTapGesture {
-                                        selectionState.toggle(note.id)
-                                    }
-                                    .onAppear {
-                                        if note.sfld == "Loading..." {
-                                            Task { await fetchNoteDetails(id: note.id) }
-                                        }
-                                        if note.id == notes.last?.id {
-                                            Task { await loadNextPage() }
-                                        }
-                                    }
-                            } else {
-                                HStack {
-                                    NavigationLink(value: note) {
-                                        NoteRowView(note: note, notetypeName: notetypeNames[note.mid])
-                                            .onAppear {
-                                                // Lazy-load stub notes when they appear on screen
-                                                if note.sfld == "Loading..." {
-                                                    Task { await fetchNoteDetails(id: note.id) }
-                                                }
-                                                // Paging: load next batch near the end
-                                                if note.id == notes.last?.id {
-                                                    Task { await loadNextPage() }
-                                                }
-                                            }
-                                    }
-                                    NoteContextMenuButton(noteId: note.id) {
-                                        Task { await performSearch() }
-                                    }
-                                }
-                                .contentShape(Rectangle())
-                                .onLongPressGesture(minimumDuration: 0.5) {
-                                    selectionState.enterSelectMode(preselect: note.id)
-                                }
-                            }
-                        }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                            Button(role: .destructive) {
-                                pendingSwipeDelete = note
-                            } label: {
-                                Label("Delete", systemImage: "trash")
-                            }
-                        }
-                    }
+        @Bindable var model = model
+        decoratedContent
+            .searchable(text: $model.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search notes...")
+            .onChange(of: model.searchText) { Task { await model.performSearch() } }
+            .onChange(of: model.activeDeck) { Task { await model.performSearch() } }
+            .onChange(of: model.activeTag) { Task { await model.performSearch() } }
+            .task { await model.loadInitial() }
+    }
 
-                    if isLoading {
-                        HStack {
-                            Spacer()
-                            ProgressView()
-                            Spacer()
-                        }
+    private var decoratedContent: some View {
+        dialogContent
+            .navigationTitle("Browse")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { toolbarContent }
+    }
+
+    private var dialogContent: some View {
+        sheetContent
+            .confirmationDialog(
+                "Delete this note?",
+                isPresented: Binding(
+                    get: { pendingSwipeDelete != nil },
+                    set: { if !$0 { pendingSwipeDelete = nil } }
+                ),
+                presenting: pendingSwipeDelete
+            ) { note in
+                Button("Delete", role: .destructive) {
+                    Task {
+                        await model.delete(note.id)
+                        pendingSwipeDelete = nil
                     }
                 }
-                .navigationDestination(for: NoteRecord.self) { note in
-                    // If tapped a stub, fetch full details first
-                    let resolvedNote = (note.sfld == "Loading...")
-                        ? (try? noteClient.fetch(note.id)) ?? note
-                        : note
-                    NoteEditingDestinationView(note: resolvedNote) {
-                        Task { await performSearch() }
-                    }
+                Button("Cancel", role: .cancel) {
+                    pendingSwipeDelete = nil
                 }
+            } message: { _ in
+                Text("This action cannot be undone.")
             }
-        }
-        .navigationTitle("Browse")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Menu {
-                    Button("Add Note") { showAddNote = true }
-                    Button("Add Image Occlusion") { showAddImageOcclusion = true }
-                } label: {
-                    Image(systemName: "plus")
+            .confirmationDialog(
+                "Delete \(selectionState.count) note\(selectionState.count == 1 ? "" : "s")?",
+                isPresented: $showDeleteConfirm
+            ) {
+                Button("Delete", role: .destructive) {
+                    deleteSelected()
                 }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("This action cannot be undone.")
             }
-            ToolbarItem(placement: .topBarLeading) {
-                Menu {
-                    ForEach(BrowseSortOrder.allCases, id: \.self) { order in
-                        Button {
-                            sortOrder = order
-                        } label: {
-                            if sortOrder == order {
-                                Label(order.rawValue, systemImage: "checkmark")
-                            } else {
-                                Text(order.rawValue)
-                            }
-                        }
-                    }
-                } label: {
-                    Image(systemName: "arrow.up.arrow.down")
-                }
-                .disabled(notes.isEmpty)
-            }
-            ToolbarItem(placement: .topBarTrailing) {
-                if selectionState.isSelectMode {
-                    Button("Done") {
-                        selectionState.exitSelectMode()
-                    }
-                } else if !notes.isEmpty {
-                    Button("Edit") {
-                        selectionState.enterSelectMode()
-                    }
-                }
-            }
-            if selectionState.isSelectMode {
-                ToolbarItem(placement: .bottomBar) {
-                    Button {
-                        suspendSelected()
-                    } label: {
-                        Label("Suspend", systemImage: "pause.circle")
-                    }
-                    .disabled(selectionState.isEmpty)
-                }
-                ToolbarItem(placement: .bottomBar) {
-                    Spacer()
-                }
-                ToolbarItem(placement: .bottomBar) {
-                    Menu {
-                        Button { flagSelected(1) } label: { Label("Red flag",       systemImage: "flag.fill") }
-                        Button { flagSelected(2) } label: { Label("Orange flag",    systemImage: "flag.fill") }
-                        Button { flagSelected(3) } label: { Label("Green flag",     systemImage: "flag.fill") }
-                        Button { flagSelected(4) } label: { Label("Blue flag",      systemImage: "flag.fill") }
-                        Button { flagSelected(5) } label: { Label("Pink flag",      systemImage: "flag.fill") }
-                        Button { flagSelected(6) } label: { Label("Turquoise flag", systemImage: "flag.fill") }
-                        Button { flagSelected(7) } label: { Label("Purple flag",    systemImage: "flag.fill") }
-                        Divider()
-                        Button { flagSelected(0) } label: { Label("Clear flag",     systemImage: "flag.slash") }
-                    } label: {
-                        Label("Flag", systemImage: "flag")
-                    }
-                    .disabled(selectionState.isEmpty)
-                }
-                ToolbarItem(placement: .bottomBar) {
-                    Spacer()
-                }
-                ToolbarItem(placement: .bottomBar) {
-                    Button {
-                        showTagSheet = true
-                    } label: {
-                        Label("Tags", systemImage: "tag")
-                    }
-                    .disabled(selectionState.isEmpty)
-                }
-                ToolbarItem(placement: .bottomBar) {
-                    Spacer()
-                }
-                ToolbarItem(placement: .bottomBar) {
-                    Button(role: .destructive) {
-                        showDeleteConfirm = true
-                    } label: {
-                        Label("Delete", systemImage: "trash")
-                    }
-                    .disabled(selectionState.isEmpty)
-                }
-            }
-        }
+    }
+
+    private var sheetContent: some View {
+        BrowseContent(
+            model: model,
+            selectionState: $selectionState,
+            onSwipeDelete: { pendingSwipeDelete = $0 }
+        )
         .sheet(isPresented: $showAddNote) {
             AddNoteView {
-                Task { await performSearch() }
+                Task { await model.performSearch() }
             }
         }
         .sheet(isPresented: $showAddImageOcclusion) {
-            AddImageOcclusionNoteView { Task { await performSearch() } }
+            AddImageOcclusionNoteView { Task { await model.performSearch() } }
         }
         .sheet(isPresented: $showTagSheet) {
             BatchTagSheet(noteIDs: selectionState.selectedNoteIDs) {
                 Task {
-                    await MainActor.run {
-                        selectionState.exitSelectMode()
-                    }
-                    await performSearch()
+                    selectionState.exitSelectMode()
+                    await model.performSearch()
                 }
-            }
-        }
-        .confirmationDialog(
-            "Delete this note?",
-            isPresented: Binding(
-                get: { pendingSwipeDelete != nil },
-                set: { if !$0 { pendingSwipeDelete = nil } }
-            ),
-            presenting: pendingSwipeDelete
-        ) { note in
-            Button("Delete", role: .destructive) {
-                Task {
-                    try? noteClient.delete(note.id)
-                    pendingSwipeDelete = nil
-                    await performSearch()
-                }
-            }
-            Button("Cancel", role: .cancel) {
-                pendingSwipeDelete = nil
-            }
-        } message: { _ in
-            Text("This action cannot be undone.")
-        }
-        .confirmationDialog(
-            "Delete \(selectionState.count) note\(selectionState.count == 1 ? "" : "s")?",
-            isPresented: $showDeleteConfirm
-        ) {
-            Button("Delete", role: .destructive) {
-                deleteSelected()
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("This action cannot be undone.")
-        }
-        .safeAreaInset(edge: .top) {
-            if !allDecks.isEmpty || !allTags.isEmpty {
-                filterBar
-            }
-        }
-        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search notes...")
-        .onChange(of: searchText) {
-            Task { await performSearch() }
-        }
-        .onChange(of: activeDeck) {
-            Task { await performSearch() }
-        }
-        .onChange(of: activeTag) {
-            Task { await performSearch() }
-        }
-        .task {
-            await loadDecks()
-            await performSearch()
-            allTags = ((try? tagClient.getAllTags()) ?? []).sorted()
-            if let pairs = try? notetypesService.getNotetypeNames() {
-                notetypeNames = Dictionary(uniqueKeysWithValues: pairs.map { ($0.id, $0.name) })
             }
         }
     }
 
-    // MARK: - Sort
+    // MARK: - Toolbar
 
-    private func sortedNotes(_ notes: [NoteRecord]) -> [NoteRecord] {
-        switch sortOrder {
-        case .dateDesc:
-            return notes.sorted { $0.mod > $1.mod }
-        case .titleAsc:
-            return notes.sorted { $0.sfld.localizedCaseInsensitiveCompare($1.sfld) == .orderedAscending }
-        case .templateAsc:
-            return notes.sorted { (notetypeNames[$0.mid] ?? "") < (notetypeNames[$1.mid] ?? "") }
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            Menu {
+                Button("Add Note") { showAddNote = true }
+                Button("Add Image Occlusion") { showAddImageOcclusion = true }
+            } label: {
+                Image(systemName: "plus")
+            }
+        }
+        ToolbarItem(placement: .topBarLeading) {
+            Menu {
+                ForEach(BrowseSortOrder.allCases, id: \.self) { order in
+                    Button {
+                        model.sortOrder = order
+                    } label: {
+                        if model.sortOrder == order {
+                            Label(order.rawValue, systemImage: "checkmark")
+                        } else {
+                            Text(order.rawValue)
+                        }
+                    }
+                }
+            } label: {
+                Image(systemName: "arrow.up.arrow.down")
+            }
+            .disabled(model.notes.isEmpty)
+        }
+        ToolbarItem(placement: .topBarTrailing) {
+            if selectionState.isSelectMode {
+                Button("Done") {
+                    selectionState.exitSelectMode()
+                }
+            } else if !model.notes.isEmpty {
+                Button("Edit") {
+                    selectionState.enterSelectMode()
+                }
+            }
+        }
+        if selectionState.isSelectMode {
+            selectionToolbar
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var selectionToolbar: some ToolbarContent {
+        ToolbarItem(placement: .bottomBar) {
+            Button {
+                suspendSelected()
+            } label: {
+                Label("Suspend", systemImage: "pause.circle")
+            }
+            .disabled(selectionState.isEmpty)
+        }
+        ToolbarItem(placement: .bottomBar) { Spacer() }
+        ToolbarItem(placement: .bottomBar) {
+            Menu {
+                Button { applyFlag(1) } label: { Label("Red flag",       systemImage: "flag.fill") }
+                Button { applyFlag(2) } label: { Label("Orange flag",    systemImage: "flag.fill") }
+                Button { applyFlag(3) } label: { Label("Green flag",     systemImage: "flag.fill") }
+                Button { applyFlag(4) } label: { Label("Blue flag",      systemImage: "flag.fill") }
+                Button { applyFlag(5) } label: { Label("Pink flag",      systemImage: "flag.fill") }
+                Button { applyFlag(6) } label: { Label("Turquoise flag", systemImage: "flag.fill") }
+                Button { applyFlag(7) } label: { Label("Purple flag",    systemImage: "flag.fill") }
+                Divider()
+                Button { applyFlag(0) } label: { Label("Clear flag",     systemImage: "flag.slash") }
+            } label: {
+                Label("Flag", systemImage: "flag")
+            }
+            .disabled(selectionState.isEmpty)
+        }
+        ToolbarItem(placement: .bottomBar) { Spacer() }
+        ToolbarItem(placement: .bottomBar) {
+            Button {
+                showTagSheet = true
+            } label: {
+                Label("Tags", systemImage: "tag")
+            }
+            .disabled(selectionState.isEmpty)
+        }
+        ToolbarItem(placement: .bottomBar) { Spacer() }
+        ToolbarItem(placement: .bottomBar) {
+            Button(role: .destructive) {
+                showDeleteConfirm = true
+            } label: {
+                Label("Delete", systemImage: "trash")
+            }
+            .disabled(selectionState.isEmpty)
+        }
+    }
+
+    // MARK: - Selection actions
+
+    /// Capture the current selection, drop out of select mode for snappy
+    /// feedback, then run the batch mutation on the model.
+    private func suspendSelected() {
+        let ids = selectionState.selectedNoteIDs
+        selectionState.exitSelectMode()
+        Task { await model.suspendSelected(ids) }
+    }
+
+    private func applyFlag(_ value: UInt32) {
+        let ids = selectionState.selectedNoteIDs
+        selectionState.exitSelectMode()
+        Task { await model.flagSelected(ids, value: value) }
+    }
+
+    private func deleteSelected() {
+        let ids = selectionState.selectedNoteIDs
+        selectionState.exitSelectMode()
+        Task { await model.deleteSelected(ids) }
+    }
+}
+
+// MARK: - BrowseContent
+
+/// Pure rendering for the Browse screen: the note list (with select-mode,
+/// swipe-to-delete, and paging hooks) plus the deck/tag filter bar. Reads
+/// state from the model and drives mutations through it, but owns no I/O of
+/// its own — so it renders in a `#Preview` from a seeded model.
+struct BrowseContent: View {
+    @Bindable var model: BrowseModel
+    @Binding var selectionState: BrowseSelectionState
+    let onSwipeDelete: (NoteRecord) -> Void
+
+    var body: some View {
+        statefulContent
+            .safeAreaInset(edge: .top) {
+                if !model.allDecks.isEmpty || !model.allTags.isEmpty {
+                    filterBar
+                }
+            }
+    }
+
+    @ViewBuilder
+    private var statefulContent: some View {
+        if model.notes.isEmpty && !model.isLoading && model.searchText.isEmpty && model.activeDeck == nil {
+            ContentUnavailableView(
+                "Browse Notes",
+                systemImage: "magnifyingglass",
+                description: Text("Search by content, tags, or filter by deck.")
+            )
+        } else if model.notes.isEmpty && !model.isLoading {
+            ContentUnavailableView.search(text: model.searchText)
+        } else {
+            noteList
+        }
+    }
+
+    // MARK: - Note List
+
+    private var noteList: some View {
+        List {
+            ForEach(model.sortedNotes, id: \.id) { note in
+                noteRow(note)
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                        Button(role: .destructive) {
+                            onSwipeDelete(note)
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
+                    }
+            }
+
+            if model.isLoading {
+                HStack {
+                    Spacer()
+                    ProgressView()
+                    Spacer()
+                }
+            }
+        }
+        .navigationDestination(for: NoteRecord.self) { note in
+            // If tapped a stub, fetch full details first.
+            NoteEditingDestinationView(note: model.resolved(note)) {
+                Task { await model.performSearch() }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func noteRow(_ note: NoteRecord) -> some View {
+        HStack {
+            if selectionState.isSelectMode {
+                Image(systemName: selectionState.contains(note.id) ? "checkmark.circle.fill" : "circle")
+                    .foregroundStyle(selectionState.contains(note.id) ? Color.accentColor : Color.secondary)
+                NoteRowView(note: note, notetypeName: model.notetypeNames[note.mid])
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        selectionState.toggle(note.id)
+                    }
+                    .onAppear { onRowAppear(note) }
+            } else {
+                HStack {
+                    NavigationLink(value: note) {
+                        NoteRowView(note: note, notetypeName: model.notetypeNames[note.mid])
+                            .onAppear { onRowAppear(note) }
+                    }
+                    NoteContextMenuButton(noteId: note.id) {
+                        Task { await model.performSearch() }
+                    }
+                }
+                .contentShape(Rectangle())
+                .onLongPressGesture(minimumDuration: 0.5) {
+                    selectionState.enterSelectMode(preselect: note.id)
+                }
+            }
+        }
+    }
+
+    /// Lazy-load stub notes when they scroll on screen, and page in the next
+    /// batch as the last row appears.
+    private func onRowAppear(_ note: NoteRecord) {
+        if note.sfld == "Loading..." {
+            Task { await model.fetchNoteDetails(id: note.id) }
+        }
+        if note.id == model.notes.last?.id {
+            Task { await model.loadNextPage() }
         }
     }
 
@@ -308,10 +333,10 @@ struct BrowseView: View {
 
     private var filterBar: some View {
         VStack(spacing: 0) {
-            if !allDecks.isEmpty {
+            if !model.allDecks.isEmpty {
                 deckFilterBar
             }
-            if !allTags.isEmpty {
+            if !model.allTags.isEmpty {
                 tagChipRow
             }
         }
@@ -320,12 +345,12 @@ struct BrowseView: View {
     private var tagChipRow: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                chipButton(label: "All", isSelected: activeTag == nil) {
-                    activeTag = nil
+                chipButton(label: "All", isSelected: model.activeTag == nil) {
+                    model.activeTag = nil
                 }
-                ForEach(allTags, id: \.self) { tag in
-                    chipButton(label: tag, isSelected: activeTag == tag) {
-                        activeTag = (activeTag == tag) ? nil : tag
+                ForEach(model.allTags, id: \.self) { tag in
+                    chipButton(label: tag, isSelected: model.activeTag == tag) {
+                        model.activeTag = (model.activeTag == tag) ? nil : tag
                     }
                 }
             }
@@ -334,39 +359,22 @@ struct BrowseView: View {
         }
     }
 
-    // MARK: - Deck Filter
-
-    private var topLevelDecks: [DeckInfo] {
-        allDecks.filter { !$0.name.contains("::") }
-    }
-
-    /// Direct children of the parent deck (shown as second row)
-    private var childDecks: [DeckInfo] {
-        guard let parent = parentDeck else { return [] }
-        let prefix = parent.name + "::"
-        return allDecks.filter { deck in
-            guard deck.name.hasPrefix(prefix) else { return false }
-            let remainder = deck.name.dropFirst(prefix.count)
-            return !remainder.contains("::")
-        }
-    }
-
     private var deckFilterBar: some View {
         VStack(spacing: 0) {
             // Top-level deck chips
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
-                    chipButton(label: "All", isSelected: activeDeck == nil) {
-                        parentDeck = nil
-                        activeDeck = nil
+                    chipButton(label: "All", isSelected: model.activeDeck == nil) {
+                        model.parentDeck = nil
+                        model.activeDeck = nil
                     }
-                    ForEach(topLevelDecks) { deck in
+                    ForEach(model.topLevelDecks) { deck in
                         chipButton(
                             label: deck.name,
-                            isSelected: parentDeck?.id == deck.id && activeDeck?.id == deck.id
+                            isSelected: model.parentDeck?.id == deck.id && model.activeDeck?.id == deck.id
                         ) {
-                            parentDeck = deck
-                            activeDeck = deck
+                            model.parentDeck = deck
+                            model.activeDeck = deck
                         }
                     }
                 }
@@ -375,24 +383,24 @@ struct BrowseView: View {
             }
 
             // Subdeck row — stays visible as long as a parent with children is selected
-            if !childDecks.isEmpty {
+            if !model.childDecks.isEmpty {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
                         // "All" chip = parent deck (includes subdecks)
                         chipButton(
                             label: "All",
-                            isSelected: activeDeck?.id == parentDeck?.id,
+                            isSelected: model.activeDeck?.id == model.parentDeck?.id,
                             small: true
                         ) {
-                            activeDeck = parentDeck
+                            model.activeDeck = model.parentDeck
                         }
-                        ForEach(childDecks) { child in
+                        ForEach(model.childDecks) { child in
                             chipButton(
                                 label: shortName(child.name),
-                                isSelected: activeDeck?.id == child.id,
+                                isSelected: model.activeDeck?.id == child.id,
                                 small: true
                             ) {
-                                activeDeck = child
+                                model.activeDeck = child
                             }
                         }
                     }
@@ -403,8 +411,10 @@ struct BrowseView: View {
         }
         .background(.bar)
     }
+}
 
-    private func chipButton(
+private extension BrowseContent {
+    func chipButton(
         label: String,
         isSelected: Bool,
         small: Bool = false,
@@ -422,119 +432,8 @@ struct BrowseView: View {
         .buttonStyle(.plain)
     }
 
-    private func shortName(_ fullName: String) -> String {
+    func shortName(_ fullName: String) -> String {
         String(fullName.split(separator: "::").last ?? Substring(fullName))
-    }
-
-    // MARK: - Data Loading
-
-    private func loadDecks() async {
-        do {
-            allDecks = try deckClient.fetchAll()
-        } catch {
-            allDecks = []
-        }
-    }
-
-    private func performSearch() async {
-        isLoading = true
-        let query = buildQuery()
-        do {
-            let results = try noteClient.search(query, nil)
-            allNotes = results
-            notes = Array(results.prefix(pageSize))
-            hasMorePages = results.count > pageSize
-        } catch {
-            allNotes = []
-            notes = []
-            hasMorePages = false
-        }
-        isLoading = false
-    }
-
-    private func collectCardIDs(for noteIDs: Set<Int64>) -> [Int64] {
-        var result: [Int64] = []
-        for nid in noteIDs {
-            if let cards = try? cardClient.fetchByNote(nid) {
-                result.append(contentsOf: cards.map(\.id))
-            }
-        }
-        return result
-    }
-
-    private func suspendSelected() {
-        let ids = selectionState.selectedNoteIDs
-        Task {
-            let cardIDs = collectCardIDs(for: ids)
-            for id in cardIDs {
-                try? cardClient.suspend(id)
-            }
-            await MainActor.run {
-                selectionState.exitSelectMode()
-            }
-            await performSearch()
-        }
-    }
-
-    private func flagSelected(_ value: UInt32) {
-        let ids = selectionState.selectedNoteIDs
-        Task {
-            let cardIDs = collectCardIDs(for: ids)
-            for id in cardIDs {
-                try? cardClient.flag(id, value)
-            }
-            await MainActor.run {
-                selectionState.exitSelectMode()
-            }
-            await performSearch()
-        }
-    }
-
-    private func deleteSelected() {
-        let ids = selectionState.selectedNoteIDs
-        Task {
-            for id in ids {
-                try? noteClient.delete(id)
-            }
-            await MainActor.run {
-                selectionState.exitSelectMode()
-            }
-            await performSearch()
-        }
-    }
-
-    private func loadNextPage() async {
-        guard hasMorePages, !isLoading else { return }
-        let loaded = notes.count
-        let nextBatch = Array(allNotes.dropFirst(loaded).prefix(pageSize))
-        notes.append(contentsOf: nextBatch)
-        hasMorePages = notes.count < allNotes.count
-    }
-
-    /// Lazy-fetch full note details for a stub and update the arrays in place.
-    private func fetchNoteDetails(id: Int64) async {
-        guard let fullNote = try? noteClient.fetch(id) else { return }
-        if let idx = notes.firstIndex(where: { $0.id == id }) {
-            notes[idx] = fullNote
-        }
-        if let idx = allNotes.firstIndex(where: { $0.id == id }) {
-            allNotes[idx] = fullNote
-        }
-    }
-
-    private func buildQuery() -> String {
-        var parts: [String] = []
-        if let deck = activeDeck {
-            parts.append("deck:\"\(deck.name)\"")
-        }
-        if let tag = activeTag {
-            parts.append("tag:\"\(tag)\"")
-        }
-        let trimmed = searchText.trimmingCharacters(in: .whitespaces)
-        if !trimmed.isEmpty {
-            parts.append(trimmed)
-        }
-        return parts.joined(separator: " ")
     }
 }
 
@@ -543,11 +442,11 @@ struct BrowseView: View {
 /// Resolves the first cardId for a note lazily on first appear, then shows CardContextMenu.
 @MainActor
 struct NoteContextMenuButton: View {
-    let noteId: Int64
+    let noteId: NoteID
     var onSuccess: (() -> Void)?
 
     @Dependency(\.cardClient) var cardClient
-    @State private var firstCardId: Int64?
+    @State private var firstCardId: CardID?
 
     var body: some View {
         Group {
@@ -559,7 +458,7 @@ struct NoteContextMenuButton: View {
                 )
             } else {
                 Image(systemName: "ellipsis.circle")
-                    .font(AmgiFont.bodyEmphasis.font)
+                    .amgiFont(.bodyEmphasis)
                     .foregroundStyle(.tertiary)
             }
         }
@@ -592,3 +491,34 @@ struct NoteRowView: View {
         .padding(.vertical, 2)
     }
 }
+
+// MARK: - Preview
+
+#if DEBUG
+#Preview {
+    // Seed the model directly: BrowseContent has no `.task`, so the sample
+    // notes aren't overwritten by a load, and no live backend is touched.
+    let model = BrowseModel()
+    model.notes = [
+        NoteRecord(id: NoteID(1), guid: "g1", mid: NotetypeID(1), mod: 1_700_000_300,
+                   tags: "vocab", flds: "", sfld: "안녕하세요 — hello", csum: 0),
+        NoteRecord(id: NoteID(2), guid: "g2", mid: NotetypeID(1), mod: 1_700_000_200,
+                   tags: "marked grammar", flds: "", sfld: "Bonjour le monde", csum: 0),
+        NoteRecord(id: NoteID(3), guid: "g3", mid: NotetypeID(2), mod: 1_700_000_100,
+                   flds: "", sfld: "The quick brown fox jumps over the lazy dog", csum: 0),
+    ]
+    model.allNotes = model.notes
+    model.hasMorePages = false
+    model.notetypeNames = [NotetypeID(1): "Basic", NotetypeID(2): "Cloze"]
+    model.allTags = ["vocab", "grammar", "marked"]
+    return NavigationStack {
+        BrowseContent(
+            model: model,
+            selectionState: .constant(BrowseSelectionState()),
+            onSwipeDelete: { _ in }
+        )
+        .navigationTitle("Browse")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+#endif

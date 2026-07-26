@@ -1,16 +1,16 @@
-import XCTest
+import Testing
 import AnkiKit
 
-final class TypedAnswerStateTests: XCTestCase {
-    func testEquality() {
+@Suite struct TypedAnswerStateTests {
+    @Test func equality() {
         let a = TypedAnswerState(placeholder: "[[typeans]]", expected: "猫", combining: false, fontName: "Arial", fontSize: 20)
         let b = TypedAnswerState(placeholder: "[[typeans]]", expected: "猫", combining: false, fontName: "Arial", fontSize: 20)
-        XCTAssertEqual(a, b)
+        #expect(a == b)
     }
 
-    func testInequalityOnExpected() {
+    @Test func inequalityOnExpected() {
         let a = TypedAnswerState(placeholder: "[[typeans]]", expected: "猫", combining: false, fontName: "Arial", fontSize: 20)
         let b = TypedAnswerState(placeholder: "[[typeans]]", expected: "犬", combining: false, fontName: "Arial", fontSize: 20)
-        XCTAssertNotEqual(a, b)
+        #expect(a != b)
     }
 }

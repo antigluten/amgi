@@ -2,14 +2,35 @@
 
 import PackageDescription
 
+// Opt-in debug diagnostics, off by default. ANY use of unsafeFlags opts a
+// target out of explicit-module compilation caching (commit 8fc0fa7), so these
+// are gated behind an env var instead of always-on. Turn on deliberately:
+//   AMGI_DIAGNOSTICS=1 xcodebuild ...   (or `swift build`)
+let diagnosticFlags: [SwiftSetting] = Context.environment["AMGI_DIAGNOSTICS"] != nil
+    ? [.unsafeFlags(
+        [
+            "-enable-actor-data-race-checks",
+            "-warn-implicit-overrides",
+            "-Xfrontend", "-warn-long-function-bodies=200",
+            "-Xfrontend", "-warn-long-expression-type-checking=200",
+        ],
+        .when(configuration: .debug)
+    )]
+    : []
+
+// StrictConcurrency dropped: it's the implicit default under .v6 language mode.
 let sharedSwiftSettings: [SwiftSetting] = [
-    .enableExperimentalFeature("StrictConcurrency"),
     .enableExperimentalFeature("IsolatedAny"),
     .enableUpcomingFeature("ExistentialAny"),
     .enableUpcomingFeature("InternalImportsByDefault"),
     .enableUpcomingFeature("MemberImportVisibility"),
     .enableUpcomingFeature("FullTypedThrows"),
-]
+    .enableUpcomingFeature("InferIsolatedConformances"),
+    .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
+    .enableExperimentalFeature("AccessLevelOnImport"),
+    .enableExperimentalFeature("StrictMemorySafety"),
+    .enableExperimentalFeature("StrictSendableMetatypes"),
+] + diagnosticFlags
 
 // App-level domain types that aren't part of the Anki engine surface.
 // Examples: dictionary lookup result shapes, reader book/chapter models,

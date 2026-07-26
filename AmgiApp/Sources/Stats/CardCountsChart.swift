@@ -1,9 +1,9 @@
 import SwiftUI
 import Charts
-import AnkiProto
+import AnkiKit
 
 struct CardCountsChart: View {
-    let cardCounts: Anki_Stats_GraphsResponse.CardCounts
+    let cardCounts: CardCountsSeries
 
     private var chartData: [(name: String, count: Int, color: Color)] {
         let c = cardCounts.excludingInactive
@@ -55,4 +55,11 @@ struct CardCountsChart: View {
         }
         .amgiCard()
     }
+}
+
+// MARK: - Preview
+
+#Preview {
+    CardCountsChart(cardCounts: .sample)
+        .padding()
 }

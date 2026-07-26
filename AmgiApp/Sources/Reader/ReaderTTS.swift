@@ -66,8 +66,10 @@ final class ReaderTTS: @unchecked Sendable {
 
         return scriptSniff(fallbackText)
     }
+}
 
-    private static func scriptSniff(_ text: String) -> String? {
+private extension ReaderTTS {
+    static func scriptSniff(_ text: String) -> String? {
         for scalar in text.unicodeScalars {
             let v = Int(scalar.value)
             if (0xAC00...0xD7AF).contains(v) { return "ko-KR" }       // Hangul

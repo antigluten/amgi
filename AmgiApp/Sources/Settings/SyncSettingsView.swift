@@ -77,14 +77,17 @@ struct SyncSettingsView: View {
         }
     }
 
-    private func logout() {
+}
+
+private extension SyncSettingsView {
+    func logout() {
         KeychainHelper.deleteHostKey()
         KeychainHelper.deleteUsername()
         username = nil
         isLoggedIn = false
     }
 
-    private func disableSync() {
+    func disableSync() {
         KeychainHelper.deleteHostKey()
         KeychainHelper.deleteUsername()
         KeychainHelper.deleteEndpoint()
@@ -133,8 +136,10 @@ private struct ServerSetupView: View {
     private var trimmed: String {
         url.trimmingCharacters(in: .whitespacesAndNewlines)
     }
+}
 
-    private func save() {
+private extension ServerSetupView {
+    func save() {
         var normalized = trimmed
         if !normalized.hasPrefix("http://") && !normalized.hasPrefix("https://") {
             normalized = "https://" + normalized
@@ -145,4 +150,10 @@ private struct ServerSetupView: View {
         onSave()
         dismiss()
     }
+}
+
+// MARK: - Preview
+
+#Preview {
+    NavigationStack { SyncSettingsView() }
 }

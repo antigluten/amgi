@@ -1,10 +1,8 @@
 // AmgiApp/Sources/WriteWidgetSnapshot.swift
 import AnkiClients
 import AnkiKit
-import AnkiProto
 import Dependencies
 import Foundation
-import SwiftProtobuf
 import WidgetKit
 
 /// Fetches current deck data + streak, writes per-deck snapshot files to the
@@ -29,33 +27,15 @@ func writeWidgetSnapshot() async {
         let decks: [DeckInfo] = try deckClient.fetchAll()
 
         // 2. Fetch 28-day stats graph for streak + daily counts
-        let graphData: Data = try statsClient.fetchGraphs("", 28)
-        let graphs = try Anki_Stats_GraphsResponse(serializedBytes: graphData)
+        let graphs = try statsClient.fetchGraphs("", 28)
 
-        // Helper to total all review types for a day
-        func dayTotal(_ rev: Anki_Stats_GraphsResponse.ReviewCountsAndTimes.Reviews) -> Int {
-            Int(rev.learn) + Int(rev.relearn) + Int(rev.young) + Int(rev.mature) + Int(rev.filtered)
-        }
+        // 3+4. Compute streak and last-7-days totals via shared helper.
+        let streak = StreakCalculator.streak(reviews: graphs.reviews.count)
+        let lastSevenDays = StreakCalculator.lastNDaysTotals(
+            reviews: graphs.reviews.count, days: 7
+        )
 
-        // 3. Calculate streak: count consecutive days backward from today
-        // Start from today; if today is empty, start from yesterday (may still review later)
-        let todayTotal = graphs.reviews.count[Int32(0)].map { dayTotal($0) } ?? 0
-        let startOffset = todayTotal > 0 ? Int32(0) : Int32(-1)
-
-        var streak = 0
-        for offset in stride(from: startOffset, through: Int32(-27), by: -1) {
-            guard let rev = graphs.reviews.count[offset] else { break }
-            guard dayTotal(rev) > 0 else { break }
-            streak += 1
-        }
-
-        // 4. Build last-7-days array (index 0 = 6 days ago, index 6 = today)
-        let lastSevenDays: [Int] = (-6 ... 0).map { offset in
-            guard let rev = graphs.reviews.count[Int32(offset)] else { return 0 }
-            return dayTotal(rev)
-        }
-
-        let reviewedToday = Int(graphs.today.answerCount)
+        let reviewedToday = graphs.today.answerCount
         let now = Date()
 
         // 5. Write all-decks aggregate snapshot (deckId = 0)
@@ -75,7 +55,7 @@ func writeWidgetSnapshot() async {
         // 6. Write per-deck snapshots
         for deck in decks {
             let snapshot = WidgetSnapshot(
-                deckId: deck.id,
+                deckId: deck.id.rawValue,
                 deckName: deck.name,
                 newCount: deck.counts.newCount,
                 learnCount: deck.counts.learnCount,

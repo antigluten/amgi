@@ -1,28 +1,7 @@
+public import AnkiKit
 public import Foundation
 public import Dependencies
 import DependenciesMacros
-
-public struct MediaCheckResult: Sendable {
-    public let missing: [String]
-    public let unused: [String]
-    public let missingNoteIDs: [Int64]
-    public let report: String
-    public let haveTrash: Bool
-
-    public init(
-        missing: [String],
-        unused: [String],
-        missingNoteIDs: [Int64],
-        report: String,
-        haveTrash: Bool
-    ) {
-        self.missing = missing
-        self.unused = unused
-        self.missingNoteIDs = missingNoteIDs
-        self.report = report
-        self.haveTrash = haveTrash
-    }
-}
 
 @DependencyClient
 public struct MediaClient: Sendable {

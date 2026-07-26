@@ -132,7 +132,11 @@ struct LargeWidgetView: View {
         .background(palette.warning.opacity(0.12), in: Capsule())
     }
 
-    private func breakdownColumn(color: Color, label: String, count: Int) -> some View {
+    private let weekdayLabels = ["M", "T", "W", "T", "F", "S", "S"]
+}
+
+private extension LargeWidgetView {
+    func breakdownColumn(color: Color, label: String, count: Int) -> some View {
         VStack(spacing: 3) {
             Text("\(count)")
                 .font(.system(size: 22, weight: .bold))
@@ -150,8 +154,7 @@ struct LargeWidgetView: View {
         .frame(maxWidth: .infinity)
     }
 
-    private let weekdayLabels = ["M", "T", "W", "T", "F", "S", "S"]
-    private func dayLabel(_ index: Int) -> String {
+    func dayLabel(_ index: Int) -> String {
         let today = Calendar.current.component(.weekday, from: snapshot.snapshotDate)
         // weekday: 1=Sun, 2=Mon, ..., 7=Sat — map to 0=Mon..6=Sun
         let todayIndex = (today + 5) % 7

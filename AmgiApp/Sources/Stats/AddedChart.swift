@@ -1,9 +1,9 @@
 import SwiftUI
 import Charts
-import AnkiProto
+import AnkiKit
 
 struct AddedChart: View {
-    let added: Anki_Stats_GraphsResponse.Added
+    let added: AddedSeries
     let period: StatsPeriod
 
     private var filteredData: [(day: Int, count: Int)] {
@@ -55,12 +55,21 @@ struct AddedChart: View {
         }
         .amgiCard()
     }
+}
 
-    private func footerItem(_ label: String, value: String) -> some View {
+private extension AddedChart {
+    func footerItem(_ label: String, value: String) -> some View {
         VStack(spacing: 2) {
             Text(value).font(.caption.weight(.semibold).monospacedDigit())
             Text(label).foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity)
     }
+}
+
+// MARK: - Preview
+
+#Preview {
+    AddedChart(added: .sample, period: .month)
+        .padding()
 }

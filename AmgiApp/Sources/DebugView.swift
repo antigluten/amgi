@@ -90,7 +90,10 @@ struct DebugView: View {
         }
     }
 
-    private func dumpDeckTree() {
+}
+
+private extension DebugView {
+    func dumpDeckTree() {
         do {
             let tree = try decksService.fetchTree()
             var info = "\(tree.count) top-level decks\n"
@@ -108,7 +111,7 @@ struct DebugView: View {
         }
     }
 
-    private func resetEverything() {
+    func resetEverything() {
         KeychainHelper.deleteHostKey()
         try? backend.closeCollection()
         let appSupport = FileManager.default.urls(

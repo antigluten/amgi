@@ -50,7 +50,10 @@ struct LoginSheet: View {
         }
     }
 
-    private func login() async {
+}
+
+private extension LoginSheet {
+    func login() async {
         isLoading = true
         errorMessage = nil
         do {
@@ -62,4 +65,10 @@ struct LoginSheet: View {
         }
         isLoading = false
     }
+}
+
+// MARK: - Preview
+
+#Preview {
+    LoginSheet(isPresented: .constant(true), onSuccess: {})
 }

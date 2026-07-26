@@ -156,12 +156,6 @@ struct ChapterReaderView: View {
         }
     }
 
-    private func initialProgress() -> Double? {
-        guard let saved = progress.resolved(bookID: book.id),
-              saved.chapterID == chapter.id else { return nil }
-        return saved.progress
-    }
-
     /// Bottom-left HUD shown only when `popupDebugInfoEnabled` is on.
     /// Useful when triaging tap-lookup misfires or font/layout issues
     /// without spinning up a debug build. Hit-testing is disabled at the
@@ -181,11 +175,19 @@ struct ChapterReaderView: View {
         .background(Color.black.opacity(0.55), in: RoundedRectangle(cornerRadius: 4))
         .foregroundStyle(.white)
     }
+}
+
+private extension ChapterReaderView {
+    func initialProgress() -> Double? {
+        guard let saved = progress.resolved(bookID: book.id),
+              saved.chapterID == chapter.id else { return nil }
+        return saved.progress
+    }
 
     /// Toolbar "+" handler: ask the WebView for the user's current
     /// selection. The WebView responds via the `onSelectionForNote`
     /// callback, which seeds `pendingNoteText` and triggers the sheet.
-    private func requestSelectionForNote() {
+    func requestSelectionForNote() {
         NotificationCenter.default.post(
             name: .amgiReaderRequestSelection,
             object: nil
@@ -196,7 +198,7 @@ struct ChapterReaderView: View {
     /// content) is Latin-script-dominant. Drives `overflow-wrap` and
     /// `hyphens` rules — Latin text wraps on word boundaries and hyphenates,
     /// CJK wraps anywhere.
-    private func prefersLatinWordLayout(_ content: String) -> Bool {
+    func prefersLatinWordLayout(_ content: String) -> Bool {
         if let hint = book.language?.lowercased() {
             if hint.hasPrefix("en") || hint.hasPrefix("de") || hint.hasPrefix("fr") ||
                hint.hasPrefix("es") || hint.hasPrefix("it") || hint.hasPrefix("pt") ||
@@ -231,7 +233,7 @@ struct ChapterReaderView: View {
     /// theme. Theme `system` defers to the OS via prefers-color-scheme;
     /// fixed modes hardcode foreground/background. Sepia matches Anki
     /// desktop's reader-tone (#f4ecd8 / #5b4636).
-    private func wrappedHTML(_ content: String) -> String {
+    func wrappedHTML(_ content: String) -> String {
         let mode = ReaderThemeMode(rawValue: themeModeRaw) ?? .system
         let theme = themeCSS(for: mode)
         let fontFamily = ReaderFontOption.resolved(selectedFontRaw).cssFontFamily
@@ -306,7 +308,7 @@ struct ChapterReaderView: View {
     /// dark-on-cream palette tuned for long sessions; `sepia` matches
     /// Anki desktop; `custom` stays system until the user wires up the
     /// custom-color preference UI in a follow-up chunk.
-    private func themeCSS(for mode: ReaderThemeMode) -> String {
+    func themeCSS(for mode: ReaderThemeMode) -> String {
         switch mode {
         case .system:
             return "color: -apple-system-label; background: -apple-system-systemBackground;"
@@ -485,7 +487,9 @@ private struct ChapterWebView: UIViewRepresentable {
                 object: nil,
                 queue: .main
             ) { [weak self] _ in
-                self?.fetchSelection()
+                // Delivered on the main queue, so assumeIsolated is safe and
+                // keeps fetchSelection() synchronous.
+                MainActor.assumeIsolated { self?.fetchSelection() }
             }
         }
 
@@ -495,18 +499,6 @@ private struct ChapterWebView: UIViewRepresentable {
             }
             selectionObserver = nil
             webView = nil
-        }
-
-        private func fetchSelection() {
-            guard let webView, let onSelectionForNote else { return }
-            // window.getSelection() — current text selection in the page.
-            // Empty string when nothing's selected; we just no-op then.
-            webView.evaluateJavaScript("window.getSelection().toString()") { result, _ in
-                guard let text = result as? String else { return }
-                let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-                guard !trimmed.isEmpty else { return }
-                onSelectionForNote(trimmed)
-            }
         }
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
@@ -542,5 +534,27 @@ private struct ChapterWebView: UIViewRepresentable {
                   !phrase.isEmpty else { return }
             onTapLookup?(phrase)
         }
+    }
+}
+
+private extension ChapterWebView.Coordinator {
+    func fetchSelection() {
+        guard let webView, let onSelectionForNote else { return }
+        // window.getSelection() — current text selection in the page.
+        // Empty string when nothing's selected; we just no-op then.
+        webView.evaluateJavaScript("window.getSelection().toString()") { result, _ in
+            guard let text = result as? String else { return }
+            let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else { return }
+            onSelectionForNote(trimmed)
+        }
+    }
+}
+
+// MARK: - Preview
+
+#Preview {
+    NavigationStack {
+        ChapterReaderView(book: .sample, chapter: .sample, progress: ReaderProgressCoordinator())
     }
 }

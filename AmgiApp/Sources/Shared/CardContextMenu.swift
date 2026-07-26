@@ -1,38 +1,28 @@
 import SwiftUI
 import AmgiTheme
-import AnkiClients
-import Dependencies
+import AnkiKit
 import UIKit
 
 /// Context menu for card operations (suspend, bury, flag, undo)
 @MainActor
 struct CardContextMenu: View {
-    let cardId: Int64
-    let noteId: Int64?
+    let cardId: CardID
+    let noteId: NoteID?
     var onSuccess: (() -> Void)?
     var onActionSuccess: ((_ shouldAdvance: Bool) -> Void)?
-    var onRequestSetDueDate: ((_ cardId: Int64) -> Void)?
-
-    @Dependency(\.cardClient) var cardClient
-    @Dependency(\.noteClient) var noteClient
-    @Dependency(\.tagClient) var tagClient
+    var onRequestSetDueDate: ((_ cardId: CardID) -> Void)?
 
     @Environment(\.palette) private var palette
 
-    @State private var errorMessage: String?
-    @State private var showError = false
+    @State private var model = CardContextMenuModel()
     @State private var showDeleteConfirmation = false
-    @State private var isMarkedNote = false
-    @State private var currentFlag: UInt32 = 0
-    @State private var canUndo = false
-    @State private var isUndoing = false
 
     init(
-        cardId: Int64,
-        noteId: Int64? = nil,
+        cardId: CardID,
+        noteId: NoteID? = nil,
         onSuccess: (() -> Void)? = nil,
         onActionSuccess: ((_ shouldAdvance: Bool) -> Void)? = nil,
-        onRequestSetDueDate: ((_ cardId: Int64) -> Void)? = nil
+        onRequestSetDueDate: ((_ cardId: CardID) -> Void)? = nil
     ) {
         self.cardId = cardId
         self.noteId = noteId
@@ -43,15 +33,15 @@ struct CardContextMenu: View {
 
     var body: some View {
         Menu {
-            Button(action: performSuspend) {
+            Button { forward(model.suspend(cardId)) } label: {
                 Label("Suspend", systemImage: "pause.circle")
             }
 
-            Button(action: performBury) {
+            Button { forward(model.bury(cardId)) } label: {
                 Label("Bury until tomorrow", systemImage: "books.vertical")
             }
 
-            Button(action: performResetToNew) {
+            Button { forward(model.resetToNew(cardId)) } label: {
                 Label("Forget", systemImage: "arrow.counterclockwise")
             }
 
@@ -63,20 +53,20 @@ struct CardContextMenu: View {
                 }
             }
 
-            if noteId != nil {
+            if let noteId {
                 Menu {
-                    Button(action: performToggleMarkedNote) {
+                    Button { forward(model.toggleMarked(noteId)) } label: {
                         Label(
-                            isMarkedNote ? "Unmark note" : "Mark note",
-                            systemImage: isMarkedNote ? "star.slash" : "star"
+                            model.isMarkedNote ? "Unmark note" : "Mark note",
+                            systemImage: model.isMarkedNote ? "star.slash" : "star"
                         )
                     }
 
-                    Button(action: performSuspendNote) {
+                    Button { forward(model.suspendNote(noteId)) } label: {
                         Label("Suspend note", systemImage: "pause.circle.fill")
                     }
 
-                    Button(action: performBuryNote) {
+                    Button { forward(model.buryNote(noteId)) } label: {
                         Label("Bury note", systemImage: "books.vertical.fill")
                     }
 
@@ -104,167 +94,54 @@ struct CardContextMenu: View {
                 Label {
                     Text("Flag")
                 } icon: {
-                    Image(systemName: currentFlag == 0 ? "flag.slash.fill" : "flag.fill")
-                        .foregroundStyle(flagColor(for: currentFlag))
+                    Image(systemName: model.currentFlag == 0 ? "flag.slash.fill" : "flag.fill")
+                        .foregroundStyle(flagColor(for: model.currentFlag))
                 }
             }
 
             Button {
-                Task { await performUndo() }
+                Task { forward(await model.undo(cardId)) }
             } label: {
                 Label("Undo", systemImage: "arrow.uturn.backward")
             }
-            .disabled(!canUndo || isUndoing)
+            .disabled(!model.canUndo || model.isUndoing)
         } label: {
             Image(systemName: "ellipsis.circle")
-                .font(AmgiFont.bodyEmphasis.font)
+                .amgiFont(.bodyEmphasis)
         }
-        .alert("Action failed", isPresented: $showError) {
+        .accessibilityLabel("Card actions")
+        .alert("Action failed", isPresented: $model.showError) {
             Button("OK") { }
         } message: {
-            Text(errorMessage ?? "An unknown error occurred.")
+            Text(model.errorMessage ?? "An unknown error occurred.")
         }
         .confirmationDialog("Delete this note?", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
-            Button("Delete", role: .destructive, action: performDeleteNote)
+            Button("Delete", role: .destructive) {
+                if let noteId { forward(model.deleteNote(noteId)) }
+            }
             Button("Cancel", role: .cancel) { }
         } message: {
             Text("This deletes the note and all its cards. The action cannot be undone.")
         }
         .task(id: cardId) {
-            await loadMarkedState()
-            await loadCurrentFlag()
-            await refreshUndoAvailability()
+            await model.load(cardId: cardId, noteId: noteId)
         }
     }
 
-    private func performSuspend() {
-        do {
-            try cardClient.suspend(cardId)
-            onSuccess?()
-            onActionSuccess?(true)
-        } catch {
-            errorMessage = "Suspend failed: \(error.localizedDescription)"
-            showError = true
-        }
+}
+
+private extension CardContextMenu {
+    /// Forward a model action outcome to the parent callbacks. `nil` means
+    /// the action failed (the model already surfaced the error alert).
+    func forward(_ shouldAdvance: Bool?) {
+        guard let shouldAdvance else { return }
+        onSuccess?()
+        onActionSuccess?(shouldAdvance)
     }
 
-    private func performBury() {
-        do {
-            try cardClient.bury(cardId)
-            onSuccess?()
-            onActionSuccess?(true)
-        } catch {
-            errorMessage = "Bury failed: \(error.localizedDescription)"
-            showError = true
-        }
-    }
-
-    private func performSuspendNote() {
-        performNoteAction(
-            action: { cardId in try cardClient.suspend(cardId) },
-            errorMessage: { err in "Suspend note failed: \(err)" }
-        )
-    }
-
-    private func performBuryNote() {
-        performNoteAction(
-            action: { cardId in try cardClient.bury(cardId) },
-            errorMessage: { err in "Bury note failed: \(err)" }
-        )
-    }
-
-    private func performResetToNew() {
-        do {
-            try cardClient.resetToNew(cardId)
-            onSuccess?()
-            onActionSuccess?(true)
-        } catch {
-            errorMessage = "Forget failed: \(error.localizedDescription)"
-            showError = true
-        }
-    }
-
-    private func performDeleteNote() {
-        guard let noteId else { return }
-        do {
-            try noteClient.delete(noteId)
-            onSuccess?()
-            onActionSuccess?(true)
-        } catch {
-            errorMessage = "Delete note failed: \(error.localizedDescription)"
-            showError = true
-        }
-    }
-
-    private func performToggleMarkedNote() {
-        guard let noteId else { return }
-        do {
-            if isMarkedNote {
-                try tagClient.removeTagFromNotes(markedTag, [noteId])
-            } else {
-                try tagClient.addTagToNotes(markedTag, [noteId])
-            }
-            isMarkedNote.toggle()
-            onSuccess?()
-            onActionSuccess?(false)
-        } catch {
-            errorMessage = "Mark note failed: \(error.localizedDescription)"
-            showError = true
-        }
-    }
-
-    private func performNoteAction(
-        action: (Int64) throws -> Void,
-        errorMessage buildMessage: (String) -> String
-    ) {
-        guard let noteId else { return }
-        do {
-            let cards = try cardClient.fetchByNote(noteId)
-            for card in cards {
-                try action(card.id)
-            }
-            onSuccess?()
-            onActionSuccess?(true)
-        } catch {
-            errorMessage = buildMessage(error.localizedDescription)
-            showError = true
-        }
-    }
-
-    private func performFlag(_ value: UInt32) {
-        do {
-            try cardClient.flag(cardId, value)
-            currentFlag = value
-            onSuccess?()
-            onActionSuccess?(false)
-        } catch {
-            errorMessage = "Flag failed: \(error.localizedDescription)"
-            showError = true
-        }
-    }
-
-    private func performUndo() async {
-        guard !isUndoing, canUndo else { return }
-        isUndoing = true
-        defer { isUndoing = false }
-        do {
-            try cardClient.undoLast()
-            onSuccess?()
-            onActionSuccess?(true)
-        } catch {
-            errorMessage = "Undo failed: \(error.localizedDescription)"
-            showError = true
-            await refreshUndoAvailability()
-        }
-    }
-
-    private func refreshUndoAvailability() async {
-        canUndo = (try? cardClient.hasUndoableAction()) ?? false
-    }
-
-    private func flagButton(_ value: UInt32) -> some View {
+    func flagButton(_ value: UInt32) -> some View {
         let tint = flagColor(for: value)
-        return Button(action: { performFlag(value) }) {
+        return Button(action: { forward(model.flag(cardId, value)) }) {
             Label {
                 Text(flagDisplayName(for: value))
                     .foregroundStyle(tint)
@@ -274,7 +151,7 @@ struct CardContextMenu: View {
         }
     }
 
-    private func flagDisplayName(for value: UInt32) -> String {
+    func flagDisplayName(for value: UInt32) -> String {
         switch value & 0b111 {
         case 1: return "Red"
         case 2: return "Orange"
@@ -287,7 +164,7 @@ struct CardContextMenu: View {
         }
     }
 
-    private func flagMenuIcon(for value: UInt32) -> Image {
+    func flagMenuIcon(for value: UInt32) -> Image {
         let symbolName = value == 0 ? "flag.slash.fill" : "flag.fill"
         let tint = UIColor(flagColor(for: value))
         if let image = UIImage(systemName: symbolName)?.withTintColor(tint, renderingMode: .alwaysOriginal) {
@@ -296,29 +173,7 @@ struct CardContextMenu: View {
         return Image(systemName: symbolName)
     }
 
-    private func loadMarkedState() async {
-        guard let noteId else {
-            isMarkedNote = false
-            return
-        }
-
-        do {
-            let note = try noteClient.fetch(noteId)
-            isMarkedNote = note.map {
-                $0.tags
-                    .split(separator: " ")
-                    .contains { $0.caseInsensitiveCompare(markedTag) == .orderedSame }
-            } ?? false
-        } catch {
-            isMarkedNote = false
-        }
-    }
-
-    private func loadCurrentFlag() async {
-        currentFlag = (try? cardClient.getCardFlags(cardId)) ?? 0
-    }
-
-    private func flagColor(for value: UInt32) -> Color {
+    func flagColor(for value: UInt32) -> Color {
         switch value & 0b111 {
         case 1: return .red
         case 2: return .orange
@@ -332,8 +187,6 @@ struct CardContextMenu: View {
     }
 }
 
-private let markedTag = "marked"
-
 #Preview {
     VStack(spacing: 20) {
         Text("Tap the menu button below")
@@ -344,7 +197,7 @@ private let markedTag = "marked"
         HStack {
             Text("Card Menu:")
             CardContextMenu(
-                cardId: 12345,
+                cardId: CardID(12345),
                 onSuccess: { print("Action succeeded") }
             )
         }

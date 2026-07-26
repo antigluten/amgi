@@ -1,13 +1,13 @@
 import SwiftUI
 import AmgiTheme
-import AnkiProto
+import AnkiKit
 
 /// Optimized heatmap with incremental loading.
 /// - Initially loads 6 months of data.
 /// - Loads more when scrolling to edges.
 /// - Configurable via the date range menu.
 struct HeatmapChartOptimized: View {
-    let reviews: Anki_Stats_GraphsResponse.ReviewCountsAndTimes
+    let reviews: ReviewCountsAndTimes
 
     @Environment(\.palette) private var palette
     @State private var loadingManager: HeatmapLoadingManager?
@@ -203,8 +203,10 @@ struct HeatmapChartOptimized: View {
     }
 
     // MARK: - View Components
+}
 
-    private func monthHeaderView() -> some View {
+private extension HeatmapChartOptimized {
+    func monthHeaderView() -> some View {
         HStack(spacing: 0) {
             Spacer().frame(width: weekdayLabelWidth)
             ForEach(0..<weeks.count, id: \.self) { weekIdx in
@@ -222,7 +224,7 @@ struct HeatmapChartOptimized: View {
         .frame(height: 14)
     }
 
-    private func gridView() -> some View {
+    func gridView() -> some View {
         HStack(alignment: .top, spacing: 0) {
             VStack(spacing: cellSpacing) {
                 ForEach(0..<7, id: \.self) { day in
@@ -252,7 +254,7 @@ struct HeatmapChartOptimized: View {
         }
     }
 
-    private func legendView() -> some View {
+    func legendView() -> some View {
         HStack(spacing: isCompact ? 3 : 4) {
             Spacer()
             Text("Less").amgiFont(.micro).foregroundStyle(palette.textSecondary)
@@ -267,7 +269,7 @@ struct HeatmapChartOptimized: View {
 
     // MARK: - Helpers
 
-    private func summaryItem(value: String, label: String) -> some View {
+    func summaryItem(value: String, label: String) -> some View {
         VStack(spacing: 2) {
             Text(value)
                 .font(.subheadline.weight(.semibold).monospacedDigit())
@@ -278,7 +280,7 @@ struct HeatmapChartOptimized: View {
         .frame(maxWidth: .infinity)
     }
 
-    private func weekdayLabel(_ index: Int) -> String {
+    func weekdayLabel(_ index: Int) -> String {
         switch index {
         case 1: "M"
         case 3: "W"
@@ -287,19 +289,19 @@ struct HeatmapChartOptimized: View {
         }
     }
 
-    private func heatColor(count: Int) -> Color {
+    func heatColor(count: Int) -> Color {
         if count == 0 { return Color(.systemGray6) }
         let intensity = min(1.0, Double(count) / Double(max(maxCount, 1)))
         return .green.opacity(max(0.2, intensity))
     }
 
-    private func dayOffset(for date: Date) -> Int {
+    func dayOffset(for date: Date) -> Int {
         let today = Calendar.current.startOfDay(for: Date())
         let target = Calendar.current.startOfDay(for: date)
         return Calendar.current.dateComponents([.day], from: today, to: target).day ?? 0
     }
 
-    private func dateRangeLabel(_ days: Int) -> String {
+    func dateRangeLabel(_ days: Int) -> String {
         switch days {
         case 30: return "Last 30 days"
         case 90: return "Last 90 days"
@@ -314,7 +316,7 @@ struct HeatmapChartOptimized: View {
 
     /// Reads the actor's current visible data and snapshots it into @State.
     /// Called on the @MainActor (view) after every actor mutation.
-    private func refreshFromManager() async {
+    func refreshFromManager() async {
         guard let manager = loadingManager else { return }
         let snapshot = await manager.getVisibleData()
         var nextVisible: [Int: Int] = [:]
@@ -332,20 +334,20 @@ struct HeatmapChartOptimized: View {
 
     // MARK: - State Management
 
-    private func initializeLoadingManager() async {
+    func initializeLoadingManager() async {
         let manager = HeatmapLoadingManager()
         await manager.loadAllData(reviews)
         self.loadingManager = manager
     }
 
-    private func updateDateRange(_ days: Int) async {
+    func updateDateRange(_ days: Int) async {
         selectedDateRange = days
         guard let manager = loadingManager else { return }
         await manager.setDateRange(days: days)
         await refreshFromManager()
     }
 
-    private func handleScroll(offset: CGFloat) {
+    func handleScroll(offset: CGFloat) {
         let scrollThreshold: CGFloat = 100
         let contentWidth = CGFloat(weeksToShow) * (cellSize + cellSpacing)
         let isNearEnd = contentWidth - offset < scrollThreshold
@@ -357,4 +359,11 @@ struct HeatmapChartOptimized: View {
             }
         }
     }
+}
+
+// MARK: - Preview
+
+#Preview {
+    HeatmapChartOptimized(reviews: .sampleYear)
+        .padding()
 }

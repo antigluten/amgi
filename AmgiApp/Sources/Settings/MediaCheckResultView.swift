@@ -1,44 +1,49 @@
 import SwiftUI
 import AmgiTheme
 import AnkiClients
+import AnkiKit
 import Dependencies
 
 struct MediaCheckResultView: View {
-    @Dependency(\.mediaClient) var mediaClient
     @Environment(\.dismiss) private var dismiss
     @Environment(\.palette) private var palette
 
-    @State private var currentResult: MediaCheckResult?
-    @State private var isLoading = true
-    @State private var isTrashingUnused = false
-    @State private var isDeletingTrash = false
-    @State private var isRestoringTrash = false
-    @State private var actionMessage: String?
-    @State private var showActionAlert = false
+    @State private var model = MediaCheckModel()
 
     var body: some View {
         Group {
-            if isLoading {
+            if model.isLoading {
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(palette.background)
-            } else if let result = currentResult {
+            } else if let result = model.currentResult {
                 contentList(result: result)
+            } else {
+                ContentUnavailableView(
+                    "Media check unavailable",
+                    systemImage: "exclamationmark.triangle",
+                    description: Text(model.actionMessage ?? "Couldn't read the media database.")
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(palette.background)
             }
         }
         .scrollContentBackground(.hidden)
         .background(palette.background)
         .navigationTitle("Media Check")
         .navigationBarTitleDisplayMode(.inline)
-        .alert("Done", isPresented: $showActionAlert) {
+        .alert("Done", isPresented: $model.showActionAlert) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text(actionMessage ?? "")
+            Text(model.actionMessage ?? "")
         }
-        .task { await runMediaCheck() }
+        .task { await model.runMediaCheck() }
     }
 
-    private func contentList(result: MediaCheckResult) -> some View {
+}
+
+private extension MediaCheckResultView {
+    func contentList(result: MediaCheckResult) -> some View {
         List {
             summarySection(result: result)
             if !result.missing.isEmpty { missingSection(result: result) }
@@ -49,7 +54,7 @@ struct MediaCheckResultView: View {
         .background(palette.background)
     }
 
-    private func summarySection(result: MediaCheckResult) -> some View {
+    func summarySection(result: MediaCheckResult) -> some View {
         Section("Summary") {
             Label(
                 "\(result.missing.count) missing files",
@@ -76,7 +81,7 @@ struct MediaCheckResultView: View {
         }
     }
 
-    private func missingSection(result: MediaCheckResult) -> some View {
+    func missingSection(result: MediaCheckResult) -> some View {
         Section("Missing files") {
             ForEach(result.missing.prefix(200), id: \.self) { file in
                 Label(file, systemImage: "questionmark.circle")
@@ -92,7 +97,7 @@ struct MediaCheckResultView: View {
         }
     }
 
-    private func unusedSection(result: MediaCheckResult) -> some View {
+    func unusedSection(result: MediaCheckResult) -> some View {
         Section("Unused files") {
             ForEach(result.unused.prefix(200), id: \.self) { file in
                 Label(file, systemImage: "tray")
@@ -108,13 +113,13 @@ struct MediaCheckResultView: View {
         }
     }
 
-    private func trashSection(result: MediaCheckResult) -> some View {
+    func trashSection(result: MediaCheckResult) -> some View {
         Section("Actions") {
             if !result.unused.isEmpty {
                 Button {
-                    trashUnused(filenames: result.unused)
+                    model.trashUnused(filenames: result.unused)
                 } label: {
-                    if isTrashingUnused {
+                    if model.isTrashingUnused {
                         HStack {
                             Text("Trash unused files")
                             Spacer()
@@ -124,15 +129,15 @@ struct MediaCheckResultView: View {
                         Label("Trash unused files", systemImage: "trash")
                     }
                 }
-                .disabled(isTrashingUnused)
+                .disabled(model.isTrashingUnused)
                 .listRowBackground(palette.surfaceElevated)
             }
 
             if result.haveTrash {
                 Button {
-                    emptyTrash()
+                    model.emptyTrash()
                 } label: {
-                    if isDeletingTrash {
+                    if model.isDeletingTrash {
                         HStack {
                             Text("Empty trash")
                             Spacer()
@@ -142,14 +147,14 @@ struct MediaCheckResultView: View {
                         Label("Empty trash", systemImage: "trash.slash")
                     }
                 }
-                .disabled(isDeletingTrash)
+                .disabled(model.isDeletingTrash)
                 .foregroundStyle(palette.danger)
                 .listRowBackground(palette.surfaceElevated)
 
                 Button {
-                    restoreTrash()
+                    model.restoreTrash()
                 } label: {
-                    if isRestoringTrash {
+                    if model.isRestoringTrash {
                         HStack {
                             Text("Restore trash")
                             Spacer()
@@ -159,93 +164,31 @@ struct MediaCheckResultView: View {
                         Label("Restore trash", systemImage: "arrow.uturn.backward")
                     }
                 }
-                .disabled(isRestoringTrash)
+                .disabled(model.isRestoringTrash)
                 .listRowBackground(palette.surfaceElevated)
             }
         }
     }
 
-    private func runMediaCheck() async {
-        isLoading = true
-        let capturedClient = mediaClient
-        do {
-            let result = try await Task.detached {
-                try capturedClient.checkMedia()
-            }.value
-            currentResult = result
-        } catch {
-            actionMessage = error.localizedDescription
-            showActionAlert = true
-        }
-        isLoading = false
-    }
+}
 
-    private func trashUnused(filenames: [String]) {
-        isTrashingUnused = true
-        let capturedClient = mediaClient
-        Task.detached {
-            do {
-                try capturedClient.trashMediaFiles(filenames)
-                let latestResult = try capturedClient.checkMedia()
-                await MainActor.run {
-                    currentResult = latestResult
-                    isTrashingUnused = false
-                    actionMessage = "Files moved to trash"
-                    showActionAlert = true
-                }
-            } catch {
-                await MainActor.run {
-                    isTrashingUnused = false
-                    actionMessage = error.localizedDescription
-                    showActionAlert = true
-                }
-            }
+// MARK: - Preview
+
+#if DEBUG
+#Preview {
+    let _ = prepareDependencies {
+        $0.mediaClient.checkMedia = {
+            MediaCheckResult(
+                missing: ["audio_こんにちは.mp3", "diagram_42.png"],
+                unused: ["old_cover.jpg", "unused_clip.mp3", "stale.png"],
+                missingNoteIDs: [],
+                report: "2 missing, 3 unused files found.",
+                haveTrash: true
+            )
         }
     }
-
-    private func emptyTrash() {
-        isDeletingTrash = true
-        let capturedClient = mediaClient
-        Task.detached {
-            do {
-                try capturedClient.emptyTrash()
-                let latestResult = try capturedClient.checkMedia()
-                await MainActor.run {
-                    currentResult = latestResult
-                    isDeletingTrash = false
-                    actionMessage = "Trash emptied"
-                    showActionAlert = true
-                }
-            } catch {
-                await MainActor.run {
-                    isDeletingTrash = false
-                    actionMessage = error.localizedDescription
-                    showActionAlert = true
-                }
-            }
-        }
-    }
-
-    private func restoreTrash() {
-        isRestoringTrash = true
-        let capturedClient = mediaClient
-        Task.detached {
-            do {
-                try capturedClient.restoreTrash()
-                let latestResult = try capturedClient.checkMedia()
-                await MainActor.run {
-                    currentResult = latestResult
-                    isRestoringTrash = false
-                    actionMessage = "Trash restored"
-                    showActionAlert = true
-                }
-            } catch {
-                await MainActor.run {
-                    isRestoringTrash = false
-                    actionMessage = error.localizedDescription
-                    showActionAlert = true
-                }
-            }
-        }
+    return NavigationStack {
+        MediaCheckResultView()
     }
 }
+#endif

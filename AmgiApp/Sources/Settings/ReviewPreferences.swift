@@ -134,10 +134,6 @@ enum SyncPreferences {
         static func needsFullSyncForCurrentUser() -> String {
             scoped(needsFullSyncBase)
         }
-
-        private static func scoped(_ base: String) -> String {
-            "\(base).\(SyncPreferences.currentProfileID())"
-        }
     }
 
     enum Mode: String, CaseIterable, Identifiable {
@@ -161,16 +157,6 @@ enum SyncPreferences {
 
     static let officialServerLabel = "AnkiWeb"
 
-    private static func currentProfileID() -> String {
-        let selectedUser = UserDefaults.standard.string(forKey: "amgi.selectedUser") ?? "default"
-        let allowed = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-_"))
-        let mapped = selectedUser.unicodeScalars.map { scalar -> Character in
-            allowed.contains(scalar) ? Character(scalar) : "_"
-        }
-        let profile = String(mapped).trimmingCharacters(in: CharacterSet(charactersIn: "_"))
-        return profile.isEmpty ? "default" : profile
-    }
-
     static func resolvedMode(_ rawValue: String) -> Mode {
         Mode(rawValue: rawValue) ?? .local
     }
@@ -182,5 +168,23 @@ enum SyncPreferences {
     static func recordMediaSyncLog(_ message: String, date: Date = .now) {
         UserDefaults.standard.set(message, forKey: Keys.mediaLastLogForCurrentUser())
         UserDefaults.standard.set(date.timeIntervalSince1970, forKey: Keys.mediaLastSyncedAtForCurrentUser())
+    }
+}
+
+private extension SyncPreferences.Keys {
+    static func scoped(_ base: String) -> String {
+        "\(base)__\(SyncPreferences.currentProfileID())"
+    }
+}
+
+private extension SyncPreferences {
+    static func currentProfileID() -> String {
+        let selectedUser = UserDefaults.standard.string(forKey: "amgi.selectedUser") ?? "default"
+        let allowed = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-_"))
+        let mapped = selectedUser.unicodeScalars.map { scalar -> Character in
+            allowed.contains(scalar) ? Character(scalar) : "_"
+        }
+        let profile = String(mapped).trimmingCharacters(in: CharacterSet(charactersIn: "_"))
+        return profile.isEmpty ? "default" : profile
     }
 }

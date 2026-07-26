@@ -1,7 +1,7 @@
-import XCTest
+import Testing
 @testable import AmgiApp
 
-final class CardWebViewTests: XCTestCase {
+@Suite struct CardWebViewTests {
     // DEFERRED: fork's testMediaBaseTagPointsAtMediaRoot tests CardWebView.mediaBaseTag(for: URL)
     // using file:// URLs. Our codebase uses CardAssetPath.mediaBaseTag() with the amgi-asset://
     // custom URL scheme (no file-path parameter). The method doesn't exist in our CardWebView.

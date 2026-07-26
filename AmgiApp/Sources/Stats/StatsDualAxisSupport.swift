@@ -66,7 +66,10 @@ enum StatsDualAxisSupport {
         return ""
     }
 
-    private static func niceStep(_ rawStep: Double) -> Double {
+}
+
+private extension StatsDualAxisSupport {
+    static func niceStep(_ rawStep: Double) -> Double {
         guard rawStep > 0 else { return 1 }
 
         let exponent = floor(log10(rawStep))

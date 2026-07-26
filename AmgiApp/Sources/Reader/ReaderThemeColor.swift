@@ -27,8 +27,10 @@ enum ReaderThemeColor {
         let trimmed = hex.trimmingCharacters(in: .whitespacesAndNewlines)
         return parseHex(trimmed) == nil ? defaultHex : trimmed
     }
+}
 
-    private static func parseHex(_ raw: String) -> (r: Double, g: Double, b: Double)? {
+private extension ReaderThemeColor {
+    static func parseHex(_ raw: String) -> (r: Double, g: Double, b: Double)? {
         var trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmed.hasPrefix("#") { trimmed.removeFirst() }
         guard trimmed.count == 6, let value = UInt32(trimmed, radix: 16) else { return nil }

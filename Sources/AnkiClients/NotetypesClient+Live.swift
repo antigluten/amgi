@@ -1,9 +1,9 @@
 import AnkiBackend
-import AnkiProto
+import AnkiKit
+import AnkiProtoBridge
 public import Dependencies
 import Foundation
 import Logging
-import SwiftProtobuf
 
 private let logger = Logger(label: "com.amgiapp.notetypes.client")
 
@@ -13,39 +13,18 @@ extension NotetypesClient: DependencyKey {
 
         return Self(
             listAll: {
-                let resp: Anki_Notetypes_NotetypeNames = try backend.invoke(
-                    service: AnkiBackend.Service.notetypes,
-                    method: AnkiBackend.NotetypesMethod.getNotetypeNames
-                )
-                return resp.entries
+                try backend.invoke(.notetypeNames)
             },
-            getRaw: { id in
-                var req = Anki_Notetypes_NotetypeId()
-                req.ntid = id
-                let notetype: Anki_Notetypes_Notetype = try backend.invoke(
-                    service: AnkiBackend.Service.notetypes,
-                    method: AnkiBackend.NotetypesMethod.getNotetype,
-                    request: req
-                )
-                return notetype
+            get: { id in
+                try backend.invoke(.notetype(for: id))
             },
             update: { notetype in
-                try backend.callVoid(
-                    service: AnkiBackend.Service.notetypes,
-                    method: AnkiBackend.NotetypesMethod.updateNotetype,
-                    request: notetype
-                )
-                logger.info("Notetype updated: id=\(notetype.id)")
+                try backend.invoke(.updateNotetype(notetype))
+                logger.info("Notetype updated: id=\(notetype.id.rawValue)")
             },
             remove: { id in
-                var req = Anki_Notetypes_NotetypeId()
-                req.ntid = id
-                try backend.callVoid(
-                    service: AnkiBackend.Service.notetypes,
-                    method: AnkiBackend.NotetypesMethod.removeNotetype,
-                    request: req
-                )
-                logger.info("Notetype removed: id=\(id)")
+                try backend.invoke(.removeNotetype(id: id))
+                logger.info("Notetype removed: id=\(id.rawValue)")
             }
         )
     }()

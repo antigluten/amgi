@@ -1,13 +1,14 @@
 import Foundation
+import AnkiKit
 
 struct BrowseSelectionState: Equatable, Sendable {
     var isSelectMode: Bool = false
-    var selectedNoteIDs: Set<Int64> = []
+    var selectedNoteIDs: Set<NoteID> = []
 
     var isEmpty: Bool { selectedNoteIDs.isEmpty }
     var count: Int { selectedNoteIDs.count }
 
-    mutating func enterSelectMode(preselect: Int64? = nil) {
+    mutating func enterSelectMode(preselect: NoteID? = nil) {
         isSelectMode = true
         selectedNoteIDs = preselect.map { [$0] } ?? []
     }
@@ -17,7 +18,7 @@ struct BrowseSelectionState: Equatable, Sendable {
         selectedNoteIDs = []
     }
 
-    mutating func toggle(_ id: Int64) {
+    mutating func toggle(_ id: NoteID) {
         if selectedNoteIDs.contains(id) {
             selectedNoteIDs.remove(id)
         } else {
@@ -25,7 +26,7 @@ struct BrowseSelectionState: Equatable, Sendable {
         }
     }
 
-    func contains(_ id: Int64) -> Bool {
+    func contains(_ id: NoteID) -> Bool {
         selectedNoteIDs.contains(id)
     }
 }

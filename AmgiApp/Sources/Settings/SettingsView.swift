@@ -44,6 +44,9 @@ struct SettingsView: View {
                 NavigationLink("Database") {
                     MaintenanceView()
                 }
+                NavigationLink("Backups") {
+                    BackupView(username: AccountStore.shared.current.displayName)
+                }
                 NavigationLink("Empty Cards") {
                     EmptyCardsView()
                 }
@@ -56,6 +59,9 @@ struct SettingsView: View {
                 NavigationLink("Manage Templates") {
                     DeckTemplateListView()
                 }
+                NavigationLink("Code Editor") {
+                    CodeEditorSettingsView()
+                }
             }
 
             Section {
@@ -65,5 +71,12 @@ struct SettingsView: View {
             }
         }
         .navigationTitle("Settings")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+#Preview {
+    NavigationStack {
+        SettingsView()
     }
 }

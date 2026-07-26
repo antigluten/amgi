@@ -4,14 +4,6 @@ import Foundation
 enum WidgetSnapshotStore {
     public static let groupId = "group.com.amgiapp"
 
-    private static func container() -> URL? {
-        FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: groupId)
-    }
-
-    private static func fileURL(deckId: Int64) -> URL? {
-        container()?.appendingPathComponent("widget-snapshot-\(deckId).json")
-    }
-
     static func write(_ snapshot: WidgetSnapshot) throws {
         guard let url = fileURL(deckId: snapshot.deckId) else {
             throw CocoaError(.fileNoSuchFile)
@@ -48,5 +40,15 @@ enum WidgetSnapshotStore {
             .filter { $0.lastPathComponent.hasPrefix("widget-snapshot-") && $0.pathExtension == "json" }
             .compactMap { read(from: $0) }
             .sorted { $0.deckName < $1.deckName }
+    }
+}
+
+private extension WidgetSnapshotStore {
+    static func container() -> URL? {
+        FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: groupId)
+    }
+
+    static func fileURL(deckId: Int64) -> URL? {
+        container()?.appendingPathComponent("widget-snapshot-\(deckId).json")
     }
 }

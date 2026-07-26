@@ -45,59 +45,6 @@ final class SyncCoordinator {
         registerLifecycleObservers()
     }
 
-    private func registerLifecycleObservers() {
-        let center = NotificationCenter.default
-        center.addObserver(
-            forName: UIApplication.didEnterBackgroundNotification,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            Task { @MainActor in
-                self?.beginBackgroundExecutionIfNeeded()
-            }
-        }
-        center.addObserver(
-            forName: UIApplication.willEnterForegroundNotification,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            Task { @MainActor in
-                self?.endBackgroundExecutionIfNeeded()
-            }
-        }
-
-        if needsFullSyncFlag {
-            state = .needsFullSync(SyncFullSyncRequirement(
-                reason: "A full sync was requested previously and not yet completed",
-                localIsEmpty: false
-            ))
-        }
-    }
-
-    private func beginBackgroundExecutionIfNeeded() {
-        let isSyncing: Bool
-        switch state {
-        case .syncing, .syncingMedia: isSyncing = true
-        default: isSyncing = false
-        }
-        guard isSyncing, backgroundTaskID == .invalid else { return }
-        backgroundTaskID = UIApplication.shared.beginBackgroundTask(withName: "AmgiSync") { [weak self] in
-            // System forced expiration — end task and let cancel() handle state.
-            Task { @MainActor in
-                self?.endBackgroundExecutionIfNeeded()
-                self?.cancel()
-            }
-        }
-        appendLog("Backgrounded mid-sync — extending execution window")
-    }
-
-    private func endBackgroundExecutionIfNeeded() {
-        guard backgroundTaskID != .invalid else { return }
-        UIApplication.shared.endBackgroundTask(backgroundTaskID)
-        backgroundTaskID = .invalid
-        appendLog("Foreground resumed — released BG task")
-    }
-
     // MARK: - Public surface (stubs filled in Phase B)
 
     func startSync() async {
@@ -112,7 +59,7 @@ final class SyncCoordinator {
 
         let task = Task { [weak self] in
             guard let self else { return }
-            let client = await self.syncClient
+            let client = self.syncClient
             do {
                 let summary = try await client.sync()
                 await MainActor.run {
@@ -164,7 +111,7 @@ final class SyncCoordinator {
 
         let task = Task { [weak self] in
             guard let self else { return }
-            let client = await self.syncClient
+            let client = self.syncClient
             do {
                 try await client.fullSync(direction)
                 await MainActor.run {
@@ -223,9 +170,64 @@ final class SyncCoordinator {
     }
 }
 
+private extension SyncCoordinator {
+    func registerLifecycleObservers() {
+        let center = NotificationCenter.default
+        center.addObserver(
+            forName: UIApplication.didEnterBackgroundNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.beginBackgroundExecutionIfNeeded()
+            }
+        }
+        center.addObserver(
+            forName: UIApplication.willEnterForegroundNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.endBackgroundExecutionIfNeeded()
+            }
+        }
+
+        if needsFullSyncFlag {
+            state = .needsFullSync(SyncFullSyncRequirement(
+                reason: "A full sync was requested previously and not yet completed",
+                localIsEmpty: false
+            ))
+        }
+    }
+
+    func beginBackgroundExecutionIfNeeded() {
+        let isSyncing: Bool
+        switch state {
+        case .syncing, .syncingMedia: isSyncing = true
+        default: isSyncing = false
+        }
+        guard isSyncing, backgroundTaskID == .invalid else { return }
+        backgroundTaskID = UIApplication.shared.beginBackgroundTask(withName: "AmgiSync") { [weak self] in
+            // System forced expiration — end task and let cancel() handle state.
+            Task { @MainActor in
+                self?.endBackgroundExecutionIfNeeded()
+                self?.cancel()
+            }
+        }
+        appendLog("Backgrounded mid-sync — extending execution window")
+    }
+
+    func endBackgroundExecutionIfNeeded() {
+        guard backgroundTaskID != .invalid else { return }
+        UIApplication.shared.endBackgroundTask(backgroundTaskID)
+        backgroundTaskID = .invalid
+        appendLog("Foreground resumed — released BG task")
+    }
+}
+
 private enum SyncCoordinatorKey: DependencyKey {
-    nonisolated(unsafe) static let liveValue: SyncCoordinator = MainActor.assumeIsolated { SyncCoordinator() }
-    nonisolated(unsafe) static let testValue: SyncCoordinator = MainActor.assumeIsolated { SyncCoordinator() }
+    static let liveValue: SyncCoordinator = MainActor.assumeIsolated { SyncCoordinator() }
+    static let testValue: SyncCoordinator = MainActor.assumeIsolated { SyncCoordinator() }
 }
 
 extension DependencyValues {

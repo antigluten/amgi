@@ -1,10 +1,10 @@
 import SwiftUI
 import Charts
 import AmgiTheme
-import AnkiProto
+import AnkiKit
 
 struct RetrievabilityChart: View {
-    let retrievability: Anki_Stats_GraphsResponse.Retrievability
+    let retrievability: RetrievabilityBuckets
 
     @Environment(\.palette) private var palette
     @State private var selectedBucketStart: Int?
@@ -112,7 +112,9 @@ struct RetrievabilityChart: View {
             selectedRetrievabilityRuleMark(for: item)
         }
     }
+}
 
+private extension RetrievabilityChart {
     @ChartContentBuilder
     private func retrievabilityBarMark(for item: Bucket) -> some ChartContent {
         BarMark(
@@ -140,7 +142,7 @@ struct RetrievabilityChart: View {
     }
 
     @ViewBuilder
-    private func retrievabilityChartOverlay(proxy: ChartProxy) -> some View {
+    func retrievabilityChartOverlay(proxy: ChartProxy) -> some View {
         GeometryReader { geometry in
             Rectangle()
                 .fill(Color.clear)
@@ -154,7 +156,7 @@ struct RetrievabilityChart: View {
         }
     }
 
-    private func updateSelectedBucketStart(
+    func updateSelectedBucketStart(
         for value: SpatialTapGesture.Value,
         proxy: ChartProxy,
         geometry: GeometryProxy
@@ -184,7 +186,7 @@ struct RetrievabilityChart: View {
     }
 
     @AxisContentBuilder
-    private func retrievabilityChartXAxis() -> some AxisContent {
+    func retrievabilityChartXAxis() -> some AxisContent {
         AxisMarks(values: [0, 25, 50, 75, 100]) { value in
             AxisGridLine()
                 .foregroundStyle(palette.textTertiary.opacity(0.25))
@@ -199,7 +201,7 @@ struct RetrievabilityChart: View {
     }
 
     @AxisContentBuilder
-    private func retrievabilityChartYAxis() -> some AxisContent {
+    func retrievabilityChartYAxis() -> some AxisContent {
         AxisMarks(position: .leading, values: yAxisValues) { value in
             AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
                 .foregroundStyle(palette.textTertiary.opacity(0.25))
@@ -214,8 +216,15 @@ struct RetrievabilityChart: View {
         }
     }
 
-    private func bucketColor(for center: Double) -> Color {
+    func bucketColor(for center: Double) -> Color {
         let progress = min(max(center / 100.0, 0), 1)
         return Color(hue: 0.02 + (0.30 * progress), saturation: 0.72, brightness: 0.9)
     }
+}
+
+// MARK: - Preview
+
+#Preview {
+    RetrievabilityChart(retrievability: .sample)
+        .padding()
 }

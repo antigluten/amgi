@@ -4,7 +4,7 @@ Thank you for your interest in contributing. This guide covers how to report iss
 
 ## Reporting Bugs
 
-Open a [GitHub Issue](https://github.com/antigluten/amgi/issues/new) with:
+Open a [GitHub Issue](https://github.com/antigluten/anki-ios/issues/new) with:
 
 - Steps to reproduce
 - Expected behavior vs. actual behavior
@@ -13,7 +13,7 @@ Open a [GitHub Issue](https://github.com/antigluten/amgi/issues/new) with:
 
 ## Suggesting Features
 
-Open a [GitHub Issue](https://github.com/antigluten/amgi/issues/new) with the `enhancement` label. Describe the use case and why it would benefit Anki users.
+Open a [GitHub Issue](https://github.com/antigluten/anki-ios/issues/new) with the `enhancement` label. Describe the use case and why it would benefit Anki users.
 
 ## Development Setup
 
@@ -27,8 +27,8 @@ Open a [GitHub Issue](https://github.com/antigluten/amgi/issues/new) with the `e
 ### Build
 
 ```bash
-git clone --recursive https://github.com/antigluten/amgi.git
-cd amgi
+git clone --recursive https://github.com/antigluten/anki-ios.git
+cd anki-ios
 
 # Rust targets for iOS
 rustup target add aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios-simulator
@@ -63,12 +63,6 @@ xcodebuild test -project AnkiApp/AnkiApp.xcodeproj -scheme AnkiApp \
 - **`public import`** for modules whose types appear in public API signatures (`InternalImportsByDefault` is enabled)
 - **`@Observable @MainActor`** for view-bound mutable state
 - Follow Apple's [Swift API Design Guidelines](https://www.swift.org/documentation/api-design-guidelines/)
-
-
-## WatchOS Compatibility
-
-- WatchReviewView exposes only .again and .good for the sake of keeping the screen clear for long cards and allowing for larger touch targets. Again and Good were chosen to be kept because they are the recommended buttons to use when trying to avoid [ease hell](https://readbroca.com/anki/ease-hell/) for those who are not yet using FSRS.
-- Stats sources in `AmgiApp/project.yml` are hand-enumerated to allow for manual review of new stat pages to ensure they fit on the Apple Watch screen. The current expectation is that text can be small and have awkward wrapping but all included diagrams and graphs must fit horizontally.
 
 ## Branch Strategy
 
@@ -113,4 +107,4 @@ This project follows the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.
 
 ## Questions?
 
-Open a [Discussion](https://github.com/antigluten/amgi/discussions) or file an issue. We are happy to help.
+Open a [Discussion](https://github.com/antigluten/anki-ios/discussions) or file an issue. We are happy to help.

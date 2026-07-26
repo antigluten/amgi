@@ -3,6 +3,7 @@ import AmgiTheme
 
 struct AppearanceSettingsView: View {
     @Bindable var manager: ThemeManager
+    @AppStorage("appFont") private var appFontRaw: String = AppFont.system.rawValue
 
     var body: some View {
         Form {
@@ -19,6 +20,17 @@ struct AppearanceSettingsView: View {
                 .pickerStyle(.segmented)
             }
 
+            Section {
+                Picker("Font", selection: $appFontRaw) {
+                    Text("System").tag(AppFont.system.rawValue)
+                    Text("Serif").tag(AppFont.serif.rawValue)
+                }
+            } header: {
+                Text("App font")
+            } footer: {
+                Text("Changes the font used throughout the app. Card-template content and hero numbers stay in their own typeface.")
+            }
+
             Section("Preview") {
                 PreviewCard()
                     .listRowBackground(Color.clear)
@@ -30,12 +42,17 @@ struct AppearanceSettingsView: View {
 
     @ViewBuilder
     private var themePickerRow: some View {
-        HStack(spacing: AmgiSpacing.md) {
-            ThemeCard(theme: .vivid, label: "Vivid", isSelected: manager.theme == .vivid) {
-                manager.theme = .vivid
-            }
-            ThemeCard(theme: .muted, label: "Muted", isSelected: manager.theme == .muted) {
-                manager.theme = .muted
+        let themes = ThemeRegistry.shared.allThemes()
+        VStack(spacing: AmgiSpacing.md) {
+            ForEach(themes, id: \.id) { data in
+                let id = ThemeID(rawValue: data.id)
+                ThemeCard(
+                    themeID: id,
+                    label: data.displayName,
+                    isSelected: manager.themeID == id
+                ) {
+                    manager.themeID = id
+                }
             }
         }
         .padding(.vertical, AmgiSpacing.xs)
@@ -43,7 +60,7 @@ struct AppearanceSettingsView: View {
 }
 
 private struct ThemeCard: View {
-    let theme: Theme
+    let themeID: ThemeID
     let label: String
     let isSelected: Bool
     let onTap: () -> Void
@@ -51,9 +68,9 @@ private struct ThemeCard: View {
     @Environment(\.colorScheme) private var systemScheme
 
     var body: some View {
-        let preview = Palette.resolve(theme: theme, scheme: systemScheme)
+        let preview = ThemeRegistry.shared.palette(id: themeID, scheme: systemScheme)
         Button(action: onTap) {
-            VStack(spacing: AmgiSpacing.sm) {
+            HStack(spacing: AmgiSpacing.md) {
                 VStack(spacing: 4) {
                     bar(color: preview.background)
                     bar(color: preview.surface)
@@ -61,14 +78,13 @@ private struct ThemeCard: View {
                 }
                 .padding(AmgiSpacing.sm)
                 .background(preview.surface, in: RoundedRectangle(cornerRadius: 8))
+                .frame(width: 80)
 
-                HStack(spacing: 4) {
-                    if isSelected {
-                        Image(systemName: "checkmark.circle.fill")
-                    }
-                    Text(label).bold()
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
                 }
-                .font(.subheadline)
+                Text(label).bold()
+                Spacer()
             }
             .padding(AmgiSpacing.md)
             .frame(maxWidth: .infinity)
@@ -79,8 +95,10 @@ private struct ThemeCard: View {
         }
         .buttonStyle(.plain)
     }
+}
 
-    private func bar(color: Color) -> some View {
+private extension ThemeCard {
+    func bar(color: Color) -> some View {
         RoundedRectangle(cornerRadius: 3).fill(color).frame(height: 10)
     }
 }
@@ -109,8 +127,10 @@ private struct PreviewCard: View {
         .padding(AmgiSpacing.lg)
         .background(palette.surface, in: RoundedRectangle(cornerRadius: 12))
     }
+}
 
-    private func badge(_ text: String, color: Color) -> some View {
+private extension PreviewCard {
+    func badge(_ text: String, color: Color) -> some View {
         Text(text)
             .amgiFont(.captionBold)
             .foregroundStyle(color)
@@ -121,12 +141,12 @@ private struct PreviewCard: View {
 
 #Preview("Vivid Light") {
     NavigationStack { AppearanceSettingsView(manager: ThemeManager(defaults: UserDefaults(suiteName: "preview-vivid-light")!)) }
-        .environment(\.palette, .vividLight)
+        .environment(\.palette, ThemeRegistry.shared.palette(id: .vivid, scheme: .light))
         .preferredColorScheme(.light)
 }
 
 #Preview("Muted Dark") {
     NavigationStack { AppearanceSettingsView(manager: ThemeManager(defaults: UserDefaults(suiteName: "preview-muted-dark")!)) }
-        .environment(\.palette, .mutedDark)
+        .environment(\.palette, ThemeRegistry.shared.palette(id: .muted, scheme: .dark))
         .preferredColorScheme(.dark)
 }
