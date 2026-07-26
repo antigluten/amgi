@@ -9,8 +9,7 @@ build/
 AnkiRust.xcframework/
 anki-bridge-rs/target/
 anki-upstream/target/
-.claude/settings.local.json
-.claude/worktrees/
+.claude/
 .superpowers/
 
 # Local design scratch (mockups, screenshots, JSX prototypes)
