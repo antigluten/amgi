@@ -29,24 +29,30 @@ public enum CardComplexity {
     private static let tagRegex = try! NSRegularExpression(pattern: "</?([a-z][a-z0-9-]*)")
 
     public static func isSimple(renderedFront: String, renderedBack: String, css: String) -> Bool {
+        complexityIssue(renderedFront: renderedFront, renderedBack: renderedBack, css: css) == nil
+    }
+
+    /// Human-readable reason the card fails the simplicity check, or nil
+    /// when it passes. Drives `isSimple` and the reviewer's diagnostics.
+    public static func complexityIssue(renderedFront: String, renderedBack: String, css: String) -> String? {
         let html = (renderedFront + "\n" + renderedBack).lowercased()
 
         for marker in complexMarkers where html.contains(marker) {
-            return false
+            return "marker '\(marker)' in rendered HTML"
         }
 
         let ns = html as NSString
         let matches = tagRegex.matches(in: html, range: NSRange(location: 0, length: ns.length))
         for match in matches {
             let tag = ns.substring(with: match.range(at: 1))
-            if !allowedTags.contains(tag) { return false }
+            if !allowedTags.contains(tag) { return "tag <\(tag)> in rendered HTML" }
         }
 
         let lowerCSS = css.lowercased()
         for marker in complexCSSMarkers where lowerCSS.contains(marker) {
-            return false
+            return "CSS contains '\(marker)'"
         }
 
-        return true
+        return nil
     }
 }
