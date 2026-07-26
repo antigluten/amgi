@@ -52,6 +52,7 @@ private extension DeckCountsView {
 
 // MARK: - Preview
 
+#if DEBUG
 #Preview {
     VStack(alignment: .leading, spacing: 12) {
         DeckCountsView(counts: .sampleHeavy)
@@ -60,3 +61,4 @@ private extension DeckCountsView {
     }
     .padding()
 }
+#endif

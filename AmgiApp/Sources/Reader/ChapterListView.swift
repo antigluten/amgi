@@ -59,8 +59,10 @@ private struct ChapterRow: View {
 
 // MARK: - Preview
 
+#if DEBUG
 #Preview {
     NavigationStack {
         ChapterListView(book: .sample, progress: ReaderProgressCoordinator())
     }
 }
+#endif

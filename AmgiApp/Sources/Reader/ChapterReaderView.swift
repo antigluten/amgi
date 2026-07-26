@@ -572,8 +572,10 @@ private extension ChapterWebView.Coordinator {
 
 // MARK: - Preview
 
+#if DEBUG
 #Preview {
     NavigationStack {
         ChapterReaderView(book: .sample, chapter: .sample, progress: ReaderProgressCoordinator())
     }
 }
+#endif

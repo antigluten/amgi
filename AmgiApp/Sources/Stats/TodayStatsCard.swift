@@ -152,6 +152,7 @@ private extension PeriodStatsCard {
 
 // MARK: - Preview
 
+#if DEBUG
 #Preview("Today") {
     PeriodStatsCard(period: .day, today: .sample, reviews: .sampleYear)
         .padding()
@@ -161,3 +162,4 @@ private extension PeriodStatsCard {
     PeriodStatsCard(period: .month, today: .sample, reviews: .sampleYear)
         .padding()
 }
+#endif

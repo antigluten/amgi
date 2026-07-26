@@ -111,7 +111,9 @@ private extension HourlyChart {
 
 // MARK: - Preview
 
+#if DEBUG
 #Preview {
     HourlyChart(hours: .sample, period: .month)
         .padding()
 }
+#endif

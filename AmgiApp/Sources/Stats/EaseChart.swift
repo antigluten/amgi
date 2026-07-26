@@ -63,7 +63,9 @@ struct EaseChart: View {
 
 // MARK: - Preview
 
+#if DEBUG
 #Preview {
     EaseChart(eases: .sample)
         .padding()
 }
+#endif

@@ -88,7 +88,9 @@ private extension FutureDueChart {
 
 // MARK: - Preview
 
+#if DEBUG
 #Preview {
     FutureDueChart(futureDue: .sample, period: .month)
         .padding()
 }
+#endif

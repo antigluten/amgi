@@ -362,7 +362,9 @@ private extension HeatmapChartOptimized {
 
 // MARK: - Preview
 
+#if DEBUG
 #Preview {
     HeatmapChartOptimized(reviews: .sampleYear)
         .padding()
 }
+#endif
