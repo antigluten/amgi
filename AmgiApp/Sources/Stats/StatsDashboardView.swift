@@ -55,7 +55,7 @@ struct StatsDashboardView: View {
             .padding(AmgiSpacing.lg)
         }
         .scrollContentBackground(.hidden)
-        .background(palette.surface)
+        .background(palette.background)
         .navigationTitle("Statistics")
         .task {
             await loadDecks()

@@ -87,7 +87,7 @@ struct RetrievabilityChart: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .amgiCard(elevated: true)
+        .amgiCard(elevated: false)
     }
 
     private var retrievabilityChart: some View {

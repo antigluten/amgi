@@ -20,10 +20,10 @@ struct AmgiCardModifier: ViewModifier {
             .padding(AmgiSpacing.lg)
             .background(
                 elevated ? palette.surfaceElevated : palette.surface,
-                in: RoundedRectangle(cornerRadius: 12, style: .continuous)
+                in: RoundedRectangle(cornerRadius: 26, style: .continuous)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                RoundedRectangle(cornerRadius: 26, style: .continuous)
                     .stroke(palette.border.opacity(elevated ? 0.32 : 0.18), lineWidth: 1)
             )
             .modifier(ConditionalShadow(enabled: elevated))

@@ -119,33 +119,36 @@ struct HeatmapChartOptimized: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Reviews")
-                    .amgiFont(.sectionHeading)
-                    .foregroundStyle(palette.textPrimary)
+            HStack(alignment: .top) {
+                Text("Heatmap")
+                    .amgiFont(.cardTitle)
+
                 Spacer()
 
                 // Date range picker (when not compact)
-                if !isCompact {
-                    Menu {
-                        ForEach([30, 90, 180, 365, 730], id: \.self) { days in
-                            Button(dateRangeLabel(days)) {
-                                Task {
-                                    await updateDateRange(days)
+                VStack(alignment: .trailing) {
+                    if !isCompact {
+                        Menu {
+                            ForEach([30, 90, 180, 365, 730], id: \.self) { days in
+                                Button(dateRangeLabel(days)) {
+                                    Task {
+                                        await updateDateRange(days)
+                                    }
                                 }
                             }
+                        } label: {
+                            Label(dateRangeLabel(selectedDateRange), systemImage: "line.horizontal.3.decrease.circle")
+                                .amgiFont(.caption)
+                                .foregroundStyle(palette.accent)
                         }
-                    } label: {
-                        Label(dateRangeLabel(selectedDateRange), systemImage: "line.horizontal.3.decrease.circle")
-                            .amgiFont(.caption)
-                            .foregroundStyle(palette.accent)
                     }
-                }
-
-                if currentStreak > 0 {
-                    Label("\(currentStreak)-day streak", systemImage: "flame.fill")
-                        .amgiFont(.captionBold)
-                        .foregroundStyle(.orange)
+                    
+                    if currentStreak > 0 {
+                        Label("\(currentStreak)-day streak", systemImage: "flame.fill")
+                            .amgiFont(.micro)
+                            .foregroundStyle(.orange)
+                            .padding(.top, 4)
+                    }
                 }
             }
 
@@ -187,15 +190,8 @@ struct HeatmapChartOptimized: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(isCompact ? 10 : 16)
-        .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(palette.surfaceElevated)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(palette.border.opacity(0.32), lineWidth: 1)
-        )
-        .shadow(color: Color.black.opacity(0.08), radius: 12, y: 4)
+//            .background(palette.surfaceElevated, in: .rect(corners: .concentric(minimum: 26)))
+        .background(palette.surfaceElevated, in: RoundedRectangle(cornerRadius: 25, style: .continuous))
         .task {
             await initializeLoadingManager()
             await refreshFromManager()

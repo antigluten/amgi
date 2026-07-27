@@ -110,7 +110,7 @@ struct PeriodStatsCard: View {
                 }
             }
         }
-        .amgiCard(elevated: true)
+        .amgiCard(elevated: false)
     }
 
     private func statItem(title: String, value: String, color: Color) -> some View {
