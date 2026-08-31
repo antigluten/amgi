@@ -938,6 +938,33 @@ window.ankiPlatform = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase())
 globalThis.ankiPlatform = window.ankiPlatform;
 
 // ===== IO masks =====
+function amgiParseIOBorder(value, fallback) {
+    var parts = (value || fallback).trim().split(/\s+/);
+    var width = parseFloat(parts.shift());
+    return {
+        width: Number.isFinite(width) ? width : 1,
+        color: parts.join(' ') || '#212121'
+    };
+}
+function amgiResolveIOStyle(canvas) {
+    var style = getComputedStyle(canvas);
+    var activeBorder = amgiParseIOBorder(style.getPropertyValue('--active-shape-border'), '1px #212121');
+    var inactiveBorder = amgiParseIOBorder(style.getPropertyValue('--inactive-shape-border'), '1px #212121');
+    var highlightBorder = amgiParseIOBorder(style.getPropertyValue('--highlight-shape-border'), '1px #ff8e8e');
+    return {
+        inactiveColor: style.getPropertyValue('--inactive-shape-color').trim() || '#ffeba2',
+        activeColor: style.getPropertyValue('--active-shape-color').trim() || '#ff8e8e',
+        highlightColor: style.getPropertyValue('--highlight-shape-color').trim() || '#ff8e8e00',
+        inactiveBorderWidth: inactiveBorder.width,
+        inactiveBorderColor: inactiveBorder.color,
+        activeBorderWidth: activeBorder.width,
+        activeBorderColor: activeBorder.color,
+        highlightBorderWidth: highlightBorder.width,
+        highlightBorderColor: highlightBorder.color
+    };
+}
+window.amgiResolveIOStyle = amgiResolveIOStyle;
+
 function amgiExtractIOShapes(selector) {
     return Array.from(document.querySelectorAll(selector)).map(function(el) {
         var pointsRaw = el.dataset.points;
@@ -956,13 +983,14 @@ function amgiExtractIOShapes(selector) {
             text: el.dataset.text||'',
             scale: parseFloat(el.dataset.scale||'1'),
             fontSize: parseFloat(el.dataset.fontSize||'0'),
-            fill: el.dataset.fill||'#000000',
+            fill: el.dataset.fill||'#ffeba2',
             occludeInactive: (el.dataset.occludeInactive||el.dataset.occludeinactive||'')==='1',
             points: points
         };
     });
 }
-function amgiDrawIOShape(ctx, shape, size, fill, stroke) {
+function amgiDrawIOShape(ctx, shape, size, fill, stroke, strokeWidth) {
+    strokeWidth = Number.isFinite(strokeWidth) ? strokeWidth : 1;
     if (shape.type === 'text') {
         var fontSize = shape.fontSize > 0 ? shape.fontSize * size.height : 40;
         var scale = shape.scale > 0 ? shape.scale : 1;
@@ -987,7 +1015,7 @@ function amgiDrawIOShape(ctx, shape, size, fill, stroke) {
         for (var pi = 1; pi < shape.points.length; pi++)
             ctx.lineTo(shape.points[pi].x * size.width, shape.points[pi].y * size.height);
         ctx.closePath(); ctx.fillStyle = fill; ctx.fill();
-        if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1; ctx.stroke(); }
+        if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = strokeWidth; ctx.stroke(); }
         ctx.restore(); return;
     }
     var left = shape.left * size.width, top = shape.top * size.height;
@@ -996,12 +1024,12 @@ function amgiDrawIOShape(ctx, shape, size, fill, stroke) {
     if (shape.type === 'rect') {
         var sw = shape.width * size.width, sh = shape.height * size.height;
         ctx.fillStyle = fill; ctx.fillRect(0, 0, sw, sh);
-        if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1; ctx.strokeRect(0, 0, sw, sh); }
+        if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = strokeWidth; ctx.strokeRect(0, 0, sw, sh); }
     } else if (shape.type === 'ellipse') {
         var rx = shape.rx * size.width, ry = shape.ry * size.height;
         ctx.beginPath(); ctx.ellipse(rx, ry, rx, ry, 0, 0, 2 * Math.PI);
         ctx.fillStyle = fill; ctx.fill();
-        if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1; ctx.stroke(); }
+        if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = strokeWidth; ctx.stroke(); }
     }
     ctx.restore();
 }
@@ -1085,15 +1113,26 @@ function amgiSetupImageOcclusion() {
                 var masksHidden = !!container._amgiMasksHidden;
                 canvasRef.style.pointerEvents = amgiIsAnswerSide() && !masksHidden ? 'auto' : 'none';
                 canvasRef.style.cursor = amgiIsAnswerSide() && !masksHidden ? 'pointer' : 'default';
-                var style = getComputedStyle(document.documentElement);
-                var inactiveColor = style.getPropertyValue('--inactive-shape-color').trim() || '#ffeba2';
-                var activeColor = style.getPropertyValue('--active-shape-color').trim() || '#ff8e8e';
-                var highlightColor = style.getPropertyValue('--highlight-shape-color').trim() || 'rgba(255,142,142,0)';
-                var border = '#212121';
+                var style = amgiResolveIOStyle(canvasRef);
                 var size = { width: width, height: height };
                 visibleShapes().forEach(function(s) {
-                    var fill = s._cls === 'cloze-inactive' ? inactiveColor : s._cls === 'cloze' ? activeColor : highlightColor;
-                    amgiDrawIOShape(ctx, s, size, fill, border);
+                    var fill;
+                    var borderColor;
+                    var borderWidth;
+                    if (s._cls === 'cloze-inactive') {
+                        fill = s.fill !== '#ffeba2' ? s.fill : style.inactiveColor;
+                        borderColor = style.inactiveBorderColor;
+                        borderWidth = style.inactiveBorderWidth;
+                    } else if (s._cls === 'cloze') {
+                        fill = style.activeColor;
+                        borderColor = style.activeBorderColor;
+                        borderWidth = style.activeBorderWidth;
+                    } else {
+                        fill = style.highlightColor;
+                        borderColor = style.highlightBorderColor;
+                        borderWidth = style.highlightBorderWidth;
+                    }
+                    amgiDrawIOShape(ctx, s, size, fill, borderColor, borderWidth);
                 });
             }
             container._amgiRedrawIO = redraw;
