@@ -45,16 +45,6 @@ extension Request where Response == Void {
         )
     }
 
-    /// Runs a media-only sync (no collection changes).
-    public static func syncMedia(auth: SyncAuth) -> Self {
-        Self(
-            serviceId: ServiceID.sync,
-            methodId: SyncMethod.syncMedia,
-            encode: { try Anki_Sync_SyncAuth(auth).serializedData() },
-            decode: { _ in () }
-        )
-    }
-
     /// Requests cancellation of an active media sync.
     public static var abortMediaSync: Self {
         .empty(

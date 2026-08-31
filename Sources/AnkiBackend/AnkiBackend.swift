@@ -110,13 +110,6 @@ public final class AnkiBackend: Sendable {
         try callVoid(service: Service.collection, method: CollectionMethod.close, request: req)
     }
 
-    /// Runs CheckDatabase through BackendCollectionService (3), delegated method 6.
-    /// `CollectionService` (2) is a collection-only service the FFI never
-    /// dispatches, so addressing it there failed outright.
-    public func checkDatabase() throws {
-        _ = try callRaw(service: Service.collection, method: CollectionOpsMethod.checkDatabase, input: Data())
-    }
-
     // MARK: - Collection Config (typed JSON helpers)
 
     /// Fetches a JSON-encoded value from the Anki collection config under
@@ -296,8 +289,8 @@ public final class AnkiBackend: Sendable {
 
 // MARK: - Internal service constants
 //
-// AnkiBackend's *internal* RPCs (openCollection/closeCollection/checkDatabase
-// and the config-JSON helpers) keep a small private constant table. The
+// AnkiBackend's *internal* RPCs (openCollection/closeCollection and the
+// config-JSON helpers) keep a small private constant table. The
 // canonical, exhaustive service/method ID catalog lives in AnkiProtoBridge.
 // Bridge factories are the only sanctioned way for service code to dispatch
 // RPCs — every other constant exposure was a drift risk.
@@ -311,10 +304,6 @@ extension AnkiBackend {
     fileprivate enum CollectionMethod {
         static let open: UInt32 = 0
         static let close: UInt32 = 1
-    }
-
-    fileprivate enum CollectionOpsMethod {
-        static let checkDatabase: UInt32 = 6
     }
 
     // BackendConfigService (service 9). Verified against the DreamAfar fork.

@@ -90,16 +90,7 @@ private import SwiftProtobuf
         #expect(proto.serverUsn == 7)
     }
 
-    // MARK: - syncMedia
-
-    @Test func syncMedia_dispatches_and_encodes_auth() throws {
-        let envelope: Request<Void> = .syncMedia(auth: auth)
-        #expect(envelope.serviceId == ServiceID.sync)
-        #expect(envelope.methodId == SyncMethod.syncMedia)
-        let proto = try Anki_Sync_SyncAuth(serializedBytes: envelope.body)
-        #expect(proto.hkey == "abc123")
-        #expect(proto.endpoint == "https://sync.example.com")
-    }
+    // MARK: - media sync
 
     @Test func mediaSyncStatus_dispatches_and_decodes_progress() throws {
         var proto = Anki_Sync_MediaSyncStatusResponse()

@@ -113,8 +113,11 @@ enum SearchMethod {
 /// BackendSyncService (1). syncMedia=0, abortMediaSync=1,
 /// mediaSyncStatus=2, syncLogin=3, syncStatus=4, syncCollection=5,
 /// fullUploadOrDownload=6.
+///
+/// No `syncMedia` constant: media syncs are started by
+/// `syncCollection(syncMedia: true)`, which spawns the engine's background
+/// media task before it returns. Nothing needs to kick one off on its own.
 enum SyncMethod {
-    static let syncMedia: UInt32 = 0
     static let abortMediaSync: UInt32 = 1
     static let mediaSyncStatus: UInt32 = 2
     static let syncLogin: UInt32 = 3
