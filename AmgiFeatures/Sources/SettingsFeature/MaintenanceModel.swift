@@ -27,8 +27,12 @@ final class MaintenanceModel {
             // blocking calls the engine has; running it on the main actor
             // froze Settings outright and risked a watchdog kill.
             let service = collectionService
-            try await backendOffload { try service.checkDatabase() }
-            statusMessage = "Database check passed"
+            let problems = try await backendOffload { try service.checkDatabase() }
+            // The engine repairs what it finds and reports it here; saying
+            // only "passed" hid the fact that anything had been changed.
+            statusMessage = problems.isEmpty
+                ? "Database check passed"
+                : "Database check completed:\n" + problems.joined(separator: "\n")
         } catch {
             statusMessage = "Database check error: \(error.localizedDescription)"
         }
