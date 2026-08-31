@@ -117,13 +117,16 @@ package final class SyncCoordinator {
                 // `syncCollection` kicks media off in the background and
                 // returns immediately; without this the sheet claimed
                 // success while media was still downloading.
-                try await self.waitForMediaCompletion(using: client)
-                self.appendLog("Sync complete: \(summary.cardsPushed) pushed, \(summary.cardsPulled) pulled")
-                self.state = .success(summary)
+                let mediaFailure = try await self.awaitMediaCompletion(using: client)
+                // Recorded even when media failed: the collection is
+                // already committed by this point, and letting one bad
+                // media file roll the timestamp back made the next sync
+                // look overdue and the last one look lost.
                 self.lastSyncedAtUnix = Date().timeIntervalSince1970
                 self.needsFullSyncFlag = false
                 self.activeTask = nil
                 self.isCancelling = false
+                self.report(mediaFailure: mediaFailure, otherwise: summary)
                 // Sync can change counts without any review — refresh widgets
                 // or they keep showing the pre-sync collection.
                 await writeWidgetSnapshot()
@@ -168,13 +171,12 @@ package final class SyncCoordinator {
             let client = self.syncClient
             do {
                 try await client.fullSync(direction)
-                try await self.waitForMediaCompletion(using: client)
-                self.appendLog("Full sync complete")
-                self.state = .success(SyncSummary())
+                let mediaFailure = try await self.awaitMediaCompletion(using: client)
                 self.lastSyncedAtUnix = Date().timeIntervalSince1970
                 self.needsFullSyncFlag = false
                 self.activeTask = nil
                 self.isCancelling = false
+                self.report(mediaFailure: mediaFailure, otherwise: SyncSummary())
                 // A full download replaces the whole collection — widgets are
                 // guaranteed stale without a rewrite.
                 await writeWidgetSnapshot()
@@ -266,6 +268,35 @@ package final class SyncCoordinator {
 }
 
 private extension SyncCoordinator {
+    /// Waits out the media sync and *returns* its failure rather than
+    /// throwing it. The collection sync has already committed by the time
+    /// this runs, so a media error is a partial failure, not a failed sync,
+    /// and must not unwind the caller's success bookkeeping. Cancellation
+    /// still propagates — a cancelled sync is not a completed one.
+    /// Returns the failure's description, not the error itself — `any Error`
+    /// is not `Sendable`, and this result crosses into `MainActor.run`.
+    func awaitMediaCompletion(using client: SyncClient) async throws -> String? {
+        do {
+            try await waitForMediaCompletion(using: client)
+            return nil
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            return error.localizedDescription
+        }
+    }
+
+    /// Terminal state for a sync whose collection half succeeded.
+    func report(mediaFailure: String?, otherwise summary: SyncSummary) {
+        guard let mediaFailure else {
+            appendLog("Sync complete: \(summary.cardsPushed) pushed, \(summary.cardsPulled) pulled")
+            state = .success(summary)
+            return
+        }
+        appendLog("Collection synced; media sync failed: \(mediaFailure)", level: .error)
+        state = .error("Collection synced, but media failed: \(mediaFailure)")
+    }
+
     /// Polls the engine until its background media task reports idle,
     /// publishing each progress snapshot as `.syncingMedia`.
     func waitForMediaCompletion(using client: SyncClient) async throws {

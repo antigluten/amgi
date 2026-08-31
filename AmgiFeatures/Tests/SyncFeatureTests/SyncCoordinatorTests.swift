@@ -38,8 +38,11 @@ struct SyncCoordinatorTests {
         }
     }
 
+    /// A media failure is a *partial* failure: the collection half already
+    /// committed, so the timestamp has to survive it. Reporting `.error` and
+    /// rolling the timestamp back made the sync look entirely lost.
     @Test @MainActor
-    func mediaSyncErrorTransitionsWithoutRecordingSuccess() async throws {
+    func mediaSyncErrorSurfacesButKeepsTheCollectionSyncRecord() async throws {
         try await withDependencies {
             $0.appStorageKeyFormatWarningEnabled = false
             $0.syncClient.sync = { SyncSummary() }
@@ -47,6 +50,10 @@ struct SyncCoordinatorTests {
                 throw SyncError(message: "Media checksum mismatch")
             }
         } operation: {
+            // `lastSyncedAtUnix` is process-wide UserDefaults that other
+            // tests also write, so pin it to a timestamp rather than testing
+            // for non-nil.
+            let before = Date()
             let coordinator = SyncCoordinator(mediaPollInterval: .milliseconds(1))
             await coordinator.startSync()
             try await Task.sleep(for: .milliseconds(50))
@@ -55,6 +62,7 @@ struct SyncCoordinatorTests {
                 return
             }
             #expect(message.contains("Media checksum mismatch"))
+            #expect((coordinator.lastSuccessfulSync ?? .distantPast) >= before)
         }
     }
 

@@ -27,6 +27,8 @@ enum SyncSheetState {
         case .syncing(let message):
             self = .syncing(message)
         case .syncingMedia(let total, let downloaded):
+            // Same wording as the toast — the two used to disagree, the sheet
+            // showing a flat "Syncing media…" while the toast counted files.
             self = .syncing("Syncing media \(downloaded)/\(total)")
         case .success(let summary):
             self = .success(summary)
