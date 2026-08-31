@@ -19,6 +19,25 @@ enum SyncSheetState {
     case error(String)
     case needsFullSync
     case noServer
+
+    init(_ state: SyncCoordinator.SyncState) {
+        switch state {
+        case .idle:
+            self = .idle
+        case .syncing(let message):
+            self = .syncing(message)
+        case .syncingMedia(let total, let downloaded):
+            self = .syncing("Syncing media \(downloaded)/\(total)")
+        case .success(let summary):
+            self = .success(summary)
+        case .error(let message):
+            self = .error(message)
+        case .needsFullSync:
+            self = .needsFullSync
+        case .noServer:
+            self = .noServer
+        }
+    }
 }
 
 /// Container: owns the sync dependencies, the in-flight `syncState`, and the
@@ -73,6 +92,14 @@ struct SyncSheet: View {
                 Task { await startSync() }
             }
         }
+        .onChange(of: coordinator.state, initial: true) { _, state in
+            syncState = SyncSheetState(state)
+        }
+        // The sheet used to catch `.authFailed` itself; now that the
+        // coordinator owns the sync it reports the same thing this way.
+        .onChange(of: coordinator.requiresLogin, initial: true) { _, needsLogin in
+            if needsLogin { showLogin = true }
+        }
         .task { await startSync() }
     }
 
@@ -99,21 +126,10 @@ private extension SyncSheet {
             return
         }
 
-        syncState = .syncing("Syncing...")
-
-        do {
-            let summary = try await syncClient.sync()
-            syncState = .syncing("Syncing media...")
-            try? await syncClient.syncMedia()
-            syncState = .success(summary)
-        } catch let syncError as SyncError where syncError == .authFailed {
-            showLogin = true
-            syncState = .idle
-        } catch let syncError as SyncError where syncError == .fullSyncRequired {
-            syncState = .needsFullSync
-        } catch {
-            syncState = .error(error.localizedDescription)
-        }
+        // The coordinator owns the state machine — the sheet mirrors it via
+        // `onChange`. Running a second sync here raced the coordinator's and
+        // hid media progress behind a sheet-local guess.
+        await coordinator.startSync()
     }
 
     func logout() {
@@ -124,15 +140,7 @@ private extension SyncSheet {
     }
 
     func fullSync(_ direction: SyncDirection) async {
-        syncState = .syncing(
-            direction == .download ? "Downloading collection..." : "Uploading collection..."
-        )
-        do {
-            try await syncClient.fullSync(direction)
-            syncState = .success(SyncSummary())
-        } catch {
-            syncState = .error(error.localizedDescription)
-        }
+        await coordinator.confirmFullSync(direction: direction)
     }
 
     func mergeFullSync() async {

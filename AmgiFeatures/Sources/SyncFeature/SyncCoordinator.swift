@@ -13,11 +13,11 @@ package final class SyncCoordinator {
     enum SyncState: Sendable, Equatable {
         case idle
         case syncing(message: String)
-        // No `.syncingMedia`: it was declared, rendered by SyncToastController,
-        // and never assigned by anything — a progress state that could not
-        // occur, which read as "media progress is shown" to anyone auditing
-        // this. `syncClient.syncMedia()` reports no counts, so bring it back
-        // only when the engine can supply real ones.
+        /// Assigned only from `waitForMediaCompletion`, off the engine's own
+        /// `MediaSyncStatus` counters. It was previously declared and never
+        /// assigned — a progress state that could not occur — and was
+        /// removed for that reason; the engine can supply real counts now.
+        case syncingMedia(total: Int, downloaded: Int)
         case success(SyncSummary)
         case error(String)
         case needsFullSync(SyncFullSyncRequirement)
@@ -40,6 +40,9 @@ package final class SyncCoordinator {
     @ObservationIgnored private var isCancelling = false
     @ObservationIgnored private var backgroundTaskID: UIBackgroundTaskIdentifier = .invalid
     @ObservationIgnored private var lifecycleObservers: [any NSObjectProtocol] = []
+    /// How often `waitForMediaCompletion` re-reads the engine's media
+    /// status. Injectable so tests don't pay the real interval.
+    @ObservationIgnored private let mediaPollInterval: Duration
 
     // Profile-scoped persisted state. Computed per access — the key embeds
     // the active profile id, and this coordinator is a singleton that
@@ -61,7 +64,8 @@ package final class SyncCoordinator {
     /// touches it first, so the old `MainActor.assumeIsolated` would abort
     /// the process on first resolution from a detached task or background
     /// test. Observer registration is main-actor work, so it hops.
-    package nonisolated init() {
+    package nonisolated init(mediaPollInterval: Duration = .milliseconds(250)) {
+        self.mediaPollInterval = mediaPollInterval
         Task { @MainActor [self] in registerLifecycleObservers() }
     }
 
@@ -110,6 +114,10 @@ package final class SyncCoordinator {
             let client = self.syncClient
             do {
                 let summary = try await client.sync()
+                // `syncCollection` kicks media off in the background and
+                // returns immediately; without this the sheet claimed
+                // success while media was still downloading.
+                try await self.waitForMediaCompletion(using: client)
                 self.appendLog("Sync complete: \(summary.cardsPushed) pushed, \(summary.cardsPulled) pulled")
                 self.state = .success(summary)
                 self.lastSyncedAtUnix = Date().timeIntervalSince1970
@@ -160,6 +168,7 @@ package final class SyncCoordinator {
             let client = self.syncClient
             do {
                 try await client.fullSync(direction)
+                try await self.waitForMediaCompletion(using: client)
                 self.appendLog("Full sync complete")
                 self.state = .success(SyncSummary())
                 self.lastSyncedAtUnix = Date().timeIntervalSince1970
@@ -222,6 +231,22 @@ package final class SyncCoordinator {
         activeTask?.cancel()
         if case .syncing = state {
             appendLog("Cancelling — finishing the current step in the background", level: .warning)
+        } else if case .syncingMedia = state {
+            // Media sync *is* abortable in the engine, unlike the collection
+            // RPC — so cancelling it actually stops work rather than just
+            // hiding it.
+            appendLog("Media sync cancelled", level: .warning)
+            let client = syncClient
+            Task { [weak self] in
+                do {
+                    try await client.abortMediaSync()
+                } catch {
+                    self?.appendLog(
+                        "Failed to abort media sync: \(error.localizedDescription)",
+                        level: .error
+                    )
+                }
+            }
         }
     }
 
@@ -241,6 +266,20 @@ package final class SyncCoordinator {
 }
 
 private extension SyncCoordinator {
+    /// Polls the engine until its background media task reports idle,
+    /// publishing each progress snapshot as `.syncingMedia`.
+    func waitForMediaCompletion(using client: SyncClient) async throws {
+        while true {
+            try Task.checkCancellation()
+            let status = try await client.mediaSyncStatus()
+            guard status.active else { return }
+
+            let progress = status.progress ?? MediaSyncProgress(checked: 0, added: 0, removed: 0)
+            state = .syncingMedia(total: progress.checked, downloaded: progress.added)
+            try await Task.sleep(for: mediaPollInterval)
+        }
+    }
+
     func registerLifecycleObservers() {
         let center = NotificationCenter.default
         lifecycleObservers.append(center.addObserver(
@@ -273,7 +312,7 @@ private extension SyncCoordinator {
     func beginBackgroundExecutionIfNeeded() {
         let isSyncing: Bool
         switch state {
-        case .syncing: isSyncing = true
+        case .syncing, .syncingMedia: isSyncing = true
         default: isSyncing = false
         }
         guard isSyncing, backgroundTaskID == .invalid else { return }
