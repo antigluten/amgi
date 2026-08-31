@@ -6,7 +6,7 @@ import DependenciesMacros
 
 @DependencyClient
 public struct CollectionService: Sendable {
-    public var checkDatabase: @Sendable () throws -> Void
+    public var checkDatabase: @Sendable () throws -> [String]
     public var undoLast: @Sendable () throws -> Void
 }
 
@@ -15,7 +15,7 @@ extension CollectionService: DependencyKey {
         @Dependency(\.ankiBackend) var backend
         return Self(
             checkDatabase: {
-                try backend.checkDatabase()
+                try backend.invoke(.checkDatabase)
             },
             undoLast: {
                 try backend.invoke(.undoLastAction)

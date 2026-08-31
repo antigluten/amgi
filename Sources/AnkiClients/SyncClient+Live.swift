@@ -77,12 +77,8 @@ extension SyncClient: DependencyKey {
                 let endpoint = KeychainHelper.loadCurrentEndpoint() ?? KeychainHelper.loadEndpoint() ?? ""
                 try await syncService.fullSync(endpoint, hostKey, direction)
             },
-            syncMedia: {
-                let hostKey = KeychainHelper.loadHostKey() ?? ""
-                guard !hostKey.isEmpty else { throw SyncError.authFailed }
-                let endpoint = KeychainHelper.loadCurrentEndpoint() ?? KeychainHelper.loadEndpoint() ?? ""
-                try await syncService.syncMedia(endpoint, hostKey)
-            },
+            mediaSyncStatus: { try await syncService.mediaSyncStatus() },
+            abortMediaSync: { try await syncService.abortMediaSync() },
             merge: { progress in
                 let hostKey = KeychainHelper.loadHostKey() ?? ""
                 guard !hostKey.isEmpty else { throw SyncError.authFailed }
