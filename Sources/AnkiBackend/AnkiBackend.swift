@@ -110,9 +110,11 @@ public final class AnkiBackend: Sendable {
         try callVoid(service: Service.collection, method: CollectionMethod.close, request: req)
     }
 
-    /// Runs CheckDatabase to repair any inconsistencies (CollectionService 2, method 0).
+    /// Runs CheckDatabase through BackendCollectionService (3), delegated method 6.
+    /// `CollectionService` (2) is a collection-only service the FFI never
+    /// dispatches, so addressing it there failed outright.
     public func checkDatabase() throws {
-        _ = try callRaw(service: Service.collectionOps, method: CollectionOpsMethod.checkDatabase, input: Data())
+        _ = try callRaw(service: Service.collection, method: CollectionOpsMethod.checkDatabase, input: Data())
     }
 
     // MARK: - Collection Config (typed JSON helpers)
@@ -302,7 +304,6 @@ public final class AnkiBackend: Sendable {
 
 extension AnkiBackend {
     fileprivate enum Service {
-        static let collectionOps: UInt32 = 2
         static let collection: UInt32 = 3
         static let config: UInt32 = 9
     }
@@ -313,7 +314,7 @@ extension AnkiBackend {
     }
 
     fileprivate enum CollectionOpsMethod {
-        static let checkDatabase: UInt32 = 0
+        static let checkDatabase: UInt32 = 6
     }
 
     // BackendConfigService (service 9). Verified against the DreamAfar fork.

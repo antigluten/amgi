@@ -54,6 +54,37 @@ extension Request where Response == Void {
             decode: { _ in () }
         )
     }
+
+    /// Requests cancellation of an active media sync.
+    public static var abortMediaSync: Self {
+        .empty(
+            serviceId: ServiceID.sync,
+            methodId: SyncMethod.abortMediaSync,
+            decode: { _ in () }
+        )
+    }
+}
+
+extension Request where Response == MediaSyncStatus {
+    /// Returns active media-sync state and its latest progress snapshot.
+    /// A completed background task may surface its terminal error here.
+    public static var mediaSyncStatus: Self {
+        .empty(
+            serviceId: ServiceID.sync,
+            methodId: SyncMethod.mediaSyncStatus,
+            decode: { bytes in
+                let proto = try Anki_Sync_MediaSyncStatusResponse(serializedBytes: bytes)
+                let progress = proto.hasProgress
+                    ? MediaSyncProgress(
+                        checked: Int(proto.progress.checked) ?? 0,
+                        added: Int(proto.progress.added) ?? 0,
+                        removed: Int(proto.progress.removed) ?? 0
+                    )
+                    : nil
+                return MediaSyncStatus(active: proto.active, progress: progress)
+            }
+        )
+    }
 }
 
 // MARK: - syncLogin

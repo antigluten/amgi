@@ -101,6 +101,33 @@ private import SwiftProtobuf
         #expect(proto.endpoint == "https://sync.example.com")
     }
 
+    @Test func mediaSyncStatus_dispatches_and_decodes_progress() throws {
+        var proto = Anki_Sync_MediaSyncStatusResponse()
+        proto.active = true
+        proto.progress.checked = "12"
+        proto.progress.added = "7"
+        proto.progress.removed = "2"
+
+        let request: Request<MediaSyncStatus> = .mediaSyncStatus
+        #expect(request.serviceId == ServiceID.sync)
+        #expect(request.methodId == SyncMethod.mediaSyncStatus)
+        #expect(try request.body.isEmpty)
+        #expect(
+            try request.decode(proto.serializedData())
+                == MediaSyncStatus(
+                    active: true,
+                    progress: MediaSyncProgress(checked: 12, added: 7, removed: 2)
+                )
+        )
+    }
+
+    @Test func abortMediaSync_dispatches_with_empty_body() throws {
+        let request: Request<Void> = .abortMediaSync
+        #expect(request.serviceId == ServiceID.sync)
+        #expect(request.methodId == SyncMethod.abortMediaSync)
+        #expect(try request.body.isEmpty)
+    }
+
     // MARK: - syncLogin
 
     @Test func syncLogin_dispatches_and_encodes_credentials() throws {

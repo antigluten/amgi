@@ -4,7 +4,6 @@ import Foundation
 /// AnkiProtoBridge — service code never sees raw `UInt32` constants.
 enum ServiceID {
     static let sync: UInt32 = 1
-    static let collectionOps: UInt32 = 2
     static let collection: UInt32 = 3
     static let cards: UInt32 = 5
     static let decks: UInt32 = 7
@@ -22,11 +21,14 @@ enum ServiceID {
     static let tags: UInt32 = 45
 }
 
-/// BackendCollectionService (2) — undo/redo and integrity helpers.
+/// Collection methods delegated onto BackendCollectionService (3).
+/// `CollectionService` (2) is a collection-only service the FFI never
+/// dispatches, so these must be addressed through the backend service: its
+/// six backend-native methods precede the delegated ones.
 enum CollectionOpsMethod {
-    static let checkDatabase: UInt32 = 0
-    static let getUndoStatus: UInt32 = 1
-    static let undo: UInt32 = 2
+    static let checkDatabase: UInt32 = 6
+    static let getUndoStatus: UInt32 = 7
+    static let undo: UInt32 = 8
 }
 
 /// BackendCardsService (5).
@@ -108,10 +110,13 @@ enum SearchMethod {
     static let searchNotes: UInt32 = 2
 }
 
-/// BackendSyncService (1). syncMedia=0, syncLogin=3, syncStatus=4,
-/// syncCollection=5, fullUploadOrDownload=6.
+/// BackendSyncService (1). syncMedia=0, abortMediaSync=1,
+/// mediaSyncStatus=2, syncLogin=3, syncStatus=4, syncCollection=5,
+/// fullUploadOrDownload=6.
 enum SyncMethod {
     static let syncMedia: UInt32 = 0
+    static let abortMediaSync: UInt32 = 1
+    static let mediaSyncStatus: UInt32 = 2
     static let syncLogin: UInt32 = 3
     static let syncStatus: UInt32 = 4
     static let syncCollection: UInt32 = 5

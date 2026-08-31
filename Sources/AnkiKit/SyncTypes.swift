@@ -39,6 +39,28 @@ public struct SyncSummary: Sendable, Equatable {
     }
 }
 
+public struct MediaSyncProgress: Sendable, Equatable {
+    public let checked: Int
+    public let added: Int
+    public let removed: Int
+
+    public init(checked: Int, added: Int, removed: Int) {
+        self.checked = checked
+        self.added = added
+        self.removed = removed
+    }
+}
+
+public struct MediaSyncStatus: Sendable, Equatable {
+    public let active: Bool
+    public let progress: MediaSyncProgress?
+
+    public init(active: Bool, progress: MediaSyncProgress?) {
+        self.active = active
+        self.progress = progress
+    }
+}
+
 /// Backend sync credentials. `endpoint` may be rewritten by the
 /// backend mid-sync (server redirect) — call sites must use the
 /// auth returned in `SyncCollectionResult` for subsequent RPCs.
