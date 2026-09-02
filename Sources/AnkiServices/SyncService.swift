@@ -88,14 +88,14 @@ extension SyncService: DependencyKey {
             },
             mediaSyncStatus: {
                 do {
-                    return try backend.invoke(.mediaSyncStatus)
+                    return try await backend.invoke(.mediaSyncStatus)
                 } catch let error as BackendError {
                     throw SyncError(message: error.message)
                 }
             },
             abortMediaSync: {
                 do {
-                    try backend.invoke(.abortMediaSync)
+                    try await backend.invoke(.abortMediaSync)
                 } catch let error as BackendError {
                     throw SyncError(message: error.message)
                 }
