@@ -39,12 +39,15 @@ public struct SyncSummary: Sendable, Equatable {
     }
 }
 
+/// The engine's own progress lines, already localized ("Checked: 12",
+/// "Added: 7\u{2191} 0\u{2193}"). They are display strings, not counts — the
+/// proto carries no numbers to parse back out.
 public struct MediaSyncProgress: Sendable, Equatable {
-    public let checked: Int
-    public let added: Int
-    public let removed: Int
+    public let checked: String
+    public let added: String
+    public let removed: String
 
-    public init(checked: Int, added: Int, removed: Int) {
+    public init(checked: String, added: String, removed: String) {
         self.checked = checked
         self.added = added
         self.removed = removed

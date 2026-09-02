@@ -13,11 +13,11 @@ package final class SyncCoordinator {
     enum SyncState: Sendable, Equatable {
         case idle
         case syncing(message: String)
-        /// Assigned only from `waitForMediaCompletion`, off the engine's own
-        /// `MediaSyncStatus` counters. It was previously declared and never
+        /// Assigned only from `waitForMediaCompletion`, carrying the engine's
+        /// own localized progress line. It was previously declared and never
         /// assigned — a progress state that could not occur — and was
-        /// removed for that reason; the engine can supply real counts now.
-        case syncingMedia(total: Int, downloaded: Int)
+        /// removed for that reason; the engine can supply real progress now.
+        case syncingMedia(String)
         case success(SyncSummary)
         case error(String)
         case needsFullSync(SyncFullSyncRequirement)
@@ -297,6 +297,13 @@ private extension SyncCoordinator {
         state = .error("Collection synced, but media failed: \(mediaFailure)")
     }
 
+    /// The engine localizes its own progress lines, so they are shown as-is.
+    /// Nil until the background task publishes its first snapshot.
+    static func mediaProgressMessage(_ progress: MediaSyncProgress?) -> String {
+        guard let progress else { return "Syncing media\u{2026}" }
+        return "\(progress.checked) \u{00B7} \(progress.added)"
+    }
+
     /// Polls the engine until its background media task reports idle,
     /// publishing each progress snapshot as `.syncingMedia`.
     func waitForMediaCompletion(using client: SyncClient) async throws {
@@ -305,8 +312,7 @@ private extension SyncCoordinator {
             let status = try await client.mediaSyncStatus()
             guard status.active else { return }
 
-            let progress = status.progress ?? MediaSyncProgress(checked: 0, added: 0, removed: 0)
-            state = .syncingMedia(total: progress.checked, downloaded: progress.added)
+            state = .syncingMedia(Self.mediaProgressMessage(status.progress))
             try await Task.sleep(for: mediaPollInterval)
         }
     }

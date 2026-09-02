@@ -66,9 +66,9 @@ extension Request where Response == MediaSyncStatus {
                 let proto = try Anki_Sync_MediaSyncStatusResponse(serializedBytes: bytes)
                 let progress = proto.hasProgress
                     ? MediaSyncProgress(
-                        checked: Int(proto.progress.checked) ?? 0,
-                        added: Int(proto.progress.added) ?? 0,
-                        removed: Int(proto.progress.removed) ?? 0
+                        checked: proto.progress.checked,
+                        added: proto.progress.added,
+                        removed: proto.progress.removed
                     )
                     : nil
                 return MediaSyncStatus(active: proto.active, progress: progress)

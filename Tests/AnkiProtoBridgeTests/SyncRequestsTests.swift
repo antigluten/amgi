@@ -95,9 +95,10 @@ private import SwiftProtobuf
     @Test func mediaSyncStatus_dispatches_and_decodes_progress() throws {
         var proto = Anki_Sync_MediaSyncStatusResponse()
         proto.active = true
-        proto.progress.checked = "12"
-        proto.progress.added = "7"
-        proto.progress.removed = "2"
+        // The engine sends localized display lines, not numbers.
+        proto.progress.checked = "Checked: 12"
+        proto.progress.added = "Added: 7\u{2191} 0\u{2193}"
+        proto.progress.removed = "Removed: 2\u{2191} 0\u{2193}"
 
         let request: Request<MediaSyncStatus> = .mediaSyncStatus
         #expect(request.serviceId == ServiceID.sync)
@@ -107,7 +108,11 @@ private import SwiftProtobuf
             try request.decode(proto.serializedData())
                 == MediaSyncStatus(
                     active: true,
-                    progress: MediaSyncProgress(checked: 12, added: 7, removed: 2)
+                    progress: MediaSyncProgress(
+                        checked: "Checked: 12",
+                        added: "Added: 7\u{2191} 0\u{2193}",
+                        removed: "Removed: 2\u{2191} 0\u{2193}"
+                    )
                 )
         )
     }

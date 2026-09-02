@@ -15,7 +15,11 @@ struct SyncCoordinatorTests {
         let statuses = MediaStatusQueue([
             MediaSyncStatus(
                 active: true,
-                progress: MediaSyncProgress(checked: 12, added: 7, removed: 0)
+                progress: MediaSyncProgress(
+                    checked: "Checked: 12",
+                    added: "Added: 7\u{2191} 0\u{2193}",
+                    removed: "Removed: 0\u{2191} 0\u{2193}"
+                )
             ),
             MediaSyncStatus(active: false, progress: nil),
         ])
@@ -27,7 +31,7 @@ struct SyncCoordinatorTests {
             let coordinator = SyncCoordinator(mediaPollInterval: .milliseconds(20))
             await coordinator.startSync()
             try await Task.sleep(for: .milliseconds(10))
-            #expect(coordinator.state == .syncingMedia(total: 12, downloaded: 7))
+            #expect(coordinator.state == .syncingMedia("Checked: 12 \u{00B7} Added: 7\u{2191} 0\u{2193}"))
             try await Task.sleep(for: .milliseconds(60))
             guard case .success(let resultSummary) = coordinator.state else {
                 Issue.record("expected .success, got \(coordinator.state)")
@@ -75,7 +79,11 @@ struct SyncCoordinatorTests {
             $0.syncClient.mediaSyncStatus = {
                 MediaSyncStatus(
                     active: true,
-                    progress: MediaSyncProgress(checked: 4, added: 1, removed: 0)
+                    progress: MediaSyncProgress(
+                        checked: "Checked: 4",
+                        added: "Added: 1\u{2191} 0\u{2193}",
+                        removed: "Removed: 0\u{2191} 0\u{2193}"
+                    )
                 )
             }
             $0.syncClient.abortMediaSync = { await abortRecorder.set() }
@@ -83,7 +91,7 @@ struct SyncCoordinatorTests {
             let coordinator = SyncCoordinator(mediaPollInterval: .seconds(1))
             await coordinator.startSync()
             try await Task.sleep(for: .milliseconds(50))
-            #expect(coordinator.state == .syncingMedia(total: 4, downloaded: 1))
+            #expect(coordinator.state == .syncingMedia("Checked: 4 \u{00B7} Added: 1\u{2191} 0\u{2193}"))
             coordinator.cancel()
             try await Task.sleep(for: .milliseconds(50))
             #expect(coordinator.state == .idle)
