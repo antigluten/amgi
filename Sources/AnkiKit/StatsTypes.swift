@@ -1,12 +1,9 @@
-public struct DayCount: Sendable, Equatable {
-    public let date: String
-    public let count: Int
-
-    public init(date: String, count: Int) {
-        self.date = date
-        self.count = count
-    }
-}
+//
+//  StatsTypes.swift
+//  AnkiKit
+//
+//  Created by Vladimir Gusev on 27.03.2026.
+//
 
 public struct TodayStats: Sendable, Equatable {
     public var reviewed: Int
@@ -26,20 +23,6 @@ public struct TodayStats: Sendable, Equatable {
         self.learnCards = learnCards
         self.reviewCards = reviewCards
         self.againCount = againCount
-    }
-}
-
-public struct CardStateBreakdown: Sendable, Equatable {
-    public var newCount: Int
-    public var learningCount: Int
-    public var reviewCount: Int
-    public var suspendedCount: Int
-
-    public init(newCount: Int = 0, learningCount: Int = 0, reviewCount: Int = 0, suspendedCount: Int = 0) {
-        self.newCount = newCount
-        self.learningCount = learningCount
-        self.reviewCount = reviewCount
-        self.suspendedCount = suspendedCount
     }
 }
 

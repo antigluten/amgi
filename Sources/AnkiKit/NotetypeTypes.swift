@@ -1,9 +1,16 @@
+//
+//  NotetypeTypes.swift
+//  AnkiKit
+//
+//  Created by Vladimir Gusev on 01.04.2026.
+//
+
 public struct NotetypeInfo: Sendable {
-    public let id: Int64
+    public let id: NotetypeID
     public let name: String
     public let fieldNames: [String]
 
-    package init(id: Int64, name: String, fieldNames: [String]) {
+    package init(id: NotetypeID, name: String, fieldNames: [String]) {
         self.id = id
         self.name = name
         self.fieldNames = fieldNames
@@ -26,13 +33,15 @@ public struct NotetypeFieldInfo: Sendable {
 }
 
 public struct NewNoteTemplate: Sendable {
-    public let notetypeId: Int64
+    public let notetypeId: NotetypeID
     public var fields: [String]
     public var tags: [String]
+    public let guid: String
 
-    package init(notetypeId: Int64, fields: [String]) {
+    package init(notetypeId: NotetypeID, fields: [String], guid: String = "") {
         self.notetypeId = notetypeId
         self.fields = fields
         self.tags = []
+        self.guid = guid
     }
 }

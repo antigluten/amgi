@@ -10,7 +10,8 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Swift-6.2-F05138?logo=swift&logoColor=white" alt="Swift 6.2">
-  <img src="https://img.shields.io/badge/iOS-17%2B-000000?logo=apple&logoColor=white" alt="iOS 17+">
+  <img src="https://img.shields.io/badge/iOS-18%2B-000000?logo=apple&logoColor=white" alt="iOS 18+">
+  <img src="https://img.shields.io/badge/watchOS-11%2B-000000?logo=apple&logoColor=white" alt="watchOS 11+">
   <img src="https://img.shields.io/badge/Rust-FFI-DEA584?logo=rust&logoColor=white" alt="Rust FFI">
   <img src="https://img.shields.io/badge/License-AGPL--3.0-blue" alt="AGPL-3.0">
 </p>
@@ -19,116 +20,99 @@
 
 Amgi wraps the official [ankitects/anki](https://github.com/ankitects/anki) Rust backend via C FFI, giving you a native SwiftUI experience backed by the same battle-tested engine that powers Anki Desktop and AnkiDroid. Sync your decks with any compatible sync server (including self-hosted), study with FSRS scheduling, and keep your review history in perfect sync across all your devices.
 
-## Features
-
-- **Sync Server Support** -- login, sync, full upload/download, bidirectional review sync with any compatible server
-- **FSRS Scheduling** -- powered by the official Rust FSRS engine, not a reimplementation
-- **Card Rendering** -- Rust template engine renders cards exactly like desktop clients
-- **Deck Browser** -- hierarchical deck tree with recursive `DisclosureGroup` expand/collapse, new/learn/review count badges on every node
-- **Study Session** -- answer cards with Again/Hard/Good/Easy; next-interval labels shown above each button
-- **Note Browser** -- search notes across all decks, deck filter chips (top-level decks auto-include subdecks), lazy-load results (50 per page)
-- **Note Editor** -- edit note fields with accurate field names from the Rust notetype RPC
-- **Statistics Dashboard** -- full-year review heatmap (auto-scrolls to today), streak counter, retention rate, forecast chart, card count breakdown
-- **Reader** -- read books from your collection chapter-by-chapter; tap any word for a Yomitan-compatible dictionary lookup; chained popups, search history, per-dictionary collapsed memory; TTS speak button with language-aware voice selection; bundled Korean fonts (Sarasa Mono K, Nanum Myeongjo, Nanum Gothic); vertical writing mode and Latin/CJK auto-detection; cross-device progress sync
-- **Multi-Profile Accounts** -- isolated Anki collections per profile, fast picker in the decks toolbar, per-profile sync credentials and review history
-- **Image Occlusion** -- create and edit notes with rectangle, ellipse, polygon, and text masks; reviewer parity with upstream Anki
-- **Multi-Theme System** -- Vivid + Muted palettes, Light/Dark/Follow-System; persists across app and home-screen widgets via App Group
-- **Per-Deck Study Options** -- FSRS weights editor with optimizer + simulator, preset CRUD, Easy Days, bury rules, timer, auto-advance
-- **Offline-First** -- everything works offline; sync when you have a connection
-- **Swift 6.2 Strict Concurrency** -- zero data races, fully actor-isolated, `Sendable` throughout
-
 ## Screenshots
 
 <p align="center">
-    <img src="assets/decks.png" width="300" alt="Decks Screen" />
-    <img src="assets/stats.png" width="300" alt="Stats Screen" />
+  <img src="assets/decks.png" width="19%" alt="Library — due-today hero card with streak, and the deck tree with per-state counts" />
+  <img src="assets/study.png" width="19%" alt="Study — today's queue across every deck, with an up-next list" />
+  <img src="assets/review.png" width="19%" alt="Review — a card showing the next interval on every rating button" />
+  <img src="assets/browse.png" width="19%" alt="Browse — Anki search with deck and tag filter chips" />
+  <img src="assets/stats.png" width="19%" alt="Statistics — streak, last-month summary, and the future-due forecast" />
 </p>
 
-## Architecture
+<!--
+  Gallery slots. Drop a PNG at the path and add it to the row above.
+  assets/reader.png       — EPUB reader with a dictionary lookup popup
+  assets/themes.png       — Appearance settings / theme picker
+  assets/deck-options.png — Per-deck options with the FSRS simulator
+  assets/widget.png       — Home-screen widget
+  assets/watch.png        — watchOS companion app
+-->
+
+## Highlights
+
+- **The real FSRS engine** — scheduling, templates, search and sync are the upstream Rust code, not a reimplementation.
+- **Offline-first** — everything works without a connection; sync when you have one.
+- **Any sync server** — AnkiWeb or self-hosted, with a safe merge when collections diverge.
+- **Built-in EPUB reader** — with offline Yomitan-compatible dictionary lookup, so cards come from what you are reading.
+- **Beyond the phone** — home-screen widgets, an Apple Watch app that runs the engine on-device, and Shortcuts/Siri actions.
+- **Image occlusion, card templates, FSRS simulator** — the power-user surface, not a cut-down mobile client.
+
+The full list is in **[Documentation/FEATURES.md](Documentation/FEATURES.md)**.
+
+## Quick start
+
+Install the toolchain first — Xcode 26, Rust (stable *and* nightly, for the
+watchOS slice), protoc and xcodegen.
+**[Documentation/BUILDING.md](Documentation/BUILDING.md)** has the exact
+commands, plus how to run the tests.
+
+```bash
+git clone --recursive https://github.com/antigluten/amgi.git
+cd amgi
+
+./scripts/build-xcframework.sh            # Rust engine → xcframework
+./scripts/generate-protos.sh              # protobuf → Swift types
+cd AmgiApp && xcodegen generate && cd ..  # project is generated, not checked in
+open AmgiApp/AmgiApp.xcodeproj
+```
+
+## Documentation
+
+| Document | What it covers |
+|---|---|
+| [Features](Documentation/FEATURES.md) | Everything the app does today |
+| [Building](Documentation/BUILDING.md) | Requirements, setup, build, tests, the watch target |
+| [Architecture](Documentation/ARCHITECTURE.md) | Layers, package layout, design decisions |
+| [Rust bridge](Documentation/RUST_BRIDGE.md) | The C FFI seam, protobuf dispatch, the build pipeline |
+| [Data flows](Documentation/DATA_FLOWS.md) | Sync, study, browse, stats and widgets, RPC by RPC |
+| [Code style](Documentation/CODE_STYLE.md) | Swift conventions and the module boundaries that matter |
+| [Contributing](CONTRIBUTING.md) | Issues, branches, commits, pull requests |
+| [Changelog](CHANGELOG.md) | What changed in each release |
+
+`AGENTS.md` at the repo root routes a coding agent to a per-package guide
+(`AmgiFeatures/AGENTS.md`, `Sources/AGENTS.md`, …) plus the reference notes in
+`agents/`.
+
+## Architecture in one diagram
 
 ```
-SwiftUI Views
+SwiftUI feature modules (AmgiFeatures)
     |
-@DependencyClient structs
+@DependencyClient structs (AnkiClients)
+    |
+Service facades (AnkiServices)
+    |
+Typed protobuf requests (AnkiProtoBridge)
     |
 AnkiBackend (Swift wrapper)
     |
 C FFI (4 functions)
     |
-Rust static library (ankitects/anki)
+Rust dynamic framework (ankitects/anki rslib)
 ```
 
-Swift owns the UI. Rust owns everything else -- database, sync, FSRS scheduling, card templates, statistics.
+Swift owns the UI. Rust owns everything else — database, sync, FSRS scheduling, card templates, search, import/export, statistics.
 
-For the full architecture walkthrough, see **[ARCHITECTURE.md](ARCHITECTURE.md)**.
-
-## Requirements
-
-| Tool | Version |
-|------|---------|
-| iOS | 17.0+ |
-| Xcode | 16.0+ |
-| Rust | 1.92+ (via rustup) |
-| protoc | 3.0+ |
-| protoc-gen-swift | latest |
-| xcodegen | latest |
-
-## Getting Started
-
-### 1. Clone with submodules
-
-```bash
-git clone --recursive https://github.com/antigluten/amgi.git
-cd amgi
-```
-
-### 2. Install dependencies
-
-```bash
-# Rust toolchain
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-rustup target add aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios
-
-# Protobuf compiler and Swift plugin
-brew install protobuf swift-protobuf
-
-# Xcode project generator
-brew install xcodegen
-```
-
-### 3. Build the Rust XCFramework
-
-```bash
-./scripts/build-xcframework.sh
-```
-
-This cross-compiles the Rust bridge for iOS device and simulator, then packages both into `AnkiRust.xcframework`. The first build takes several minutes; incremental builds are fast.
-
-### 4. Generate Swift protobuf types
-
-```bash
-./scripts/generate-protos.sh
-```
-
-### 5. Open in Xcode
-
-```bash
-cd AmgiApp && xcodegen generate && cd ..
-open AmgiApp/AmgiApp.xcodeproj
-```
-
-### 6. Build and Run
-
-Select an iOS Simulator or device, then build and run (Cmd+R).
-
-## Tech Stack
+## Tech stack
 
 - **UI**: SwiftUI with strict concurrency (Swift 6.2, language mode v6)
 - **Dependency Injection**: [swift-dependencies](https://github.com/pointfreeco/swift-dependencies) (`@DependencyClient` struct-closure pattern)
 - **Backend**: [ankitects/anki](https://github.com/ankitects/anki) Rust crate via C FFI
-- **Serialization**: Protocol Buffers (24 .proto service definitions)
+- **Serialization**: Protocol Buffers (25 .proto service definitions)
 - **Database**: SQLite (owned by Rust backend)
-- **Build**: SPM for library modules, xcodegen for the app target
+- **EPUB**: vendored [EPUBKit](Libraries/EPUBKit) (MIT), with `hoshidicts` for Yomitan dictionaries
+- **Build**: SPM for library and feature modules, xcodegen for the app, widget, and watch targets
 
 ## License
 

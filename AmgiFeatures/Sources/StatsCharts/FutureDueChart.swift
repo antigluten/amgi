@@ -1,0 +1,122 @@
+//
+//  FutureDueChart.swift
+//  StatsCharts
+//
+//  Created by Vladimir Gusev on 30.03.2026.
+//
+
+public import SwiftUI
+import Theme
+import UI
+import Charts
+public import AnkiKit
+
+public struct FutureDueChart: View {
+    let futureDue: FutureDueSeries
+    let period: StatsPeriod
+
+    public init(futureDue: FutureDueSeries, period: StatsPeriod) {
+        self.futureDue = futureDue
+        self.period = period
+    }
+
+    @Environment(\.palette) private var palette
+    @State private var includeBacklog = false
+
+    private var filteredData: [(day: Int, count: Int)] {
+        let maxDay = period.days
+        return futureDue.futureDue
+            .compactMap { (dayOffset, count) -> (day: Int, count: Int)? in
+                let day = Int(dayOffset)
+                if !includeBacklog && day < 0 { return nil }
+                guard day < maxDay else { return nil }
+                return (day: day, count: Int(count))
+            }
+            .sorted(by: { $0.day < $1.day })
+    }
+
+    private func totalDue(_ data: [(day: Int, count: Int)]) -> Int {
+        data.reduce(0) { $0 + $1.count }
+    }
+
+    private func dueTomorrow(_ data: [(day: Int, count: Int)]) -> Int {
+        data.first(where: { $0.day == 1 })?.count ?? 0
+    }
+
+    private func avgPerDay(_ data: [(day: Int, count: Int)]) -> Double {
+        let positiveDays = data.filter { $0.day >= 0 }
+        guard !positiveDays.isEmpty else { return 0 }
+        let maxOffset = positiveDays.map(\.day).max() ?? 1
+        return Double(positiveDays.reduce(0) { $0 + $1.count }) / Double(max(maxOffset, 1))
+    }
+
+    public var body: some View {
+        let filteredData = self.filteredData
+        AmgiCard(
+            background: .surface,
+            shadow: palette.shadows.sm,
+            cornerRadius: AmgiRadius.inset,
+            contentInsets: EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
+        ) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Future Due").amgiFont(.bodyEmphasis)
+
+                if filteredData.isEmpty {
+                    Text("No cards due").foregroundStyle(palette.textSecondary).frame(height: 180)
+                } else {
+                    Chart(filteredData, id: \.day) { item in
+                        BarMark(
+                            x: .value("Day", item.day),
+                            y: .value("Cards", item.count)
+                        )
+                        .foregroundStyle(item.day < 0 ? palette.danger.gradient : palette.accent.gradient)
+                        .accessibilityLabel(
+                            item.day < 0
+                                ? "\(ChartSpeech.day(item.day)), overdue"
+                                : ChartSpeech.day(item.day)
+                        )
+                        .accessibilityValue(ChartSpeech.count(item.count, "card"))
+                    }
+                    .chartXAxis {
+                        AxisMarks(values: .automatic(desiredCount: 5)) { _ in
+                            AxisGridLine()
+                            AxisValueLabel()
+                        }
+                    }
+                    .frame(height: 180)
+                }
+
+                if futureDue.haveBacklog {
+                    Toggle("Include Backlog", isOn: $includeBacklog)
+                        .amgiFont(.caption)
+                }
+
+                HStack(spacing: 16) {
+                    footerItem("Total", value: "\(totalDue(filteredData))")
+                    footerItem("Avg/day", value: String(format: "%.1f", avgPerDay(filteredData)))
+                    footerItem("Tomorrow", value: "\(dueTomorrow(filteredData))")
+                    footerItem("Daily Load", value: "\(futureDue.dailyLoad)")
+                }
+            }
+        }
+    }
+}
+
+private extension FutureDueChart {
+    func footerItem(_ label: String, value: String) -> some View {
+        VStack(spacing: AmgiSpacing.xxs) {
+            Text(value).amgiFont(.captionBold).monospacedDigit()
+            Text(label).amgiFont(.micro).foregroundStyle(palette.textSecondary)
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
+
+// MARK: - Preview
+
+#if DEBUG
+#Preview {
+    FutureDueChart(futureDue: .sample, period: .month)
+        .padding()
+}
+#endif

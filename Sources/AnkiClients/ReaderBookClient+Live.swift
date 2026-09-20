@@ -1,7 +1,13 @@
-import AmgiReader
+//
+//  ReaderBookClient+Live.swift
+//  AnkiClients
+//
+//  Created by Vladimir Gusev on 05.05.2026.
+//
+
+import Reader
 import AnkiBackend
 import AnkiKit
-import AnkiProto
 public import Dependencies
 import DependenciesMacros
 import Foundation
@@ -23,16 +29,16 @@ extension ReaderBookClient: DependencyKey {
 
         return Self(
             loadBooks: { configuration in
-                let notes = try fetchNotes(for: configuration, noteClient: noteClient)
-                return try buildBooks(
+                let notes = try await fetchNotes(for: configuration, noteClient: noteClient)
+                return try await buildBooks(
                     from: notes,
                     configuration: configuration,
                     notetypesClient: notetypesClient
                 )
             },
             loadBook: { bookID, configuration in
-                let notes = try fetchNotes(for: configuration, noteClient: noteClient)
-                return try buildBooks(
+                let notes = try await fetchNotes(for: configuration, noteClient: noteClient)
+                return try await buildBooks(
                     from: notes,
                     configuration: configuration,
                     notetypesClient: notetypesClient
@@ -48,14 +54,14 @@ extension ReaderBookClient: DependencyKey {
 private func fetchNotes(
     for configuration: ReaderLibraryConfiguration,
     noteClient: NoteClient
-) throws -> [NoteRecord] {
+) async throws -> [NoteRecord] {
     let query = try validatedDeckQuery(configuration.deckName)
     // searchAll (not search) — we read `note.flds` immediately to build
     // chapters, so the lazy 50-real-rest-placeholder behavior of
     // `search` would silently drop chapter content past the first 50.
-    var notes = try noteClient.searchAll(query, nil)
+    var notes = try await noteClient.searchAll(query, nil)
     if let notetypeID = configuration.notetypeID {
-        notes = notes.filter { $0.mid == notetypeID }
+        notes = notes.filter { $0.mid.rawValue == notetypeID }
     }
     return notes
 }
@@ -65,10 +71,7 @@ private func validatedDeckQuery(_ deckName: String) throws -> String {
     guard !trimmed.isEmpty else {
         throw BackendError(kind: .invalidInput, message: "Reader deck name can't be empty")
     }
-    let escaped = trimmed
-        .replacingOccurrences(of: "\\", with: "\\\\")
-        .replacingOccurrences(of: "\"", with: "\\\"")
-    return "deck:\"\(escaped)\""
+    return DeckSearch.term(trimmed)
 }
 
 // MARK: - Book assembly
@@ -77,8 +80,8 @@ private func buildBooks(
     from notes: [NoteRecord],
     configuration: ReaderLibraryConfiguration,
     notetypesClient: NotetypesClient
-) throws -> [ReaderBook] {
-    var fieldNamesByNotetypeID: [Int64: [String]] = [:]
+) async throws -> [ReaderBook] {
+    var fieldNamesByNotetypeID: [NotetypeID: [String]] = [:]
     var chaptersByBookID: [String: [ReaderChapter]] = [:]
     var coverImagePathByBookID: [String: String] = [:]
 
@@ -88,13 +91,13 @@ private func buildBooks(
         // crash the whole batch with a "no such notetype" backend
         // error. The eager fetcher above shouldn't produce these, but
         // belt-and-braces.
-        guard note.mid != 0 else { continue }
+        guard note.mid.rawValue != 0 else { continue }
 
         let fieldNames: [String]
         if let cached = fieldNamesByNotetypeID[note.mid] {
             fieldNames = cached
         } else {
-            let notetype = try notetypesClient.getRaw(note.mid)
+            let notetype = try await notetypesClient.get(note.mid)
             let names = notetype.fields.map(\.name)
             fieldNamesByNotetypeID[note.mid] = names
             fieldNames = names
@@ -152,7 +155,7 @@ private func makeChapterRecord(
 
     return ReaderChapterRecord(
         chapter: ReaderChapter(
-            id: note.id,
+            id: note.id.rawValue,
             bookID: bookID,
             bookTitle: bookTitle,
             title: chapterTitle,

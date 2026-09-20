@@ -1,3 +1,10 @@
+//
+//  CardAssetPathTests.swift
+//  AmgiCardWebTests
+//
+//  Created by Vladimir Gusev on 16.04.2026.
+//
+
 import Testing
 import Foundation
 @testable import AmgiCardWeb

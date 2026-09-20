@@ -324,6 +324,14 @@ public nonisolated struct Anki_Collection_Progress: Sendable {
     set {value = .computeMemory(newValue)}
   }
 
+  public var downloadUpdate: Anki_Collection_DownloadUpdateProgress {
+    get {
+      if case .downloadUpdate(let v)? = value {return v}
+      return Anki_Collection_DownloadUpdateProgress()
+    }
+    set {value = .downloadUpdate(newValue)}
+  }
+
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
   public nonisolated enum OneOf_Value: Equatable, Sendable {
@@ -338,6 +346,7 @@ public nonisolated struct Anki_Collection_Progress: Sendable {
     case computeParams(Anki_Collection_ComputeParamsProgress)
     case computeRetention(Anki_Collection_ComputeRetentionProgress)
     case computeMemory(Anki_Collection_ComputeMemoryProgress)
+    case downloadUpdate(Anki_Collection_DownloadUpdateProgress)
 
   }
 
@@ -455,6 +464,32 @@ public nonisolated struct Anki_Collection_CreateBackupRequest: Sendable {
   public var force: Bool = false
 
   public var waitForCompletion: Bool = false
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+}
+
+public nonisolated struct Anki_Collection_GetCustomColoursResponse: Sendable {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  public var colours: [String] = []
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+}
+
+public nonisolated struct Anki_Collection_DownloadUpdateProgress: Sendable {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  public var downloadedBytes: UInt32 = 0
+
+  public var totalBytes: UInt32 = 0
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -902,7 +937,7 @@ nonisolated extension Anki_Collection_OpChangesAfterUndo: SwiftProtobuf.Message,
 
 nonisolated extension Anki_Collection_Progress: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".Progress"
-  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}none\0\u{3}media_sync\0\u{3}media_check\0\u{3}full_sync\0\u{3}normal_sync\0\u{3}database_check\0\u{1}importing\0\u{1}exporting\0\u{3}compute_params\0\u{3}compute_retention\0\u{3}compute_memory\0")
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}none\0\u{3}media_sync\0\u{3}media_check\0\u{3}full_sync\0\u{3}normal_sync\0\u{3}database_check\0\u{1}importing\0\u{1}exporting\0\u{3}compute_params\0\u{3}compute_retention\0\u{3}compute_memory\0\u{3}download_update\0")
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -1038,6 +1073,19 @@ nonisolated extension Anki_Collection_Progress: SwiftProtobuf.Message, SwiftProt
           self.value = .computeMemory(v)
         }
       }()
+      case 12: try {
+        var v: Anki_Collection_DownloadUpdateProgress?
+        var hadOneofValue = false
+        if let current = self.value {
+          hadOneofValue = true
+          if case .downloadUpdate(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.value = .downloadUpdate(v)
+        }
+      }()
       default: break
       }
     }
@@ -1092,6 +1140,10 @@ nonisolated extension Anki_Collection_Progress: SwiftProtobuf.Message, SwiftProt
     case .computeMemory?: try {
       guard case .computeMemory(let v)? = self.value else { preconditionFailure() }
       try visitor.visitSingularMessageField(value: v, fieldNumber: 11)
+    }()
+    case .downloadUpdate?: try {
+      guard case .downloadUpdate(let v)? = self.value else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 12)
     }()
     case nil: break
     }
@@ -1380,6 +1432,71 @@ nonisolated extension Anki_Collection_CreateBackupRequest: SwiftProtobuf.Message
     if lhs.backupFolder != rhs.backupFolder {return false}
     if lhs.force != rhs.force {return false}
     if lhs.waitForCompletion != rhs.waitForCompletion {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+nonisolated extension Anki_Collection_GetCustomColoursResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".GetCustomColoursResponse"
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}colours\0")
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeRepeatedStringField(value: &self.colours) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if !self.colours.isEmpty {
+      try visitor.visitRepeatedStringField(value: self.colours, fieldNumber: 1)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Anki_Collection_GetCustomColoursResponse, rhs: Anki_Collection_GetCustomColoursResponse) -> Bool {
+    if lhs.colours != rhs.colours {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+nonisolated extension Anki_Collection_DownloadUpdateProgress: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".DownloadUpdateProgress"
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}downloaded_bytes\0\u{3}total_bytes\0")
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularUInt32Field(value: &self.downloadedBytes) }()
+      case 2: try { try decoder.decodeSingularUInt32Field(value: &self.totalBytes) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if self.downloadedBytes != 0 {
+      try visitor.visitSingularUInt32Field(value: self.downloadedBytes, fieldNumber: 1)
+    }
+    if self.totalBytes != 0 {
+      try visitor.visitSingularUInt32Field(value: self.totalBytes, fieldNumber: 2)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Anki_Collection_DownloadUpdateProgress, rhs: Anki_Collection_DownloadUpdateProgress) -> Bool {
+    if lhs.downloadedBytes != rhs.downloadedBytes {return false}
+    if lhs.totalBytes != rhs.totalBytes {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

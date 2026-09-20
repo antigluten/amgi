@@ -1,3 +1,10 @@
+//
+//  Rating.swift
+//  AnkiKit
+//
+//  Created by Vladimir Gusev on 27.03.2026.
+//
+
 public enum Rating: Int16, Sendable, CaseIterable, Comparable {
     case again = 1
     case hard = 2

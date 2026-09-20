@@ -5,14 +5,36 @@ edition = "2021"
 publish = false
 
 [lib]
-crate-type = ["staticlib"]
+crate-type = ["cdylib"]
+
+[lints.clippy]
+unwrap_used = "warn"
 
 [dependencies]
 anki = { path = "../anki-upstream/rslib", features = ["rustls"] }
 anki_proto = { path = "../anki-upstream/rslib/proto" }
 prost = "0.13"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
 
 [profile.release]
 opt-level = "s"     # Optimize for size (iOS binary)
 lto = true
-strip = true
+# Do NOT re-enable stripping here. ld64 lays LC_SYMTAB's string pool out
+# 8-byte aligned; every strip pass rewrites it without re-aligning, and ld then
+# refuses the framework in *every* consumer with
+#
+#   ld: mis-aligned LINKEDIT string pool, fileOffset=0x...
+#
+# Measured 2026-09-13 on the simulator slice, which is the one that lands badly:
+#   strip = true         stroff 18218732  (mod 8 = 4)  ← the offset in that error
+#   strip = "debuginfo"  stroff 18537180  (mod 8 = 4)
+#   strip = false        stroff 19354104  (mod 8 = 0)
+# `strip -x` after the fact misaligns an aligned binary the same way, and
+# re-`codesign` does not move the offset, so there is no post-pass that buys the
+# ~3.5 MB back. It went unnoticed until adding serde to this crate shifted the
+# layout; whether a stripped build lands on a legal offset is luck.
+#
+# build-xcframework.sh asserts the alignment after packaging, so a regression
+# fails that script rather than every consumer's link.
+strip = false

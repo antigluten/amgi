@@ -1,3 +1,10 @@
+//
+//  SessionStats.swift
+//  AnkiKit
+//
+//  Created by Vladimir Gusev on 30.03.2026.
+//
+
 public struct SessionStats: Sendable, Equatable {
     public var reviewed: Int
     public var correct: Int

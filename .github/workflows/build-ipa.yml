@@ -58,6 +58,14 @@ jobs:
           toolchain: "1.95"
           targets: aarch64-apple-ios,aarch64-apple-ios-sim,x86_64-apple-ios
 
+      # ── 4.5. Install nightly + rust-src (watchOS build-std) ───────
+      # build-xcframework.sh builds the tier-3 watchOS sim slice with
+      # `cargo +nightly -Z build-std`, which compiles std from source and
+      # therefore needs rust-src. Plain `rustup toolchain install` (not the
+      # dtolnay action) so stable 1.95 above stays the default toolchain.
+      - name: Install Rust nightly with rust-src
+        run: rustup toolchain install nightly --profile minimal --component rust-src
+
       # ── 5. Cache Rust build artifacts ─────────────────────────────
       - name: Cache Rust build artifacts
         uses: actions/cache@v4
@@ -244,6 +252,52 @@ jobs:
       # Runs only when the workflow was triggered by a 'v*' tag push.
       # workflow_dispatch runs still upload the artifact above but do not
       # create a release.
+
+      # The release notes are the annotated tag's own message, so what a reader
+      # sees on the release page is what the tagger wrote — not a template that
+      # only explains sideloading. The install/verify boilerplate is appended
+      # below it. An unannotated tag yields an empty message here, and the
+      # release falls back to the boilerplate alone.
+      - name: Compose release notes from the tag
+        if: github.ref_type == 'tag'
+        run: |
+          # actions/checkout fetches a tag push as `+<sha>:refs/tags/<name>`,
+          # which lands a *lightweight* tag — the annotated object never reaches
+          # the runner, and %(contents) falls back to the commit message. Re-fetch
+          # the tag itself so the tagger's text is what gets published.
+          git fetch --force origin "refs/tags/${GITHUB_REF_NAME}:refs/tags/${GITHUB_REF_NAME}"
+          git tag -l --format='%(contents)' "$GITHUB_REF_NAME" > /tmp/release-notes.md
+          cat >> /tmp/release-notes.md <<NOTES
+
+          ---
+
+          Unsigned iOS IPA build. Sign locally with [AltStore](https://altstore.io/) or [Sideloadly](https://sideloadly.io/) using your own Apple ID.
+
+          ### Install
+
+          1. Download \`AmgiApp-unsigned.ipa\` from this release.
+          2. Open AltStore or Sideloadly on your computer.
+          3. Drag the IPA into the tool and sign with your Apple ID.
+          4. Install on your device.
+
+          Free Apple IDs: install lasts 7 days. Paid Apple Developer Program: 1 year.
+
+          ### Verify
+
+          \`\`\`
+          shasum -a 256 AmgiApp-unsigned.ipa
+          \`\`\`
+
+          Expected SHA256: \`${IPA_SHA256}\`
+
+          ### License
+
+          Amgi is licensed under [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html).
+          It includes the [ankitects/anki](https://github.com/ankitects/anki) Rust backend (also AGPL-3.0).
+
+          Source: https://github.com/${GITHUB_REPOSITORY}/tree/${GITHUB_SHA}
+          NOTES
+
       - name: Publish GitHub Release
         if: github.ref_type == 'tag' && env.IPA_SHA256 != '' && env.IPA_SHA256 != 'N/A'
         uses: softprops/action-gh-release@v2
@@ -252,31 +306,4 @@ jobs:
           draft: false
           prerelease: ${{ contains(github.ref_name, '-rc') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-alpha') }}
           files: /tmp/AmgiApp-unsigned.ipa
-          body: |
-            ## Amgi ${{ github.ref_name }}
-
-            Unsigned iOS IPA build. Sign locally with [AltStore](https://altstore.io/) or [Sideloadly](https://sideloadly.io/) using your own Apple ID.
-
-            ### Install
-
-            1. Download `AmgiApp-unsigned.ipa` from this release.
-            2. Open AltStore or Sideloadly on your computer.
-            3. Drag the IPA into the tool and sign with your Apple ID.
-            4. Install on your device.
-
-            Free Apple IDs: install lasts 7 days. Paid Apple Developer Program: 1 year.
-
-            ### Verify
-
-            ```
-            shasum -a 256 AmgiApp-unsigned.ipa
-            ```
-
-            Expected SHA256: `${{ env.IPA_SHA256 }}`
-
-            ### License
-
-            Amgi is licensed under [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html).
-            It includes the [ankitects/anki](https://github.com/ankitects/anki) Rust backend (also AGPL-3.0).
-
-            Source: https://github.com/${{ github.repository }}/tree/${{ github.sha }}
+          body_path: /tmp/release-notes.md

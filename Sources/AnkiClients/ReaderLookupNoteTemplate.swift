@@ -1,4 +1,11 @@
-public import AmgiReader
+//
+//  ReaderLookupNoteTemplate.swift
+//  AnkiClients
+//
+//  Created by Vladimir Gusev on 05.05.2026.
+//
+
+public import Reader
 public import AnkiKit
 import Foundation
 
@@ -136,16 +143,6 @@ public struct ReaderLookupNoteTemplate: Codable, Hashable, Sendable {
         self.rulesField = rulesField
     }
 
-    public var hasMappedFields: Bool {
-        let fields = [
-            termField, readingField, sentenceField,
-            definition1Field, definition2Field, definition3Field,
-            dictionariesField, frequencyField, pitchField,
-            deinflectionField, matchedField, sourceField, rulesField
-        ]
-        return fields.contains { !$0.isEmpty }
-    }
-
     enum CodingKeys: String, CodingKey {
         case deckID, notetypeID
         case termField, readingField, sentenceField
@@ -154,7 +151,7 @@ public struct ReaderLookupNoteTemplate: Codable, Hashable, Sendable {
         case deinflectionField, matchedField, sourceField, rulesField
     }
 
-    public init(from decoder: Decoder) throws {
+    public init(from decoder: any Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         deckID = try c.decodeIfPresent(Int64.self, forKey: .deckID)
         notetypeID = try c.decodeIfPresent(Int64.self, forKey: .notetypeID)

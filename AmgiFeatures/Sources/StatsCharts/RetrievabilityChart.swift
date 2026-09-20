@@ -1,0 +1,210 @@
+//
+//  RetrievabilityChart.swift
+//  StatsCharts
+//
+//  Created by Vladimir Gusev on 28.04.2026.
+//
+
+public import SwiftUI
+import Charts
+import Theme
+import UI
+public import AnkiKit
+
+public struct RetrievabilityChart: View {
+    let retrievability: RetrievabilityBuckets
+
+    public init(retrievability: RetrievabilityBuckets) {
+        self.retrievability = retrievability
+    }
+
+    @Environment(\.palette) private var palette
+    @State private var selectedX: Double?
+
+    private struct Bucket: Identifiable {
+        let start: Int
+        let end: Int
+        let count: Int
+
+        var id: Int { start }
+        var center: Double { Double(start + end) / 2.0 }
+        var label: String { "\(start)-\(end)%" }
+    }
+
+    private var chartData: [Bucket] {
+        guard !retrievability.retrievability.isEmpty else { return [] }
+
+        return stride(from: 0, through: 95, by: 5).map { start in
+            let end = start == 95 ? 100 : start + 4
+            let count = retrievability.retrievability.reduce(into: 0) { partial, entry in
+                let value = min(Int(entry.key), 100)
+                if value >= start && value <= end {
+                    partial += Int(entry.value)
+                }
+            }
+            return Bucket(start: start, end: end, count: count)
+        }
+    }
+
+    private var averageLabel: String {
+        guard retrievability.average > 0 else { return "---" }
+        return String(format: "%.0f%%", retrievability.average)
+    }
+
+    private var selectedBucket: Bucket? {
+        guard let selectedX else { return nil }
+        return chartData.min { abs($0.center - selectedX) < abs($1.center - selectedX) }
+    }
+
+    private var maxCount: Int { chartData.map(\.count).max() ?? 0 }
+    private var yAxisMax: Double {
+        StatsDualAxisSupport.niceUpperBound(Double(maxCount))
+    }
+    private var yAxisTicks: [StatsAxisTick] {
+        StatsDualAxisSupport.ticks(
+            domainMax: yAxisMax,
+            plottedMax: yAxisMax,
+            formatter: { value in StatsDualAxisSupport.formatCount(value) }
+        )
+    }
+    private var yAxisValues: [Double] {
+        yAxisTicks.map(\.plottedValue)
+    }
+
+    public var body: some View {
+        AmgiCard(
+            background: .surfaceElevated,
+            shadow: palette.shadows.md,
+            cornerRadius: AmgiRadius.inset,
+            contentInsets: EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
+        ) {
+            retrievabilityCardContent
+        }
+    }
+
+    private var retrievabilityCardContent: some View {
+        VStack(alignment: .leading, spacing: AmgiSpacing.sm) {
+            HStack {
+                VStack(alignment: .leading, spacing: AmgiSpacing.xxs) {
+                    Text("Retrievability")
+                        .amgiFont(.sectionHeading)
+                        .foregroundStyle(palette.textPrimary)
+
+                    Text("Distribution of card recall probability")
+                        .amgiFont(.caption)
+                        .foregroundStyle(palette.textSecondary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                Text("Avg: \(averageLabel)")
+                    .amgiFont(.captionBold)
+                    .foregroundStyle(palette.textSecondary)
+            }
+
+            if chartData.allSatisfy({ $0.count == 0 }) {
+                Text("No retrievability data yet")
+                    .amgiFont(.body)
+                    .foregroundStyle(palette.textSecondary)
+                    .frame(maxWidth: .infinity, minHeight: 180)
+            } else {
+                retrievabilityChart
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var retrievabilityChart: some View {
+        baseRetrievabilityChart
+            .chartXScale(domain: 0...100)
+            .chartXSelection(value: $selectedX)
+            .chartXAxis {
+                retrievabilityChartXAxis()
+            }
+            .chartYScale(domain: 0...yAxisMax)
+            .chartYAxis {
+                retrievabilityChartYAxis()
+            }
+            .frame(height: 180)
+    }
+
+    private var baseRetrievabilityChart: some View {
+        Chart(chartData) { item in
+            retrievabilityBarMark(for: item)
+            selectedRetrievabilityRuleMark(for: item)
+        }
+    }
+}
+
+private extension RetrievabilityChart {
+    @ChartContentBuilder
+    private func retrievabilityBarMark(for item: Bucket) -> some ChartContent {
+        BarMark(
+            x: .value("Retrievability", item.center),
+            y: .value("Cards", item.count)
+        )
+        .foregroundStyle(bucketColor(for: item.center).gradient)
+        .accessibilityLabel(item.label)
+        .accessibilityValue(ChartSpeech.count(item.count, "card"))
+    }
+
+    @ChartContentBuilder
+    private func selectedRetrievabilityRuleMark(for item: Bucket) -> some ChartContent {
+        if let selectedBucket,
+           selectedBucket.start == item.start {
+            let countLabel = "Cards"
+            RuleMark(x: .value("Selected Retrievability", selectedBucket.center))
+                .foregroundStyle(palette.accent.opacity(0.35))
+                .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
+                .annotation(position: .top, spacing: 0, overflowResolution: .init(x: .fit, y: .fit)) {
+                    StatsChartTooltip(
+                        title: selectedBucket.label,
+                        lines: ["\(countLabel): \(selectedBucket.count)"]
+                    )
+                }
+        }
+    }
+
+    @AxisContentBuilder
+    func retrievabilityChartXAxis() -> some AxisContent {
+        AxisMarks(values: [0, 25, 50, 75, 100]) { value in
+            AxisGridLine()
+                .foregroundStyle(palette.textTertiary.opacity(0.25))
+            if let v = value.as(Int.self) {
+                AxisValueLabel {
+                    Text("\(v)%")
+                        .amgiFont(.micro)
+                        .foregroundStyle(palette.textSecondary)
+                }
+            }
+        }
+    }
+
+    @AxisContentBuilder
+    func retrievabilityChartYAxis() -> some AxisContent {
+        AxisMarks(position: .leading, values: yAxisValues) { value in
+            AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
+                .foregroundStyle(palette.textTertiary.opacity(0.25))
+
+            AxisValueLabel {
+                if let raw = value.as(Double.self) {
+                    Text(StatsDualAxisSupport.label(for: raw, in: yAxisTicks))
+                        .amgiFont(.micro)
+                        .foregroundStyle(palette.textSecondary)
+                }
+            }
+        }
+    }
+
+    func bucketColor(for center: Double) -> Color {
+        let progress = min(max(center / 100.0, 0), 1)
+        return Color(hue: 0.02 + (0.30 * progress), saturation: 0.72, brightness: 0.9)
+    }
+}
+
+// MARK: - Preview
+
+#if DEBUG
+#Preview {
+    RetrievabilityChart(retrievability: .sample)
+        .padding()
+}
+#endif

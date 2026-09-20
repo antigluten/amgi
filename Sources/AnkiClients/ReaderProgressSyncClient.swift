@@ -1,4 +1,11 @@
-public import AmgiReader
+//
+//  ReaderProgressSyncClient.swift
+//  AnkiClients
+//
+//  Created by Vladimir Gusev on 05.05.2026.
+//
+
+public import Reader
 public import Dependencies
 import DependenciesMacros
 
@@ -7,26 +14,21 @@ import DependenciesMacros
 /// into the Anki collection config so the same progress reaches other
 /// devices via Anki sync.
 ///
-/// Lives in `AnkiClients` rather than `AmgiReader` because the bridge
-/// to Anki's `setConfigJSONValue` is an Anki concern. `AmgiReader` itself
+/// Lives in `AnkiClients` rather than `Reader` because the bridge
+/// to Anki's `setConfigJSONValue` is an Anki concern. `Reader` itself
 /// stays Anki-free.
 @DependencyClient
 public struct ReaderProgressSyncClient: Sendable {
     /// Returns the merged manifest of book → progress entries that the
     /// Anki collection currently holds, or nil if nothing has been
     /// synced yet from any device.
-    public var loadManifest: @Sendable () throws -> ReaderProgressManifest?
+    public var loadManifest: @Sendable () async throws -> ReaderProgressManifest?
     /// Pushes a single book's progress into the collection config and
     /// returns the resulting manifest. Idempotent on identical writes.
     public var pushBookProgress: @Sendable (
         _ bookID: String,
         _ payload: ReaderSavedProgress
-    ) throws -> ReaderProgressManifest
-    /// Replaces the manifest wholesale — used by tests and by the
-    /// optional "reset reader sync" maintenance action.
-    public var saveManifest: @Sendable (_ manifest: ReaderProgressManifest) throws -> Void
-    /// Removes the reader-progress key from the Anki collection config.
-    public var clearManifest: @Sendable () throws -> Void
+    ) async throws -> ReaderProgressManifest
 }
 
 extension ReaderProgressSyncClient: TestDependencyKey {

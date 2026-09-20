@@ -1,3 +1,10 @@
+//
+//  CardHTMLRewriter.swift
+//  AmgiCardWeb
+//
+//  Created by Vladimir Gusev on 16.04.2026.
+//
+
 import Foundation
 
 public enum CardHTMLRewriter {
@@ -20,6 +27,7 @@ public enum CardHTMLRewriter {
         let regex = try! NSRegularExpression(pattern: pattern)
         let ns = body as NSString
         var result = ""
+        result.reserveCapacity(ns.length)
         var cursor = 0
         regex.enumerateMatches(in: body, range: NSRange(location: 0, length: ns.length)) { match, _, _ in
             guard let match else { return }
@@ -47,6 +55,7 @@ public enum CardHTMLRewriter {
         let regex = try! NSRegularExpression(pattern: pattern, options: [.caseInsensitive])
         let ns = body as NSString
         var result = ""
+        result.reserveCapacity(ns.length)
         var cursor = 0
         regex.enumerateMatches(in: body, range: NSRange(location: 0, length: ns.length)) { match, _, _ in
             guard let match else { return }

@@ -1,0 +1,31 @@
+//
+//  NotetypeFieldManagerView.swift
+//  TemplatesFeature
+//
+//  Created by Vladimir Gusev on 14.05.2026.
+//
+
+import SwiftUI
+import Theme
+import AnkiKit
+
+/// Placeholder view for the notetype field manager.
+/// Full implementation (add/remove/reorder fields) is a future port.
+struct NotetypeFieldManagerView: View {
+    let notetypeId: NotetypeID
+    let preferredName: String
+    var onSaved: (@Sendable () async -> Void)? = nil
+
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.palette) private var palette
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Text("Field editor coming soon.")
+                .foregroundStyle(palette.textSecondary)
+            Button("Done") { dismiss() }
+        }
+        .navigationTitle(preferredName)
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}

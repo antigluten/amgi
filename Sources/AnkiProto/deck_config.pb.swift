@@ -554,6 +554,7 @@ public nonisolated struct Anki_DeckConfig_DeckConfig: Sendable {
       case easeDescending // = 6
       case retrievabilityAscending // = 7
       case retrievabilityDescending // = 11
+      case relativeOverdueness // = 12
       case random // = 8
       case added // = 9
       case reverseAdded // = 10
@@ -577,6 +578,7 @@ public nonisolated struct Anki_DeckConfig_DeckConfig: Sendable {
         case 9: self = .added
         case 10: self = .reverseAdded
         case 11: self = .retrievabilityDescending
+        case 12: self = .relativeOverdueness
         default: self = .UNRECOGNIZED(rawValue)
         }
       }
@@ -595,6 +597,7 @@ public nonisolated struct Anki_DeckConfig_DeckConfig: Sendable {
         case .added: return 9
         case .reverseAdded: return 10
         case .retrievabilityDescending: return 11
+        case .relativeOverdueness: return 12
         case .UNRECOGNIZED(let i): return i
         }
       }
@@ -610,6 +613,7 @@ public nonisolated struct Anki_DeckConfig_DeckConfig: Sendable {
         .easeDescending,
         .retrievabilityAscending,
         .retrievabilityDescending,
+        .relativeOverdueness,
         .random,
         .added,
         .reverseAdded,
@@ -1654,7 +1658,7 @@ nonisolated extension Anki_DeckConfig_DeckConfig.Config.NewCardSortOrder: SwiftP
 }
 
 nonisolated extension Anki_DeckConfig_DeckConfig.Config.ReviewCardOrder: SwiftProtobuf._ProtoNameProviding {
-  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0REVIEW_CARD_ORDER_DAY\0\u{1}REVIEW_CARD_ORDER_DAY_THEN_DECK\0\u{1}REVIEW_CARD_ORDER_DECK_THEN_DAY\0\u{1}REVIEW_CARD_ORDER_INTERVALS_ASCENDING\0\u{1}REVIEW_CARD_ORDER_INTERVALS_DESCENDING\0\u{1}REVIEW_CARD_ORDER_EASE_ASCENDING\0\u{1}REVIEW_CARD_ORDER_EASE_DESCENDING\0\u{1}REVIEW_CARD_ORDER_RETRIEVABILITY_ASCENDING\0\u{1}REVIEW_CARD_ORDER_RANDOM\0\u{1}REVIEW_CARD_ORDER_ADDED\0\u{1}REVIEW_CARD_ORDER_REVERSE_ADDED\0\u{1}REVIEW_CARD_ORDER_RETRIEVABILITY_DESCENDING\0")
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0REVIEW_CARD_ORDER_DAY\0\u{1}REVIEW_CARD_ORDER_DAY_THEN_DECK\0\u{1}REVIEW_CARD_ORDER_DECK_THEN_DAY\0\u{1}REVIEW_CARD_ORDER_INTERVALS_ASCENDING\0\u{1}REVIEW_CARD_ORDER_INTERVALS_DESCENDING\0\u{1}REVIEW_CARD_ORDER_EASE_ASCENDING\0\u{1}REVIEW_CARD_ORDER_EASE_DESCENDING\0\u{1}REVIEW_CARD_ORDER_RETRIEVABILITY_ASCENDING\0\u{1}REVIEW_CARD_ORDER_RANDOM\0\u{1}REVIEW_CARD_ORDER_ADDED\0\u{1}REVIEW_CARD_ORDER_REVERSE_ADDED\0\u{1}REVIEW_CARD_ORDER_RETRIEVABILITY_DESCENDING\0\u{1}REVIEW_CARD_ORDER_RELATIVE_OVERDUENESS\0")
 }
 
 nonisolated extension Anki_DeckConfig_DeckConfig.Config.ReviewMix: SwiftProtobuf._ProtoNameProviding {

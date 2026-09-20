@@ -1,3 +1,10 @@
+//
+//  CardAssetPath.swift
+//  AmgiCardWeb
+//
+//  Created by Vladimir Gusev on 16.04.2026.
+//
+
 public import Foundation
 import UniformTypeIdentifiers
 
@@ -85,8 +92,9 @@ public enum CardAssetPath {
             [bundle.resourceURL, bundle.bundleURL]
         }
 
-        var seen = Set<String>()
+        var seen = Set<String>(minimumCapacity: roots.count)
         var uniqueRoots: [URL] = []
+        uniqueRoots.reserveCapacity(roots.count)
 
         for root in roots {
             guard let root else { continue }

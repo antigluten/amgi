@@ -284,6 +284,7 @@ public nonisolated struct Anki_Decks_Deck: @unchecked Sendable {
         case reverseAdded // = 7
         case retrievabilityAscending // = 8
         case retrievabilityDescending // = 9
+        case relativeOverdueness // = 10
         case UNRECOGNIZED(Int)
 
         public init() {
@@ -302,6 +303,7 @@ public nonisolated struct Anki_Decks_Deck: @unchecked Sendable {
           case 7: self = .reverseAdded
           case 8: self = .retrievabilityAscending
           case 9: self = .retrievabilityDescending
+          case 10: self = .relativeOverdueness
           default: self = .UNRECOGNIZED(rawValue)
           }
         }
@@ -318,6 +320,7 @@ public nonisolated struct Anki_Decks_Deck: @unchecked Sendable {
           case .reverseAdded: return 7
           case .retrievabilityAscending: return 8
           case .retrievabilityDescending: return 9
+          case .relativeOverdueness: return 10
           case .UNRECOGNIZED(let i): return i
           }
         }
@@ -334,6 +337,7 @@ public nonisolated struct Anki_Decks_Deck: @unchecked Sendable {
           .reverseAdded,
           .retrievabilityAscending,
           .retrievabilityDescending,
+          .relativeOverdueness,
         ]
 
       }
@@ -1085,7 +1089,7 @@ nonisolated extension Anki_Decks_Deck.Filtered.SearchTerm: SwiftProtobuf.Message
 }
 
 nonisolated extension Anki_Decks_Deck.Filtered.SearchTerm.Order: SwiftProtobuf._ProtoNameProviding {
-  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0OLDEST_REVIEWED_FIRST\0\u{1}RANDOM\0\u{1}INTERVALS_ASCENDING\0\u{1}INTERVALS_DESCENDING\0\u{1}LAPSES\0\u{1}ADDED\0\u{1}DUE\0\u{1}REVERSE_ADDED\0\u{1}RETRIEVABILITY_ASCENDING\0\u{1}RETRIEVABILITY_DESCENDING\0")
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0OLDEST_REVIEWED_FIRST\0\u{1}RANDOM\0\u{1}INTERVALS_ASCENDING\0\u{1}INTERVALS_DESCENDING\0\u{1}LAPSES\0\u{1}ADDED\0\u{1}DUE\0\u{1}REVERSE_ADDED\0\u{1}RETRIEVABILITY_ASCENDING\0\u{1}RETRIEVABILITY_DESCENDING\0\u{1}RELATIVE_OVERDUENESS\0")
 }
 
 nonisolated extension Anki_Decks_Deck.KindContainer: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {

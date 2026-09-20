@@ -1,12 +1,19 @@
+//
+//  CollectionService.swift
+//  AnkiServices
+//
+//  Created by Vladimir Gusev on 01.04.2026.
+//
+
 import AnkiBackend
-import AnkiProto
-public import AnkiKit
+import AnkiProtoBridge
+import AnkiKit
 public import Dependencies
 import DependenciesMacros
 
 @DependencyClient
 public struct CollectionService: Sendable {
-    public var checkDatabase: @Sendable () throws -> Void
+    public var checkDatabase: @Sendable () throws -> [String]
     public var undoLast: @Sendable () throws -> Void
 }
 
@@ -15,13 +22,10 @@ extension CollectionService: DependencyKey {
         @Dependency(\.ankiBackend) var backend
         return Self(
             checkDatabase: {
-                try backend.checkDatabase()
+                try backend.invoke(.checkDatabase)
             },
             undoLast: {
-                try backend.callVoid(
-                    service: AnkiBackend.Service.collectionOps,
-                    method: AnkiBackend.CollectionOpsMethod.undo
-                )
+                try backend.invoke(.undoLastAction)
             }
         )
     }()

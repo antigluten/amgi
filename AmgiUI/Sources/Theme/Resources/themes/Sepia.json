@@ -1,0 +1,60 @@
+{
+  "id": "sepia",
+  "displayName": "Sepia",
+  "light": {
+    "background": "#F4ECD8",
+    "surface": "#FAF3E0",
+    "surfaceElevated": "#FFFAEC",
+    "border": "#E3D8BC",
+    "textPrimary": "#3E3522",
+    "textSecondary": "#3E3522CC",
+    "textTertiary": "#3E3522B6",
+    "accent": "#7A5C40",
+    "link": "#6B4F38",
+    "positive": "#527258",
+    "warning": "#846538",
+    "danger": "#9F5551",
+    "info": "#516E81",
+    "customStudyBadge": "#846538",
+    "accentSoft": "#7A5C4029",
+    "separator": "#3E352224",
+    "cardStateNew": "#7A5C40",
+    "cardStateLearning": "#846538",
+    "cardStateReview": "#527258",
+    "cardStateMature": "#7D5F91",
+    "cardStateSuspended": "#6F6A63",
+    "cardStateRelearn": "#9F5551",
+    "shadows": {
+      "sm": { "radius": 2, "dx": 0, "dy": 1, "opacity": 0.05 },
+      "md": { "radius": 16, "dx": 0, "dy": 4, "opacity": 0.08 }
+    }
+  },
+  "dark": {
+    "background": "#14100B",
+    "surface": "#1E1811",
+    "surfaceElevated": "#2A2219",
+    "border": "#EDE0C81F",
+    "textPrimary": "#EDE0C8",
+    "textSecondary": "#EDE0C8CC",
+    "textTertiary": "#EDE0C886",
+    "accent": "#C9964F",
+    "link": "#D9AE72",
+    "positive": "#93B591",
+    "warning": "#D9B27D",
+    "danger": "#CE8F86",
+    "info": "#93A9C4",
+    "customStudyBadge": "#D9B27D",
+    "accentSoft": "#C9964F33",
+    "separator": "#EDE0C81A",
+    "cardStateNew": "#93A9C4",
+    "cardStateLearning": "#D9B27D",
+    "cardStateReview": "#93B591",
+    "cardStateMature": "#B9A0C9",
+    "cardStateSuspended": "#A79E90",
+    "cardStateRelearn": "#CE8F86",
+    "shadows": {
+      "sm": { "radius": 2, "dx": 0, "dy": 1, "opacity": 0.18 },
+      "md": { "radius": 20, "dx": 0, "dy": 6, "opacity": 0.28 }
+    }
+  }
+}

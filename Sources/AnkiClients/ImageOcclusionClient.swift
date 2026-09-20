@@ -1,3 +1,11 @@
+//
+//  ImageOcclusionClient.swift
+//  AnkiClients
+//
+//  Created by Vladimir Gusev on 28.04.2026.
+//
+
+public import AnkiKit
 public import Dependencies
 import DependenciesMacros
 public import Foundation
@@ -13,35 +21,22 @@ public struct ImageOcclusionClient: Sendable {
         _ header: String,
         _ backExtra: String,
         _ tags: [String],
-        _ deckID: Int64,
-        _ notetypeID: Int64
-    ) throws -> Void
-
-    /// Ensures the image-occlusion notetype exists in the collection.
-    /// Safe to call multiple times — Anki skips creation if it already exists.
-    public var ensureNotetype: @Sendable () throws -> Void
+        _ deckID: DeckID,
+        _ notetypeID: NotetypeID
+    ) async throws -> Void
 
     /// Fetches an existing image occlusion note for editing.
     /// Returns (imageData, imageName, occlusions, header, backExtra, tags).
-    public var getNote: @Sendable (_ noteId: Int64) throws -> ImageOcclusionNoteData
+    public var getNote: @Sendable (_ noteId: NoteID) async throws -> ImageOcclusionNoteData
 
     /// Updates an existing image occlusion note.
     public var updateNote: @Sendable (
-        _ noteId: Int64,
+        _ noteId: NoteID,
         _ occlusions: String,
         _ header: String,
         _ backExtra: String,
         _ tags: [String]
-    ) throws -> Void
-}
-
-public struct ImageOcclusionNoteData: Sendable {
-    public var imageData: Data
-    public var imageName: String
-    public var occlusions: String
-    public var header: String
-    public var backExtra: String
-    public var tags: [String]
+    ) async throws -> Void
 }
 
 extension ImageOcclusionClient: TestDependencyKey {

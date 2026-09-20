@@ -1,4 +1,11 @@
-public import AnkiProto
+//
+//  NotetypesClient.swift
+//  AnkiClients
+//
+//  Created by Vladimir Gusev on 29.04.2026.
+//
+
+public import AnkiKit
 public import Dependencies
 import DependenciesMacros
 import Foundation
@@ -6,16 +13,16 @@ import Foundation
 @DependencyClient
 public struct NotetypesClient: Sendable {
     /// Lists all notetype names + ids without expanding to full notetypes.
-    public var listAll: @Sendable () throws -> [Anki_Notetypes_NotetypeNameId]
+    public var listAll: @Sendable () async throws -> [NotetypeNameId]
 
-    /// Fetches a notetype as the raw proto for editing.
-    public var getRaw: @Sendable (_ id: Int64) throws -> Anki_Notetypes_Notetype
+    /// Fetches a notetype as the AnkiKit mirror for editing.
+    public var get: @Sendable (_ id: NotetypeID) async throws -> Notetype
 
     /// Persists a modified notetype back to the collection.
-    public var update: @Sendable (_ notetype: Anki_Notetypes_Notetype) throws -> Void
+    public var update: @Sendable (_ notetype: Notetype) async throws -> Void
 
     /// Removes a notetype (and all cards using it) from the collection.
-    public var remove: @Sendable (_ id: Int64) throws -> Void
+    public var remove: @Sendable (_ id: NotetypeID) async throws -> Void
 }
 
 extension NotetypesClient: TestDependencyKey {

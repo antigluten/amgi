@@ -1,3 +1,11 @@
+//
+//  SyncClient+Live.swift
+//  AnkiClients
+//
+//  Created by Vladimir Gusev on 27.03.2026.
+//
+
+import AnkiBackend
 import AnkiKit
 import AnkiServices
 import AnkiSync
@@ -76,14 +84,8 @@ extension SyncClient: DependencyKey {
                 let endpoint = KeychainHelper.loadCurrentEndpoint() ?? KeychainHelper.loadEndpoint() ?? ""
                 try await syncService.fullSync(endpoint, hostKey, direction)
             },
-            syncMedia: {
-                let hostKey = KeychainHelper.loadHostKey() ?? ""
-                guard !hostKey.isEmpty else { throw SyncError.authFailed }
-                let endpoint = KeychainHelper.loadCurrentEndpoint() ?? KeychainHelper.loadEndpoint() ?? ""
-                try await syncService.syncMedia(endpoint, hostKey)
-                return MediaSyncSummary()
-            },
-            lastSyncDate: { nil },
+            mediaSyncStatus: { try await syncService.mediaSyncStatus() },
+            abortMediaSync: { try await syncService.abortMediaSync() },
             merge: { progress in
                 let hostKey = KeychainHelper.loadHostKey() ?? ""
                 guard !hostKey.isEmpty else { throw SyncError.authFailed }
@@ -97,7 +99,7 @@ extension SyncClient: DependencyKey {
                 progress?("Backing up local collection...")
                 logger.info("Merge: exporting local backup to \(backupPath)")
                 do {
-                    try importExportService.exportApkgForMerge(backupPath)
+                    try await backendOffload { try importExportService.exportApkgForMerge(backupPath) }
                 } catch {
                     try? FileManager.default.removeItem(at: backupURL)
                     throw SyncError(message: "Merge failed during backup: \(error.localizedDescription)")
@@ -112,7 +114,6 @@ extension SyncClient: DependencyKey {
                         logger.error("Merge failed at \(stage): \(error.localizedDescription)")
                         throw SyncError(
                             message: "Merge failed during \(stage): \(error.localizedDescription). Local backup saved at \(backupPath).",
-                            isRetryable: false,
                             recoveryBackupPath: backupPath
                         )
                     }
@@ -125,7 +126,7 @@ extension SyncClient: DependencyKey {
 
                 progress?("Merging in local data...")
                 try await wrap("merge import") {
-                    _ = try importExportService.importApkgForMerge(backupPath)
+                    _ = try await backendOffload { try importExportService.importApkgForMerge(backupPath) }
                 }
 
                 progress?("Uploading merged collection...")

@@ -1,3 +1,10 @@
+//
+//  AnkiBackendDependency.swift
+//  AnkiBackend
+//
+//  Created by Vladimir Gusev on 27.03.2026.
+//
+
 public import Dependencies
 
 private enum AnkiBackendKey: DependencyKey {

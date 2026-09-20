@@ -110,6 +110,7 @@ public nonisolated struct Anki_Backend_BackendError: Sendable {
     case osError // = 20
     case schedulerUpgradeRequired // = 21
     case invalidCertificateFormat // = 22
+    case invalidChecksum // = 24
     case UNRECOGNIZED(Int)
 
     public init() {
@@ -142,6 +143,7 @@ public nonisolated struct Anki_Backend_BackendError: Sendable {
       case 21: self = .schedulerUpgradeRequired
       case 22: self = .invalidCertificateFormat
       case 23: self = .syncServerMessage
+      case 24: self = .invalidChecksum
       default: self = .UNRECOGNIZED(rawValue)
       }
     }
@@ -172,6 +174,7 @@ public nonisolated struct Anki_Backend_BackendError: Sendable {
       case .schedulerUpgradeRequired: return 21
       case .invalidCertificateFormat: return 22
       case .syncServerMessage: return 23
+      case .invalidChecksum: return 24
       case .UNRECOGNIZED(let i): return i
       }
     }
@@ -202,6 +205,7 @@ public nonisolated struct Anki_Backend_BackendError: Sendable {
       .osError,
       .schedulerUpgradeRequired,
       .invalidCertificateFormat,
+      .invalidChecksum,
     ]
 
   }
@@ -345,5 +349,5 @@ nonisolated extension Anki_Backend_BackendError: SwiftProtobuf.Message, SwiftPro
 }
 
 nonisolated extension Anki_Backend_BackendError.Kind: SwiftProtobuf._ProtoNameProviding {
-  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0INVALID_INPUT\0\u{1}UNDO_EMPTY\0\u{1}INTERRUPTED\0\u{1}TEMPLATE_PARSE\0\u{1}IO_ERROR\0\u{1}DB_ERROR\0\u{1}NETWORK_ERROR\0\u{1}SYNC_AUTH_ERROR\0\u{1}SYNC_OTHER_ERROR\0\u{1}JSON_ERROR\0\u{1}PROTO_ERROR\0\u{1}NOT_FOUND_ERROR\0\u{1}EXISTS\0\u{1}FILTERED_DECK_ERROR\0\u{1}SEARCH_ERROR\0\u{1}CUSTOM_STUDY_ERROR\0\u{1}IMPORT_ERROR\0\u{1}DELETED\0\u{1}CARD_TYPE_ERROR\0\u{1}ANKIDROID_PANIC_ERROR\0\u{1}OS_ERROR\0\u{1}SCHEDULER_UPGRADE_REQUIRED\0\u{1}INVALID_CERTIFICATE_FORMAT\0\u{1}SYNC_SERVER_MESSAGE\0")
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0INVALID_INPUT\0\u{1}UNDO_EMPTY\0\u{1}INTERRUPTED\0\u{1}TEMPLATE_PARSE\0\u{1}IO_ERROR\0\u{1}DB_ERROR\0\u{1}NETWORK_ERROR\0\u{1}SYNC_AUTH_ERROR\0\u{1}SYNC_OTHER_ERROR\0\u{1}JSON_ERROR\0\u{1}PROTO_ERROR\0\u{1}NOT_FOUND_ERROR\0\u{1}EXISTS\0\u{1}FILTERED_DECK_ERROR\0\u{1}SEARCH_ERROR\0\u{1}CUSTOM_STUDY_ERROR\0\u{1}IMPORT_ERROR\0\u{1}DELETED\0\u{1}CARD_TYPE_ERROR\0\u{1}ANKIDROID_PANIC_ERROR\0\u{1}OS_ERROR\0\u{1}SCHEDULER_UPGRADE_REQUIRED\0\u{1}INVALID_CERTIFICATE_FORMAT\0\u{1}SYNC_SERVER_MESSAGE\0\u{1}INVALID_CHECKSUM\0")
 }

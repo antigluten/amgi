@@ -2,29 +2,64 @@
 
 import PackageDescription
 
+// Opt-in debug diagnostics, off by default. ANY use of unsafeFlags opts a
+// target out of explicit-module compilation caching (commit 8fc0fa7), so these
+// are gated behind an env var instead of always-on. Turn on deliberately:
+//   AMGI_DIAGNOSTICS=1 xcodebuild ...   (or `swift build`)
+let diagnosticFlags: [SwiftSetting] = Context.environment["AMGI_DIAGNOSTICS"] != nil
+    ? [.unsafeFlags(
+        [
+            "-enable-actor-data-race-checks",
+            "-warn-implicit-overrides",
+            "-Xfrontend", "-warn-long-function-bodies=200",
+            "-Xfrontend", "-warn-long-expression-type-checking=200",
+        ],
+        .when(configuration: .debug)
+    )]
+    : []
+
+// StrictConcurrency dropped: it's the implicit default under .v6 language mode.
 let sharedSwiftSettings: [SwiftSetting] = [
-    .enableExperimentalFeature("StrictConcurrency"),
     .enableExperimentalFeature("IsolatedAny"),
     .enableUpcomingFeature("ExistentialAny"),
     .enableUpcomingFeature("InternalImportsByDefault"),
     .enableUpcomingFeature("MemberImportVisibility"),
     .enableUpcomingFeature("FullTypedThrows"),
-]
+    .enableUpcomingFeature("InferIsolatedConformances"),
+    .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
+    .enableExperimentalFeature("AccessLevelOnImport"),
+    .enableExperimentalFeature("StrictMemorySafety"),
+    .enableExperimentalFeature("StrictSendableMetatypes"),
+] + diagnosticFlags
 
 let package = Package(
     name: "AmgiUI",
-    platforms: [.iOS(.v17), .macOS(.v14), .watchOS(.v10)],
+    // watchOS 11 added for the AmgiWatchApp target (PR #14); matches the
+    // root package's watchOS floor.
+    platforms: [.iOS(.v18), .macOS(.v15), .watchOS(.v11)],
     products: [
-        .library(name: "AmgiTheme", targets: ["AmgiTheme"]),
+        .library(name: "Theme", targets: ["Theme"]),
+        .library(name: "UI", targets: ["UI"]),
     ],
     targets: [
         .target(
-            name: "AmgiTheme",
+            name: "Theme",
+            resources: [.process("Resources")],
             swiftSettings: sharedSwiftSettings
         ),
         .testTarget(
-            name: "AmgiThemeTests",
-            dependencies: ["AmgiTheme"],
+            name: "ThemeTests",
+            dependencies: ["Theme"],
+            swiftSettings: sharedSwiftSettings
+        ),
+        .target(
+            name: "UI",
+            dependencies: ["Theme"],
+            swiftSettings: sharedSwiftSettings
+        ),
+        .testTarget(
+            name: "UITests",
+            dependencies: ["UI"],
             swiftSettings: sharedSwiftSettings
         ),
     ],

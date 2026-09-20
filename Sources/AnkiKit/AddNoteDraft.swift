@@ -1,3 +1,10 @@
+//
+//  AddNoteDraft.swift
+//  AnkiKit
+//
+//  Created by Vladimir Gusev on 28.04.2026.
+//
+
 public struct AddNoteDraft: Sendable, Hashable {
     public var deckID: Int64?
     public var notetypeID: Int64?

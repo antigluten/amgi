@@ -5,10 +5,110 @@ options:
     iOS: "18.0"
     watchOS: "11.0"
   defaultSourceDirectoryType: syncedFolder
+  # Nest the Resources/* folder references under a single "Resources" group in
+  # the navigator instead of scattering them at the project root. Each entry
+  # below stays a `type: folder` reference at its original path, so the bundle
+  # layout is unchanged — only the Xcode group tree is tidied.
+  createIntermediateGroups: true
 settings:
   base:
     SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: "0.2.0"
+    CURRENT_PROJECT_VERSION: 7
     SWIFT_STRICT_CONCURRENCY: complete
+    # Must match the SPM packages: NonisolatedNonsendingByDefault changes the
+    # mangling of `nonisolated async` function types, so the app target has to
+    # opt in too or async @DependencyClient closures fail to link across the
+    # package ↔ app boundary. Keep in lockstep with the package manifests.
+    OTHER_SWIFT_FLAGS: "$(inherited) -enable-upcoming-feature NonisolatedNonsendingByDefault"
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    # Enhanced Security (Xcode 26). Project level per Apple's capability
+    # definition. Cascades -Wshadow, -Wempty-body, ENABLE_SECURITY_COMPILER_
+    # WARNINGS, CLANG_CXX_STANDARD_LIBRARY_HARDENING and the typed-allocator
+    # settings onto every target. The runtime half lives in
+    # AmgiApp.entitlements (com.apple.security.hardened-process*).
+    ENABLE_ENHANCED_SECURITY: YES
+    # ...but NOT arm64e. ENABLE_ENHANCED_SECURITY would otherwise cascade
+    # ENABLE_POINTER_AUTHENTICATION: YES to every target, and nothing here can
+    # link arm64e: AnkiRustLib.xcframework ships arm64-only slices (verified
+    # with lipo on all three), and it cannot gain an arm64e one because Rust
+    # has no arm64e target. AmgiApp, AmgiAppTests and AmgiWatchApp all link
+    # it; AmgiWatchApp is watchOS, which has no arm64e at all. Revisit only if
+    # Rust ships arm64e support.
+    ENABLE_POINTER_AUTHENTICATION: NO
+    LOCALIZED_STRING_SWIFTUI_SUPPORT: YES
+    STRING_CATALOG_GENERATE_SYMBOLS: YES
+    # Build perf: CAS-backed compilation caching. The CAS path and explicit
+    # modules are already configured by Xcode; this turns the cache on so
+    # unchanged inputs are served from it. Measured here: warm-cache clean
+    # builds 50.9s → 25.8s (−49%); the cache persists in shared DerivedData so
+    # this is the steady state (branch switches / Clean Build Folder). One-time
+    # cost: first cold build is ~20s slower while the CAS populates. No
+    # incremental-build change. See .build-benchmark/optimization-plan.md.
+    COMPILATION_CACHE_ENABLE_CACHING: YES
+    # Expected warning, Apple's bug, do not chase (verified 2026-09-18):
+    #
+    #   module map file '…/usr/lib/swift/<platform>/libcxxshim.modulemap'
+    #   will be ignored
+    #
+    # Three of them per build — targets ReaderFeature, RootFeature and
+    # AmgiApp, i.e. exactly the Cxx-interop chain, one each (six if you
+    # build two arches). swift-frontend emits it against itself: with C++
+    # interop on it appends -fmodule-map-file=…/libcxxshim.modulemap
+    # (ClangImporter.cpp:567-570), then, because CAS gives the importer an
+    # immutable filesystem, drops every -fmodule-map-file and warns once per
+    # dropped file (ClangImporter.cpp:1253-1256, "There is no need to add any
+    # module map file here"). Cosmetic — the C++ code still compiles, since
+    # hoshidicts' modulemap reaches the build through the dependency scanner,
+    # not through that argument.
+    #
+    # Not silenceable. diag::module_map_ignored has no diagnostic group, and
+    # swift-frontend offers only -suppress-warnings (all of them) — there is
+    # no -Wno-<group>. The one real lever is COMPILATION_CACHE_ENABLE_CACHING:
+    # NO, which removes it (verified: 0 warnings, and the Cxx targets keep
+    # -explicit-module-build, losing only -cache-compile-job/-cas-path). It is
+    # not worth it, and it cannot be scoped: ReaderFeature and RootFeature are
+    # SPM targets, which take this setting from the project, so silencing them
+    # means silencing the whole project and paying the 20s → 30s clean build
+    # measured below.
+    #
+    # This replaces an older note claiming these targets DON'T cache — that
+    # swift-build force-disabled explicit modules for anything Cxx-interop
+    # (rdar://122829880), so AmgiApp and ReaderDictionary emitted "swift
+    # compiler caching requires explicit module build" instead. Apple fixed
+    # that radar: as of Xcode 26 / iPhoneSimulator27.0.sdk the build log has
+    # zero of those, and all three Cxx targets carry -explicit-module-build
+    # -cache-compile-job -cas-path. Every target caches now; the libcxxshim
+    # warning is the price. Don't re-try the underscored
+    # _SWIFT_EXPLICIT_MODULES_ALLOW_CXX_INTEROP=YES escape hatch either — it
+    # belonged to the old problem, and on 2026-08-06 it failed scanning with
+    # "Module dependency cycle: '_DarwinFoundation3.swiftmodule ->
+    # CxxStdlib.swiftinterface -> _DarwinFoundation3.swiftmodule'".
+    #
+    # Do NOT trust the xcode-build-benchmark "cached clean" leg here — it
+    # reports ~65-75s and looks like caching is pure overhead. It is not:
+    # COMPILATION_CACHE_CAS_PATH is *derived from* -derivedDataPath, so under
+    # the script's temp DerivedData the CAS lands inside it and the leg's
+    # rmtree(dd_path) deletes the cache it exists to measure, timing CAS
+    # population instead. Its fast "clean" leg meanwhile uses shared
+    # DerivedData with the real warm CAS, so the two legs are different
+    # scenarios and the gap between them is virgin-DD cache misses.
+    # Measured 2026-08-11, shared DerivedData + `xcodebuild clean`, same 1355
+    # compile tasks: caching ON 20s, OFF 30s. Virgin DerivedData: ON 74s,
+    # OFF 75s. Caching is a win in the realistic case and never a loss.
+    # Benchmark this project with --no-cached-clean.
+  configs:
+    Debug:
+      # Eager linking: let downstream targets link against generated stubs
+      # before upstream linking completes, trimming the serial link tail of
+      # this multi-module graph. Low-risk experiment — verify clean builds
+      # still succeed and re-benchmark for the (small, uncertain) delta.
+      EAGER_LINKING: YES
+    Release:
+      # Release-config hygiene only — NO effect on Debug iteration build time.
+      GCC_OPTIMIZATION_LEVEL: s
+      ONLY_ACTIVE_ARCH: NO
+      ENABLE_TESTABILITY: NO
 packages:
   AnkiBridge:
     path: ..
@@ -16,6 +116,8 @@ packages:
     path: ../AmgiUI
   AmgiReader:
     path: ../AmgiReader
+  AmgiFeatures:
+    path: ../AmgiFeatures
   swift-navigation:
     url: https://github.com/pointfreeco/swift-navigation
     from: 2.0.0
@@ -27,13 +129,18 @@ schemes:
     build:
       targets:
         AmgiApp: all
-        AmgiWidget: all
     run:
       config: Debug
     test:
       config: Debug
-      targets:
-        - AmgiAppTests
+      # Test plan, not `targets:` — xcodegen validates scheme test targets
+      # against *project* targets, so the 10 SPM test targets in AnkiBridge /
+      # AmgiFeatures / AmgiUI cannot be named here. A .xctestplan can reference
+      # them (`container:../AmgiFeatures` + the target name as identifier),
+      # which is what finally makes them run in CI instead of never at all.
+      testPlans:
+        - path: AmgiApp.xctestplan
+          defaultPlan: true
   AmgiWatchApp:
     build:
       targets:
@@ -45,53 +152,25 @@ targets:
     type: application
     platform: iOS
     sources:
-      - path: Sources/Browse
-      - path: Sources/Decks
-      - path: Sources/Reader
-      - path: Sources/Review
-      - path: Sources/Settings
-      - path: Sources/Shared
-      - path: Sources/Stats
-      - path: Sources/Sync
-      - path: Sources/Theme
-      - path: Sources/AmgiAppApp.swift
-      - path: Sources/ContentView.swift
-      - path: Sources/DebugView.swift
-      - path: Sources/WriteWidgetSnapshot.swift
-      - path: Assets.xcassets
+      - path: Sources
+        type: group
+        excludes:
+          - "Widgets"
+          - "Watch"
+      - path: Resources/Assets.xcassets
       - path: Resources/mathjax
         type: folder
       - path: Resources/Review
         type: folder
       - path: Resources/Fonts
         type: folder
+      - path: Resources/EPUBReader
+        type: folder
     dependencies:
-      - package: AnkiBridge
-        product: AnkiKit
-      - package: AnkiBridge
-        product: AnkiServices
-      - package: AnkiBridge
-        product: AnkiClients
-      - package: AnkiBridge
-        product: AnkiSync
-      - package: AnkiBridge
-        product: AnkiBackend
-      - package: AnkiBridge
-        product: AnkiProto
-      - package: AnkiBridge
-        product: AmgiCardWeb
-      - package: AmgiReader
-        product: AmgiReader
-      - package: AmgiReader
-        product: AmgiReaderDictionary
-      - package: AmgiUI
-        product: AmgiTheme
-      - package: swift-navigation
-        product: SwiftNavigation
-      - package: swift-navigation
-        product: UIKitNavigation
-      - package: swift-sharing
-        product: Sharing
+      - package: AmgiFeatures
+        product: RootFeature
+      - package: AmgiFeatures
+        product: IntentsFeature
       - sdk: WidgetKit.framework
       - target: AmgiWidget
         embed: true
@@ -99,31 +178,55 @@ targets:
       base:
         INFOPLIST_FILE: Info.plist
         PRODUCT_BUNDLE_IDENTIFIER: com.amgiapp.AmgiApp
-        CODE_SIGN_ENTITLEMENTS: AmgiApp.entitlements
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-        # Cxx interop chain. The app imports AmgiReaderDictionary, which
-        # is built with .interoperabilityMode(.Cxx) for the hoshidicts
-        # bridge. Xcode + SPM under Swift 6 needs an explicit Clang C++
-        # standard alongside SWIFT_CXX_INTEROPERABILITY_MODE — without
-        # the language-standard hint Clang's dependency scanner rejects
-        # the CHoshiDicts modulemap's `requires cplusplus`.
+        CODE_SIGN_ENTITLEMENTS: AmgiApp.entitlements
+        # Cxx interop chain. Xcode + SPM under Swift 6 needs an explicit
+        # Clang C++ standard alongside SWIFT_CXX_INTEROPERABILITY_MODE —
+        # without the language-standard hint Clang's dependency scanner
+        # rejects the CHoshiDicts modulemap's `requires cplusplus`.
+        # The OTHER_SWIFT_FLAGS copy of the same switch looks redundant
+        # but is required: the build setting alone doesn't reach the
+        # dependency scanner (verified 2026-07: removing it fails with
+        # "module 'CHoshiDicts' requires feature 'cplusplus'").
+        #
+        # NOTE (2026-08-15): these are NOT removable by moving Swift code.
+        # No app source imports ReaderDictionary any more — that all
+        # lives in the ReaderFeature SPM target now — and a clean build
+        # still fails without this block, because Xcode puts every package's
+        # include dir on the app's -Xcc line, so the scanner walks
+        # hoshidicts/include/module.modulemap no matter what any file
+        # imports. Both the drop-everything and the keep-everything-but-
+        # OTHER_SWIFT_FLAGS variants were tried and both fail. The app
+        # target therefore stays out of explicit modules / compilation
+        # caching as long as hoshidicts is anywhere in its package graph.
         SWIFT_CXX_INTEROPERABILITY_MODE: default
         CLANG_CXX_LANGUAGE_STANDARD: "c++20"
         CLANG_CXX_LIBRARY: "libc++"
         OTHER_SWIFT_FLAGS: "$(inherited) -cxx-interoperability-mode=default"
+        # LM_SKIP_METADATA_EXTRACTION was set here from 2026-09-08 until the
+        # app gained real Shortcuts (IntentsFeature, 2026-09-19). Without
+        # extraction the app target ships no Metadata.appintents at all, so
+        # nothing in IntentsFeature reaches Shortcuts, Siri or Spotlight —
+        # confirmed by the absence of an ExtractAppIntentsMetadata phase for
+        # AmgiApp in the build log. What the flag bought back then returns
+        # with it: Xcode feeds the processor every package target in the build
+        # closure, including WidgetFeature (reached only via the embedded
+        # AmgiWidget target), so the app's metadata again names
+        # WidgetFeature.AmgiWidgetIntent, a type it doesn't link, and logs
+        # "Failed to instantiate type AmgiWidgetIntent by name" on launch.
+        # Cosmetic, and the price of having any app-level intents at all.
 
   AmgiWidget:
     type: app-extension
     platform: iOS
     sources:
       - path: Sources/Widgets
-      - path: Sources/Shared/WidgetSnapshot.swift
-      - path: Sources/Shared/WidgetSnapshotStore.swift
     dependencies:
-      - package: AnkiBridge
-        product: AnkiKit
-      - package: AmgiUI
-        product: AmgiTheme
+      # Everything but @main AmgiWidgetBundle lives in WidgetFeature, which
+      # brings AppCore + Theme transitively. AnkiKit was vestigial —
+      # no widget source ever imported it.
+      - package: AmgiFeatures
+        product: WidgetFeature
       - sdk: WidgetKit.framework
       - sdk: SwiftUI.framework
     settings:
@@ -136,49 +239,21 @@ targets:
     type: application
     platform: watchOS
     sources:
+      # @main WatchApp.swift only — every watch screen lives in the
+      # WatchFeature product below (same split as AmgiWidget/WidgetFeature).
+      # Sources shared with iOS go through a product too: the review engine is
+      # ReviewCore, which used to be three Sources/Review files listed here
+      # by path, compiling them into two targets as two distinct types (fixed
+      # 2026-08-15). Do not re-add per-file paths here.
       - path: Sources/Watch
         type: group
-      - path: Sources/Shared
-        type: group
-        excludes:
-          - ShareSheet.swift
-          - CardContextMenu.swift
-          - TagsView.swift
-      - path: Sources/Theme/AmgiSpacing.swift
-      - path: Sources/Theme/AmgiTypography.swift
-      - path: Sources/Decks
-        type: group
-        excludes:
-          - DeckListView.swift
-          - DeckDetailView.swift
-          - DeckTemplateListView.swift
-          - TemplateSourceEditor.swift
-          - DeckConfigView.swift
-          - DecksReviewsChart.swift
-          - ProfilePickerMenu.swift
-      - path: Sources/Review
-        type: group
-        excludes:
-          - ReviewView.swift
-          - CardAssetScheme.swift
-          - CardWebView.swift
-          - CardWebViewCoordinator.swift
-      - path: Sources/Stats/PeriodPicker.swift
-      - path: Sources/Stats/TodayStatsCard.swift
-      - path: Sources/Stats/FutureDueChart.swift
-      - path: Sources/Stats/ReviewsChart.swift
-      - path: Sources/Stats/CardCountsChart.swift
-      - path: Sources/Stats/IntervalsChart.swift
-      - path: Sources/Stats/EaseChart.swift
-      - path: Sources/Stats/HourlyChart.swift
-      - path: Sources/Stats/ButtonsChart.swift
-      - path: Sources/Stats/AddedChart.swift
-      - path: Sources/Stats/RetentionChart.swift
     dependencies:
       - package: AnkiBridge
         product: AnkiKit
       - package: AmgiUI
-        product: AmgiTheme
+        product: Theme
+      - package: AmgiUI
+        product: UI
       - package: AnkiBridge
         product: AnkiServices
       - package: AnkiBridge
@@ -188,7 +263,15 @@ targets:
       - package: AnkiBridge
         product: AnkiBackend
       - package: AnkiBridge
-        product: AnkiProto
+        product: AmgiCardWeb
+      - package: AmgiFeatures
+        product: AppCore
+      - package: AmgiFeatures
+        product: StatsCharts
+      - package: AmgiFeatures
+        product: ReviewCore
+      - package: AmgiFeatures
+        product: WatchFeature
       - package: swift-navigation
         product: SwiftNavigation
       - package: swift-sharing
@@ -214,8 +297,9 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.amgiapp.AmgiAppTests
         GENERATE_INFOPLIST_FILE: YES
         # Tests inherit @testable AmgiApp's transitive Cxx-mode import
-        # of AmgiReaderDictionary, so they need the same Clang+Swift
-        # interop flags as the app target.
+        # of ReaderDictionary, so they need the same Clang+Swift
+        # interop flags as the app target (incl. the OTHER_SWIFT_FLAGS
+        # copy — see the app target's comment).
         SWIFT_CXX_INTEROPERABILITY_MODE: default
         CLANG_CXX_LANGUAGE_STANDARD: "c++20"
         CLANG_CXX_LIBRARY: "libc++"

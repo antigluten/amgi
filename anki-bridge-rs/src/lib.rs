@@ -8,6 +8,8 @@ use std::slice;
 
 use anki::backend::{init_backend, Backend};
 
+mod aux;
+
 /// Create a new Anki backend instance.
 ///
 /// # Safety
@@ -78,6 +80,19 @@ pub unsafe extern "C" fn anki_run_method(
     } else {
         unsafe { slice::from_raw_parts(input_data, input_len) }
     };
+
+    if service == aux::SERVICE {
+        return match aux::dispatch(backend, method, input) {
+            Ok(output) => {
+                set_output(output, out_data, out_len);
+                0
+            }
+            Err(err_bytes) => {
+                set_output(err_bytes, out_data, out_len);
+                1
+            }
+        };
+    }
 
     match backend.run_service_method(service, method, input) {
         Ok(output) => {

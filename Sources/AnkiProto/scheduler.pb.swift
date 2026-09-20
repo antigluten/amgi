@@ -1089,9 +1089,30 @@ public nonisolated struct Anki_Scheduler_SchedulingContext: Sendable {
 
   public var seed: UInt64 = 0
 
+  public var decay: Float {
+    get {_decay ?? 0}
+    set {_decay = newValue}
+  }
+  /// Returns true if `decay` has been explicitly set.
+  public var hasDecay: Bool {self._decay != nil}
+  /// Clears the value of `decay`. Subsequent reads from it will return its default value.
+  public mutating func clearDecay() {self._decay = nil}
+
+  public var desiredRetention: Float {
+    get {_desiredRetention ?? 0}
+    set {_desiredRetention = newValue}
+  }
+  /// Returns true if `desiredRetention` has been explicitly set.
+  public var hasDesiredRetention: Bool {self._desiredRetention != nil}
+  /// Clears the value of `desiredRetention`. Subsequent reads from it will return its default value.
+  public mutating func clearDesiredRetention() {self._desiredRetention = nil}
+
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
   public init() {}
+
+  fileprivate var _decay: Float? = nil
+  fileprivate var _desiredRetention: Float? = nil
 }
 
 public nonisolated struct Anki_Scheduler_CustomStudyDefaultsRequest: Sendable {
@@ -1356,6 +1377,8 @@ public nonisolated struct Anki_Scheduler_SimulateFsrsWorkloadResponse: Sendable 
   // methods supported on all messages.
 
   public var cost: Dictionary<UInt32,Float> = [:]
+
+  public var reviewlessEndMemorized: Float = 0
 
   public var memorized: Dictionary<UInt32,Float> = [:]
 
@@ -3151,7 +3174,7 @@ nonisolated extension Anki_Scheduler_CustomStudyRequest.Cram.CramKind: SwiftProt
 
 nonisolated extension Anki_Scheduler_SchedulingContext: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SchedulingContext"
-  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}deck_name\0\u{1}seed\0")
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}deck_name\0\u{1}seed\0\u{1}decay\0\u{3}desired_retention\0")
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -3161,24 +3184,38 @@ nonisolated extension Anki_Scheduler_SchedulingContext: SwiftProtobuf.Message, S
       switch fieldNumber {
       case 1: try { try decoder.decodeSingularStringField(value: &self.deckName) }()
       case 2: try { try decoder.decodeSingularUInt64Field(value: &self.seed) }()
+      case 3: try { try decoder.decodeSingularFloatField(value: &self._decay) }()
+      case 4: try { try decoder.decodeSingularFloatField(value: &self._desiredRetention) }()
       default: break
       }
     }
   }
 
   public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
     if !self.deckName.isEmpty {
       try visitor.visitSingularStringField(value: self.deckName, fieldNumber: 1)
     }
     if self.seed != 0 {
       try visitor.visitSingularUInt64Field(value: self.seed, fieldNumber: 2)
     }
+    try { if let v = self._decay {
+      try visitor.visitSingularFloatField(value: v, fieldNumber: 3)
+    } }()
+    try { if let v = self._desiredRetention {
+      try visitor.visitSingularFloatField(value: v, fieldNumber: 4)
+    } }()
     try unknownFields.traverse(visitor: &visitor)
   }
 
   public static func ==(lhs: Anki_Scheduler_SchedulingContext, rhs: Anki_Scheduler_SchedulingContext) -> Bool {
     if lhs.deckName != rhs.deckName {return false}
     if lhs.seed != rhs.seed {return false}
+    if lhs._decay != rhs._decay {return false}
+    if lhs._desiredRetention != rhs._desiredRetention {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -3784,7 +3821,7 @@ nonisolated extension Anki_Scheduler_SimulateFsrsReviewResponse: SwiftProtobuf.M
 
 nonisolated extension Anki_Scheduler_SimulateFsrsWorkloadResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SimulateFsrsWorkloadResponse"
-  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}cost\0\u{1}memorized\0\u{3}review_count\0")
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}cost\0\u{3}reviewless_end_memorized\0\u{1}memorized\0\u{3}review_count\0")
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -3793,8 +3830,9 @@ nonisolated extension Anki_Scheduler_SimulateFsrsWorkloadResponse: SwiftProtobuf
       // enabled. https://github.com/apple/swift-protobuf/issues/1034
       switch fieldNumber {
       case 1: try { try decoder.decodeMapField(fieldType: SwiftProtobuf._ProtobufMap<SwiftProtobuf.ProtobufUInt32,SwiftProtobuf.ProtobufFloat>.self, value: &self.cost) }()
-      case 2: try { try decoder.decodeMapField(fieldType: SwiftProtobuf._ProtobufMap<SwiftProtobuf.ProtobufUInt32,SwiftProtobuf.ProtobufFloat>.self, value: &self.memorized) }()
-      case 3: try { try decoder.decodeMapField(fieldType: SwiftProtobuf._ProtobufMap<SwiftProtobuf.ProtobufUInt32,SwiftProtobuf.ProtobufUInt32>.self, value: &self.reviewCount) }()
+      case 2: try { try decoder.decodeSingularFloatField(value: &self.reviewlessEndMemorized) }()
+      case 3: try { try decoder.decodeMapField(fieldType: SwiftProtobuf._ProtobufMap<SwiftProtobuf.ProtobufUInt32,SwiftProtobuf.ProtobufFloat>.self, value: &self.memorized) }()
+      case 4: try { try decoder.decodeMapField(fieldType: SwiftProtobuf._ProtobufMap<SwiftProtobuf.ProtobufUInt32,SwiftProtobuf.ProtobufUInt32>.self, value: &self.reviewCount) }()
       default: break
       }
     }
@@ -3804,17 +3842,21 @@ nonisolated extension Anki_Scheduler_SimulateFsrsWorkloadResponse: SwiftProtobuf
     if !self.cost.isEmpty {
       try visitor.visitMapField(fieldType: SwiftProtobuf._ProtobufMap<SwiftProtobuf.ProtobufUInt32,SwiftProtobuf.ProtobufFloat>.self, value: self.cost, fieldNumber: 1)
     }
+    if self.reviewlessEndMemorized.bitPattern != 0 {
+      try visitor.visitSingularFloatField(value: self.reviewlessEndMemorized, fieldNumber: 2)
+    }
     if !self.memorized.isEmpty {
-      try visitor.visitMapField(fieldType: SwiftProtobuf._ProtobufMap<SwiftProtobuf.ProtobufUInt32,SwiftProtobuf.ProtobufFloat>.self, value: self.memorized, fieldNumber: 2)
+      try visitor.visitMapField(fieldType: SwiftProtobuf._ProtobufMap<SwiftProtobuf.ProtobufUInt32,SwiftProtobuf.ProtobufFloat>.self, value: self.memorized, fieldNumber: 3)
     }
     if !self.reviewCount.isEmpty {
-      try visitor.visitMapField(fieldType: SwiftProtobuf._ProtobufMap<SwiftProtobuf.ProtobufUInt32,SwiftProtobuf.ProtobufUInt32>.self, value: self.reviewCount, fieldNumber: 3)
+      try visitor.visitMapField(fieldType: SwiftProtobuf._ProtobufMap<SwiftProtobuf.ProtobufUInt32,SwiftProtobuf.ProtobufUInt32>.self, value: self.reviewCount, fieldNumber: 4)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   public static func ==(lhs: Anki_Scheduler_SimulateFsrsWorkloadResponse, rhs: Anki_Scheduler_SimulateFsrsWorkloadResponse) -> Bool {
     if lhs.cost != rhs.cost {return false}
+    if lhs.reviewlessEndMemorized != rhs.reviewlessEndMemorized {return false}
     if lhs.memorized != rhs.memorized {return false}
     if lhs.reviewCount != rhs.reviewCount {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}

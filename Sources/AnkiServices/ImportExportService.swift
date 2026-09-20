@@ -1,15 +1,22 @@
+//
+//  ImportExportService.swift
+//  AnkiServices
+//
+//  Created by Vladimir Gusev on 01.04.2026.
+//
+
 import AnkiBackend
-import AnkiProto
+import AnkiProtoBridge
+public import AnkiKit
 public import Dependencies
 import DependenciesMacros
-import Foundation
 
 @DependencyClient
 public struct ImportExportService: Sendable {
     public var importAnkiPackage: @Sendable (_ path: String) throws -> String
     public var exportCollectionPackage: @Sendable (_ outPath: String, _ includeMedia: Bool) throws -> Void
     public var exportDeckPackage: @Sendable (
-        _ deckId: Int64,
+        _ deckId: DeckID,
         _ outPath: String,
         _ withScheduling: Bool,
         _ withDeckConfigs: Bool,
@@ -23,9 +30,8 @@ public struct ImportExportService: Sendable {
     public var exportApkgForMerge: @Sendable (_ outPath: String) throws -> Void
 
     /// Import an .apkg into the current collection using merge-friendly
-    /// options: merge_notetypes=true, with_scheduling=true, with_deck_configs=true,
-    /// update_notes=IF_NEWER, update_notetypes=IF_NEWER. Returns the import log
-    /// summary string.
+    /// options (merge notetypes, update notes/notetypes if newer). Returns
+    /// the import log summary string.
     public var importApkgForMerge: @Sendable (_ path: String) throws -> String
 }
 
@@ -34,86 +40,30 @@ extension ImportExportService: DependencyKey {
         @Dependency(\.ankiBackend) var backend
         return Self(
             importAnkiPackage: { path in
-                var req = Anki_ImportExport_ImportAnkiPackageRequest()
-                req.packagePath = path
-                let response: Anki_ImportExport_ImportResponse = try backend.invoke(
-                    service: AnkiBackend.Service.importExport,
-                    method: AnkiBackend.ImportExportMethod.importAnkiPackage,
-                    request: req
-                )
-                let log = response.log
-                return "Imported: \(log.new.count) new, \(log.updated.count) updated, \(log.duplicate.count) duplicates"
+                let log = try backend.invoke(.importAnkiPackage(path: path))
+                return "Imported: \(log.newCount) new, \(log.updatedCount) updated, \(log.duplicateCount) duplicates"
             },
             exportCollectionPackage: { outPath, includeMedia in
-                var req = Anki_ImportExport_ExportCollectionPackageRequest()
-                req.outPath = outPath
-                req.includeMedia = includeMedia
-                req.legacy = false
-                try backend.callVoid(
-                    service: AnkiBackend.Service.importExport,
-                    method: AnkiBackend.ImportExportMethod.exportCollectionPackage,
-                    request: req
-                )
+                let export = Result { try backend.invoke(.exportCollectionPackage(outPath: outPath, includeMedia: includeMedia)) }
+                try backend.reopenCollection()
+                try export.get()
             },
             exportDeckPackage: { deckId, outPath, withScheduling, withDeckConfigs, withMedia, legacy in
-                var req = Anki_ImportExport_ExportAnkiPackageRequest()
-                req.outPath = outPath
-                var options = Anki_ImportExport_ExportAnkiPackageOptions()
-                options.withScheduling = withScheduling
-                options.withDeckConfigs = withDeckConfigs
-                options.withMedia = withMedia
-                options.legacy = legacy
-                req.options = options
-                var limit = Anki_ImportExport_ExportLimit()
-                limit.deckID = deckId
-                req.limit = limit
-                let response: Anki_Generic_UInt32 = try backend.invoke(
-                    service: AnkiBackend.Service.importExport,
-                    method: AnkiBackend.ImportExportMethod.exportAnkiPackage,
-                    request: req
-                )
-                return response.val
+                try backend.invoke(.exportAnkiPackage(
+                    deckId: deckId,
+                    outPath: outPath,
+                    withScheduling: withScheduling,
+                    withDeckConfigs: withDeckConfigs,
+                    withMedia: withMedia,
+                    legacy: legacy
+                ))
             },
             exportApkgForMerge: { outPath in
-                var options = Anki_ImportExport_ExportAnkiPackageOptions()
-                options.withScheduling = true
-                options.withDeckConfigs = true
-                options.withMedia = true
-                options.legacy = false
-
-                var limit = Anki_ImportExport_ExportLimit()
-                limit.limit = .wholeCollection(Anki_Generic_Empty())
-
-                var req = Anki_ImportExport_ExportAnkiPackageRequest()
-                req.outPath = outPath
-                req.options = options
-                req.limit = limit
-
-                _ = try backend.call(
-                    service: AnkiBackend.Service.importExport,
-                    method: AnkiBackend.ImportExportMethod.exportAnkiPackage,
-                    request: req
-                )
+                try backend.invoke(.exportAnkiPackageForMerge(outPath: outPath))
             },
             importApkgForMerge: { path in
-                var options = Anki_ImportExport_ImportAnkiPackageOptions()
-                options.mergeNotetypes = true
-                options.withScheduling = true
-                options.withDeckConfigs = true
-                options.updateNotes = .ifNewer
-                options.updateNotetypes = .ifNewer
-
-                var req = Anki_ImportExport_ImportAnkiPackageRequest()
-                req.packagePath = path
-                req.options = options
-
-                let response: Anki_ImportExport_ImportResponse = try backend.invoke(
-                    service: AnkiBackend.Service.importExport,
-                    method: AnkiBackend.ImportExportMethod.importAnkiPackage,
-                    request: req
-                )
-                let log = response.log
-                return "Merged: \(log.new.count) new, \(log.updated.count) updated, \(log.duplicate.count) duplicates"
+                let log = try backend.invoke(.importAnkiPackageForMerge(path: path))
+                return "Merged: \(log.newCount) new, \(log.updatedCount) updated, \(log.duplicateCount) duplicates"
             }
         )
     }()

@@ -1,9 +1,16 @@
+//
+//  MediaClient+Live.swift
+//  AnkiClients
+//
+//  Created by Vladimir Gusev on 29.04.2026.
+//
+
 import AnkiBackend
-import AnkiProto
+import AnkiKit
+import AnkiProtoBridge
 public import Dependencies
 import Foundation
 import Logging
-import SwiftProtobuf
 
 private let logger = Logger(label: "com.amgiapp.media.client")
 
@@ -17,51 +24,36 @@ extension MediaClient: DependencyKey {
                 let url = URL(fileURLWithPath: folder).appendingPathComponent(filename)
                 return FileManager.default.fileExists(atPath: url.path) ? url : nil
             },
+            folderURL: {
+                backend.currentMediaFolderPath.map { URL(fileURLWithPath: $0) }
+            },
             save: { data, filename in
-                guard let folder = backend.currentMediaFolderPath else { return }
-                let url = URL(fileURLWithPath: folder).appendingPathComponent(filename)
-                try data.write(to: url)
+                try await backendOffload {
+                    guard let folder = backend.currentMediaFolderPath else { return }
+                    let url = URL(fileURLWithPath: folder).appendingPathComponent(filename)
+                    try data.write(to: url)
+                }
             },
             delete: { filename in
-                guard let folder = backend.currentMediaFolderPath else { return }
-                let url = URL(fileURLWithPath: folder).appendingPathComponent(filename)
-                try FileManager.default.removeItem(at: url)
+                try await backendOffload {
+                    guard let folder = backend.currentMediaFolderPath else { return }
+                    let url = URL(fileURLWithPath: folder).appendingPathComponent(filename)
+                    try FileManager.default.removeItem(at: url)
+                }
             },
             checkMedia: {
-                let resp: Anki_Media_CheckMediaResponse = try backend.invoke(
-                    service: AnkiBackend.Service.media,
-                    method: AnkiBackend.MediaMethod.checkMedia
-                )
-                return MediaCheckResult(
-                    missing: resp.missing,
-                    unused: resp.unused,
-                    missingNoteIDs: resp.missingMediaNotes,
-                    report: resp.report,
-                    haveTrash: resp.haveTrash
-                )
+                try await backend.invoke(.checkMedia)
             },
             trashMediaFiles: { filenames in
-                var req = Anki_Media_TrashMediaFilesRequest()
-                req.fnames = filenames
-                try backend.callVoid(
-                    service: AnkiBackend.Service.media,
-                    method: AnkiBackend.MediaMethod.trashMediaFiles,
-                    request: req
-                )
+                try await backend.invoke(.trashMediaFiles(filenames: filenames))
                 logger.info("Moved \(filenames.count) media files to trash")
             },
             emptyTrash: {
-                try backend.callVoid(
-                    service: AnkiBackend.Service.media,
-                    method: AnkiBackend.MediaMethod.emptyTrash
-                )
+                try await backend.invoke(.emptyMediaTrash)
                 logger.info("Media trash emptied")
             },
             restoreTrash: {
-                try backend.callVoid(
-                    service: AnkiBackend.Service.media,
-                    method: AnkiBackend.MediaMethod.restoreTrash
-                )
+                try await backend.invoke(.restoreMediaTrash)
                 logger.info("Media trash restored")
             }
         )

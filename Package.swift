@@ -2,14 +2,64 @@
 
 import PackageDescription
 
+// Opt-in debug diagnostics, off by default. ANY use of unsafeFlags opts a
+// target out of explicit-module compilation caching (commit 8fc0fa7), so these
+// are gated behind an env var instead of always-on. Turn on deliberately:
+//   AMGI_DIAGNOSTICS=1 xcodebuild ...   (or `swift build`)
+let diagnosticsEnabled = Context.environment["AMGI_DIAGNOSTICS"] != nil
+
+// Full tier (pure-Swift targets): actor data-race checks + type-check/body timers.
+let fullDiagnosticFlags: [SwiftSetting] = diagnosticsEnabled
+    ? [.unsafeFlags(
+        [
+            "-enable-actor-data-race-checks",
+            "-warn-implicit-overrides",
+            "-Xfrontend", "-warn-long-function-bodies=200",
+            "-Xfrontend", "-warn-long-expression-type-checking=200",
+        ],
+        .when(configuration: .debug)
+    )]
+    : []
+
+// Lean tier (generated / interop targets): race checks only, no body timers
+// (generated decode loops would trip them with no actionable fix).
+let leanDiagnosticFlags: [SwiftSetting] = diagnosticsEnabled
+    ? [.unsafeFlags(
+        ["-enable-actor-data-race-checks", "-warn-implicit-overrides"],
+        .when(configuration: .debug)
+    )]
+    : []
+
+// StrictConcurrency dropped: it's the implicit default under .v6 language mode.
 let sharedSwiftSettings: [SwiftSetting] = [
-    .enableExperimentalFeature("StrictConcurrency"),
     .enableExperimentalFeature("IsolatedAny"),
     .enableUpcomingFeature("ExistentialAny"),
     .enableUpcomingFeature("InternalImportsByDefault"),
     .enableUpcomingFeature("MemberImportVisibility"),
     .enableUpcomingFeature("FullTypedThrows"),
-]
+    .enableUpcomingFeature("InferIsolatedConformances"),
+    .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
+    .enableExperimentalFeature("AccessLevelOnImport"),
+    .enableExperimentalFeature("StrictMemorySafety"),
+    .enableExperimentalFeature("StrictSendableMetatypes"),
+] + fullDiagnosticFlags
+
+// Lean tier for generated / C-FFI targets (AnkiProto, AnkiBackend). Drops
+// StrictMemorySafety — the C bridge traffics in raw pointers and AnkiProto is
+// machine-generated, so it would only emit unfixable noise. Keeps
+// NonisolatedNonsendingByDefault so async function-type mangling stays
+// consistent across the package ↔ app link boundary.
+let interopSwiftSettings: [SwiftSetting] = [
+    .enableExperimentalFeature("IsolatedAny"),
+    .enableUpcomingFeature("ExistentialAny"),
+    .enableUpcomingFeature("InternalImportsByDefault"),
+    .enableUpcomingFeature("MemberImportVisibility"),
+    .enableUpcomingFeature("FullTypedThrows"),
+    .enableUpcomingFeature("InferIsolatedConformances"),
+    .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
+    .enableExperimentalFeature("AccessLevelOnImport"),
+    .enableExperimentalFeature("StrictSendableMetatypes"),
+] + leanDiagnosticFlags
 
 let package = Package(
     name: "AnkiBridge",
@@ -22,7 +72,6 @@ let package = Package(
     platforms: [.iOS(.v18), .macOS(.v15), .watchOS(.v11)],
     products: [
         .library(name: "AnkiKit", targets: ["AnkiKit"]),
-        .library(name: "AnkiProto", targets: ["AnkiProto"]),
         .library(name: "AnkiBackend", targets: ["AnkiBackend"]),
         .library(name: "AnkiServices", targets: ["AnkiServices"]),
         .library(name: "AnkiClients", targets: ["AnkiClients"]),
@@ -43,14 +92,14 @@ let package = Package(
         // MARK: - Rust Bridge
         .binaryTarget(
             name: "AnkiRustLib",
-            path: "AnkiRust.xcframework"
+            path: "AnkiRustLib.xcframework"
         ),
         .target(
             name: "AnkiProto",
             dependencies: [
                 .product(name: "SwiftProtobuf", package: "swift-protobuf"),
             ],
-            swiftSettings: sharedSwiftSettings
+            swiftSettings: interopSwiftSettings
         ),
         .target(
             name: "AnkiBackend",
@@ -60,6 +109,21 @@ let package = Package(
                 .product(name: "Dependencies", package: "swift-dependencies"),
                 .product(name: "DependenciesMacros", package: "swift-dependencies"),
             ],
+            swiftSettings: interopSwiftSettings
+        ),
+        .target(
+            name: "AnkiProtoBridge",
+            dependencies: [
+                "AnkiKit",
+                "AnkiBackend",
+                "AnkiProto",
+                .product(name: "SwiftProtobuf", package: "swift-protobuf"),
+            ],
+            swiftSettings: sharedSwiftSettings
+        ),
+        .testTarget(
+            name: "AnkiProtoBridgeTests",
+            dependencies: ["AnkiProtoBridge", "AnkiProto"],
             swiftSettings: sharedSwiftSettings
         ),
         // MARK: - Libraries
@@ -72,7 +136,7 @@ let package = Package(
             dependencies: [
                 "AnkiKit",
                 "AnkiBackend",
-                "AnkiProto",
+                "AnkiProtoBridge",
                 "AnkiSync",
                 .product(name: "SwiftProtobuf", package: "swift-protobuf"),
                 .product(name: "Dependencies", package: "swift-dependencies"),
@@ -86,10 +150,10 @@ let package = Package(
             dependencies: [
                 "AnkiKit",
                 "AnkiBackend",
-                "AnkiProto",
                 "AnkiServices",
                 "AnkiSync",
-                .product(name: "AmgiReader", package: "AmgiReader"),
+                .product(name: "Reader", package: "AmgiReader"),
+                .product(name: "ReaderEPUB", package: "AmgiReader"),
                 .product(name: "Dependencies", package: "swift-dependencies"),
                 .product(name: "DependenciesMacros", package: "swift-dependencies"),
                 .product(name: "Logging", package: "swift-log"),
@@ -110,6 +174,25 @@ let package = Package(
         .testTarget(
             name: "AmgiCardWebTests",
             dependencies: ["AmgiCardWeb"],
+            swiftSettings: sharedSwiftSettings
+        ),
+        .testTarget(
+            name: "AnkiKitTests",
+            dependencies: ["AnkiKit"],
+            swiftSettings: sharedSwiftSettings
+        ),
+        .testTarget(
+            name: "AnkiServicesTests",
+            dependencies: ["AnkiServices"],
+            swiftSettings: sharedSwiftSettings
+        ),
+        .testTarget(
+            name: "AnkiClientsTests",
+            dependencies: [
+                "AnkiClients",
+                "AnkiKit",
+                .product(name: "Reader", package: "AmgiReader"),
+            ],
             swiftSettings: sharedSwiftSettings
         ),
     ],

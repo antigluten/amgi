@@ -1,14 +1,21 @@
+//
+//  SyncClient.swift
+//  AnkiClients
+//
+//  Created by Vladimir Gusev on 27.03.2026.
+//
+
 public import AnkiKit
 public import Dependencies
 import DependenciesMacros
-public import Foundation
+import Foundation
 
 @DependencyClient
 public struct SyncClient: Sendable {
     public var sync: @Sendable () async throws -> SyncSummary
     public var fullSync: @Sendable (_ direction: SyncDirection) async throws -> Void
-    public var syncMedia: @Sendable () async throws -> MediaSyncSummary
-    public var lastSyncDate: @Sendable () -> Date? = { nil }
+    public var mediaSyncStatus: @Sendable () async throws -> MediaSyncStatus
+    public var abortMediaSync: @Sendable () async throws -> Void
 
     /// Merge local + server collections by:
     /// 1. exporting local as a temporary .apkg

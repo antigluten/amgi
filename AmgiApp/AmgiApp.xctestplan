@@ -1,0 +1,112 @@
+{
+  "configurations" : [
+    {
+      "id" : "9F3A1C22-0D4E-4B7A-9C1E-6E2B7A5D8F01",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:AmgiApp.xcodeproj",
+      "identifier" : "95284AD6E89B9B84191749DE",
+      "name" : "AmgiApp"
+    }
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:AmgiApp.xcodeproj",
+        "identifier" : "EE6CF1FAA191BC2F0404B752",
+        "name" : "AmgiAppTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:..",
+        "identifier" : "AnkiKitTests",
+        "name" : "AnkiKitTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:..",
+        "identifier" : "AnkiProtoBridgeTests",
+        "name" : "AnkiProtoBridgeTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:..",
+        "identifier" : "AmgiCardWebTests",
+        "name" : "AmgiCardWebTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:..",
+        "identifier" : "AnkiServicesTests",
+        "name" : "AnkiServicesTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:..",
+        "identifier" : "AnkiClientsTests",
+        "name" : "AnkiClientsTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:../AmgiFeatures",
+        "identifier" : "AppCoreTests",
+        "name" : "AppCoreTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:../AmgiFeatures",
+        "identifier" : "AppSharedTests",
+        "name" : "AppSharedTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:../AmgiFeatures",
+        "identifier" : "StatsFeatureTests",
+        "name" : "StatsFeatureTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:../AmgiFeatures",
+        "identifier" : "BrowseFeatureTests",
+        "name" : "BrowseFeatureTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:../AmgiFeatures",
+        "identifier" : "SyncFeatureTests",
+        "name" : "SyncFeatureTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:../AmgiUI",
+        "identifier" : "ThemeTests",
+        "name" : "ThemeTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:../AmgiUI",
+        "identifier" : "UITests",
+        "name" : "UITests"
+      }
+    }
+  ],
+  "version" : 1
+}

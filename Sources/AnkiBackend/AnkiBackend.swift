@@ -1,25 +1,52 @@
+//
+//  AnkiBackend.swift
+//  AnkiBackend
+//
+//  Created by Vladimir Gusev on 27.03.2026.
+//
+
 import AnkiRustLib
 import AnkiProto
+import Synchronization
 public import Foundation
-public import SwiftProtobuf
+private import SwiftProtobuf
+private import os
 
 public final class AnkiBackend: Sendable {
     private let backendPtr: Int64
     private let lock = NSLock()
 
-    /// Stored collection paths for close/reopen after full sync.
-    private nonisolated(unsafe) var collectionPath: String?
-    private nonisolated(unsafe) var mediaFolderPath: String?
-    private nonisolated(unsafe) var mediaDbPath: String?
+    private static let perfLog = Logger(subsystem: "com.amgiapp.perf", category: "rpc")
+
+    /// Written during `openCollection` and read from arbitrary threads —
+    /// the card asset scheme handler and the watch's review screen among
+    /// them. A `Mutex` rather than `nonisolated(unsafe)` storage: the
+    /// previous unsynchronized `var` was a genuine data race on a `String?`
+    /// across a profile switch, and the annotation was suppressing the check
+    /// that would have said so.
+    private let mediaFolderStorage = Mutex<String?>(nil)
+
+    private struct OpenPaths: Sendable {
+        let collection: String
+        let mediaFolder: String
+        let mediaDb: String
+    }
+    private let openPathsStorage = Mutex<OpenPaths?>(nil)
 
     /// Absolute path of the open collection's media folder, or nil if no
-    /// collection is currently open. Backed by `nonisolated(unsafe)` storage
-    /// that is set during `openCollection` and cleared during `close`. Safe to
-    /// read from any thread for the duration of an open collection, but callers
+    /// collection is currently open. Safe to read from any thread; callers
     /// must not assume stability across `close` / `openCollection` cycles.
-    public var currentMediaFolderPath: String? { mediaFolderPath }
+    public var currentMediaFolderPath: String? {
+        mediaFolderStorage.withLock { $0 }
+    }
 
     public init(preferredLangs: [String] = ["en"]) throws {
+        let t0 = DispatchTime.now().uptimeNanoseconds
+        defer {
+            Self.perfLog.debug(
+                "open_backend us=\((DispatchTime.now().uptimeNanoseconds - t0) / 1000, privacy: .public)"
+            )
+        }
         var initMsg = Anki_Backend_BackendInit()
         initMsg.preferredLangs = preferredLangs
         initMsg.server = false
@@ -47,21 +74,21 @@ public final class AnkiBackend: Sendable {
 
     // MARK: - Typed RPC (package — use AnkiServices, not these directly)
 
-    package func invoke<Req: SwiftProtobuf.Message, Resp: SwiftProtobuf.Message>(
+    private func invoke<Req: SwiftProtobuf.Message, Resp: SwiftProtobuf.Message>(
         service: UInt32, method: UInt32, request: Req
     ) throws -> Resp {
         let responseBytes = try call(service: service, method: method, request: request)
         return try Resp(serializedBytes: responseBytes)
     }
 
-    package func invoke<Resp: SwiftProtobuf.Message>(
+    private func invoke<Resp: SwiftProtobuf.Message>(
         service: UInt32, method: UInt32
     ) throws -> Resp {
         let responseBytes = try callRaw(service: service, method: method, input: Data())
         return try Resp(serializedBytes: responseBytes)
     }
 
-    package func call(
+    private func call(
         service: UInt32, method: UInt32,
         request: some SwiftProtobuf.Message
     ) throws -> Data {
@@ -69,18 +96,18 @@ public final class AnkiBackend: Sendable {
         return try callRaw(service: service, method: method, input: inputBytes)
     }
 
-    package func call(service: UInt32, method: UInt32) throws -> Data {
+    private func call(service: UInt32, method: UInt32) throws -> Data {
         try callRaw(service: service, method: method, input: Data())
     }
 
-    package func callVoid(
+    private func callVoid(
         service: UInt32, method: UInt32,
         request: some SwiftProtobuf.Message
     ) throws {
         _ = try call(service: service, method: method, request: request)
     }
 
-    package func callVoid(service: UInt32, method: UInt32) throws {
+    private func callVoid(service: UInt32, method: UInt32) throws {
         _ = try call(service: service, method: method)
     }
 
@@ -91,35 +118,33 @@ public final class AnkiBackend: Sendable {
         mediaFolderPath: String,
         mediaDbPath: String
     ) throws {
-        // Store paths for reopen after full sync
-        self.collectionPath = collectionPath
-        self.mediaFolderPath = mediaFolderPath
-        self.mediaDbPath = mediaDbPath
-
         var req = Anki_Collection_OpenCollectionRequest()
         req.collectionPath = collectionPath
         req.mediaFolderPath = mediaFolderPath
         req.mediaDbPath = mediaDbPath
         try callVoid(service: Service.collection, method: CollectionMethod.open, request: req)
+
+        mediaFolderStorage.withLock { $0 = mediaFolderPath }
+        openPathsStorage.withLock {
+            $0 = OpenPaths(
+                collection: collectionPath,
+                mediaFolder: mediaFolderPath,
+                mediaDb: mediaDbPath
+            )
+        }
     }
 
-    /// Reopen the collection after a full sync (which replaces the DB file).
-    /// The Rust backend internally reopens, but we call close+open at our layer
-    /// to ensure consistency (same pattern as AnkiDroid).
-    public func reopenAfterFullSync() throws {
-        guard let path = collectionPath,
-              let media = mediaFolderPath,
-              let mediaDb = mediaDbPath
-        else { return }
-
-        // Close our side (Rust may already have reopened internally)
-        try? closeCollection()
-
-        // Reopen with the same paths
+    public func reopenCollection() throws {
+        guard let paths = openPathsStorage.withLock({ $0 }) else {
+            throw BackendError(
+                kind: .invalidInput,
+                message: "reopenCollection called before any collection was opened"
+            )
+        }
         try openCollection(
-            collectionPath: path,
-            mediaFolderPath: media,
-            mediaDbPath: mediaDb
+            collectionPath: paths.collection,
+            mediaFolderPath: paths.mediaFolder,
+            mediaDbPath: paths.mediaDb
         )
     }
 
@@ -129,20 +154,12 @@ public final class AnkiBackend: Sendable {
         try callVoid(service: Service.collection, method: CollectionMethod.close, request: req)
     }
 
-    /// Runs CheckDatabase to repair any inconsistencies (CollectionService 2, method 0).
-    public func checkDatabase() throws {
-        _ = try callRaw(service: Service.collectionOps, method: CollectionOpsMethod.checkDatabase, input: Data())
-    }
-
     // MARK: - Collection Config (typed JSON helpers)
 
     /// Fetches a JSON-encoded value from the Anki collection config under
     /// `key` and decodes it as `T`. Returns nil if the key has never been
     /// set (`notFoundError` from the backend).
-    public func getConfigJSONValue<T: Decodable>(
-        for key: String,
-        decoder: JSONDecoder = JSONDecoder()
-    ) throws -> T? {
+    public func getConfigJSONValue<T: Decodable>(for key: String) throws -> T? {
         var req = Anki_Generic_String()
         req.val = key
         do {
@@ -151,7 +168,7 @@ public final class AnkiBackend: Sendable {
                 method: ConfigMethod.getConfigJson,
                 request: req
             )
-            return try decoder.decode(T.self, from: response.json)
+            return try JSONDecoder().decode(T.self, from: response.json)
         } catch let error as BackendError where error.kind == .notFoundError {
             return nil
         }
@@ -160,14 +177,10 @@ public final class AnkiBackend: Sendable {
     /// Encodes `value` as JSON and writes it under `key` in the collection
     /// config. Uses the no-undo variant — config writes are not part of
     /// the user-visible undo stack.
-    public func setConfigJSONValue<T: Encodable>(
-        _ value: T,
-        for key: String,
-        encoder: JSONEncoder = JSONEncoder()
-    ) throws {
+    public func setConfigJSONValue<T: Encodable>(_ value: T, for key: String) throws {
         var req = Anki_Config_SetConfigJsonRequest()
         req.key = key
-        req.valueJson = try encoder.encode(value)
+        req.valueJson = try JSONEncoder().encode(value)
         req.undoable = false
         try callVoid(
             service: Service.config,
@@ -215,9 +228,21 @@ public final class AnkiBackend: Sendable {
 
     // MARK: - Raw FFI
 
-    private func callRaw(service: UInt32, method: UInt32, input: Data) throws -> Data {
+    private func callRaw(service: UInt32, method: UInt32, input: Data) throws(BackendError) -> Data {
+        let t0 = DispatchTime.now().uptimeNanoseconds
         lock.lock()
-        defer { lock.unlock() }
+        let tLocked = DispatchTime.now().uptimeNanoseconds
+        defer {
+            lock.unlock()
+            Self.perfLog.debug(
+                """
+                rpc svc=\(service, privacy: .public) m=\(method, privacy: .public) \
+                wait=\((tLocked - t0) / 1000, privacy: .public) \
+                us=\((DispatchTime.now().uptimeNanoseconds - tLocked) / 1000, privacy: .public) \
+                in=\(input.count, privacy: .public)
+                """
+            )
+        }
 
         var outPtr: UnsafeMutablePointer<UInt8>? = nil
         var outLen: Int = 0
@@ -252,182 +277,95 @@ public final class AnkiBackend: Sendable {
         default: throw BackendError(kind: .ioError, message: "FFI error (status \(status))")
         }
     }
+
+    // MARK: - Typed Request invocation (public — preferred entry point)
+
+    public func invoke<R>(_ request: Request<R>) throws(BackendError) -> R {
+        switch Self.runInvoke(backend: self, request: request) {
+        case .success(let value): return value
+        case .failure(let error): throw error
+        }
+    }
+
+    /// Splits the encode/FFI/decode pipeline out so each step's untyped
+    /// throws can be funneled into a single `BackendError` for typed-
+    /// throws callers. Encoding and decoding failures map to
+    /// `.protoError`; BackendErrors raised explicitly by decoders
+    /// (e.g. the `notFoundError` branch in `getImageOcclusionNote`)
+    /// pass through unmodified.
+    private static func runInvoke<R>(backend: AnkiBackend, request: Request<R>) -> Result<R, BackendError> {
+        // Encode
+        let input: Data
+        do {
+            input = try request.encode()
+        } catch let backendError as BackendError {
+            return .failure(backendError)
+        } catch {
+            return .failure(BackendError(kind: .protoError, message: "encode failed: \(error)"))
+        }
+        // FFI dispatch (already typed BackendError)
+        let bytes: Data
+        do {
+            bytes = try backend.callRaw(
+                service: request.serviceId,
+                method: request.methodId,
+                input: input
+            )
+        } catch {
+            return .failure(error)
+        }
+        // Decode
+        do {
+            return .success(try request.decode(bytes))
+        } catch let backendError as BackendError {
+            return .failure(backendError)
+        } catch {
+            return .failure(BackendError(kind: .protoError, message: "decode failed: \(error)"))
+        }
+    }
+
+    /// `@concurrent` for the same reasons as `backendOffload`: cancellation
+    /// reaches the call, the `withDependencies` scope survives it, and the
+    /// caller's priority is inherited.
+    ///
+    /// Goes through `runInvoke` rather than the synchronous `invoke` overload
+    /// above — in an async context Swift prefers the `async` overload, so a
+    /// bare `try invoke(request)` here would resolve to this function and
+    /// recurse. Calling the shared helper sidesteps the ambiguity, and it
+    /// keeps the typed `throws(BackendError)` that `Task.detached` used to
+    /// erase to `any Error`.
+    @concurrent
+    public func invoke<R>(_ request: Request<R>) async throws(BackendError) -> R {
+        switch Self.runInvoke(backend: self, request: request) {
+        case .success(let value): return value
+        case .failure(let error): throw error
+        }
+    }
 }
 
-// MARK: - Service Constants (package — implementation detail of AnkiServices)
+// MARK: - Internal service constants
+//
+// AnkiBackend's *internal* RPCs (openCollection/closeCollection and the
+// config-JSON helpers) keep a small private constant table. The
+// canonical, exhaustive service/method ID catalog lives in AnkiProtoBridge.
+// Bridge factories are the only sanctioned way for service code to dispatch
+// RPCs — every other constant exposure was a drift risk.
 
 extension AnkiBackend {
-    package enum Service {
-        package static let sync: UInt32 = 1
-        package static let collectionOps: UInt32 = 2
-        package static let collection: UInt32 = 3
-        package static let cards: UInt32 = 5
-        package static let decks: UInt32 = 7
-        package static let scheduler: UInt32 = 13
-        package static let notetypes: UInt32 = 23
-        package static let notes: UInt32 = 25
-        package static let config: UInt32 = 9
-        package static let deckConfig: UInt32 = 11
-        package static let cardRendering: UInt32 = 27
-        package static let search: UInt32 = 29
-        package static let imageOcclusion: UInt32 = 35
-        package static let importExport: UInt32 = 37
-        package static let media: UInt32 = 39
-        package static let stats: UInt32 = 41
-        package static let tags: UInt32 = 43
+    fileprivate enum Service {
+        static let collection: UInt32 = 3
+        static let config: UInt32 = 9
     }
 
-    package enum CollectionOpsMethod {
-        package static let checkDatabase: UInt32 = 0
-        package static let getUndoStatus: UInt32 = 1
-        package static let undo: UInt32 = 2
+    fileprivate enum CollectionMethod {
+        static let open: UInt32 = 0
+        static let close: UInt32 = 1
     }
 
-    package enum CollectionMethod {
-        package static let open: UInt32 = 0
-        package static let close: UInt32 = 1
-        package static let latestProgress: UInt32 = 4
-    }
-
-    // BackendConfigService (service 9). Method indices verified against
-    // the DreamAfar fork's AnkiBackend dispatch table.
-    package enum ConfigMethod {
-        package static let getConfigJson: UInt32 = 0
-        package static let setConfigJson: UInt32 = 1
-        package static let setConfigJsonNoUndo: UInt32 = 2
-        package static let removeConfig: UInt32 = 3
-    }
-
-    package enum SyncMethod {
-        package static let syncMedia: UInt32 = 0
-        package static let syncLogin: UInt32 = 3
-        package static let syncStatus: UInt32 = 4
-        package static let syncCollection: UInt32 = 5
-        package static let fullUploadOrDownload: UInt32 = 6
-    }
-
-    // Method indices from BackendSchedulerService (service 13) dispatch table.
-    // Backend-level has 3 extra methods at start (computeFsrsParams, benchmark, exportDataset)
-    // so Collection-level indices are offset by +3.
-    package enum SchedulerMethod {
-        package static let getQueuedCards: UInt32 = 3
-        package static let answerCard: UInt32 = 4
-        package static let schedTimingToday: UInt32 = 5
-        package static let countsForDeckToday: UInt32 = 10
-        package static let congratsInfo: UInt32 = 11
-        package static let emptyFilteredDeck: UInt32 = 15
-        package static let rebuildFilteredDeck: UInt32 = 16
-        package static let scheduleCardsAsNew: UInt32 = 17
-        // Backend-only methods at the front of the dispatch table; verified
-        // against ankitects/anki rslib/src/services/scheduler.rs and the
-        // DreamAfar fork (matches Collection indices + 3 offset).
-        package static let computeFsrsParams: UInt32 = 30
-        package static let simulateFsrsReview: UInt32 = 33
-        package static let simulateFsrsWorkload: UInt32 = 34
-    }
-
-    // BackendDeckConfigService (service 11). Method indices verified against
-    // the DreamAfar fork's AnkiBackend dispatch table.
-    package enum DeckConfigMethod {
-        package static let getDeckConfig: UInt32 = 1
-        package static let getDeckConfigsForUpdate: UInt32 = 6
-        package static let updateDeckConfigs: UInt32 = 7
-        package static let getRetentionWorkload: UInt32 = 11
-    }
-
-    package enum NotesMethod {
-        package static let newNote: UInt32 = 0
-        package static let addNote: UInt32 = 1
-        package static let removeNotes: UInt32 = 3  // verified dispatch index
-        package static let updateNotes: UInt32 = 5
-        package static let getNote: UInt32 = 6
-    }
-
-    package enum DecksMethod {
-        package static let newDeck: UInt32 = 0
-        package static let addDeck: UInt32 = 1
-        package static let addOrUpdateDeckLegacy: UInt32 = 3
-        package static let getDeckTree: UInt32 = 4
-        package static let getDeck: UInt32 = 8
-        package static let getDeckNames: UInt32 = 13
-        package static let removeDecks: UInt32 = 16
-        package static let renameDeck: UInt32 = 18
-        package static let setCurrentDeck: UInt32 = 22
-        package static let getCurrentDeck: UInt32 = 23
-    }
-
-    package enum SearchMethod {
-        package static let searchCards: UInt32 = 1
-        package static let searchNotes: UInt32 = 2
-    }
-
-    package enum TagsMethod {
-        package static let clearUnusedTags: UInt32 = 0
-        package static let allTags: UInt32 = 1
-        package static let removeTags: UInt32 = 2
-        package static let setTagCollapsed: UInt32 = 3
-        package static let tagTree: UInt32 = 4
-        package static let reparentTags: UInt32 = 5
-        package static let renameTags: UInt32 = 6
-        package static let addNoteTags: UInt32 = 7
-        package static let removeNoteTags: UInt32 = 8
-        package static let findAndReplaceTag: UInt32 = 9
-        package static let completeTag: UInt32 = 10
-    }
-
-    package enum ImageOcclusionMethod {
-        // BackendImageOcclusionService (service 35) — delegated from upstream
-        // ImageOcclusionService method indices.
-        package static let getImageForOcclusion: UInt32 = 0
-        package static let getImageOcclusionNote: UInt32 = 1
-        package static let getImageOcclusionFields: UInt32 = 2
-        package static let addImageOcclusionNotetype: UInt32 = 3
-        package static let addImageOcclusionNote: UInt32 = 4
-        package static let updateImageOcclusionNote: UInt32 = 5
-    }
-
-    package enum MediaMethod {
-        package static let checkMedia: UInt32 = 0
-        package static let addMediaFile: UInt32 = 1
-        package static let trashMediaFiles: UInt32 = 2
-        package static let emptyTrash: UInt32 = 3
-        package static let restoreTrash: UInt32 = 4
-    }
-
-    // BackendCardRenderingService (27) has 6 extra methods before renderExistingCard
-    package enum CardRenderingMethod {
-        package static let getEmptyCards: UInt32 = 5
-        package static let renderExistingCard: UInt32 = 6
-        package static let renderUncommittedCard: UInt32 = 7
-        package static let compareAnswer: UInt32 = 15
-        package static let extractClozeForTyping: UInt32 = 16
-    }
-
-    package enum CardsMethod {
-        package static let getCard: UInt32 = 0
-        package static let removeCards: UInt32 = 2
-        package static let setFlag: UInt32 = 4
-    }
-
-    package enum NotetypesMethod {
-        package static let updateNotetype: UInt32 = 1
-        package static let getNotetype: UInt32 = 6
-        package static let getNotetypeNames: UInt32 = 8
-        package static let removeNotetype: UInt32 = 11
-    }
-
-    package enum ImportExportMethod {
-        package static let importCollectionPackage: UInt32 = 0
-        package static let exportCollectionPackage: UInt32 = 1
-        package static let importAnkiPackage: UInt32 = 2
-        // Collection-level ExportAnkiPackage is index 2; backend offset is +2
-        // (the two BackendImportExportService methods above precede it),
-        // matching the same offset pattern as importAnkiPackage above.
-        package static let exportAnkiPackage: UInt32 = 4
-    }
-
-    package enum StatsMethod {
-        package static let cardStats: UInt32 = 0
-        package static let graphs: UInt32 = 2
+    // BackendConfigService (service 9). Verified against the DreamAfar fork.
+    fileprivate enum ConfigMethod {
+        static let getConfigJson: UInt32 = 0
+        static let setConfigJsonNoUndo: UInt32 = 2
+        static let removeConfig: UInt32 = 3
     }
 }

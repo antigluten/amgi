@@ -147,180 +147,6 @@ function amgiIsAnswerSide() { return !!(amgiCardState().isAnswerSide); }
 function amgiLookupPopupEnabled() { return !!(amgiCardState().lookupPopupEnabled); }
 function amgiReplayModeValue() { return amgiCardState().replayMode || 'question'; }
 function amgiPrefetchHTMLValue() { return amgiCardState().prefetchHTML || ''; }
-function amgiIsLookupFuriganaNode(node) {
-    var element = node && node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
-    return !!(element && element.closest('rt, rp'));
-}
-function amgiLookupContainerForNode(node) {
-    var element = node && node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
-    return (element && element.closest('p, li, div, section, article, td, th')) || document.getElementById('qa') || document.body;
-}
-function amgiLookupTextWalker(root) {
-    return document.createTreeWalker(root || document.body, NodeFilter.SHOW_TEXT, {
-        acceptNode: function(node) {
-            return amgiIsLookupFuriganaNode(node) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
-        }
-    });
-}
-function amgiPointInRange(range, x, y) {
-    var rects = range.getClientRects ? Array.from(range.getClientRects()) : [];
-    if (!rects.length) rects = [range.getBoundingClientRect()];
-    return rects.some(function(rect) {
-        return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
-    });
-}
-function amgiLookupCharacterAtPoint(x, y) {
-    var range = document.caretRangeFromPoint ? document.caretRangeFromPoint(x, y) : null;
-    if (!range && document.caretPositionFromPoint) {
-        var position = document.caretPositionFromPoint(x, y);
-        if (position) {
-            range = document.createRange();
-            range.setStart(position.offsetNode, position.offset);
-        }
-    }
-    var node = range && range.startContainer;
-    if (!node || node.nodeType !== Node.TEXT_NODE || amgiIsLookupFuriganaNode(node)) return null;
-
-    var text = node.textContent || '';
-    for (var i = 0, offsets = [range.startOffset, range.startOffset - 1, range.startOffset + 1]; i < offsets.length; i++) {
-        var offset = offsets[i];
-        if (offset < 0 || offset >= text.length) continue;
-        var charRange = document.createRange();
-        charRange.setStart(node, offset);
-        charRange.setEnd(node, offset + 1);
-        if (amgiPointInRange(charRange, x, y)) {
-            return { node: node, offset: offset };
-        }
-    }
-    return null;
-}
-function amgiLookupNodesInContainer(root, hitNode) {
-    var walker = amgiLookupTextWalker(root);
-    var nodes = [];
-    var hitIndex = -1;
-    var node;
-    while (node = walker.nextNode()) {
-        if (node === hitNode) hitIndex = nodes.length;
-        nodes.push(node);
-    }
-    return { nodes: nodes, hitIndex: hitIndex };
-}
-function amgiIsLatinLookupChar(character) {
-    return /^[A-Za-z0-9]$/.test(character || '');
-}
-function amgiFlattenedLookupItems(root) {
-    var walker = amgiLookupTextWalker(root);
-    var items = [];
-    var node;
-    while (node = walker.nextNode()) {
-        var content = node.textContent || '';
-        for (var index = 0; index < content.length; index++) {
-            items.push({ node: node, offset: index, character: content[index] });
-        }
-    }
-    return items;
-}
-function amgiLatinWordPayloadAt(nodeInfo, hit, maxLength) {
-    var items = amgiFlattenedLookupItems(amgiLookupContainerForNode(hit.node));
-    var hitIndex = -1;
-    for (var i = 0; i < items.length; i++) {
-        if (items[i].node === hit.node && items[i].offset === hit.offset) {
-            hitIndex = i;
-            break;
-        }
-    }
-    if (hitIndex < 0) return '';
-
-    var start = hitIndex;
-    var end = hitIndex;
-    while (start > 0 && end - (start - 1) + 1 <= maxLength && amgiIsLatinLookupChar(items[start - 1].character)) {
-        start--;
-    }
-    while (end + 1 < items.length && (end + 1) - start + 1 <= maxLength && amgiIsLatinLookupChar(items[end + 1].character)) {
-        end++;
-    }
-
-    return items.slice(start, end + 1).map(function(item) { return item.character; }).join('').trim();
-}
-function amgiLookupRangeRect(node, start, end) {
-    var range = document.createRange();
-    range.setStart(node, start);
-    range.setEnd(node, end);
-    var rects = range.getClientRects ? Array.from(range.getClientRects()).filter(function(rect) {
-        return rect.width > 0 && rect.height > 0;
-    }) : [];
-    return rects[0] || null;
-}
-function amgiSameVisualLine(rect, reference) {
-    var rectMidY = rect.top + rect.height / 2;
-    var referenceMidY = reference.top + reference.height / 2;
-    return Math.abs(rectMidY - referenceMidY) <= Math.max(rect.height, reference.height) * 0.65;
-}
-function amgiVisualLatinWordPayloadAt(nodeInfo, hit, maxLength) {
-    var chars = [];
-
-    for (var nodeIndex = 0; nodeIndex < nodeInfo.nodes.length; nodeIndex++) {
-        var node = nodeInfo.nodes[nodeIndex];
-        var content = node.textContent || '';
-        for (var index = 0; index < content.length; index++) {
-            var character = content[index];
-            if (!amgiIsLatinLookupChar(character)) continue;
-            var rect = amgiLookupRangeRect(node, index, index + 1);
-            if (!rect) continue;
-            chars.push({ node: node, offset: index, character: character, rect: rect });
-        }
-    }
-
-    var hitIndex = -1;
-    for (var i = 0; i < chars.length; i++) {
-        if (chars[i].node === hit.node && chars[i].offset === hit.offset) {
-            hitIndex = i;
-            break;
-        }
-    }
-    if (hitIndex < 0) return '';
-
-    var reference = chars[hitIndex].rect;
-    var maxGap = Math.max(6, Math.min(18, reference.width * 1.4));
-    var start = hitIndex;
-    var end = hitIndex;
-
-    for (var beforeIndex = hitIndex - 1; beforeIndex >= 0 && end - beforeIndex + 1 <= maxLength; beforeIndex--) {
-        var currentBefore = chars[beforeIndex];
-        var next = chars[beforeIndex + 1];
-        if (!amgiSameVisualLine(currentBefore.rect, reference)) break;
-        if (next.rect.left - currentBefore.rect.right > maxGap) break;
-        start = beforeIndex;
-    }
-
-    for (var afterIndex = hitIndex + 1; afterIndex < chars.length && afterIndex - start + 1 <= maxLength; afterIndex++) {
-        var currentAfter = chars[afterIndex];
-        var previous = chars[afterIndex - 1];
-        if (!amgiSameVisualLine(currentAfter.rect, reference)) break;
-        if (currentAfter.rect.left - previous.rect.right > maxGap) break;
-        end = afterIndex;
-    }
-
-    return chars.slice(start, end + 1).map(function(item) { return item.character; }).join('');
-}
-function amgiForwardLookupTextAt(nodeInfo, hit, maxLength, delimiters) {
-    var selected = '';
-
-    for (var forwardIndex = nodeInfo.hitIndex; forwardIndex < nodeInfo.nodes.length && selected.length < maxLength; forwardIndex++) {
-        var forwardText = nodeInfo.nodes[forwardIndex].textContent || '';
-        var forwardOffset = forwardIndex === nodeInfo.hitIndex ? hit.offset : 0;
-        for (var f = forwardOffset; f < forwardText.length && selected.length < maxLength; f++) {
-            var forwardChar = forwardText[f];
-            if (delimiters.indexOf(forwardChar) !== -1) {
-                forwardIndex = nodeInfo.nodes.length;
-                break;
-            }
-            selected += forwardChar;
-        }
-    }
-
-    return selected.trim();
-}
 
 function amgiApplyCardState(state) {
     window.__amgiCardState = Object.assign({}, window.__amgiCardState || {}, state || {});
@@ -332,51 +158,28 @@ function amgiApplyCardState(state) {
     if (qa) qa.style.setProperty('--amgi-card-padding-bottom', (s.cardPaddingBottom || 0) + 'px');
 }
 
-// ===== Lookup (text selection → amgiLookupText) =====
+// ===== Lookup (tap → amgiLookupText) =====
+// Extraction itself is window.amgiLookup from LookupExtraction.js (shared
+// with the EPUB reader, injected by CardWebView). This only decides whether
+// a tap on a card should look anything up at all.
 function amgiCardLookupPayloadAt(x, y, scanLength) {
-    if (!amgiLookupPopupEnabled()) return null;
+    if (!amgiLookupPopupEnabled() || !window.amgiLookup) return null;
+    var selection = window.getSelection();
+    if (selection && selection.toString().length > 0) return null;
     var target = document.elementFromPoint(x, y);
     if (!target) return null;
     if (target.closest('a, button, input, textarea, select, option, [contenteditable], .replay-button, .replay-btn, .sound-btn, #image-occlusion-canvas')) {
         return null;
     }
-    if (target.closest('rt, rp')) return null;
-
-    var hit = amgiLookupCharacterAtPoint(x, y);
-    if (!hit) return null;
-
-    var maxLength = Math.max(1, scanLength || 16);
-    var delimiters = ' \t\n\r。、！？…‥「」『』（）()【】〈〉《》〔〕｛｝{}［］[]・：；:;，,.─';
-    var container = amgiLookupContainerForNode(hit.node);
-    var nodeInfo = amgiLookupNodesInContainer(container, hit.node);
-    if (nodeInfo.hitIndex < 0) return null;
-
-    var hitText = hit.node.textContent || '';
-    var hitChar = hitText[hit.offset] || '';
-    var selected = amgiIsLatinLookupChar(hitChar)
-        ? amgiLatinWordPayloadAt(nodeInfo, hit, maxLength)
-        : amgiForwardLookupTextAt(nodeInfo, hit, maxLength, delimiters);
-    if (amgiIsLatinLookupChar(hitChar) && selected.length === 1) {
-        var bodyNodeInfo = amgiLookupNodesInContainer(document.body, hit.node);
-        selected = amgiVisualLatinWordPayloadAt(nodeInfo, hit, maxLength)
-            || (bodyNodeInfo.hitIndex >= 0 ? amgiVisualLatinWordPayloadAt(bodyNodeInfo, hit, maxLength) : '')
-            || selected;
-    }
-    if (!selected) return null;
-    return {
-        text: selected,
-        sentence: (container.textContent || '').trim(),
-        x: x,
-        y: y
-    };
+    return window.amgiLookup.payloadAt(x, y, scanLength);
 }
 
 document.addEventListener('click', function(event) {
     var state = amgiCardState();
     if (state.renderedAt && Date.now() - state.renderedAt < 300) return;
-    var payload = amgiCardLookupPayloadAt(event.clientX, event.clientY, 16);
+    var payload = amgiCardLookupPayloadAt(event.clientX, event.clientY, state.dictionaryScanLength);
     if (!payload) return;
-    window.webkit.messageHandlers.amgiLookupText.postMessage(payload);
+    try { window.webkit.messageHandlers.amgiLookupText.postMessage(payload); } catch(e) {}
 }, false);
 
 function amgiSetCardCSS(cssText) {
@@ -713,6 +516,24 @@ function amgiStopTts() {
     try { window.webkit.messageHandlers.amgiStopTts.postMessage(null); } catch(e) {}
 }
 window.amgiStopTts = amgiStopTts;
+// Shared hidden queue player. WKWebView's per-element <audio>.play() loses
+// the autoplay chain when fields embed multiple [sound:] tags; routing the
+// whole queue through one element keeps autoplay stable across iOS.
+function amgiQueuePlayer() {
+    var player = document.getElementById('amgi-audio-queue-player');
+    if (player) return player;
+    player = document.createElement('audio');
+    player.id = 'amgi-audio-queue-player';
+    player.preload = 'auto';
+    player.style.display = 'none';
+    document.body.appendChild(player);
+    return player;
+}
+// Exclude the internal queue player from "template-managed media" detection
+// so its presence on the page doesn't make us skip autoplay.
+function amgiHasTemplateManagedMedia() {
+    return document.querySelector('audio:not(.anki-sound-audio):not(#amgi-audio-queue-player), video') !== null;
+}
 function stopAllSystemAudio() {
     amgiStopTts();
     document.querySelectorAll('.anki-sound-audio').forEach(function(a) {
@@ -721,12 +542,34 @@ function stopAllSystemAudio() {
         setAudioButtonState(a.nextElementSibling, 'play');
         a.onended = null;
     });
+    var queuePlayer = document.getElementById('amgi-audio-queue-player');
+    if (queuePlayer) {
+        queuePlayer.pause();
+        queuePlayer.currentTime = 0;
+        queuePlayer.onended = null;
+        queuePlayer.onerror = null;
+        queuePlayer.removeAttribute('src');
+        queuePlayer.load();
+    }
     notifyAudioState(false);
 }
 window.amgiStopAllAudio = stopAllSystemAudio;
 function collectAudioQueue(mode) {
     var all = Array.from(document.querySelectorAll('.anki-sound-audio'));
-    if (mode === 'question') return all;
+    if (mode === 'question' || mode === 'answerWithQuestion') return all;
+    // answerOnly: exclude audio already played on the question side. Handles
+    // back-template audio fields placed before <hr id=answer> (e.g. {{发音}}
+    // between {{FrontSide}} and the marker) which the pure DOM-position
+    // filter would otherwise miss.
+    var questionSrcs = window.__amgiQuestionAudioSrcs;
+    if (questionSrcs && questionSrcs.size > 0) {
+        var newAudio = all.filter(function(a) {
+            var src = a.getAttribute('src') || '';
+            return src && !questionSrcs.has(src);
+        });
+        return newAudio.length > 0 ? newAudio : all;
+    }
+    // Fallback when question srcs aren't recorded yet.
     var marker = document.getElementById('answer');
     if (!marker) return all;
     var after = all.filter(function(a) {
@@ -753,20 +596,32 @@ function replaySequential(queue) {
     stopAllSystemAudio();
     if (!queue || !queue.length) return;
     var idx = 0;
+    var currentBtn = null;
+    var player = amgiQueuePlayer();
     notifyAudioState(true);
+    function clearCurrentButton() {
+        if (!currentBtn) return;
+        setAudioButtonState(currentBtn, 'play');
+        currentBtn = null;
+    }
     function playNext() {
+        clearCurrentButton();
         if (idx >= queue.length) { notifyAudioState(false); return; }
         var audio = queue[idx];
-        var btn = audio.nextElementSibling;
-        audio.currentTime = 0;
-        audio.play().catch(function() { idx++; playNext(); });
-        setAudioButtonState(btn, 'pause');
-        audio.onended = function() { setAudioButtonState(btn, 'play'); idx++; playNext(); };
+        var src = audio.currentSrc || audio.src;
+        if (!src) { idx++; playNext(); return; }
+        currentBtn = audio.nextElementSibling;
+        setAudioButtonState(currentBtn, 'pause');
+        player.src = src;
+        player.currentTime = 0;
+        player.play().catch(function() { idx++; playNext(); });
     }
+    player.onended = function() { idx++; playNext(); };
+    player.onerror = function() { idx++; playNext(); };
     playNext();
 }
 function amgiReplayAll(mode) {
-    if (document.querySelector('audio:not(.anki-sound-audio), video')) return;
+    if (amgiHasTemplateManagedMedia()) return;
     replaySequential(collectAudioQueue(mode));
 }
 window.amgiReplayAll = amgiReplayAll;
@@ -795,6 +650,12 @@ window.playSound = playSound; globalThis.playSound = playSound;
 function pycmd(command) {
     if (!command || typeof command !== 'string') return false;
     if (command === 'replay') { amgiReplayAll(amgiReplayModeValue()); return false; }
+    // Anki's reviewer reveals the answer with pycmd('ans'); card templates that
+    // drive their own answer flow rely on it. Forward to the native session.
+    if (command === 'ans' || command === 'showans') {
+        try { window.webkit.messageHandlers.amgiShowAnswer.postMessage(''); } catch(e) {}
+        return false;
+    }
     if (command.startsWith('play:')) {
         var parts = command.split(':');
         var side = parts[1];
@@ -886,6 +747,33 @@ window.ankiPlatform = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase())
 globalThis.ankiPlatform = window.ankiPlatform;
 
 // ===== IO masks =====
+function amgiParseIOBorder(value, fallback) {
+    var parts = (value || fallback).trim().split(/\s+/);
+    var width = parseFloat(parts.shift());
+    return {
+        width: Number.isFinite(width) ? width : 1,
+        color: parts.join(' ') || '#212121'
+    };
+}
+function amgiResolveIOStyle(canvas) {
+    var style = getComputedStyle(canvas);
+    var activeBorder = amgiParseIOBorder(style.getPropertyValue('--active-shape-border'), '1px #212121');
+    var inactiveBorder = amgiParseIOBorder(style.getPropertyValue('--inactive-shape-border'), '1px #212121');
+    var highlightBorder = amgiParseIOBorder(style.getPropertyValue('--highlight-shape-border'), '1px #ff8e8e');
+    return {
+        inactiveColor: style.getPropertyValue('--inactive-shape-color').trim() || '#ffeba2',
+        activeColor: style.getPropertyValue('--active-shape-color').trim() || '#ff8e8e',
+        highlightColor: style.getPropertyValue('--highlight-shape-color').trim() || '#ff8e8e00',
+        inactiveBorderWidth: inactiveBorder.width,
+        inactiveBorderColor: inactiveBorder.color,
+        activeBorderWidth: activeBorder.width,
+        activeBorderColor: activeBorder.color,
+        highlightBorderWidth: highlightBorder.width,
+        highlightBorderColor: highlightBorder.color
+    };
+}
+window.amgiResolveIOStyle = amgiResolveIOStyle;
+
 function amgiExtractIOShapes(selector) {
     return Array.from(document.querySelectorAll(selector)).map(function(el) {
         var pointsRaw = el.dataset.points;
@@ -904,13 +792,14 @@ function amgiExtractIOShapes(selector) {
             text: el.dataset.text||'',
             scale: parseFloat(el.dataset.scale||'1'),
             fontSize: parseFloat(el.dataset.fontSize||'0'),
-            fill: el.dataset.fill||'#000000',
+            fill: el.dataset.fill||'#ffeba2',
             occludeInactive: (el.dataset.occludeInactive||el.dataset.occludeinactive||'')==='1',
             points: points
         };
     });
 }
-function amgiDrawIOShape(ctx, shape, size, fill, stroke) {
+function amgiDrawIOShape(ctx, shape, size, fill, stroke, strokeWidth) {
+    strokeWidth = Number.isFinite(strokeWidth) ? strokeWidth : 1;
     if (shape.type === 'text') {
         var fontSize = shape.fontSize > 0 ? shape.fontSize * size.height : 40;
         var scale = shape.scale > 0 ? shape.scale : 1;
@@ -935,7 +824,7 @@ function amgiDrawIOShape(ctx, shape, size, fill, stroke) {
         for (var pi = 1; pi < shape.points.length; pi++)
             ctx.lineTo(shape.points[pi].x * size.width, shape.points[pi].y * size.height);
         ctx.closePath(); ctx.fillStyle = fill; ctx.fill();
-        if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1; ctx.stroke(); }
+        if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = strokeWidth; ctx.stroke(); }
         ctx.restore(); return;
     }
     var left = shape.left * size.width, top = shape.top * size.height;
@@ -944,12 +833,12 @@ function amgiDrawIOShape(ctx, shape, size, fill, stroke) {
     if (shape.type === 'rect') {
         var sw = shape.width * size.width, sh = shape.height * size.height;
         ctx.fillStyle = fill; ctx.fillRect(0, 0, sw, sh);
-        if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1; ctx.strokeRect(0, 0, sw, sh); }
+        if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = strokeWidth; ctx.strokeRect(0, 0, sw, sh); }
     } else if (shape.type === 'ellipse') {
         var rx = shape.rx * size.width, ry = shape.ry * size.height;
         ctx.beginPath(); ctx.ellipse(rx, ry, rx, ry, 0, 0, 2 * Math.PI);
         ctx.fillStyle = fill; ctx.fill();
-        if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1; ctx.stroke(); }
+        if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = strokeWidth; ctx.stroke(); }
     }
     ctx.restore();
 }
@@ -1033,15 +922,26 @@ function amgiSetupImageOcclusion() {
                 var masksHidden = !!container._amgiMasksHidden;
                 canvasRef.style.pointerEvents = amgiIsAnswerSide() && !masksHidden ? 'auto' : 'none';
                 canvasRef.style.cursor = amgiIsAnswerSide() && !masksHidden ? 'pointer' : 'default';
-                var style = getComputedStyle(document.documentElement);
-                var inactiveColor = style.getPropertyValue('--inactive-shape-color').trim() || '#ffeba2';
-                var activeColor = style.getPropertyValue('--active-shape-color').trim() || '#ff8e8e';
-                var highlightColor = style.getPropertyValue('--highlight-shape-color').trim() || 'rgba(255,142,142,0)';
-                var border = '#212121';
+                var style = amgiResolveIOStyle(canvasRef);
                 var size = { width: width, height: height };
                 visibleShapes().forEach(function(s) {
-                    var fill = s._cls === 'cloze-inactive' ? inactiveColor : s._cls === 'cloze' ? activeColor : highlightColor;
-                    amgiDrawIOShape(ctx, s, size, fill, border);
+                    var fill;
+                    var borderColor;
+                    var borderWidth;
+                    if (s._cls === 'cloze-inactive') {
+                        fill = s.fill !== '#ffeba2' ? s.fill : style.inactiveColor;
+                        borderColor = style.inactiveBorderColor;
+                        borderWidth = style.inactiveBorderWidth;
+                    } else if (s._cls === 'cloze') {
+                        fill = style.activeColor;
+                        borderColor = style.activeBorderColor;
+                        borderWidth = style.activeBorderWidth;
+                    } else {
+                        fill = style.highlightColor;
+                        borderColor = style.highlightBorderColor;
+                        borderWidth = style.highlightBorderWidth;
+                    }
+                    amgiDrawIOShape(ctx, s, size, fill, borderColor, borderWidth);
                 });
             }
             container._amgiRedrawIO = redraw;
@@ -1196,13 +1096,14 @@ function amgiQueueAction(action) {
 }
 
 // ── Public API called from Swift via evaluateJavaScript ───────────────
-function _showQuestion(html, prefetchHTML, bodyclass, autoplay, replayMode, alignTop, bodyPaddingBottom, cardPaddingBottom, lookupPopupEnabled) {
+function _showQuestion(html, prefetchHTML, bodyclass, autoplay, replayMode, alignTop, bodyPaddingBottom, cardPaddingBottom, lookupPopupEnabled, dictionaryScanLength) {
     amgiQueueAction(function() {
         return amgiUpdateQA(
             html,
             {
                 isAnswerSide: false,
                 lookupPopupEnabled: !!lookupPopupEnabled,
+                dictionaryScanLength: dictionaryScanLength ?? 16,
                 bodyClass: bodyclass,
                 autoplayEnabled: !!autoplay,
                 replayMode: replayMode || 'question',
@@ -1214,12 +1115,22 @@ function _showQuestion(html, prefetchHTML, bodyclass, autoplay, replayMode, alig
             },
             function() {
                 window.scrollTo(0, 0);
+                // Reset for the new card so the answer side can use the
+                // question-srcs exclusion path on the next flip.
+                window.__amgiQuestionAudioSrcs = null;
             },
             function() {
                 var typeans = document.getElementById('typeans');
                 if (typeans) typeans.focus();
-                var hasTemplateManagedMedia = document.querySelector('audio:not(.anki-sound-audio), video') !== null;
+                var hasTemplateManagedMedia = amgiHasTemplateManagedMedia();
                 if (amgiAutoplayEnabled() && !hasTemplateManagedMedia) amgiReplayAll(amgiReplayModeValue());
+                // Record question-side audio srcs so `answerOnly` mode can
+                // exclude them without relying on <hr id=answer> position.
+                window.__amgiQuestionAudioSrcs = new Set(
+                    Array.from(document.querySelectorAll('.anki-sound-audio')).map(function(a) {
+                        return a.getAttribute('src') || '';
+                    }).filter(Boolean)
+                );
                 var ph = amgiPrefetchHTMLValue();
                 if (amgiContainsMathJaxMarkup(html || '') || amgiContainsMathJaxMarkup(ph || '')) {
                     void amgiEnsureMathJaxReady(1500);
@@ -1230,13 +1141,14 @@ function _showQuestion(html, prefetchHTML, bodyclass, autoplay, replayMode, alig
     });
 }
 
-function _showAnswer(html, bodyclass, autoplay, replayMode, alignTop, bodyPaddingBottom, cardPaddingBottom, lookupPopupEnabled) {
+function _showAnswer(html, bodyclass, autoplay, replayMode, alignTop, bodyPaddingBottom, cardPaddingBottom, lookupPopupEnabled, dictionaryScanLength) {
     amgiQueueAction(function() {
         return amgiUpdateQA(
             html,
             {
                 isAnswerSide: true,
                 lookupPopupEnabled: !!lookupPopupEnabled,
+                dictionaryScanLength: dictionaryScanLength ?? 16,
                 bodyClass: bodyclass,
                 autoplayEnabled: !!autoplay,
                 replayMode: replayMode || 'answerOnly',
@@ -1254,7 +1166,7 @@ function _showAnswer(html, bodyclass, autoplay, replayMode, alignTop, bodyPaddin
                 });
             },
             function() {
-                var hasTemplateManagedMedia = document.querySelector('audio:not(.anki-sound-audio), video') !== null;
+                var hasTemplateManagedMedia = amgiHasTemplateManagedMedia();
                 if (amgiAutoplayEnabled() && !hasTemplateManagedMedia) amgiReplayAll(amgiReplayModeValue());
             }
         );
