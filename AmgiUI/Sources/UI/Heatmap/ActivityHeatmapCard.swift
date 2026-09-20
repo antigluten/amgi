@@ -51,7 +51,7 @@ public struct ActivityHeatmapCard: View {
     // MARK: - Body
 
     public var body: some View {
-        AmgiCard(background: .surfaceElevated, shadow: nil) {
+        AmgiCard(background: .surface) {
             VStack(alignment: .leading, spacing: 12) {
                 HeatmapHeaderRow(selectedDays: $selectedDays)
                 if data.counts.isEmpty {

@@ -46,8 +46,7 @@ public struct DeckGridCardView: View {
     public var body: some View {
         Button(action: onTap) {
             AmgiCard(
-                background: isSelected ? .solid(palette.accentSoft) : .surfaceElevated,
-                shadow: palette.shadows.sm,
+                background: isSelected ? .solid(palette.accentSoft) : .surface,
                 cornerRadius: AmgiRadius.hero,
                 contentInsets: EdgeInsets(
                     top: AmgiSpacing.md, leading: AmgiSpacing.md,

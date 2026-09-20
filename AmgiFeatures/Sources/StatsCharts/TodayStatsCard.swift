@@ -77,8 +77,7 @@ public struct PeriodStatsCard: View {
 
     public var body: some View {
         AmgiCard(
-            background: .surfaceElevated,
-            shadow: palette.shadows.md,
+            background: .surface,
             cornerRadius: AmgiRadius.inset,
             contentInsets: EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
         ) {

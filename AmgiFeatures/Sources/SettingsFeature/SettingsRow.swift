@@ -132,7 +132,7 @@ struct SettingsGroup<Content: View>: View {
 
     var body: some View {
         AmgiCard(
-            background: .surfaceElevated,
+            background: .surface,
             cornerRadius: palette.elevation == .ring ? AmgiRadius.inset : AmgiRadius.hero,
             contentInsets: EdgeInsets()
         ) {

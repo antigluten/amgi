@@ -164,8 +164,7 @@ public struct StudyLandingContent: View {
                 sectionHeader("Up Next")
                     .padding(.bottom, 4)
                 AmgiCard(
-                    background: .surfaceElevated,
-                    shadow: palette.shadows.sm,
+                    background: .surface,
                     cornerRadius: AmgiRadius.inset,
                     contentInsets: EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
                 ) {

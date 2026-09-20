@@ -43,7 +43,7 @@ public struct AmgiHeroSummary<Decoration: View, Footer: View>: View {
     }
 
     public var body: some View {
-        AmgiCard(background: background, shadow: palette.shadows.md) {
+        AmgiCard(background: background) {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 0) {

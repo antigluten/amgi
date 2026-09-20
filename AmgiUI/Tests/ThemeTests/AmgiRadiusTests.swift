@@ -12,10 +12,19 @@ import CoreGraphics
 @Suite("AmgiRadius tokens")
 struct AmgiRadiusTests {
     @Test func tokenValuesMatchMinimalDesignLanguage() {
-        #expect(AmgiRadius.small == 8)
-        #expect(AmgiRadius.inset == 12)
-        #expect(AmgiRadius.hero == 14)
-        #expect(AmgiRadius.control == 10)
+        if #available(iOS 26, macOS 26, watchOS 26, *) {
+            #expect(AmgiRadius.small == 12)
+            #expect(AmgiRadius.inset == 18)
+            #expect(AmgiRadius.hero == 22)
+            #expect(AmgiRadius.control == 14)
+            #expect(AmgiRadius.card == 26)
+        } else {
+            #expect(AmgiRadius.small == 8)
+            #expect(AmgiRadius.inset == 12)
+            #expect(AmgiRadius.hero == 14)
+            #expect(AmgiRadius.control == 10)
+            #expect(AmgiRadius.card == 24)
+        }
         #expect(AmgiRadius.pill == 28)
     }
 

@@ -21,12 +21,11 @@ public enum AmgiCardBackground: Sendable {
 }
 
 /// Atomic rounded panel used by every "card" surface in Amgi.
-/// Owns background fill, corner radius, drop shadow, and content insets.
+/// Owns background fill, corner radius, hairline edge, and content insets.
 /// Higher-level shapes (`AmgiHeroSummary`, future tile / streak cards)
 /// compose this primitive — they don't reimplement the chrome.
 public struct AmgiCard<Content: View>: View {
     public let background: AmgiCardBackground
-    public let shadow: ShadowSpec?
     public let cornerRadius: CGFloat
     public let contentInsets: EdgeInsets
     @ViewBuilder public let content: () -> Content
@@ -35,7 +34,6 @@ public struct AmgiCard<Content: View>: View {
 
     public init(
         background: AmgiCardBackground = .surface,
-        shadow: ShadowSpec? = nil,
         cornerRadius: CGFloat = AmgiRadius.hero,
         contentInsets: EdgeInsets = EdgeInsets(
             top: AmgiSpacing.cardInset, leading: AmgiSpacing.cardInset,
@@ -44,7 +42,6 @@ public struct AmgiCard<Content: View>: View {
         @ViewBuilder content: @escaping () -> Content
     ) {
         self.background = background
-        self.shadow = shadow
         self.cornerRadius = cornerRadius
         self.contentInsets = contentInsets
         self.content = content
@@ -56,17 +53,9 @@ public struct AmgiCard<Content: View>: View {
             .background { backgroundView }
             .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
             .overlay {
-                if palette.elevation == .ring {
-                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .strokeBorder(palette.separator, lineWidth: 1)
-                }
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .strokeBorder(palette.separator, lineWidth: 1)
             }
-            .shadow(
-                color: .black.opacity(palette.elevation == .ring ? 0 : (shadow?.opacity ?? 0)),
-                radius: shadow?.radius ?? 0,
-                x: shadow?.dx ?? 0,
-                y: shadow?.dy ?? 0
-            )
     }
 
     @ViewBuilder

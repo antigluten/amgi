@@ -72,7 +72,6 @@ public struct ReviewsChart: View {
         let entries = self.entries
         AmgiCard(
             background: .surface,
-            shadow: palette.shadows.sm,
             cornerRadius: AmgiRadius.inset,
             contentInsets: EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
         ) {

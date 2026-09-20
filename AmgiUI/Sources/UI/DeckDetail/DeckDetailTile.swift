@@ -25,8 +25,7 @@ public struct DeckDetailTile: View {
 
     public var body: some View {
         AmgiCard(
-            background: .surfaceElevated,
-            shadow: palette.shadows.sm,
+            background: .surface,
             cornerRadius: AmgiRadius.hero,
             contentInsets: EdgeInsets(top: 18, leading: 4, bottom: 18, trailing: 4)
         ) {
