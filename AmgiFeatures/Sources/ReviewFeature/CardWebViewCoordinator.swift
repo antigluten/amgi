@@ -52,6 +52,8 @@ final class CardWebViewCoordinator: NSObject, WKNavigationDelegate, WKScriptMess
 
     private var lastThemePayload: String?
     private let speechSynthesizer = AVSpeechSynthesizer()
+    private var activeUtterance: AVSpeechUtterance?
+    private var ttsRequestID: String?
 
     // MARK: Init
 
@@ -135,29 +137,48 @@ final class CardWebViewCoordinator: NSObject, WKNavigationDelegate, WKScriptMess
     // MARK: - AVSpeechSynthesizerDelegate
 
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didStart utterance: AVSpeechUtterance) {
+        let id = ObjectIdentifier(utterance)
         Task { @MainActor [weak self] in
-            self?.onAudioStateChange?(true)
+            guard let self, self.activeUtterance.map(ObjectIdentifier.init) == id else { return }
+            self.onAudioStateChange?(true)
         }
     }
 
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
+        let id = ObjectIdentifier(utterance)
         Task { @MainActor [weak self] in
-            self?.onAudioStateChange?(false)
+            self?.finishTTS(id)
         }
     }
 
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
+        let id = ObjectIdentifier(utterance)
         Task { @MainActor [weak self] in
-            self?.onAudioStateChange?(false)
+            self?.finishTTS(id)
         }
     }
 
     // MARK: - TTS
 
     func stopTTS() {
-        guard speechSynthesizer.isSpeaking else { return }
+        let hadUtterance = activeUtterance != nil
+        activeUtterance = nil
+        ttsRequestID = nil
         speechSynthesizer.stopSpeaking(at: .immediate)
+        if hadUtterance { onAudioStateChange?(false) }
+    }
+
+    private func finishTTS(_ id: ObjectIdentifier) {
+        guard activeUtterance.map(ObjectIdentifier.init) == id else { return }
+        activeUtterance = nil
+        let requestID = ttsRequestID
+        ttsRequestID = nil
         onAudioStateChange?(false)
+        if let requestID,
+           let data = try? JSONSerialization.data(withJSONObject: [requestID]),
+           let argument = String(data: data, encoding: .utf8) {
+            currentWebView?.evaluateJavaScript("window.amgiTtsFinished?.(\(argument)[0])")
+        }
     }
 
     // MARK: - WKNavigationDelegate
@@ -245,6 +266,8 @@ private extension CardWebViewCoordinator {
         let speedMultiplier = Float((payload["speed"] as? String) ?? "") ?? 1
         let mappedRate = AVSpeechUtteranceDefaultSpeechRate * max(0.25, min(speedMultiplier, 2.0))
         utterance.rate = min(max(mappedRate, AVSpeechUtteranceMinimumSpeechRate), AVSpeechUtteranceMaximumSpeechRate)
+        activeUtterance = utterance
+        ttsRequestID = payload["requestID"] as? String
         speechSynthesizer.speak(utterance)
     }
 

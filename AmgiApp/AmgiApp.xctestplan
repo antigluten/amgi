@@ -18,6 +18,13 @@
   "testTargets" : [
     {
       "target" : {
+        "containerPath" : "container:../AmgiFeatures",
+        "identifier" : "ReviewFeatureTests",
+        "name" : "ReviewFeatureTests"
+      }
+    },
+    {
+      "target" : {
         "containerPath" : "container:AmgiApp.xcodeproj",
         "identifier" : "EE6CF1FAA191BC2F0404B752",
         "name" : "AmgiAppTests"

@@ -23,7 +23,7 @@ public enum CardHTMLRewriter {
     }
 
     private static func rewriteSoundMarkers(_ body: String) -> String {
-        let pattern = #"\[sound:([^\]]+)\]"#
+        let pattern = CardText.soundMarkerPattern
         let regex = try! NSRegularExpression(pattern: pattern)
         let ns = body as NSString
         var result = ""

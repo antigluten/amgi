@@ -126,6 +126,7 @@ struct CardWebView {
     }
 
     static func dismantleWebView(_ webView: WKWebView, coordinator: CardWebViewCoordinator) {
+        webView.evaluateJavaScript("window.amgiStopAllAudio && window.amgiStopAllAudio();")
         webView.configuration.userContentController.removeScriptMessageHandler(forName: "amgiAudioState")
         webView.configuration.userContentController.removeScriptMessageHandler(forName: "amgiOpenLink")
         webView.configuration.userContentController.removeScriptMessageHandler(forName: "amgiSpeakTts")

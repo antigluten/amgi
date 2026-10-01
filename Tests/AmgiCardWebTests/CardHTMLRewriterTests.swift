@@ -15,12 +15,13 @@ import Testing
         #expect(CardHTMLRewriter.rewrite(input) == input)
     }
 
-    @Test func soundMarkerBecomesButtonAndAudio() {
-        let output = CardHTMLRewriter.rewrite("Listen: [sound:hello.mp3]")
+    @Test(arguments: ["sound", "Sound", "SOUND"])
+    func soundMarkerBecomesButtonAndAudio(marker: String) {
+        let output = CardHTMLRewriter.rewrite("Listen: [\(marker):hello.mp3]")
         #expect(output.contains("class=\"amgi-play\""))
         #expect(output.contains("src=\"amgi-asset://media/hello.mp3\""))
         #expect(output.contains("<audio"))
-        #expect(!output.contains("[sound:hello.mp3]"))
+        #expect(!output.contains("[\(marker):hello.mp3]"))
     }
 
     @Test func multipleSoundsGetUniqueIds() {

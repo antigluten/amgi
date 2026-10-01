@@ -98,7 +98,7 @@ extension CardWebView {
     // `NSRegularExpression(pattern:)` parses and compiles the pattern every
     // time — three of those ran on each card render.
     private static let soundTagRegex = try? NSRegularExpression(
-        pattern: #"\[sound:([^\]]+)\]"#, options: []
+        pattern: CardText.soundMarkerPattern, options: []
     )
     private static let ttsTagRegex = try? NSRegularExpression(
         pattern: #"\[anki:tts([^\]]*)\](.*?)\[/anki:tts\]"#,
@@ -155,7 +155,7 @@ extension CardWebView {
                   let textRange = Range(match.range(at: 2), in: result) else { continue }
 
             let options = parseTTSAttributes(String(result[attrsRange]))
-            let spokenText = String(result[textRange]).trimmingCharacters(in: .whitespacesAndNewlines)
+            let spokenText = CardText.plainText(String(result[textRange]))
             let lang = options["lang"] ?? ""
             let voices = options["voices"] ?? ""
             let speed = options["speed"] ?? ""

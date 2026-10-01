@@ -133,6 +133,11 @@ let package = Package(
             swiftSettings: sharedSwiftSettings
         ),
         .testTarget(
+            name: "ReviewFeatureTests",
+            dependencies: ["ReviewFeature"],
+            swiftSettings: sharedSwiftSettings
+        ),
+        .testTarget(
             name: "DecksFeatureTests",
             dependencies: [
                 "DecksFeature",

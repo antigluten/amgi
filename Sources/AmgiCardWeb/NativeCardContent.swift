@@ -66,7 +66,7 @@ public struct NativeCardContent: Sendable, Equatable {
 
     // MARK: - Regexes
 
-    private static let soundRegex = try! NSRegularExpression(pattern: #"\[sound:([^\]]+)\]"#)
+    private static let soundRegex = try! NSRegularExpression(pattern: CardText.soundMarkerPattern)
 
     /// Block boundaries: standalone blocks (`<hr>`, `<img>`) and separators.
     private static let boundaryRegex = try! NSRegularExpression(

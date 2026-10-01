@@ -534,8 +534,13 @@ function amgiQueuePlayer() {
 function amgiHasTemplateManagedMedia() {
     return document.querySelector('audio:not(.anki-sound-audio):not(#amgi-audio-queue-player), video') !== null;
 }
+var amgiReplayGeneration = 0;
+var amgiPendingTts = null;
 function stopAllSystemAudio() {
+    amgiReplayGeneration++;
+    amgiPendingTts = null;
     amgiStopTts();
+    document.querySelectorAll('.tts-btn').forEach(function(btn) { setAudioButtonState(btn, 'play'); });
     document.querySelectorAll('.anki-sound-audio').forEach(function(a) {
         if (!a.paused) a.pause();
         a.currentTime = 0;
@@ -554,8 +559,16 @@ function stopAllSystemAudio() {
     notifyAudioState(false);
 }
 window.amgiStopAllAudio = stopAllSystemAudio;
+function amgiReplayItems() {
+    return Array.from(document.querySelectorAll('.anki-sound-audio, .tts-btn'));
+}
+function amgiReplayKey(item) {
+    return item.matches('.tts-btn')
+        ? JSON.stringify(['tts', item.dataset.ttsText, item.dataset.ttsLang, item.dataset.ttsVoices, item.dataset.ttsSpeed])
+        : item.getAttribute('src') || '';
+}
 function collectAudioQueue(mode) {
-    var all = Array.from(document.querySelectorAll('.anki-sound-audio'));
+    var all = amgiReplayItems();
     if (mode === 'question' || mode === 'answerWithQuestion') return all;
     // answerOnly: exclude audio already played on the question side. Handles
     // back-template audio fields placed before <hr id=answer> (e.g. {{发音}}
@@ -564,7 +577,7 @@ function collectAudioQueue(mode) {
     var questionSrcs = window.__amgiQuestionAudioSrcs;
     if (questionSrcs && questionSrcs.size > 0) {
         var newAudio = all.filter(function(a) {
-            var src = a.getAttribute('src') || '';
+            var src = amgiReplayKey(a);
             return src && !questionSrcs.has(src);
         });
         return newAudio.length > 0 ? newAudio : all;
@@ -578,7 +591,7 @@ function collectAudioQueue(mode) {
     return after.length > 0 ? after : all;
 }
 function splitAudioQueue() {
-    var all = Array.from(document.querySelectorAll('.anki-sound-audio'));
+    var all = amgiReplayItems();
     var marker = document.getElementById('answer');
     if (!marker) return { question: all, answer: all };
     var answer = all.filter(function(a) {
@@ -592,34 +605,69 @@ function splitAudioQueue() {
         answer: answer.length ? answer : all
     };
 }
+function amgiStartTts(btn, requestID, finished) {
+    amgiPendingTts = { requestID: requestID, finished: finished };
+    // The native delegate reports speech state; keep the web replay state in sync.
+    window.__amgiAudioPlaying = true;
+    try {
+        window.webkit.messageHandlers.amgiSpeakTts.postMessage({
+            text: btn.dataset.ttsText || '',
+            lang: btn.dataset.ttsLang || '',
+            voices: btn.dataset.ttsVoices || '',
+            speed: btn.dataset.ttsSpeed || '',
+            requestID: requestID
+        });
+    } catch(e) { amgiPendingTts = null; finished(); }
+}
 function replaySequential(queue) {
     stopAllSystemAudio();
     if (!queue || !queue.length) return;
     var idx = 0;
     var currentBtn = null;
     var player = amgiQueuePlayer();
-    notifyAudioState(true);
+    var generation = amgiReplayGeneration;
     function clearCurrentButton() {
         if (!currentBtn) return;
         setAudioButtonState(currentBtn, 'play');
         currentBtn = null;
     }
     function playNext() {
+        if (generation !== amgiReplayGeneration) return;
         clearCurrentButton();
         if (idx >= queue.length) { notifyAudioState(false); return; }
         var audio = queue[idx];
+        var index = idx;
+        function finished() {
+            if (generation !== amgiReplayGeneration || idx !== index) return;
+            idx++;
+            playNext();
+        }
+        if (audio.matches('.tts-btn')) {
+            if (!(audio.dataset.ttsText || '').trim()) { finished(); return; }
+            currentBtn = audio;
+            setAudioButtonState(currentBtn, 'pause');
+            amgiStartTts(audio, generation + ':' + idx, finished);
+            return;
+        }
         var src = audio.currentSrc || audio.src;
-        if (!src) { idx++; playNext(); return; }
+        if (!src) { finished(); return; }
         currentBtn = audio.nextElementSibling;
         setAudioButtonState(currentBtn, 'pause');
+        notifyAudioState(true);
+        player.onended = finished;
+        player.onerror = finished;
         player.src = src;
         player.currentTime = 0;
-        player.play().catch(function() { idx++; playNext(); });
+        player.play().catch(finished);
     }
-    player.onended = function() { idx++; playNext(); };
-    player.onerror = function() { idx++; playNext(); };
     playNext();
 }
+window.amgiTtsFinished = function(requestID) {
+    if (!amgiPendingTts || amgiPendingTts.requestID !== requestID) return;
+    var finished = amgiPendingTts.finished;
+    amgiPendingTts = null;
+    finished();
+};
 function amgiReplayAll(mode) {
     if (amgiHasTemplateManagedMedia()) return;
     replaySequential(collectAudioQueue(mode));
@@ -627,6 +675,7 @@ function amgiReplayAll(mode) {
 window.amgiReplayAll = amgiReplayAll;
 function amgiPlayAudioElement(audio) {
     if (!audio) return false;
+    if (audio.matches('.tts-btn')) return amgiSpeakTts(audio);
     var btn = audio.nextElementSibling;
     // Toggle: if this element is currently playing, pause it and flip icon.
     // Diverges from fork's replay-only behavior so the pause icon is functional.
@@ -688,15 +737,7 @@ window.open = function(url) { postOpenLink(url); return null; };
 // ===== TTS =====
 function amgiSpeakTts(btn) {
     if (!btn) return false;
-    stopAllSystemAudio();
-    try {
-        window.webkit.messageHandlers.amgiSpeakTts.postMessage({
-            text: btn.dataset.ttsText || '',
-            lang: btn.dataset.ttsLang || '',
-            voices: btn.dataset.ttsVoices || '',
-            speed: btn.dataset.ttsSpeed || ''
-        });
-    } catch(e) {}
+    replaySequential([btn]);
     return false;
 }
 window.amgiSpeakTts = amgiSpeakTts; globalThis.amgiSpeakTts = amgiSpeakTts;
@@ -1127,9 +1168,7 @@ function _showQuestion(html, prefetchHTML, bodyclass, autoplay, replayMode, alig
                 // Record question-side audio srcs so `answerOnly` mode can
                 // exclude them without relying on <hr id=answer> position.
                 window.__amgiQuestionAudioSrcs = new Set(
-                    Array.from(document.querySelectorAll('.anki-sound-audio')).map(function(a) {
-                        return a.getAttribute('src') || '';
-                    }).filter(Boolean)
+                    amgiReplayItems().map(amgiReplayKey).filter(Boolean)
                 );
                 var ph = amgiPrefetchHTMLValue();
                 if (amgiContainsMathJaxMarkup(html || '') || amgiContainsMathJaxMarkup(ph || '')) {
