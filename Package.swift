@@ -123,7 +123,8 @@ let package = Package(
         ),
         .testTarget(
             name: "AnkiProtoBridgeTests",
-            dependencies: ["AnkiProtoBridge", "AnkiProto"],
+            dependencies: ["AnkiProtoBridge", "AnkiProto", "AnkiServices"],
+            resources: [.copy("Fixtures/MediaSync")],
             swiftSettings: sharedSwiftSettings
         ),
         // MARK: - Libraries

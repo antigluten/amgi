@@ -1,0 +1,7 @@
+{
+  "upload": "OK",
+  "begin": {"data": {"sk": "fixture-key", "usn": 1}, "err": ""},
+  "changes": {"data": [["probe.png", 1, "121f5297374a497749d91ed518c610b237b07921"]], "err": ""},
+  "empty": {"data": [], "err": ""},
+  "sanity": {"data": "OK", "err": ""}
+}

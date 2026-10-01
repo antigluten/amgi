@@ -94,6 +94,23 @@ private import SwiftProtobuf
 
     // MARK: - media sync
 
+    @Test(arguments: [Int32?.none, .some(0), .some(7)])
+    func fullUploadOrDownload_preserves_media_version_presence(serverUsn: Int32?) throws {
+        let request: Request<Void> = .fullUploadOrDownload(auth: auth, upload: false, serverUsn: serverUsn)
+        let proto = try Anki_Sync_FullUploadOrDownloadRequest(serializedBytes: request.body)
+        #expect(proto.hasServerUsn == (serverUsn != nil))
+        if let serverUsn { #expect(proto.serverUsn == serverUsn) }
+    }
+
+    @Test func syncMedia_dispatches_and_encodes_auth() throws {
+        let request: Request<Void> = .syncMedia(auth: auth)
+        #expect(request.serviceId == ServiceID.sync)
+        #expect(request.methodId == SyncMethod.syncMedia)
+        let proto = try Anki_Sync_SyncAuth(serializedBytes: request.body)
+        #expect(proto.hkey == auth.hkey)
+        #expect(proto.endpoint == auth.endpoint)
+    }
+
     @Test func mediaSyncStatus_dispatches_and_decodes_progress() throws {
         var proto = Anki_Sync_MediaSyncStatusResponse()
         proto.active = true

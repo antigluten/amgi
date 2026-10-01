@@ -121,6 +121,7 @@ enum SearchMethod {
 }
 
 enum SyncMethod {
+    static let syncMedia: UInt32 = 0
     static let abortMediaSync: UInt32 = 1
     static let mediaSyncStatus: UInt32 = 2
     static let syncLogin: UInt32 = 3

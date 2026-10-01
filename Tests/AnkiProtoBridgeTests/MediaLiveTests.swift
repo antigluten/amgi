@@ -59,4 +59,14 @@ import AnkiKit
             #expect(try backend.invoke(.mediaSyncStatus).active == false)
         }
     }
+
+    @Test func syncMedia_rejectsInvalidEndpointBeforeStarting() throws {
+        try withScratchCollection("media-sync-invalid-endpoint") { backend, _ in
+            #expect(throws: BackendError.self) {
+                try backend.invoke(.syncMedia(auth: SyncAuth(hkey: "fixture-key", endpoint: "not a URL")))
+            }
+            let status = try backend.invoke(.mediaSyncStatus)
+            #expect(status.active == false)
+        }
+    }
 }

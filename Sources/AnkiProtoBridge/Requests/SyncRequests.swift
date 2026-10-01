@@ -37,7 +37,8 @@ extension Request where Response == Void {
     /// Forces a full upload or download. `upload: true` pushes the local
     /// collection to the server; `false` replaces local with the server's.
     /// `serverUsn` should come from the preceding `syncCollection` result.
-    public static func fullUploadOrDownload(auth: SyncAuth, upload: Bool, serverUsn: Int32) -> Self {
+    /// Nil skips media in this call; use `syncMedia` when the version is unknown.
+    public static func fullUploadOrDownload(auth: SyncAuth, upload: Bool, serverUsn: Int32?) -> Self {
         Self(
             serviceId: ServiceID.sync,
             methodId: SyncMethod.fullUploadOrDownload,
@@ -45,9 +46,19 @@ extension Request where Response == Void {
                 var proto = Anki_Sync_FullUploadOrDownloadRequest()
                 proto.auth = Anki_Sync_SyncAuth(auth)
                 proto.upload = upload
-                proto.serverUsn = serverUsn
+                if let serverUsn { proto.serverUsn = serverUsn }
                 return try proto.serializedData()
             },
+            decode: { _ in () }
+        )
+    }
+
+    /// Starts media sync by querying the server's current media version.
+    public static func syncMedia(auth: SyncAuth) -> Self {
+        Self(
+            serviceId: ServiceID.sync,
+            methodId: SyncMethod.syncMedia,
+            encode: { try Anki_Sync_SyncAuth(auth).serializedData() },
             decode: { _ in () }
         )
     }

@@ -83,8 +83,11 @@ extension SyncService: DependencyKey {
                 let auth = SyncAuth(hkey: hostKey, endpoint: endpoint)
                 do {
                     try await backend.invoke(.fullUploadOrDownload(
-                        auth: auth, upload: direction == .upload, serverUsn: 0
+                        auth: auth, upload: direction == .upload, serverUsn: nil
                     ))
+                    // Zero is a known media version, not "unknown". Without a
+                    // preceding sync result, let SyncMedia fetch the real USN.
+                    try await backend.invoke(.syncMedia(auth: auth))
                 } catch let error as BackendError {
                     if error.isSyncAuthError { throw SyncError.authFailed }
                     throw SyncError(message: error.message)
