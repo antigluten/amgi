@@ -16,6 +16,7 @@ extension DeckConfigModel {
             .split(whereSeparator: { $0 == " " || $0 == "," || $0 == "\n" || $0 == "\t" })
             .compactMap { token -> Float? in
                 let t = String(token).lowercased()
+                if t.hasSuffix("s"), let v = Float(t.dropLast()) { return v / 60 }
                 if t.hasSuffix("m"), let v = Float(t.dropLast()) { return v }
                 if t.hasSuffix("h"), let v = Float(t.dropLast()) { return v * 60 }
                 if t.hasSuffix("d"), let v = Float(t.dropLast()) { return v * 1440 }
@@ -25,7 +26,7 @@ extension DeckConfigModel {
 
     func formatSteps(_ values: [Float]) -> String {
         guard !values.isEmpty else { return "" }
-        return values.map { "\(Int($0))m" }.joined(separator: " ")
+        return values.map { "\($0)m".replacingOccurrences(of: ".0m", with: "m") }.joined(separator: " ")
     }
 
     func parseFloats(_ text: String) -> [Float] {

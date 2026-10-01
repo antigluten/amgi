@@ -89,6 +89,13 @@
     {
       "target" : {
         "containerPath" : "container:../AmgiFeatures",
+        "identifier" : "DecksFeatureTests",
+        "name" : "DecksFeatureTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:../AmgiFeatures",
         "identifier" : "SyncFeatureTests",
         "name" : "SyncFeatureTests"
       }
