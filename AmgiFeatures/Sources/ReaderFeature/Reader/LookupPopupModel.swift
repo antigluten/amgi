@@ -23,25 +23,31 @@ final class LookupPopupModel {
     var lookupError: String?
 
     @ObservationIgnored @Dependency(\.dictionaryLookupClient) private var dictionary
+    @ObservationIgnored private var requestID = UUID()
 
     /// Runs a lookup for `query`. Returns the trimmed query when it produced
     /// a non-empty result (so the caller can record search history), or nil
     /// for empty input, empty results, or failure.
     @discardableResult
     func runLookup(query: String, maxResults: Int, scanLength: Int) async -> String? {
+        let id = UUID()
+        requestID = id
+        lookupError = nil
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             result = nil
+            isLoading = false
             return nil
         }
         isLoading = true
-        lookupError = nil
-        defer { isLoading = false }
+        defer { if requestID == id { isLoading = false } }
         do {
             let lookup = try await dictionary.lookup(trimmed, maxResults, scanLength)
+            guard requestID == id else { return nil }
             result = lookup
             return lookup.entries.isEmpty ? nil : trimmed
         } catch {
+            guard requestID == id else { return nil }
             lookupError = error.localizedDescription
             result = nil
             return nil
