@@ -342,6 +342,11 @@ let package = Package(
             ],
             swiftSettings: sharedSwiftSettings
         ),
+        .testTarget(
+            name: "WidgetFeatureTests",
+            dependencies: ["WidgetFeature", "AppCore"],
+            swiftSettings: sharedSwiftSettings
+        ),
         // The settings aggregator: the Settings root plus every screen it
         // pushes to (appearance, accounts, sync, review, card rendering,
         // reader, code editor, template overrides, maintenance, empty cards,
