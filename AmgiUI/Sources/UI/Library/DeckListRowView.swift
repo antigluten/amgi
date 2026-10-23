@@ -58,9 +58,11 @@ public struct DeckListRowView: View {
         .buttonStyle(.plain)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-            Button(role: .destructive) { showDeleteAlert = true } label: {
+            // A destructive swipe removes the row before the user can confirm.
+            Button { showDeleteAlert = true } label: {
                 Label("Delete", systemImage: "trash")
             }
+            .tint(palette.danger)
             Button { onRename() } label: {
                 Label("Rename", systemImage: "pencil")
             }
