@@ -18,6 +18,20 @@
   "testTargets" : [
     {
       "target" : {
+        "containerPath" : "container:../AmgiReader",
+        "identifier" : "ReaderTests",
+        "name" : "ReaderTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:../AmgiReader",
+        "identifier" : "ReaderDictionaryTests",
+        "name" : "ReaderDictionaryTests"
+      }
+    },
+    {
+      "target" : {
         "containerPath" : "container:AmgiApp.xcodeproj",
         "identifier" : "EE6CF1FAA191BC2F0404B752",
         "name" : "AmgiAppTests"

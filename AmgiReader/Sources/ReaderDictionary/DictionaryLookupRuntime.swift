@@ -109,6 +109,7 @@ actor DictionaryLookupRuntime {
     private static let collectionConfigKey = "amgi.reader.dictionaryConfig"
 
     private let configStore: DictionaryConfigStore
+    private let profileID: String?
     private var activeProfileID: String?
     private var termDictionaries: [ManagedDictionary] = []
     private var frequencyDictionaries: [ManagedDictionary] = []
@@ -118,8 +119,9 @@ actor DictionaryLookupRuntime {
     /// rebuild instead of racing across `reloadState`'s suspension points.
     private var loadTask: Task<Void, any Error>?
 
-    init(configStore: DictionaryConfigStore) {
+    init(configStore: DictionaryConfigStore, profileID: String? = nil) {
         self.configStore = configStore
+        self.profileID = profileID
     }
 
     // MARK: - Public surface
@@ -311,7 +313,7 @@ actor DictionaryLookupRuntime {
     }
 
     @discardableResult
-    private func importArchive(at url: URL, kind: AppDictionaryKind, requiresSecurityScope: Bool) throws -> String {
+    func importArchive(at url: URL, kind: AppDictionaryKind, requiresSecurityScope: Bool) throws -> String {
         let started = requiresSecurityScope ? url.startAccessingSecurityScopedResource() : false
         if requiresSecurityScope, !started {
             throw RuntimeError.importFailed([url.lastPathComponent])
@@ -548,6 +550,7 @@ actor DictionaryLookupRuntime {
     }
 
     private func currentProfileID() -> String {
+        if let profileID { return Self.sanitizedUserFolderName(profileID) }
         // Canonical definition is AnkiKit.ProfileScope; duplicated here
         // because the Reader package has no dependency edge to
         // AnkiBridge and one string does not justify adding one.

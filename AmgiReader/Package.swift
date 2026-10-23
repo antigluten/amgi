@@ -123,6 +123,12 @@ let package = Package(
                 .interoperabilityMode(.Cxx),
             ]
         ),
+        .testTarget(
+            name: "ReaderDictionaryTests",
+            dependencies: ["ReaderDictionary", "Reader"],
+            resources: [.copy("Fixtures")],
+            swiftSettings: interopSwiftSettings + [.interoperabilityMode(.Cxx)]
+        ),
         // EPUB-source adapter. Sits between AmgiReader's pure domain
         // types and the vendored EPUBKit parser. No EPUBKit types ever
         // appear in ReaderEPUB's public API — callers see only
