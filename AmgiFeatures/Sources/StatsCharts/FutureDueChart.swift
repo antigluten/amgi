@@ -22,6 +22,8 @@ public struct FutureDueChart: View {
 
     @Environment(\.palette) private var palette
     @State private var includeBacklog = false
+    @ScaledMetric(relativeTo: .caption) private var chartHeight: CGFloat = 180
+    @ScaledMetric(relativeTo: .caption) private var footerItemWidth: CGFloat = 60
 
     private var filteredData: [(day: Int, count: Int)] {
         let maxDay = period.days
@@ -79,10 +81,10 @@ public struct FutureDueChart: View {
                     .chartXAxis {
                         AxisMarks(values: .automatic(desiredCount: 5)) { _ in
                             AxisGridLine()
-                            AxisValueLabel()
+                            AxisValueLabel(collisionResolution: .greedy)
                         }
                     }
-                    .frame(height: 180)
+                    .frame(height: chartHeight)
                 }
 
                 if futureDue.haveBacklog {
@@ -90,7 +92,7 @@ public struct FutureDueChart: View {
                         .amgiFont(.caption)
                 }
 
-                HStack(spacing: 16) {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: footerItemWidth), spacing: 16)], spacing: 8) {
                     footerItem("Total", value: "\(totalDue(filteredData))")
                     footerItem("Avg/day", value: String(format: "%.1f", avgPerDay(filteredData)))
                     footerItem("Tomorrow", value: "\(dueTomorrow(filteredData))")

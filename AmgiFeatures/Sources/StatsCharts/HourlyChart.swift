@@ -21,6 +21,8 @@ public struct HourlyChart: View {
     }
 
     @Environment(\.palette) private var palette
+    @ScaledMetric(relativeTo: .caption) private var reviewChartHeight: CGFloat = 150
+    @ScaledMetric(relativeTo: .caption) private var accuracyChartHeight: CGFloat = 100
 
     private var hourData: [HoursBuckets.Hour] {
         switch period {
@@ -73,12 +75,12 @@ public struct HourlyChart: View {
                         AxisMarks(values: [0, 4, 8, 12, 16, 20]) { value in
                             AxisGridLine()
                             if let h = value.as(Int.self) {
-                                AxisValueLabel(formatHour(h))
+                                AxisValueLabel(formatHour(h), collisionResolution: .greedy)
                             }
                         }
                     }
                     .chartXScale(domain: 0...23)
-                    .frame(height: 150)
+                    .frame(height: reviewChartHeight)
 
                     Chart(entries) { entry in
                         LineMark(
@@ -101,14 +103,14 @@ public struct HourlyChart: View {
                         AxisMarks(values: [0, 4, 8, 12, 16, 20]) { value in
                             AxisGridLine()
                             if let h = value.as(Int.self) {
-                                AxisValueLabel(formatHour(h))
+                                AxisValueLabel(formatHour(h), collisionResolution: .greedy)
                             }
                         }
                     }
                     .chartXScale(domain: 0...23)
                     .chartYScale(domain: 0...100)
                     .chartYAxisLabel("Correct %")
-                    .frame(height: 100)
+                    .frame(height: accuracyChartHeight)
                 }
             }
         }
