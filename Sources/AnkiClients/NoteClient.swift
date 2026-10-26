@@ -25,6 +25,12 @@ public struct NoteClient: Sendable {
     public var save: @Sendable (_ note: NoteRecord) async throws -> Void
     public var delete: @Sendable (_ noteId: NoteID) async throws -> Void
     public var findDuplicates: @Sendable () async throws -> [DuplicateGroup]
+    public var fieldNamesForNotes: @Sendable (_ noteIDs: [NoteID]) async throws -> [String]
+    // Empty `noteIDs` replaces across the whole collection; empty `fieldName` means every field.
+    public var findAndReplace: @Sendable (
+        _ noteIDs: [NoteID], _ search: String, _ replacement: String,
+        _ regex: Bool, _ matchCase: Bool, _ fieldName: String
+    ) async throws -> Int
 }
 
 extension NoteClient: TestDependencyKey {

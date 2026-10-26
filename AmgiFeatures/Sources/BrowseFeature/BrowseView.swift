@@ -61,6 +61,7 @@ package struct BrowseView: View {
             .navigationTitle("Browse")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbarContent }
+            .toolbarVisibility(selectionState.isSelectMode ? .hidden : .automatic, for: .tabBar)
             .navigationDestination(item: $pendingTool) { tool in
                 switch tool {
                 case .duplicates: DuplicatesView()
@@ -127,6 +128,16 @@ package struct BrowseView: View {
         } message: {
             Text(model.errorMessage ?? "")
         }
+        .sheet(isPresented: $destination.findReplaceSelected) {
+            FindReplaceSheet(noteIDs: Array(selectionState.selectedNoteIDs)) {
+                Task { await model.performSearch() }
+            }
+        }
+        .sheet(isPresented: $destination.findReplaceAll) {
+            FindReplaceSheet(noteIDs: []) {
+                Task { await model.performSearch() }
+            }
+        }
         .sheet(isPresented: $destination.batchTag) {
             BatchTagSheet(noteIDs: selectionState.selectedNoteIDs) {
                 Task {
@@ -187,6 +198,9 @@ package struct BrowseView: View {
                         Button("Find Duplicates", systemImage: "doc.on.doc") {
                             pendingTool = .duplicates
                         }
+                        Button("Find & Replace", systemImage: "text.magnifyingglass") {
+                            destination = .findReplaceAll
+                        }
                     }
                 } label: {
                     Label("More", systemImage: "ellipsis")
@@ -228,6 +242,15 @@ package struct BrowseView: View {
                 destination = .batchTag
             } label: {
                 Label("Tags", systemImage: "tag")
+            }
+            .disabled(selectionState.isEmpty)
+        }
+        ToolbarItem(placement: .bottomBar) { Spacer() }
+        ToolbarItem(placement: .bottomBar) {
+            Button {
+                destination = .findReplaceSelected
+            } label: {
+                Label("Find & Replace", systemImage: "text.magnifyingglass")
             }
             .disabled(selectionState.isEmpty)
         }

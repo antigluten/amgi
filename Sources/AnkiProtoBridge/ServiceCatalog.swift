@@ -112,12 +112,14 @@ enum NotesMethod {
     static let removeNotes: UInt32 = 7
     static let updateNotes: UInt32 = 5
     static let getNote: UInt32 = 6
+    static let fieldNamesForNotes: UInt32 = 10
     static let cardsOfNote: UInt32 = 12
 }
 
 enum SearchMethod {
     static let searchCards: UInt32 = 1
     static let searchNotes: UInt32 = 2
+    static let findAndReplace: UInt32 = 5
 }
 
 enum SyncMethod {

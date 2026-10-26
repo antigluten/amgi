@@ -130,6 +130,57 @@ extension Request where Response == Void {
     }
 }
 
+// MARK: - fieldNamesForNotes
+
+extension Request where Response == [String] {
+    public static func fieldNamesForNotes(noteIds: [NoteID]) -> Self {
+        Self(
+            serviceId: ServiceID.notes,
+            methodId: NotesMethod.fieldNamesForNotes,
+            encode: {
+                var proto = Anki_Notes_FieldNamesForNotesRequest()
+                proto.nids = noteIds.map(\.rawValue)
+                return try proto.serializedData()
+            },
+            decode: { bytes in
+                try Anki_Notes_FieldNamesForNotesResponse(serializedBytes: bytes).fields
+            }
+        )
+    }
+}
+
+// MARK: - findAndReplace
+
+extension Request where Response == Int {
+    // Empty `noteIds` means every note in the collection; empty `fieldName` means every field.
+    public static func findAndReplace(
+        noteIds: [NoteID],
+        search: String,
+        replacement: String,
+        regex: Bool,
+        matchCase: Bool,
+        fieldName: String
+    ) -> Self {
+        Self(
+            serviceId: ServiceID.search,
+            methodId: SearchMethod.findAndReplace,
+            encode: {
+                var proto = Anki_Search_FindAndReplaceRequest()
+                proto.nids = noteIds.map(\.rawValue)
+                proto.search = search
+                proto.replacement = replacement
+                proto.regex = regex
+                proto.matchCase = matchCase
+                proto.fieldName = fieldName
+                return try proto.serializedData()
+            },
+            decode: { bytes in
+                Int(try Anki_Collection_OpChangesWithCount(serializedBytes: bytes).count)
+            }
+        )
+    }
+}
+
 // MARK: - searchNotes
 
 extension Request where Response == [NoteID] {
