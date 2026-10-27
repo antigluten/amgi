@@ -13,5 +13,6 @@ import WidgetFeature
 struct AmgiWidgetBundle: WidgetBundle {
     var body: some Widget {
         AmgiWidget()
+        WordSpotlightWidget()
     }
 }

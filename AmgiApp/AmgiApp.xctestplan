@@ -17,6 +17,14 @@
   },
   "testTargets" : [
     {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:AmgiApp.xcodeproj",
+        "identifier" : "AFE5E26D0540ED2998AA49EB",
+        "name" : "AmgiAppUITests"
+      }
+    },
+    {
       "target" : {
         "containerPath" : "container:../AmgiReader",
         "identifier" : "ReaderTests",
@@ -80,10 +88,19 @@
       }
     },
     {
+      "parallelizable" : false,
       "target" : {
         "containerPath" : "container:../AmgiFeatures",
         "identifier" : "AppSharedTests",
         "name" : "AppSharedTests"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:../AmgiFeatures",
+        "identifier" : "SettingsFeatureTests",
+        "name" : "SettingsFeatureTests"
       }
     },
     {
