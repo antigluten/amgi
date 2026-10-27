@@ -38,6 +38,8 @@ func openCollection(for profileID: String, backend: AnkiBackend) throws {
 func switchProfile(to account: AmgiAccount) async {
     let store = AccountStore.shared
     guard account.id != store.selectedID else { return }
+    WordSpotlightController.shared.beginProfileSwitch()
+    defer { WordSpotlightController.shared.finishProfileSwitch() }
     let previous = store.current
 
     @Dependency(\.ankiBackend) var backend
