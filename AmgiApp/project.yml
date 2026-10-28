@@ -158,6 +158,10 @@ targets:
           - "Widgets"
           - "Watch"
       - path: Resources/Assets.xcassets
+      # Only Dojang (the primary + Mac icon) is compiled from .icon. The other
+      # .icon bundles live in scripts/icons — excluding them here doesn't work,
+      # Xcode still compiles the bundle — and render to PNG sets via
+      # scripts/render-icon-sets.sh.
       - path: Resources/AppIcons
       - path: Resources/mathjax
         type: folder
@@ -180,6 +184,7 @@ targets:
         INFOPLIST_FILE: Info.plist
         PRODUCT_BUNDLE_IDENTIFIER: com.amgiapp.AmgiApp
         # Dojang.icon (Resources/AppIcons); iOS 18 gets actool's flat fallback.
+        # The alternates are flat PNG .appiconsets in Assets.xcassets.
         ASSETCATALOG_COMPILER_APPICON_NAME: Dojang
         # Ids must match AppIconOption.alternateName (AppIconOptionTests checks).
         "ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES[sdk=iphone*]": "Handwritten DeepTeal Midnight Celadon Persimmon"

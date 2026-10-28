@@ -31,7 +31,6 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>UIAppFonts</key>
 	<array>
-		<string>Fonts/SarasaMonoK-Regular.ttf</string>
 		<string>Fonts/NanumMyeongjo-Regular.ttf</string>
 		<string>Fonts/NanumGothic-Regular.ttf</string>
 	</array>
