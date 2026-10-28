@@ -21,6 +21,15 @@ export PROTOC="${PROTOC:-$(which protoc 2>/dev/null || echo /opt/homebrew/bin/pr
 mkdir -p "$BRIDGE_DIR/target"
 export DESCRIPTORS_BIN="$BRIDGE_DIR/target/anki_descriptors.bin"
 
+# The app only ever asks the backend for English, so skip every translated .ftl
+# (~6.8 MB of uncompressible __TEXT,__const). The patch adds the AMGI_EN_ONLY
+# check to anki_i18n's build script; applied idempotently because the submodule
+# is pinned and `git submodule update` would drop a working-tree edit.
+PATCH="$SCRIPT_DIR/patches/anki-en-only.patch"
+git -C "$ROOT_DIR/anki-upstream" apply --reverse --check "$PATCH" 2>/dev/null \
+    || git -C "$ROOT_DIR/anki-upstream" apply "$PATCH"
+export AMGI_EN_ONLY=1
+
 export IPHONEOS_DEPLOYMENT_TARGET="17.0"
 export WATCHOS_DEPLOYMENT_TARGET="11.0"
 
@@ -31,7 +40,9 @@ export WATCHOS_DEPLOYMENT_TARGET="11.0"
 # transitively reaches AnkiBackend dies with
 #   JITError: Symbols not found: [_anki_open_backend, ...]
 # Do not switch this back to `staticlib` without re-breaking that.
-export RUSTFLAGS="${RUSTFLAGS:-} -C link-arg=-Wl,-install_name,@rpath/AnkiRustLib.framework/AnkiRustLib"
+# -Wl,-x drops local symbols at link time (~2 MB). Unlike a post-link `strip`,
+# ld lays out its own string pool, so the LINKEDIT alignment check below still holds.
+export RUSTFLAGS="${RUSTFLAGS:-} -C link-arg=-Wl,-install_name,@rpath/AnkiRustLib.framework/AnkiRustLib -C link-arg=-Wl,-x"
 
 # watchOS is a tier-3 Rust target: std isn't distributed, so we build it from
 # source with -Z build-std on nightly. Requires: rustup toolchain install nightly
