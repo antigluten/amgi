@@ -25,13 +25,13 @@ import Foundation
         let fm = FileManager.default
         let assetDir = bundleRoot.appendingPathComponent("mathjax")
         try fm.createDirectory(at: assetDir, withIntermediateDirectories: true)
-        let assetFile = assetDir.appendingPathComponent("tex-svg.js")
+        let assetFile = assetDir.appendingPathComponent("tex-chtml-full.js")
         try Data("// test".utf8).write(to: assetFile)
         defer { try? fm.removeItem(at: assetFile) }
 
-        let url = URL(string: "amgi-asset://assets/mathjax/tex-svg.js")!
+        let url = URL(string: "amgi-asset://assets/mathjax/tex-chtml-full.js")!
         let resolved = CardAssetPath.resolve(url: url, mediaRoot: mediaRoot, bundleRoot: bundleRoot)
-        #expect(resolved?.path == "/tmp/amgi-bundle/mathjax/tex-svg.js")
+        #expect(resolved?.path == "/tmp/amgi-bundle/mathjax/tex-chtml-full.js")
     }
 
     @Test func percentDecodesFilename() {
