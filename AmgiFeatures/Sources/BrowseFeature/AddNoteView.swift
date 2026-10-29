@@ -241,7 +241,7 @@ struct AddNoteContent: View {
                 }
             }
         }
-        .disabled(model.isSaving)
+        .disabled(model.isSaving || model.isLoadingFields)
     }
 }
 

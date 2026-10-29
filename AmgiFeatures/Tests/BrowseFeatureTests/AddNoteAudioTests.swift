@@ -34,6 +34,35 @@ struct AddNoteAudioTests {
         #expect(!model.canAdd)
     }
 
+    @Test("saving is blocked while note-type fields are loading")
+    func loadingFieldsBlocksSave() async throws {
+        let model = model()
+        let url = try recording()
+        defer { model.discardAudio() }
+        model.attachAudio(url, toField: 0)
+        model.isLoadingFields = true
+        #expect(!model.canAdd)
+        let saved = await model.save()
+        #expect(!saved)
+        model.isLoadingFields = false
+        #expect(model.canAdd)
+        #expect(FileManager.default.fileExists(atPath: url.path))
+    }
+
+    @Test("removing a clip deletes only that attachment")
+    func removeOneClip() throws {
+        let model = model()
+        let first = try recording()
+        let second = try recording()
+        defer { model.discardAudio() }
+        model.attachAudio(first, toField: 0)
+        model.attachAudio(second, toField: 0)
+        model.removeAudio(first, fromField: 0)
+        #expect(model.fieldAudio[0] == [second])
+        #expect(!FileManager.default.fileExists(atPath: first.path))
+        #expect(FileManager.default.fileExists(atPath: second.path))
+    }
+
     @Test("discard removes temporary files and clears attachments")
     func discardCleansFiles() throws {
         let model = model()

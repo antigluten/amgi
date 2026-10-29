@@ -32,6 +32,7 @@ final class AddNoteModel {
     var tags: String = ""
     var fieldAudio: [[URL]] = []
     var isSaving = false
+    var isLoadingFields = false
     var errorMessage: String?
 
     @ObservationIgnored @Dependency(\.deckClient) private var deckClient
@@ -46,6 +47,7 @@ final class AddNoteModel {
 
     @ObservationIgnored private var baselineFieldValues: [String] = []
     @ObservationIgnored private var baselineTags: String = ""
+    @ObservationIgnored private var fieldLoadRequest: UUID?
 
     var hasUnsavedChanges: Bool {
         fieldValues != baselineFieldValues || tags != baselineTags || hasAudio
@@ -54,7 +56,7 @@ final class AddNoteModel {
     var hasAudio: Bool { fieldAudio.contains { !$0.isEmpty } }
 
     var canAdd: Bool {
-        !isSaving && (!fieldValues.allSatisfy(\.isEmpty) || hasAudio)
+        !isSaving && !isLoadingFields && (!fieldValues.allSatisfy(\.isEmpty) || hasAudio)
     }
 
     func attachAudio(_ url: URL, toField index: Int) {
@@ -153,10 +155,18 @@ final class AddNoteModel {
 
     func loadFields() async {
         guard selectedNotetypeId.rawValue != 0 else { return }
+        let request = UUID()
+        fieldLoadRequest = request
+        isLoadingFields = true
+        defer {
+            if fieldLoadRequest == request { isLoadingFields = false }
+        }
         do {
             let service = notetypesService
             let id = selectedNotetypeId
             let notetype = try await backendOffload { try service.getNotetype(id) }
+            // A previous async load must not re-map recordings onto stale fields.
+            guard fieldLoadRequest == request, selectedNotetypeId == id else { return }
             reconcileAudio(with: notetype.fieldNames)
             fieldNames = notetype.fieldNames
             // Pre-fill from the incoming draft by mapping

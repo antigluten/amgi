@@ -57,7 +57,7 @@ final class VoiceRecorder {
         }
 
         let url = FileManager.default.temporaryDirectory
-            .appendingPathComponent("amgi-voice-\(UUID().uuidString.prefix(8)).m4a")
+            .appendingPathComponent("amgi-voice-\(UUID().uuidString).m4a")
         let settings: [String: Any] = [
             AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
             AVSampleRateKey: 44_100,
@@ -76,6 +76,7 @@ final class VoiceRecorder {
         } catch {
             Self.log.error("Could not start recording: \(error)")
             failure = .couldNotStart
+            try? FileManager.default.removeItem(at: url)
             deactivateSession()
         }
     }
