@@ -29,6 +29,8 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Record your pronunciation or other audio directly onto flashcards.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Fonts/SarasaMonoK-Regular.ttf</string>

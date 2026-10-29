@@ -5,6 +5,7 @@
 //  Created by Vladimir Gusev on 22.06.2026.
 //
 
+import Foundation
 import OSLog
 import AppCore
 import AppShared
@@ -29,6 +30,7 @@ final class AddNoteModel {
     var fieldNames: [String] = []
     var fieldValues: [String] = []
     var tags: String = ""
+    var fieldAudio: [[URL]] = []
     var isSaving = false
     var errorMessage: String?
 
@@ -37,6 +39,8 @@ final class AddNoteModel {
     @ObservationIgnored @Dependency(\.notesService) private var notesService
     @ObservationIgnored @Dependency(\.collectionStore) private var store
 
+    @ObservationIgnored @Dependency(\.mediaClient) private var mediaClient
+
     @ObservationIgnored private let preselectedDeckId: DeckID?
     @ObservationIgnored private let initialDraft: AddNoteDraft?
 
@@ -44,7 +48,63 @@ final class AddNoteModel {
     @ObservationIgnored private var baselineTags: String = ""
 
     var hasUnsavedChanges: Bool {
-        fieldValues != baselineFieldValues || tags != baselineTags
+        fieldValues != baselineFieldValues || tags != baselineTags || hasAudio
+    }
+
+    var hasAudio: Bool { fieldAudio.contains { !$0.isEmpty } }
+
+    var canAdd: Bool {
+        !isSaving && (!fieldValues.allSatisfy(\.isEmpty) || hasAudio)
+    }
+
+    func attachAudio(_ url: URL, toField index: Int) {
+        guard !isSaving, fieldAudio.indices.contains(index) else {
+            try? FileManager.default.removeItem(at: url)
+            return
+        }
+        fieldAudio[index].append(url)
+    }
+
+    func removeAudio(_ url: URL, fromField index: Int) {
+        guard !isSaving, fieldAudio.indices.contains(index) else { return }
+        fieldAudio[index].removeAll { $0 == url }
+        try? FileManager.default.removeItem(at: url)
+    }
+
+    func discardAudio() {
+        for url in fieldAudio.flatMap({ $0 }) {
+            try? FileManager.default.removeItem(at: url)
+        }
+        fieldAudio = fieldAudio.map { _ in [] }
+    }
+
+    /// Keep recordings only when their named field exists in the new note type.
+    func reconcileAudio(with names: [String]) {
+        let previous = fieldAudio
+        fieldAudio = names.map { name in
+            guard let index = fieldNames.firstIndex(of: name), previous.indices.contains(index) else {
+                return []
+            }
+            return previous[index]
+        }
+        let kept = Set(fieldAudio.flatMap { $0 })
+        for url in previous.flatMap({ $0 }) where !kept.contains(url) {
+            try? FileManager.default.removeItem(at: url)
+        }
+    }
+
+    /// Stable recording filenames make a failed note save safe to retry without
+    /// uploading a second copy of every clip. Temporary originals stay until success.
+    func fieldsWithAudio() async throws -> [String] {
+        var fields = fieldValues
+        for (index, clips) in fieldAudio.enumerated() where fields.indices.contains(index) {
+            for url in clips {
+                try await mediaClient.save(Data(contentsOf: url), url.lastPathComponent)
+                let marker = "[sound:\(url.lastPathComponent)]"
+                fields[index] += fields[index].isEmpty ? marker : " " + marker
+            }
+        }
+        return fields
     }
 
     init(preselectedDeckId: DeckID? = nil, initialDraft: AddNoteDraft? = nil) {
@@ -97,6 +157,7 @@ final class AddNoteModel {
             let service = notetypesService
             let id = selectedNotetypeId
             let notetype = try await backendOffload { try service.getNotetype(id) }
+            reconcileAudio(with: notetype.fieldNames)
             fieldNames = notetype.fieldNames
             // Pre-fill from the incoming draft by mapping
             // `fieldValues[name] → fieldValues[positionalIndex]` against the
@@ -115,6 +176,7 @@ final class AddNoteModel {
     /// `errorMessage` carries the reason. Navigation/dismissal stays with
     /// the View.
     func save() async -> Bool {
+        guard canAdd else { return false }
         isSaving = true
         errorMessage = nil
         defer { isSaving = false }
@@ -122,7 +184,7 @@ final class AddNoteModel {
             let notes = notesService
             let notetypeID = selectedNotetypeId
             let deckID = selectedDeckId
-            let fields = fieldValues
+            let fields = try await fieldsWithAudio()
             let tagList = tags.split(separator: " ").map(String.init)
             try await backendOffload {
                 var template = try notes.newNote(notetypeID)
@@ -134,6 +196,7 @@ final class AddNoteModel {
             // tree cache conservatively so every host (DeckDetail, reader
             // lookup, Browse) sees fresh counts.
             store.apply(CollectionChanges(card: true, note: true, studyQueues: true))
+            discardAudio()
             return true
         } catch {
             errorMessage = "Failed to add note: \(error.localizedDescription)"
