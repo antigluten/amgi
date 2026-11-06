@@ -36,6 +36,21 @@ package struct WordSpotlightPreferences: Codable, Equatable, Sendable {
 
     package init() {}
 
+    /// Missing keys fall back to defaults, so adding a field never turns saved settings into "corrupt".
+    package init(from decoder: any Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        deckID = try c.decodeIfPresent(Int64.self, forKey: .deckID) ?? deckID
+        notetypeID = try c.decodeIfPresent(Int64.self, forKey: .notetypeID) ?? notetypeID
+        termField = try c.decodeIfPresent(String.self, forKey: .termField) ?? termField
+        readingField = try c.decodeIfPresent(String.self, forKey: .readingField) ?? readingField
+        meaningField = try c.decodeIfPresent(String.self, forKey: .meaningField) ?? meaningField
+        notifications = try c.decodeIfPresent(Bool.self, forKey: .notifications) ?? notifications
+        hour = try c.decodeIfPresent(Int.self, forKey: .hour) ?? hour
+        minute = try c.decodeIfPresent(Int.self, forKey: .minute) ?? minute
+        showWord = try c.decodeIfPresent(Bool.self, forKey: .showWord) ?? showWord
+        intervalHours = try c.decodeIfPresent(Int.self, forKey: .intervalHours) ?? intervalHours
+    }
+
     package var isConfigured: Bool {
         deckID > 0 && notetypeID > 0 && !termField.isEmpty && !meaningField.isEmpty
     }

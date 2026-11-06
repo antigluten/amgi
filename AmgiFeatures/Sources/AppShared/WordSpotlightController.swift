@@ -54,6 +54,7 @@ package final class WordSpotlightController {
     package func reset(profileID: String) {
         if profileID == AccountStore.shared.selectedID {
             generation += 1
+            profileGeneration += 1
             clear()
         }
         WordSpotlightStore.removeProfile(profileID)
@@ -132,7 +133,7 @@ package final class WordSpotlightController {
         let profileID = AccountStore.shared.selectedID
         let revision = profileGeneration
         let task = Task {
-            if let previous { _ = await value(of: previous, timeout: Self.operationTimeout) }
+            _ = await previous?.value
             guard !switchingProfile, revision == profileGeneration,
                   profileID == AccountStore.shared.selectedID else { return false }
             do { return try await operation() }
@@ -175,6 +176,7 @@ package final class WordSpotlightController {
             guard isCurrent(revision, profileID: profileID) else { return false }
             let schedule = try prepareSchedule(from: words, preferences: preferences, profileID: profileID)
             try publish(schedule, wordCount: words.count, preferences: preferences)
+            updateError = nil
             return true
         } catch {
             guard isCurrent(revision, profileID: profileID) else { return false }
@@ -202,11 +204,13 @@ package final class WordSpotlightController {
     private func publish(_ schedule: WordSpotlightSchedule, wordCount: Int, preferences: WordSpotlightPreferences) throws {
         pendingAdvance = 0
         self.wordCount = wordCount
-        guard schedule != self.schedule || preferences != publishedPreferences else { return }
-        try WordSpotlightStore.write(schedule)
-        self.schedule = schedule
-        publishedPreferences = preferences
-        WidgetCenter.shared.reloadTimelines(ofKind: WordSpotlightStore.widgetKind)
+        if schedule != self.schedule || preferences != publishedPreferences {
+            try WordSpotlightStore.write(schedule)
+            self.schedule = schedule
+            publishedPreferences = preferences
+            WidgetCenter.shared.reloadTimelines(ofKind: WordSpotlightStore.widgetKind)
+        }
+        // Always re-sync reminders (idempotent): permission may have been granted since the last publish.
         notifications.update(schedule: schedule, preferences: preferences)
     }
 
@@ -260,7 +264,7 @@ package final class WordSpotlightController {
     }
 }
 
-/// FFI calls can't be cancelled, so a hung one must not block every later save behind it.
+/// FFI calls can't be cancelled; this only stops the UI waiting on a hung one, the queue stays serial.
 @MainActor
 private func value(of task: Task<Bool, Never>, timeout: Duration) async -> Bool? {
     final class Once { var resumed = false }

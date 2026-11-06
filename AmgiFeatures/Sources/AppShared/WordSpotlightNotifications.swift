@@ -60,7 +60,6 @@ final class WordSpotlightNotifications: NSObject, UNUserNotificationCenterDelega
             }
         } catch {
             if revision == generation { self.error = error.localizedDescription }
-            return
         }
         guard revision == generation else { return }
         client.removePendingRequests(Self.notificationIDs.filter { !added.contains($0) })

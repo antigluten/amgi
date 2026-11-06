@@ -138,6 +138,14 @@ import Testing
         #expect(changed.word(on: date(7), calendar: calendar)?.noteID == 1)
     }
 
+    @Test func preferencesMissingAFieldDecodeWithItsDefault() throws {
+        let saved = Data(#"{"deckID":1,"notetypeID":2,"termField":"Front","meaningField":"Back"}"#.utf8)
+        let preferences = try JSONDecoder().decode(WordSpotlightPreferences.self, from: saved)
+        #expect(preferences.isConfigured)
+        #expect(preferences.rotationHours == 24)
+        #expect(preferences.hour == 9)
+    }
+
     @Test func deletedAnchorWordHandsItsSlotToItsSuccessor() {
         let words = (1...5).map {
             SpotlightWord(noteID: Int64($0), term: "Word \($0)", reading: "", meaning: "Meaning")
