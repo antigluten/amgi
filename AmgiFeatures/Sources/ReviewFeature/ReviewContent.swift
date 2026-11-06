@@ -79,6 +79,7 @@ struct ReviewContent: View {
             }
             .background(palette.background)
             .reviewHaptics(session: session)
+            .reviewStudyNotice(session.studyNotice)
             .navigationBarTitleDisplayMode(.inline)
             #if canImport(UIKit)
             .toolbar {
@@ -115,7 +116,8 @@ struct ReviewContent: View {
                 model: cardActions,
                 cardId: session.currentCardId,
                 noteId: session.currentNote?.id,
-                confirmDeleteNote: $confirmDeleteNote
+                confirmDeleteNote: $confirmDeleteNote,
+                onAction: { session.respondToCardAction($0) }
             )
             #if canImport(UIKit)
             .cardChromeToolbar(session: session, enabled: autoMatchCardBackground)
@@ -222,6 +224,50 @@ private struct ReviewHaptics: ViewModifier {
             .sensoryFeedback(trigger: session.isFinished) { _, finished in
                 finished ? .success : nil
             }
+            // A take-out gets its own quiet channel — `.selection`, distinct
+            // from the answer's impact and undo's soft impact. Arrival only:
+            // the caption leaving on its own must not buzz again.
+            .sensoryFeedback(trigger: session.studyNotice) { _, notice in
+                notice != nil ? .selection : nil
+            }
+    }
+}
+
+/// Acknowledgment for a re-queue: a brief caption pinned to the bottom edge on
+/// the house's bottom-overlay shape, with nothing to tap — there is nothing to
+/// undo here, since a suspended card comes back through the collection's undo
+/// history rather than from this screen.
+private struct ReviewStudyNoticeOverlay: ViewModifier {
+    let notice: ReviewSession.StudyNotice?
+
+    func body(content: Content) -> some View {
+        content
+            .overlay(alignment: .bottom) {
+                if let notice {
+                    ReviewStudyNotice(message: notice.message)
+                        .transition(AmgiMotion.slide(from: .bottom))
+                }
+            }
+            // Momentum, as with the sync toast: it arrives from off-screen, so a
+            // little overshoot reads as thrown up from the edge.
+            .animation(AmgiMotion.momentum, value: notice)
+    }
+}
+
+private struct ReviewStudyNotice: View {
+    let message: String
+
+    @Environment(\.palette) private var palette
+
+    var body: some View {
+        Text(message)
+            .amgiFont(.body)
+            .foregroundStyle(palette.textSecondary)
+            .padding(.horizontal, AmgiSpacing.lg)
+            .padding(.vertical, AmgiSpacing.sm)
+            .amgiMaterial(.light, in: Capsule())
+            .amgiMaterialElevation(Capsule(), radius: AmgiRadius.small, y: 2, opacity: 0.12)
+            .padding(.bottom, AmgiSpacing.md)
     }
 }
 
@@ -232,6 +278,20 @@ private extension View {
 
     func reviewHaptics(session: ReviewSession) -> some View {
         modifier(ReviewHaptics(session: session))
+    }
+
+    func reviewStudyNotice(_ notice: ReviewSession.StudyNotice?) -> some View {
+        modifier(ReviewStudyNoticeOverlay(notice: notice))
+    }
+}
+
+private extension ReviewSession {
+    /// One rule for every card-menu action: whatever reports `shouldAdvance`
+    /// took a card out of study, so the session re-queues. Flag and mark report
+    /// `false` and leave the card in front of the user.
+    func respondToCardAction(_ shouldAdvance: Bool) {
+        guard shouldAdvance else { return }
+        requeueAfterCardRemoval()
     }
 }
 
@@ -345,7 +405,8 @@ private struct CardActionsMenu: View {
                     model: cardActions,
                     cardId: cardId,
                     noteId: session.currentNote?.id,
-                    confirmDeleteNote: $confirmDeleteNote
+                    confirmDeleteNote: $confirmDeleteNote,
+                    onAction: { session.respondToCardAction($0) }
                 )
             }
         } label: {

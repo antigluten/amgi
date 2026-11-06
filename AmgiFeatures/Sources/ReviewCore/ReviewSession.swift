@@ -61,6 +61,12 @@ public final class ReviewSession {
     public private(set) var isAdvancing: Bool = false
     public var answerError: String?
     public private(set) var startError: String?
+    /// A re-queue whose re-gather failed. Unlike a failed answer there is nothing
+    /// to roll back: the card stays on screen and the counts stay where the
+    /// engine last said they were. Surfaced, never swallowed.
+    public var requeueError: String?
+    /// What the last re-queue may tell the user, or nil when it may say nothing.
+    public private(set) var studyNotice: StudyNotice?
 
     var reviewStartTime: ContinuousClock.Instant = .now
     var cardQueue: [QueuedReviewCard] = []
@@ -69,6 +75,12 @@ public final class ReviewSession {
     private var lastRating: Rating? = nil
     private var preparedNext: (id: CardID, card: PreparedCard)?
     @ObservationIgnored private var prefetchTask: Task<Void, Never>?
+    private var studyNoticeSequence: Int = 0
+    @ObservationIgnored private var studyNoticeDismissTask: Task<Void, Never>?
+
+    /// How long the take-out caption stays up: the same beat as the sync toast's
+    /// success message, long enough to read and gone before it becomes chrome.
+    private static let studyNoticeDisplay: Duration = .seconds(2)
 
     var renderedFrontHTML: String = ""
     var renderedBackHTML: String = ""
@@ -316,6 +328,96 @@ public final class ReviewSession {
         }
     }
 
+    // MARK: - Re-queue
+
+    /// A re-queue's claim about what left study, and the caption it warrants.
+    ///
+    /// Counted by identity — the ids in the queue snapshot that was thrown away,
+    /// minus the ids the deck just handed back — never inferred from the totals.
+    /// A card the deck still yields did not leave study, so "Forget Card" claims
+    /// nothing. `id` rises with every claim, so a second take-out of the same
+    /// size is still a new cue for the caption and its haptic.
+    public struct StudyNotice: Equatable, Sendable {
+        public let id: Int
+        public let cardsTakenOutOfStudyCount: Int
+
+        public var message: String {
+            cardsTakenOutOfStudyCount == 1
+                ? "Card taken out of study"
+                : "\(cardsTakenOutOfStudyCount) cards taken out of study"
+        }
+    }
+
+    /// What the session does after a card is taken out of study — suspended,
+    /// buried, forgotten, deleted with its note, rescheduled past today: the queue
+    /// it was working through is discarded rather than repaired, the remaining
+    /// counts are read again, and study continues with whatever the deck yields
+    /// next. If nothing is yielded the session is finished, which is the ordinary
+    /// finished surface and not an error.
+    ///
+    /// Re-gathering is not caution, it is the only correct option: any card change
+    /// but a flag clears the engine's own study queue, so this snapshot is already
+    /// stale by the time the action returns. Splicing our own array instead is the
+    /// drift `answer()`'s catch block describes.
+    ///
+    /// Grades nothing: `sessionStats` is untouched, so a card taken out of study is
+    /// never counted as reviewed.
+    public func requeueAfterCardRemoval() {
+        // Guarded like `answer()`, and deliberately not a second way to start a
+        // session: with no card on screen nothing was just taken out of study.
+        guard !isAdvancing, currentQueuedCard != nil else { return }
+        isAdvancing = true
+        // The prefetch is rendering a card that has just left study. A typed-answer
+        // diff already checks the card it was computed against before it lands, and
+        // the advance below is what flips `showAnswer` off.
+        invalidatePrefetch()
+
+        let scheduler = self.scheduler
+        let notes = self.notes
+        let notetypes = self.notetypes
+        let notetypesClient = self.notetypesClient
+        let cardRendering = self.cardRendering
+
+        // Identity snapshot of everything this session believed was queued, the card
+        // on screen included. The claim is only ever made about these ids.
+        let queuedIds = Set(cardQueue.map { $0.card.id })
+
+        Task {
+            defer { isAdvancing = false }
+            do {
+                let queue = try await Task.detached {
+                    try scheduler.getQueuedCards(200)
+                }.value
+
+                requeueError = nil
+                cardQueue = queue.cards
+                remainingCounts = DeckCounts(
+                    newCount: queue.newCount,
+                    learnCount: queue.learningCount,
+                    reviewCount: queue.reviewCount
+                )
+
+                let gone = queuedIds.subtracting(queue.cards.map { $0.card.id }).count
+                if gone > 0 {
+                    studyNoticeSequence += 1
+                    studyNotice = StudyNotice(
+                        id: studyNoticeSequence,
+                        cardsTakenOutOfStudyCount: gone
+                    )
+                    scheduleStudyNoticeDismiss()
+                }
+
+                await advanceToNextCard(notes: notes, notetypes: notetypes, notetypesClient: notetypesClient, cardRendering: cardRendering)
+            } catch {
+                // Honest, not silent. The card stays in front of the user, the
+                // counts stay where the engine last said they were, and nothing is
+                // claimed about a card we never got the chance to re-gather.
+                Log.review.error("Re-queue failed: \(error)")
+                requeueError = error.localizedDescription
+            }
+        }
+    }
+
     public func updateAudioPlaying(_ playing: Bool) {
         isAudioPlaying = playing
     }
@@ -520,6 +622,18 @@ private extension ReviewSession {
         prefetchTask?.cancel()
         prefetchTask = nil
         preparedNext = nil
+    }
+
+    /// The caption is acknowledgment, not a control: it says what happened and
+    /// leaves. Cancelling first is what keeps a second take-out from being cut
+    /// short by the first one's dismiss timer.
+    func scheduleStudyNoticeDismiss() {
+        studyNoticeDismissTask?.cancel()
+        studyNoticeDismissTask = Task { [weak self] in
+            try? await Task.sleep(for: Self.studyNoticeDisplay)
+            guard !Task.isCancelled else { return }
+            self?.studyNotice = nil
+        }
     }
 
 }

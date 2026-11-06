@@ -87,6 +87,20 @@ package struct ReviewView: View {
         } message: {
             Text(session.answerError ?? "")
         }
+        // Mirrors the answer-failure alert above. The card-menu action itself
+        // did land in the collection; what failed was reading the deck back, so
+        // the card stays on screen and the session keeps its last known counts.
+        .alert(
+            "Couldn't update the session",
+            isPresented: Binding(
+                get: { session.requeueError != nil },
+                set: { if !$0 { session.requeueError = nil } }
+            )
+        ) {
+            Button("OK", role: .cancel) { session.requeueError = nil }
+        } message: {
+            Text(session.requeueError ?? "")
+        }
         .onChange(of: playAudioInSilentMode) { _, newValue in
             ReviewAudioSession.apply(playInSilent: newValue)
         }

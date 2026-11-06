@@ -452,6 +452,266 @@ import AnkiServices
         }
     }
 
+    // MARK: - Re-queue: a card taken out of study
+    //
+    // Suspending, burying, forgetting, deleting the note and setting a due date
+    // all report `shouldAdvance`. The session answers every one of them the same
+    // way: throw the queue snapshot away, ask the deck what it yields now, and
+    // take that card. See Documentation/adr/0001-live-session-total.md.
+
+    /// Acceptance 1: the next card the deck yields appears, and the total is
+    /// reduced by the card that left.
+    @Test func requeueAdvancesToTheNextCardAndShrinksTheLiveTotal() async throws {
+        let c1 = stubCard(1, note: 100)
+        let c2 = stubCard(2, note: 101)
+        let c3 = stubCard(3, note: 102)
+        let gathers = Tally()
+
+        try await withDependencies { deps in
+            stubReviewClients(&deps, gathers: gathers) { gather in
+                gather == 1
+                    ? stubQueue([c1, c2, c3], new: 3)
+                    : stubQueue([c2, c3], new: 2)
+            }
+        } operation: {
+            let s = ReviewSession(deckId: DeckID(1))
+            s.start()
+            try await pollUntil { !s.isAdvancing }
+            #expect(s.currentCardId == CardID(1))
+            #expect(s.sessionTotal == 3)
+
+            s.requeueAfterCardRemoval()
+            try await pollUntil { !s.isAdvancing }
+
+            #expect(gathers.count == 2, "the re-queue asks the deck what it yields now")
+            #expect(s.currentCardId == CardID(2), "and shows the card the deck yields next")
+            #expect(s.remainingCounts.newCount == 2)
+            #expect(s.sessionTotal == 2, "4/12 → 4/11: the total is graded + live counts")
+            #expect(s.studyNotice?.cardsTakenOutOfStudyCount == 1)
+            #expect(s.studyNotice?.message == "Card taken out of study")
+            #expect(!s.isFinished)
+            #expect(s.requeueError == nil)
+        }
+    }
+
+    /// A queue is re-gathered, never edited. The fresh gather can contain cards
+    /// this session never held — a learning step came due, a sync landed cards —
+    /// and the session has to follow what the deck actually says rather than
+    /// splice its own array.
+    @Test func requeueFollowsAFreshGatherInsteadOfSplicingItsOwnQueue() async throws {
+        let c1 = stubCard(1, note: 100)
+        let c2 = stubCard(2, note: 101)
+        // Cards no part of this session ever queued.
+        let c4 = stubCard(4, note: 103)
+        let c5 = stubCard(5, note: 104)
+        let gathers = Tally()
+
+        try await withDependencies { deps in
+            stubReviewClients(&deps, gathers: gathers) { gather in
+                gather == 1
+                    ? stubQueue([c1, c2], new: 2)
+                    : stubQueue([c2, c4, c5], new: 3)
+            }
+        } operation: {
+            let s = ReviewSession(deckId: DeckID(1))
+            s.start()
+            try await pollUntil { !s.isAdvancing }
+
+            s.requeueAfterCardRemoval()
+            try await pollUntil { !s.isAdvancing }
+
+            #expect(s.remainingCounts.newCount == 3,
+                    "splicing the old array would have left 1, not the deck's own 3")
+            #expect(s.sessionTotal == 3, "so the total grows when the deck yields more")
+            #expect(s.currentCardId == CardID(2))
+            #expect(s.studyNotice?.cardsTakenOutOfStudyCount == 1,
+                    "only c1 is provably gone; c2 is still queued")
+        }
+    }
+
+    /// Acceptance 2: a note-level action takes every card of that note out in
+    /// one step, and the caption names the real number.
+    @Test func noteLevelTakeOutRemovesEveryCardOfTheNoteAtOnce() async throws {
+        // One note, three cards — what `CardContextMenuModel.suspendNote` acts on.
+        let c1 = stubCard(1, note: 100, ord: 0)
+        let c2 = stubCard(2, note: 100, ord: 1)
+        let c3 = stubCard(3, note: 100, ord: 2)
+        let gathers = Tally()
+
+        try await withDependencies { deps in
+            stubReviewClients(&deps, gathers: gathers) { gather in
+                gather == 1 ? stubQueue([c1, c2, c3], new: 3) : stubQueue([], new: 0)
+            }
+        } operation: {
+            let s = ReviewSession(deckId: DeckID(1))
+            s.start()
+            try await pollUntil { !s.isAdvancing }
+
+            s.requeueAfterCardRemoval()
+            try await pollUntil { !s.isAdvancing }
+
+            #expect(s.studyNotice?.cardsTakenOutOfStudyCount == 3)
+            #expect(s.studyNotice?.message == "3 cards taken out of study")
+            #expect(s.sessionTotal == 0)
+        }
+    }
+
+    /// Acceptance 3 / R5: the last remaining card going out ends the session on
+    /// the finished surface — not an error state — and nothing may be claimed
+    /// reviewed.
+    @Test func takingOutTheLastRemainingCardEndsTheSessionFinished() async throws {
+        let c1 = stubCard(1, note: 100)
+        let gathers = Tally()
+
+        try await withDependencies { deps in
+            stubReviewClients(&deps, gathers: gathers) { gather in
+                gather == 1 ? stubQueue([c1], new: 1) : stubQueue([], new: 0)
+            }
+        } operation: {
+            let s = ReviewSession(deckId: DeckID(1))
+            s.start()
+            try await pollUntil { !s.isAdvancing }
+
+            s.requeueAfterCardRemoval()
+            try await pollUntil { !s.isAdvancing }
+
+            #expect(s.isFinished, "isFinished drives the congratulations surface and its success haptic")
+            #expect(s.startError == nil && s.requeueError == nil,
+                    "an empty deck after a take-out is not a failure")
+            #expect(s.sessionStats.reviewed == 0, "the recap may not claim anything was reviewed")
+            #expect(s.studyNotice?.cardsTakenOutOfStudyCount == 1)
+        }
+    }
+
+    /// Acceptance 4 / R6: a card the deck hands straight back — "Forget Card"
+    /// re-queues it as new — is never reported as gone, and it is a different
+    /// card now, so it has to be prepared again rather than reused from the
+    /// prefetch cache.
+    @Test func aCardTheDeckHandsBackIsNotClaimedAsGoneAndIsPreparedAgain() async throws {
+        let c1 = stubCard(1, note: 100)
+        let gathers = Tally()
+        let renders = Tally()
+
+        try await withDependencies { deps in
+            stubReviewClients(&deps, gathers: gathers, renders: renders) { _ in
+                stubQueue([c1], new: 1)
+            }
+        } operation: {
+            let s = ReviewSession(deckId: DeckID(1))
+            s.start()
+            try await pollUntil { s.currentCardId != nil }
+            #expect(renders.count >= 1)
+
+            s.requeueAfterCardRemoval()
+            try await pollUntil { !s.isAdvancing && renders.count >= 2 }
+
+            #expect(s.studyNotice == nil, "the deck still yields it, so nothing left study")
+            #expect(renders.count >= 2,
+                    "the returned card is re-prepared, not reused: forget gave it new states")
+            #expect(!s.isFinished)
+            #expect(s.currentCardId == CardID(1))
+            #expect(s.sessionStats.reviewed == 0)
+        }
+    }
+
+    /// A re-queue is not a second way to start a session: with nothing on screen
+    /// nothing was just taken out of study, and mid-transition it must not race
+    /// the work already in flight.
+    @Test func requeueWithoutACardOnScreenDoesNothing() async throws {
+        let c1 = stubCard(1, note: 100)
+        let gathers = Tally()
+
+        try await withDependencies { deps in
+            stubReviewClients(&deps, gathers: gathers) { _ in stubQueue([c1], new: 1) }
+        } operation: {
+            let s = ReviewSession(deckId: DeckID(1))
+
+            s.requeueAfterCardRemoval()
+            #expect(gathers.count == 0, "no card on screen, nothing to take out")
+            #expect(!s.isAdvancing, "and no transition gate left shut")
+            #expect(!s.isFinished)
+            #expect(s.currentCardId == nil)
+
+            s.start()
+            #expect(s.isAdvancing)
+            s.requeueAfterCardRemoval()
+            try await pollUntil { !s.isAdvancing }
+
+            #expect(gathers.count == 1, "only start()'s gather ran")
+            #expect(s.currentCardId == CardID(1))
+        }
+    }
+
+    /// Acceptance 6: the hazard `answer()`'s own comment describes. A failed
+    /// re-gather leaves the card in front of the user and says so; it never
+    /// silently drops a card or claims one gone.
+    @Test func failedRequeueLeavesTheCardOnScreenAndSaysSo() async throws {
+        struct GatherFailure: Error {}
+        let c1 = stubCard(1, note: 100)
+        let c2 = stubCard(2, note: 101)
+        let gathers = Tally()
+
+        try await withDependencies { deps in
+            stubReviewClients(&deps, gathers: gathers) { gather in
+                guard gather == 1 else { throw GatherFailure() }
+                return stubQueue([c1, c2], new: 2)
+            }
+        } operation: {
+            let s = ReviewSession(deckId: DeckID(1))
+            s.start()
+            try await pollUntil { !s.isAdvancing }
+
+            s.requeueAfterCardRemoval()
+            try await pollUntil { !s.isAdvancing }
+
+            #expect(s.requeueError != nil, "a failed re-gather is surfaced, not swallowed")
+            #expect(s.currentCardId == CardID(1), "the card stays in front of the user")
+            #expect(s.studyNotice == nil, "nothing was re-gathered, so nothing may be claimed gone")
+            #expect(s.remainingCounts.newCount == 2 && s.sessionTotal == 2,
+                    "the counts stay where the engine last said they were")
+            #expect(!s.isFinished)
+        }
+    }
+
+    /// Acceptance 5 / R4: a re-queue changes no card and grades nothing. The
+    /// graded counts are exactly what the answers produced, before and after.
+    @Test func requeueGradesNothingAndLeavesTheGradedCountsAlone() async throws {
+        let c1 = stubCard(1, note: 100)
+        let c2 = stubCard(2, note: 101)
+        let c3 = stubCard(3, note: 102)
+        let gathers = Tally()
+
+        try await withDependencies { deps in
+            stubReviewClients(&deps, gathers: gathers) { gather in
+                switch gather {
+                case 1: stubQueue([c1, c2, c3], new: 3)
+                case 2: stubQueue([c2, c3], new: 2)   // after the answer
+                default: stubQueue([c3], new: 1)      // after the take-out
+                }
+            }
+        } operation: {
+            let s = ReviewSession(deckId: DeckID(1))
+            s.start()
+            try await pollUntil { !s.isAdvancing }
+
+            s.answer(rating: .good)
+            try await pollUntil { !s.isAdvancing }
+            #expect(s.sessionStats.reviewed == 1)
+            let graded = s.sessionStats
+
+            s.requeueAfterCardRemoval()
+            try await pollUntil { !s.isAdvancing }
+
+            #expect(s.currentCardId == CardID(3))
+            #expect(s.sessionStats == graded,
+                    "a re-queue grades nothing: reviewed, correct and time are exactly what the answer produced")
+            #expect(s.sessionTotal == 2,
+                    "the one graded card plus the one card the deck still yields, nothing else")
+            #expect(s.cardPosition == 2)
+            #expect(s.studyNotice?.cardsTakenOutOfStudyCount == 1)
+        }
+    }
+
     // MARK: - Prefetch
 
     /// The card *after* the current one is rendered while the user reads, so
@@ -494,3 +754,59 @@ import AnkiServices
         }
     }
 }
+
+// MARK: - Stub helpers
+//
+// File scope on purpose: `ReviewSession` calls the mocked clients inside
+// `Task.detached`, and a MainActor-isolated member of the suite is not callable
+// from a `@Sendable` client closure.
+
+/// A counter the mocked clients can share from off the main actor.
+private final class Tally: @unchecked Sendable {
+    private let lock = NSLock()
+    private var value = 0
+    func bump() { lock.lock(); value += 1; lock.unlock() }
+    var count: Int { lock.lock(); defer { lock.unlock() }; return value }
+}
+
+private func stubCard(_ id: Int64, note noteId: Int64, ord: Int32 = 0) -> QueuedReviewCard {
+    QueuedReviewCard.preview(cardId: CardID(id), noteId: NoteID(noteId), ord: ord)
+}
+
+private func stubQueue(_ cards: [QueuedReviewCard], new: Int) -> QueuedCardsResult {
+    QueuedCardsResult(cards: cards, newCount: new, learningCount: 0, reviewCount: 0)
+}
+
+/// Stubs everything a session needs to gather and prepare cards. `queue` decides
+/// what each gather returns, counting from 1 (`start()`'s gather); `gathers`
+/// records how many gathers actually ran.
+private func stubReviewClients(
+    _ values: inout DependencyValues,
+    gathers: Tally,
+    renders: Tally? = nil,
+    queue: @escaping @Sendable (_ gather: Int) throws -> QueuedCardsResult
+) {
+    values.decksService.setCurrentDeck = { _ in }
+    values.decksService.getCurrentDeck = { DeckInfo(id: DeckID(1), name: "Deck") }
+    values.schedulerService.getQueuedCards = { _ in
+        gathers.bump()
+        return try queue(gathers.count)
+    }
+    values.schedulerService.answerReviewCard = { _, _, _, _ in }
+    values.notesService.getNote = { id in
+        NoteRecord(
+            id: id, guid: "g\(id.rawValue)", mid: NotetypeID(200), mod: 0,
+            flds: "f\u{1f}b", sfld: "f", csum: 0
+        )
+    }
+    // `prepareCard` fetches the notetype only to label the render-mode chip.
+    // These tests never look at that label, so the fetch declines rather than
+    // tripping the unimplemented-closure warning.
+    values.notetypesClient.get = { _ in throw NoNotetype() }
+    values.cardRenderingService.renderCard = { _ in
+        renders?.bump()
+        return RenderedCard(frontHTML: "<p>front</p>", backHTML: "<p>back</p>", cardCSS: "")
+    }
+}
+
+private struct NoNotetype: Error {}
