@@ -51,9 +51,16 @@ public struct RootView: View {
             // below.
             .id(accountStore.selectedID)
             .onChange(of: accountStore.selectedID) { pendingReviewDeckId = nil }
-            .onChange(of: scenePhase) { _, newPhase in
+            .onChange(of: scenePhase) { oldPhase, newPhase in
                 if newPhase == .active {
                     Task { await writeWidgetSnapshot() }
+                }
+                // A suspended app can resume past the scheduler's day
+                // rollover; due counts and today's stats would otherwise
+                // stay frozen until the next mutation (#64).
+                if oldPhase == .background, newPhase != .background {
+                    store.invalidateAll()
+                    refreshID = UUID()
                 }
             }
             .onOpenURL { url in
