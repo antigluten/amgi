@@ -76,31 +76,12 @@ package struct ReviewView: View {
             ReviewAudioSession.apply(playInSilent: playAudioInSilentMode)
             session.start()
         }
-        .alert(
-            "Couldn't save that review",
-            isPresented: Binding(
-                get: { session.answerError != nil },
-                set: { if !$0 { session.answerError = nil } }
-            )
-        ) {
-            Button("OK", role: .cancel) { session.answerError = nil }
-        } message: {
-            Text(session.answerError ?? "")
-        }
-        // Mirrors the answer-failure alert above. The card-menu action itself
-        // did land in the collection; what failed was reading the deck back, so
-        // the card stays on screen and the session keeps its last known counts.
-        .alert(
-            "Couldn't update the session",
-            isPresented: Binding(
-                get: { session.requeueError != nil },
-                set: { if !$0 { session.requeueError = nil } }
-            )
-        ) {
-            Button("OK", role: .cancel) { session.requeueError = nil }
-        } message: {
-            Text(session.requeueError ?? "")
-        }
+        .reviewSessionAlert("Couldn't save that review", \ReviewSession.answerError, in: session)
+        // The card-menu action itself did land in the collection; what failed was
+        // reading the deck back, so the card stays on screen and the session keeps
+        // its last known counts. `start()`'s failure is not here: that gets its own
+        // retry surface in `ReviewContent`, because a failure is not a finished deck.
+        .reviewSessionAlert("Couldn't update the session", \ReviewSession.requeueError, in: session)
         .onChange(of: playAudioInSilentMode) { _, newValue in
             ReviewAudioSession.apply(playInSilent: newValue)
         }
@@ -108,5 +89,40 @@ package struct ReviewView: View {
             ReviewAudioSession.release()
             Task { await writeWidgetSnapshot() }
         }
+    }
+}
+
+// MARK: - Session failure alerts
+
+private extension View {
+    /// One alert per session error channel: the title names the act that failed,
+    /// the body is the engine's own words.
+    func reviewSessionAlert(
+        _ title: String,
+        _ channel: ReferenceWritableKeyPath<ReviewSession, String?>,
+        in session: ReviewSession
+    ) -> some View {
+        modifier(ReviewSessionErrorAlert(title: title, channel: channel, session: session))
+    }
+}
+
+private struct ReviewSessionErrorAlert: ViewModifier {
+    let title: String
+    let channel: ReferenceWritableKeyPath<ReviewSession, String?>
+    let session: ReviewSession
+
+    func body(content: Content) -> some View {
+        content
+            .alert(
+                title,
+                isPresented: Binding(
+                    get: { session[keyPath: channel] != nil },
+                    set: { if !$0 { session[keyPath: channel] = nil } }
+                )
+            ) {
+                Button("OK", role: .cancel) { session[keyPath: channel] = nil }
+            } message: {
+                Text(session[keyPath: channel] ?? "")
+            }
     }
 }

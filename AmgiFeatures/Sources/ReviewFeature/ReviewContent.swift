@@ -244,7 +244,7 @@ private struct ReviewStudyNoticeOverlay: ViewModifier {
         content
             .overlay(alignment: .bottom) {
                 if let notice {
-                    ReviewStudyNotice(message: notice.message)
+                    ReviewStudyNotice(message: notice.caption)
                         .transition(AmgiMotion.slide(from: .bottom))
                 }
             }
@@ -292,6 +292,17 @@ private extension ReviewSession {
     func respondToCardAction(_ shouldAdvance: Bool) {
         guard shouldAdvance else { return }
         requeueAfterCardRemoval()
+    }
+}
+
+private extension ReviewSession.StudyNotice {
+    /// The claim in words. Singular or plural, because the number is the one the
+    /// deck no longer yields — a `StudyNotice` only ever exists when it is at
+    /// least one.
+    var caption: String {
+        cardsTakenOutOfStudyCount == 1
+            ? "Card taken out of study"
+            : "\(cardsTakenOutOfStudyCount) cards taken out of study"
     }
 }
 
@@ -358,7 +369,11 @@ private struct CardActionsMenu: View {
     var body: some View {
         Menu {
             if let cardId = session.currentCardId {
-                CardFlagPicker(model: cardActions, cardId: cardId)
+                CardFlagPicker(
+                    model: cardActions,
+                    cardId: cardId,
+                    onAction: { session.respondToCardAction($0) }
+                )
             }
 
             Section {

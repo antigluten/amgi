@@ -488,7 +488,6 @@ import AnkiServices
             #expect(s.remainingCounts.newCount == 2)
             #expect(s.sessionTotal == 2, "4/12 → 4/11: the total is graded + live counts")
             #expect(s.studyNotice?.cardsTakenOutOfStudyCount == 1)
-            #expect(s.studyNotice?.message == "Card taken out of study")
             #expect(!s.isFinished)
             #expect(s.requeueError == nil)
         }
@@ -530,17 +529,22 @@ import AnkiServices
     }
 
     /// Acceptance 2: a note-level action takes every card of that note out in
-    /// one step, and the caption names the real number.
+    /// one step, and the caption names the real number (`ReviewStudyNotice` puts
+    /// `cardsTakenOutOfStudyCount` into words; this is the number it must name).
     @Test func noteLevelTakeOutRemovesEveryCardOfTheNoteAtOnce() async throws {
         // One note, three cards — what `CardContextMenuModel.suspendNote` acts on.
         let c1 = stubCard(1, note: 100, ord: 0)
         let c2 = stubCard(2, note: 100, ord: 1)
         let c3 = stubCard(3, note: 100, ord: 2)
+        // Another note's card, which the deck also stops yielding. The session
+        // may not claim it: a card-menu action aims at the card on screen or at
+        // its note, and this one belongs to neither.
+        let other = stubCard(9, note: 200)
         let gathers = Tally()
 
         try await withDependencies { deps in
             stubReviewClients(&deps, gathers: gathers) { gather in
-                gather == 1 ? stubQueue([c1, c2, c3], new: 3) : stubQueue([], new: 0)
+                gather == 1 ? stubQueue([c1, c2, c3, other], new: 4) : stubQueue([], new: 0)
             }
         } operation: {
             let s = ReviewSession(deckId: DeckID(1))
@@ -550,8 +554,8 @@ import AnkiServices
             s.requeueAfterCardRemoval()
             try await pollUntil { !s.isAdvancing }
 
-            #expect(s.studyNotice?.cardsTakenOutOfStudyCount == 3)
-            #expect(s.studyNotice?.message == "3 cards taken out of study")
+            #expect(s.studyNotice?.cardsTakenOutOfStudyCount == 3,
+                    "the note's three cards, not the four the deck stopped yielding")
             #expect(s.sessionTotal == 0)
         }
     }
@@ -639,6 +643,41 @@ import AnkiServices
 
             #expect(gathers.count == 1, "only start()'s gather ran")
             #expect(s.currentCardId == CardID(1))
+        }
+    }
+
+    /// The card menu is not shut during a transition, so a take-out can land
+    /// while an answer is in flight. Dropping it would leave the session's counts
+    /// adrift until the next grade — the drift ADR-0001 says not to reintroduce —
+    /// so it waits its turn instead.
+    @Test func aTakeOutRequestedMidTransitionIsHonouredAfterIt() async throws {
+        let c1 = stubCard(1, note: 100)
+        let c2 = stubCard(2, note: 101)
+        let gathers = Tally()
+
+        try await withDependencies { deps in
+            stubReviewClients(&deps, gathers: gathers) { gather in
+                switch gather {
+                case 1: stubQueue([c1, c2], new: 2)
+                case 2: stubQueue([c2], new: 1)      // the answer's gather
+                default: stubQueue([], new: 0)       // the deferred re-queue's
+                }
+            }
+        } operation: {
+            let s = ReviewSession(deckId: DeckID(1))
+            s.start()
+            try await pollUntil { !s.isAdvancing }
+
+            s.answer(rating: .good)
+            #expect(s.isAdvancing, "the answer's transition is in flight")
+            s.requeueAfterCardRemoval()
+
+            try await pollUntil { !s.isAdvancing }
+
+            #expect(gathers.count == 3, "the re-queue ran after the transition, not instead of it")
+            #expect(s.studyNotice?.cardsTakenOutOfStudyCount == 1)
+            #expect(s.isFinished, "and the deck yielded nothing, so the session is finished")
+            #expect(s.sessionStats.reviewed == 1, "still only the one real grade")
         }
     }
 
