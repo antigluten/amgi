@@ -1,5 +1,5 @@
 import AppCore
-import AppShared
+@testable import AppShared
 import AnkiClients
 import AnkiKit
 import Dependencies
@@ -69,7 +69,7 @@ struct WordSpotlightSettingsTests {
                             flds: "cat\u{1f}A cat", sfld: "", csum: 0)]
             }
         } operation: {
-            let model = WordSpotlightSettingsModel()
+            let model = WordSpotlightSettingsModel(controller: WordSpotlightController())
             model.profileID = AccountStore.shared.selectedID
             await model.load()
             model.preferences.deckID = 11
@@ -107,7 +107,7 @@ struct WordSpotlightSettingsTests {
                 return Notetype(id: NotetypeID(12), fields: [.init(name: "Front"), .init(name: "Back")])
             }
         } operation: {
-            let model = WordSpotlightSettingsModel()
+            let model = WordSpotlightSettingsModel(controller: WordSpotlightController())
             model.profileID = AccountStore.shared.selectedID
             await model.load()
             #expect(model.error != nil)

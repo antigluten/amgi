@@ -31,7 +31,8 @@ struct WordSpotlightNotificationTests {
                 started.continuation.yield()
                 var iterator = release.stream.makeAsyncIterator()
                 await iterator.next()
-                pending.withValue { $0.append(request.identifier) }
+                let id = request.identifier
+                pending.withValue { $0.append(id) }
             }
         } operation: {
             let notifications = WordSpotlightNotifications()
@@ -54,7 +55,8 @@ struct WordSpotlightNotificationTests {
         await withDependencies {
             $0.wordSpotlightNotificationClient.authorizationStatus = { status }
             $0.wordSpotlightNotificationClient.addRequest = { request in
-                pending.withValue { $0.append(request.identifier) }
+                let id = request.identifier
+                pending.withValue { $0.append(id) }
                 #expect(request.content.body == "Take a moment for vocabulary.")
                 let rawLink = request.content.userInfo["wordURL"] as? String
                 let link = rawLink.flatMap(URL.init(string:)).flatMap(WordSpotlightLink.init(url:))
@@ -74,12 +76,12 @@ struct WordSpotlightNotificationTests {
     }
 
     @Test func deniedPermissionIsReportedWithoutScheduling() async throws {
-        try await withDependencies {
+        let notifications = withDependencies {
             $0.wordSpotlightNotificationClient.requestPermission = { false }
         } operation: {
-            let notifications = WordSpotlightNotifications()
-            #expect(try await notifications.requestPermission() == false)
-            #expect(notifications.notificationsDenied)
+            WordSpotlightNotifications()
         }
+        #expect(try await notifications.requestPermission() == false)
+        #expect(notifications.notificationsDenied)
     }
 }
