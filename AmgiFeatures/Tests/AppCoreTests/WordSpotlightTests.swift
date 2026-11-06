@@ -137,4 +137,22 @@ import Testing
         )
         #expect(changed.word(on: date(7), calendar: calendar)?.noteID == 1)
     }
+
+    @Test func deletedAnchorWordHandsItsSlotToItsSuccessor() {
+        let words = (1...5).map {
+            SpotlightWord(noteID: Int64($0), term: "Word \($0)", reading: "", meaning: "Meaning")
+        }
+        let previous = WordSpotlightSchedule.make(
+            profileID: "one", source: "deck", words: words, previous: nil, now: date(7), calendar: calendar
+        )
+        let remaining = Array(words.dropFirst())
+        let sameDay = WordSpotlightSchedule.make(
+            profileID: "one", source: "deck", words: remaining, previous: previous, now: date(7), calendar: calendar
+        )
+        #expect(sameDay.word(on: date(7), calendar: calendar)?.noteID == 2)
+        let later = WordSpotlightSchedule.make(
+            profileID: "one", source: "deck", words: remaining, previous: previous, now: date(9), calendar: calendar
+        )
+        #expect(later.word(on: date(9), calendar: calendar)?.noteID == 3)
+    }
 }

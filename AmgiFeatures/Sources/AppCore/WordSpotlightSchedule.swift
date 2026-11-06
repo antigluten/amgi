@@ -51,12 +51,14 @@ package struct WordSpotlightSchedule: Codable, Equatable, Sendable {
     private static func firstWordIndex(
         in words: [SpotlightWord], after anchor: Entry?, elapsedSlots: Int, advanceBy: Int
     ) -> Int {
-        let preservedWordIndex = anchor.flatMap { entry in
-            words.firstIndex { $0.noteID == entry.word.noteID }
-        }
-        let automaticAdvance = preservedWordIndex == nil ? 0 : elapsedSlots
         let manualAdvance = max(0, advanceBy)
-        return ((preservedWordIndex ?? 0) + automaticAdvance + manualAdvance) % words.count
+        guard let anchor else { return manualAdvance % words.count }
+        if let preserved = words.firstIndex(where: { $0.noteID == anchor.word.noteID }) {
+            return (preserved + elapsedSlots + manualAdvance) % words.count
+        }
+        // The anchor word is gone: its successor (words are in note-id order) takes the next slot.
+        let successor = words.firstIndex { $0.noteID > anchor.word.noteID } ?? words.count
+        return (successor + max(0, elapsedSlots - 1) + manualAdvance) % words.count
     }
 
     private static func firstSlotDate(
