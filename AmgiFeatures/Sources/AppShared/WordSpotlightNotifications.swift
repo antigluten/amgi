@@ -44,21 +44,31 @@ final class WordSpotlightNotifications: NSObject, UNUserNotificationCenterDelega
         schedule: WordSpotlightSchedule?, preferences: WordSpotlightPreferences, revision: Int
     ) async {
         guard revision == generation else { return }
-        client.removeRequests(Self.notificationIDs)
         let status = await client.authorizationStatus()
         guard revision == generation else { return }
         notificationsDenied = status == .denied
         guard preferences.notifications, let schedule,
-              status == .authorized || status == .provisional else { return }
+              status == .authorized || status == .provisional else {
+            client.removeRequests(Self.notificationIDs)
+            return
+        }
+        // Add first (same ids replace), then prune: a failed add never leaves the user with no reminders.
+        var added: [String] = []
         do {
-            try await scheduleNotifications(schedule: schedule, preferences: preferences, revision: revision)
+            try await scheduleNotifications(schedule: schedule, preferences: preferences, revision: revision) {
+                added.append($0)
+            }
         } catch {
             if revision == generation { self.error = error.localizedDescription }
+            return
         }
+        guard revision == generation else { return }
+        client.removePendingRequests(Self.notificationIDs.filter { !added.contains($0) })
     }
 
     private func scheduleNotifications(
-        schedule: WordSpotlightSchedule, preferences: WordSpotlightPreferences, revision: Int
+        schedule: WordSpotlightSchedule, preferences: WordSpotlightPreferences, revision: Int,
+        added: (String) -> Void
     ) async throws {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: .now)
@@ -68,6 +78,7 @@ final class WordSpotlightNotifications: NSObject, UNUserNotificationCenterDelega
                                                      schedule: schedule, preferences: preferences)
             else { continue }
             try await client.addRequest(request)
+            added(request.identifier)
         }
     }
 

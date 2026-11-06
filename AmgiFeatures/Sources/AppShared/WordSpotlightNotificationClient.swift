@@ -6,7 +6,9 @@ import UserNotifications
 struct WordSpotlightNotificationClient: Sendable {
     var authorizationStatus: @MainActor @Sendable () async -> UNAuthorizationStatus = { .notDetermined }
     var requestPermission: @MainActor @Sendable () async throws -> Bool
+    /// Pending and delivered: used when reminders are off or the profile changed.
     var removeRequests: @MainActor @Sendable (_ identifiers: [String]) -> Void
+    var removePendingRequests: @MainActor @Sendable (_ identifiers: [String]) -> Void
     var addRequest: @MainActor @Sendable (_ request: UNNotificationRequest) async throws -> Void
 }
 
@@ -19,12 +21,13 @@ extension WordSpotlightNotificationClient: DependencyKey {
             center.removePendingNotificationRequests(withIdentifiers: identifiers)
             center.removeDeliveredNotifications(withIdentifiers: identifiers)
         },
+        removePendingRequests: { UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: $0) },
         addRequest: { try await UNUserNotificationCenter.current().add($0) }
     )
 
     static let testValue = Self(
         authorizationStatus: { .denied }, requestPermission: { false },
-        removeRequests: { _ in }, addRequest: { _ in }
+        removeRequests: { _ in }, removePendingRequests: { _ in }, addRequest: { _ in }
     )
 }
 
