@@ -70,7 +70,7 @@ import Testing
     func failedAdvancePreservesWordAndWidgetSnapshot() async throws {
         let profileID = AccountStore.shared.selectedID
         let defaults = UserDefaults.standard
-        let keys = ["wordOfDay.\(profileID)", "wordOfDay.rotation.\(profileID)"]
+        let keys = [WordSpotlightStore.preferencesKey(profileID: profileID), WordSpotlightStore.rotationKey(profileID: profileID)]
         let saved = keys.map { defaults.data(forKey: $0) }
         let snapshot = WordSpotlightStore.read()
         defer {
@@ -123,7 +123,7 @@ import Testing
     @Test(arguments: [false, true])
     func reminderPrivacySavesWhenSourceIsUnavailable(keepNotifications: Bool) async throws {
         let profileID = AccountStore.shared.selectedID
-        let key = "wordOfDay.\(profileID)"
+        let key = WordSpotlightStore.preferencesKey(profileID: profileID)
         let original = UserDefaults.standard.data(forKey: key)
         defer { UserDefaults.standard.set(original, forKey: key) }
         var saved = preferences
@@ -215,7 +215,7 @@ import Testing
     private func preservingStoredState(_ operation: (String) async throws -> Void) async rethrows {
         let profileID = AccountStore.shared.selectedID
         let defaults = UserDefaults.standard
-        let keys = ["wordOfDay.\(profileID)", "wordOfDay.rotation.\(profileID)"]
+        let keys = [WordSpotlightStore.preferencesKey(profileID: profileID), WordSpotlightStore.rotationKey(profileID: profileID)]
         let saved = keys.map { defaults.data(forKey: $0) }
         let snapshot = WordSpotlightStore.read()
         defer {

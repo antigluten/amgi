@@ -12,7 +12,7 @@ import Testing
 struct WordSpotlightSettingsTests {
     @Test func retryPreservesTheFailedRotationChoice() async throws {
         let profileID = AccountStore.shared.selectedID
-        let keys = ["wordOfDay.\(profileID)", "wordOfDay.rotation.\(profileID)"]
+        let keys = [WordSpotlightStore.preferencesKey(profileID: profileID), WordSpotlightStore.rotationKey(profileID: profileID)]
         let saved = keys.map { UserDefaults.standard.data(forKey: $0) }
         let snapshot = WordSpotlightStore.read()
         defer {

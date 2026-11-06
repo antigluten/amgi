@@ -3,19 +3,6 @@ import Testing
 @testable import AppCore
 
 @Suite struct WordSpotlightTests {
-    @Test func savedWordOfDayScheduleSurvivesRename() throws {
-        let legacy = Data(#"{"profileID":"one","source":"deck","days":[{"date":0,"word":{"noteID":42,"term":"cat","reading":"","meaning":"A cat"}}]}"#.utf8)
-        let schedule = try JSONDecoder().decode(WordSpotlightSchedule.self, from: legacy)
-        let now = Date(timeIntervalSinceReferenceDate: 0)
-        #expect(schedule.word(on: now)?.noteID == 42)
-        let saved = try JSONEncoder().encode(schedule)
-        let reopened = try JSONDecoder().decode(WordSpotlightSchedule.self, from: saved)
-        #expect(reopened.word(on: now)?.term == "cat")
-        let object = try #require(JSONSerialization.jsonObject(with: saved) as? [String: Any])
-        #expect(object["days"] != nil)
-        #expect(object["entries"] == nil)
-    }
-
     private var calendar: Calendar {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = TimeZone(identifier: "America/New_York")!

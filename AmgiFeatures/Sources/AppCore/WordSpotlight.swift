@@ -24,12 +24,15 @@ package struct WordSpotlightPreferences: Codable, Equatable, Sendable {
     package var hour = 9
     package var minute = 0
     package var showWord = true
-    // Optional so existing saved preferences still decode as daily rotation.
-    package var intervalHours: Int?
+    package var intervalHours = 24
 
-    package var rotationHours: Int {
-        [1, 3, 6, 12, 24].contains(intervalHours ?? 24) ? (intervalHours ?? 24) : 24
+    package static let rotationIntervals = [1, 3, 6, 12, 24]
+
+    package static func validRotationHours(_ hours: Int) -> Int {
+        rotationIntervals.contains(hours) ? hours : 24
     }
+
+    package var rotationHours: Int { Self.validRotationHours(intervalHours) }
 
     package init() {}
 

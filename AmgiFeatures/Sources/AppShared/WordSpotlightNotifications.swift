@@ -12,7 +12,7 @@ final class WordSpotlightNotifications: NSObject, UNUserNotificationCenterDelega
     private(set) var notificationsDenied = false
     private var generation = 0
     private var notificationTask: Task<Void, Never>?
-    private static let notificationIDs = (0..<14).map { "word-of-day.\($0)" }
+    private static let notificationIDs = (0..<14).map { "word-spotlight.\($0)" }
     @ObservationIgnored @Dependency(\.wordSpotlightNotificationClient) private var client
 
     func installDelegate() {
