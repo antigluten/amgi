@@ -48,7 +48,8 @@ final class WordSpotlightUITests: XCTestCase {
     private func launchApp() -> XCUIApplication {
         continueAfterFailure = false
         let app = XCUIApplication()
-        app.launchArguments = ["-onboardingCompleted", "YES", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        // @Shared(.appStorage) reads a Bool, and the argument domain only yields one from plist syntax, not "YES".
+        app.launchArguments = ["-onboardingCompleted", "<true/>", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
         return app
     }
