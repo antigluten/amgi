@@ -93,11 +93,16 @@ import Testing
             #expect(original?.noteID == 42)
             #expect(!controller.canAdvance)
             let requests = AsyncStream<Void>.makeStream()
-            defer { requests.continuation.finish() }
-            try await withDependencies {
+            let release = AsyncStream<Void>.makeStream()
+            defer {
+                requests.continuation.finish()
+                release.continuation.finish()
+            }
+            await withDependencies {
                 $0.noteClient.searchAll = { _, _ in
                     requests.continuation.yield()
-                    try await Task.sleep(for: .milliseconds(50))
+                    var gate = release.stream.makeAsyncIterator()
+                    await gate.next()
                     return [sample]
                 }
             } operation: {
@@ -105,6 +110,7 @@ import Testing
                 var iterator = requests.stream.makeAsyncIterator()
                 await iterator.next()
                 let foreground = Task { await controller.refresh() }
+                release.continuation.finish()
                 let saved = await save.value
                 #expect(saved)
                 #expect(await foreground.value)
