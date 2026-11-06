@@ -24,15 +24,24 @@ enum WordSpotlightSource {
             throw WordSpotlightError.invalidSource
         }
         let query = "\(DeckSearch.term(deck.name)) mid:\(preferences.notetypeID) -is:suspended -is:buried"
-        // shortcut: cap full-note reads at 500; add paged rotation if larger pools are needed.
+        // shortcut: cap full-note reads at the 500 oldest notes; add paged rotation if larger pools are needed.
         let notes = try await noteClient.searchAll(query, 500)
         try validate()
-        return notes.sorted { $0.id.rawValue < $1.id.rawValue }.compactMap {
-            Self.word(from: $0, fields: fields, preferences: preferences)
+        let words = await words(from: notes, fields: fields, preferences: preferences)
+        try validate()
+        return words
+    }
+
+    @concurrent
+    nonisolated private static func words(
+        from notes: [NoteRecord], fields: [String], preferences: WordSpotlightPreferences
+    ) async -> [SpotlightWord] {
+        notes.sorted { $0.id.rawValue < $1.id.rawValue }.compactMap {
+            word(from: $0, fields: fields, preferences: preferences)
         }
     }
 
-    static func word(
+    nonisolated static func word(
         from note: NoteRecord, fields: [String], preferences: WordSpotlightPreferences
     ) -> SpotlightWord? {
         guard !note.isImageOcclusionNote else { return nil }
