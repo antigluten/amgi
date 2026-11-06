@@ -52,32 +52,21 @@ final class WordSpotlightNotifications: NSObject, UNUserNotificationCenterDelega
             client.removeRequests(Self.notificationIDs)
             return
         }
-        // Add first (same ids replace), then prune: a failed add never leaves the user with no reminders.
-        var added: [String] = []
-        do {
-            try await scheduleNotifications(schedule: schedule, preferences: preferences, revision: revision) {
-                added.append($0)
-            }
-        } catch {
-            if revision == generation { self.error = error.localizedDescription }
-        }
-        guard revision == generation else { return }
-        client.removePendingRequests(Self.notificationIDs.filter { !added.contains($0) })
-    }
-
-    private func scheduleNotifications(
-        schedule: WordSpotlightSchedule, preferences: WordSpotlightPreferences, revision: Int,
-        added: (String) -> Void
-    ) async throws {
+        // Same ids replace in place; a failed add costs only its own slot, never stale content.
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: .now)
-        for index in 0..<14 {
+        let requests = (0..<14).compactMap {
+            notificationRequest(index: $0, startingAt: today, calendar: calendar,
+                                schedule: schedule, preferences: preferences)
+        }
+        let wanted = Set(requests.map(\.identifier))
+        client.removePendingRequests(Self.notificationIDs.filter { !wanted.contains($0) })
+        for request in requests {
             guard revision == generation else { return }
-            guard let request = notificationRequest(index: index, startingAt: today, calendar: calendar,
-                                                     schedule: schedule, preferences: preferences)
-            else { continue }
-            try await client.addRequest(request)
-            added(request.identifier)
+            do { try await client.addRequest(request) } catch {
+                client.removePendingRequests([request.identifier])
+                if revision == generation { self.error = error.localizedDescription }
+            }
         }
     }
 

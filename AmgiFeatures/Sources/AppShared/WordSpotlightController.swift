@@ -114,7 +114,11 @@ package final class WordSpotlightController {
     package func refreshIfNeeded() async -> Bool {
         await enqueue {
             let preferences = WordSpotlightStore.preferences(profileID: AccountStore.shared.selectedID)
-            if let schedule = self.schedule, self.isFresh(schedule, for: preferences) { return true }
+            if let schedule = self.schedule, self.isFresh(schedule, for: preferences) {
+                // Permission may have been granted in iOS Settings while the app was away.
+                self.notifications.update(schedule: schedule, preferences: preferences)
+                return true
+            }
             return await self.update(advance: false)
         }
     }
@@ -143,15 +147,8 @@ package final class WordSpotlightController {
             }
         }
         updateTask = task
-        guard let result = await value(of: task, timeout: Self.operationTimeout) else {
-            Log.widget.error("Word Spotlight update timed out")
-            if revision == profileGeneration { updateError = WordSpotlightError.timedOut.localizedDescription }
-            return false
-        }
-        return result
+        return await task.value
     }
-
-    private static let operationTimeout = Duration.seconds(30)
 
     private func update(advance: Bool) async -> Bool {
         if advance { pendingAdvance += 1 }
@@ -264,30 +261,8 @@ package final class WordSpotlightController {
     }
 }
 
-/// FFI calls can't be cancelled; this only stops the UI waiting on a hung one, the queue stays serial.
-@MainActor
-private func value(of task: Task<Bool, Never>, timeout: Duration) async -> Bool? {
-    final class Once { var resumed = false }
-    let once = Once()
-    return await withCheckedContinuation { continuation in
-        let timer = Task { @MainActor in
-            try? await Task.sleep(for: timeout)
-            guard !once.resumed else { return }
-            once.resumed = true
-            continuation.resume(returning: nil)
-        }
-        Task { @MainActor in
-            let result = await task.value
-            timer.cancel()
-            guard !once.resumed else { return }
-            once.resumed = true
-            continuation.resume(returning: result)
-        }
-    }
-}
-
 enum WordSpotlightError: LocalizedError {
-    case invalidSource, missingWord, differentProfile, noWords, timedOut
+    case invalidSource, missingWord, differentProfile, noWords
 
     var errorDescription: String? {
         switch self {
@@ -295,7 +270,6 @@ enum WordSpotlightError: LocalizedError {
         case .missingWord: "This word is no longer available. It may have been deleted or its fields changed."
         case .differentProfile: "This word belongs to another profile. Switch to that profile to view it."
         case .noWords: "No eligible words found. Check the selected fields and add vocabulary cards to this deck."
-        case .timedOut: "Loading your vocabulary took too long. Try again."
         }
     }
 }
