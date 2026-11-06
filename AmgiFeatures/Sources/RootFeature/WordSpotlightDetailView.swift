@@ -53,16 +53,19 @@ struct WordSpotlightDetailView: View {
                     Text(word.reading).amgiFont(.cardTitle).foregroundStyle(palette.textSecondary)
                 }
                 Text(word.meaning).amgiFont(.body)
-                Button {
-                    Task { await advance() }
-                } label: {
-                    HStack {
-                        Label("Next word", systemImage: "arrow.forward")
-                        if advanceState.isLoading { ProgressView() }
+                // Next advances the live rotation, so offer it only on the word the rotation is showing now.
+                if controller.currentWord?.noteID == word.noteID {
+                    Button {
+                        Task { await advance() }
+                    } label: {
+                        HStack {
+                            Label("Next word", systemImage: "arrow.forward")
+                            if advanceState.isLoading { ProgressView() }
+                        }
                     }
+                    .disabled(advanceState.isLoading || !controller.canAdvance
+                              || link.profileID != AccountStore.shared.selectedID)
                 }
-                .disabled(advanceState.isLoading || !controller.canAdvance
-                          || link.profileID != AccountStore.shared.selectedID)
                 if controller.wordCount == 1 {
                     Text("Only one eligible word. Add more vocabulary cards to see another.")
                         .amgiFont(.caption).foregroundStyle(palette.textSecondary)
