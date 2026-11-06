@@ -125,7 +125,7 @@ final class WordSpotlightSettingsModel {
     private func selectInitialSourceIfNeeded() {
         guard !preferences.isConfigured else { return }
         let template = ReaderLookupNoteTemplate.decode(
-            from: UserDefaults.standard.string(forKey: "reader_pref_lookup_note_template") ?? ""
+            from: UserDefaults.standard.string(forKey: ReaderPreferences.Keys.lookupNoteTemplate) ?? ""
         )
         if let deckID = template.deckID, let notetypeID = template.notetypeID,
            decks.contains(where: { $0.id.rawValue == deckID }),
