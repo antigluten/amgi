@@ -1,0 +1,101 @@
+package import Foundation
+
+package struct WordSpotlightSchedule: Codable, Equatable, Sendable {
+    package struct Entry: Codable, Equatable, Sendable {
+        package var date: Date
+        package var word: SpotlightWord
+    }
+
+    package var profileID: String
+    package var source: String
+    package var entries: [Entry]
+    package var intervalHours = 24
+    package var timeZoneID = TimeZone.current.identifier
+
+    package func expiration(calendar: Calendar = .current) -> Date? {
+        guard let last = entries.last else { return nil }
+        return Self.slotDate(offset: 1, from: last.date, hours: intervalHours, calendar: calendar)
+    }
+
+    package func word(on date: Date, calendar: Calendar = .current) -> SpotlightWord? {
+        guard let expires = expiration(calendar: calendar), date < expires else { return nil }
+        return entries.last { $0.date <= date }?.word
+    }
+
+    /// Daily rotation follows the calendar; intraday rotation follows elapsed hours across DST.
+    package static func make(
+        profileID: String, source: String, words: [SpotlightWord], previous: Self?,
+        now: Date = .now, calendar: Calendar = .current,
+        intervalHours: Int = 24, advanceBy: Int = 0
+    ) -> Self {
+        var seen = Set<Int64>()
+        let words = words.filter { seen.insert($0.noteID).inserted }
+        guard !words.isEmpty else { return Self(profileID: profileID, source: source, entries: []) }
+        let previous = previous.flatMap { $0.profileID == profileID && $0.source == source ? $0 : nil }
+        let hours = WordSpotlightPreferences.validRotationHours(intervalHours)
+        let anchor = previous?.entries.last(where: { $0.date <= now })
+        let elapsedSlots = anchor.map {
+            rotationSteps(since: $0.date, until: now,
+                          hours: previous?.intervalHours ?? 24, calendar: calendar)
+        } ?? 0
+        let wordIndex = firstWordIndex(in: words, after: anchor,
+                                       elapsedSlots: elapsedSlots, advanceBy: advanceBy)
+        let startDate = firstSlotDate(now: now, anchor: anchor, elapsedSlots: elapsedSlots,
+                                      hours: hours, previousHours: previous?.intervalHours, calendar: calendar)
+        let entries = makeEntries(words: words, firstWordIndex: wordIndex,
+                                  startDate: startDate, hours: hours, calendar: calendar)
+        return Self(profileID: profileID, source: source, entries: entries, intervalHours: hours,
+                    timeZoneID: calendar.timeZone.identifier)
+    }
+
+    private static func firstWordIndex(
+        in words: [SpotlightWord], after anchor: Entry?, elapsedSlots: Int, advanceBy: Int
+    ) -> Int {
+        let manualAdvance = max(0, advanceBy)
+        guard let anchor else { return manualAdvance % words.count }
+        if let preserved = words.firstIndex(where: { $0.noteID == anchor.word.noteID }) {
+            return (preserved + elapsedSlots + manualAdvance) % words.count
+        }
+        // The anchor word is gone: its successor (words are in note-id order) takes the next slot.
+        let successor = words.firstIndex { $0.noteID > anchor.word.noteID } ?? words.count
+        return (successor + max(0, elapsedSlots - 1) + manualAdvance) % words.count
+    }
+
+    private static func firstSlotDate(
+        now: Date, anchor: Entry?, elapsedSlots: Int, hours: Int, previousHours: Int?, calendar: Calendar
+    ) -> Date {
+        // Keep an existing intraday boundary across DST and app refreshes.
+        if hours < 24, previousHours == hours, let anchor {
+            return anchor.date.addingTimeInterval(Double(elapsedSlots * hours * 3600))
+        }
+        let today = calendar.startOfDay(for: now)
+        guard hours < 24 else { return today }
+        let slotOffset = floor(now.timeIntervalSince(today) / Double(hours * 3600))
+        return today.addingTimeInterval(slotOffset * Double(hours * 3600))
+    }
+
+    private static func makeEntries(
+        words: [SpotlightWord], firstWordIndex: Int, startDate: Date, hours: Int, calendar: Calendar
+    ) -> [Entry] {
+        (0..<(14 * 24 / hours)).compactMap { offset in
+            guard let date = slotDate(offset: offset, from: startDate, hours: hours, calendar: calendar)
+            else { return nil }
+            return Entry(date: date, word: words[(firstWordIndex + offset) % words.count])
+        }
+    }
+
+    private static func slotDate(offset: Int, from start: Date, hours: Int, calendar: Calendar) -> Date? {
+        hours == 24
+            ? calendar.date(byAdding: .day, value: offset, to: start)
+            : calendar.date(byAdding: .hour, value: offset * hours, to: start)
+    }
+
+    private static func rotationSteps(since anchor: Date, until now: Date, hours: Int, calendar: Calendar) -> Int {
+        if hours == 24 {
+            let firstDay = calendar.startOfDay(for: anchor)
+            let currentDay = calendar.startOfDay(for: now)
+            return max(0, calendar.dateComponents([.day], from: firstDay, to: currentDay).day ?? 0)
+        }
+        return max(0, Int(now.timeIntervalSince(anchor) / Double(hours * 3600)))
+    }
+}

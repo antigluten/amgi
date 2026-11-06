@@ -308,3 +308,16 @@ targets:
         CLANG_CXX_LANGUAGE_STANDARD: "c++20"
         CLANG_CXX_LIBRARY: "libc++"
         OTHER_SWIFT_FLAGS: "$(inherited) -cxx-interoperability-mode=default"
+
+  AmgiAppUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: Tests/AmgiAppUITests
+    dependencies:
+      - target: AmgiApp
+    settings:
+      base:
+        TEST_TARGET_NAME: AmgiApp
+        PRODUCT_BUNDLE_IDENTIFIER: com.amgiapp.AmgiAppUITests
+        GENERATE_INFOPLIST_FILE: YES

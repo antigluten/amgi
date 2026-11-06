@@ -6,6 +6,7 @@
 //
 
 import AppCore
+import AppShared
 import Reader
 import AnkiBackend
 import AnkiClients
@@ -27,6 +28,7 @@ public enum AmgiRoot {
 
     @MainActor
     private static func bootstrapBody() {
+        WordSpotlightController.shared.installNotificationDelegate()
         // Multi-profile bootstrap: migrate legacy single-collection layout
         // into the default profile, then open the selected profile's
         // collection.

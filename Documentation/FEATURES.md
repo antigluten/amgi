@@ -54,6 +54,7 @@ What Amgi does today. For how it is put together, see [ARCHITECTURE.md](ARCHITEC
 ## Beyond the phone
 
 - **Home-screen widgets** — small, medium, and large families driven by a precomputed forecast timeline, configurable per deck through AppIntents, with no background refresh required.
+- **Word Spotlight** — words from your vocabulary deck on Home and Lock Screen widgets, with configurable rotation, a Next word action, and optional daily local reminders. Opening Amgi replenishes the two-week schedule; viewing a word does not grade its card.
 - **Apple Watch app** — deck list, card review with audio playback, stats, and sync, with the Anki engine running on-device.
 - **Shortcuts and Siri** — study a deck, sync the collection, or ask how many cards are due, from Shortcuts, Spotlight, or by voice.
 
