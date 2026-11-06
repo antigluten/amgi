@@ -13,7 +13,6 @@ public enum ReaderFontOption: String, CaseIterable, Identifiable, Sendable {
     case appleGothic = "AppleGothic"
     case nanumMyeongjo = "NanumMyeongjo"
     case nanumGothic = "NanumGothic"
-    case sarasaMonoK = "Sarasa Mono K"
     case hiraginoMincho = "Hiragino Mincho ProN"
     case hiraginoKakuGothic = "Hiragino Kaku Gothic ProN"
 
@@ -28,7 +27,6 @@ public enum ReaderFontOption: String, CaseIterable, Identifiable, Sendable {
         case .appleGothic: return "AppleGothic"
         case .nanumMyeongjo: return "Nanum Myeongjo (serif)"
         case .nanumGothic: return "Nanum Gothic"
-        case .sarasaMonoK: return "Sarasa Mono K (mono)"
         case .hiraginoMincho: return "Hiragino Mincho ProN"
         case .hiraginoKakuGothic: return "Hiragino Kaku Gothic ProN"
         }
@@ -43,8 +41,6 @@ public enum ReaderFontOption: String, CaseIterable, Identifiable, Sendable {
             return "\"\(rawValue)\", \(koreanFallback), sans-serif"
         case .nanumMyeongjo:
             return "\"\(rawValue)\", \(koreanFallback), serif"
-        case .sarasaMonoK:
-            return "\"\(rawValue)\", \(koreanFallback), monospace"
         case .hiraginoMincho:
             return "\"\(rawValue)\", \(koreanFallback), serif"
         case .hiraginoKakuGothic:
