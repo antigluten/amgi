@@ -111,7 +111,7 @@ final class WordSpotlightSettingsModel {
             selectInitialSourceIfNeeded()
             await loadFields()
             guard failure == nil else { return }
-            await controller.refresh()
+            await controller.refreshIfNeeded()
         } catch { failure = Failure(message: error.localizedDescription, retry: .load) }
     }
 

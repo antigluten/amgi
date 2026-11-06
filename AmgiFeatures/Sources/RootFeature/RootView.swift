@@ -69,7 +69,7 @@ public struct RootView: View {
             .onChange(of: scenePhase) { _, newPhase in
                 if newPhase == .active {
                     Task { await writeWidgetSnapshot() }
-                    Task { await wordSpotlight.refresh() }
+                    Task { await wordSpotlight.refreshIfNeeded() }
                 }
             }
             .onOpenURL { url in

@@ -204,6 +204,38 @@ import Testing
         }
     }
 
+    @Test func deletedSourceClearsTheWidgetAndForegroundSkipsAFreshSchedule() async throws {
+        try await preservingStoredState { profileID in
+            try WordSpotlightStore.save(preferences, profileID: profileID)
+            let decks = LockIsolated([DeckInfo(id: DeckID(1), name: "Vocabulary")])
+            let searches = LockIsolated(0)
+            let sample = note("猫\u{1f}ねこ\u{1f}A cat")
+            await withDependencies {
+                $0.deckClient.fetchAll = { decks.value }
+                $0.notetypesClient.get = { _ in
+                    Notetype(id: NotetypeID(1), fields: [
+                        .init(name: "Expression"), .init(name: "Reading"), .init(name: "Definition"),
+                    ])
+                }
+                $0.noteClient.searchAll = { _, _ in
+                    searches.withValue { $0 += 1 }
+                    return [sample]
+                }
+            } operation: {
+                let controller = WordSpotlightController()
+                #expect(await controller.refresh())
+                #expect(await controller.refreshIfNeeded())
+                #expect(searches.value == 1)
+                #expect(WordSpotlightStore.read() != nil)
+
+                decks.setValue([])
+                #expect(await controller.refresh() == false)
+                #expect(controller.currentWord == nil)
+                #expect(WordSpotlightStore.read() == nil)
+            }
+        }
+    }
+
     @Test func foreignProfileLinksAreRejectedBeforeFetchingNotes() async {
         let controller = WordSpotlightController()
         let link = WordSpotlightLink(profileID: UUID().uuidString, noteID: 42)

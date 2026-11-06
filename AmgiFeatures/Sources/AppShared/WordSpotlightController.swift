@@ -4,6 +4,7 @@ package import AnkiKit
 import Dependencies
 package import Foundation
 package import Observation
+import os
 import WidgetKit
 
 @MainActor
@@ -28,6 +29,8 @@ package final class WordSpotlightController {
     private var switchingProfile = false
     private var pendingAdvance = 0
     private var updateTask: Task<Bool, Never>?
+    private var publishedPreferences: WordSpotlightPreferences?
+    private var savingPreferences = false
 
     package func installNotificationDelegate() {
         notifications.installDelegate()
@@ -61,6 +64,8 @@ package final class WordSpotlightController {
             refreshReminders(preferences, profileID: profileID)
             return true
         }
+        savingPreferences = true
+        defer { savingPreferences = false }
         let success = await update(advance: false)
         if !success, profileID == AccountStore.shared.selectedID,
            WordSpotlightStore.preferences(profileID: profileID) == preferences {
@@ -82,6 +87,7 @@ package final class WordSpotlightController {
             $0.profileID == profileID && $0.source == preferences.sourceID ? $0 : nil
         }
         notifications.update(schedule: matchingSchedule, preferences: preferences)
+        publishedPreferences = preferences
     }
 
     package func requestNotificationPermission() async throws -> Bool {
@@ -90,10 +96,25 @@ package final class WordSpotlightController {
 
     @discardableResult
     package func refresh(advance: Bool = false) async -> Bool {
-        // Bootstrap refreshes stay off during tests; independent controllers use injected clients.
-        if self === Self.shared,
-           ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil { return false }
-        return await enqueue { await self.update(advance: advance) }
+        await enqueue { await self.update(advance: advance) }
+    }
+
+    /// Foreground and screen-open path: rebuilds only when the published schedule can't serve the next day.
+    @discardableResult
+    package func refreshIfNeeded() async -> Bool {
+        await enqueue {
+            let preferences = WordSpotlightStore.preferences(profileID: AccountStore.shared.selectedID)
+            if let schedule = self.schedule, self.isFresh(schedule, for: preferences) { return true }
+            return await self.update(advance: false)
+        }
+    }
+
+    private func isFresh(_ schedule: WordSpotlightSchedule, for preferences: WordSpotlightPreferences) -> Bool {
+        guard preferences.isConfigured, schedule.profileID == AccountStore.shared.selectedID,
+              schedule.source == preferences.sourceID, schedule.intervalHours == preferences.rotationHours,
+              schedule.timeZoneID == Calendar.current.timeZone.identifier,
+              let expiration = schedule.expiration() else { return false }
+        return expiration > Date.now.addingTimeInterval(24 * 3600)
     }
 
     /// Save and advance must finish before foreground refresh can publish another schedule.
@@ -102,7 +123,7 @@ package final class WordSpotlightController {
         let profileID = AccountStore.shared.selectedID
         let revision = profileGeneration
         let task = Task {
-            await previous?.value
+            if let previous { _ = await value(of: previous, timeout: Self.operationTimeout) }
             guard !switchingProfile, revision == profileGeneration,
                   profileID == AccountStore.shared.selectedID else { return false }
             do { return try await operation() }
@@ -112,8 +133,15 @@ package final class WordSpotlightController {
             }
         }
         updateTask = task
-        return await task.value
+        guard let result = await value(of: task, timeout: Self.operationTimeout) else {
+            Log.widget.error("Word Spotlight update timed out")
+            if revision == profileGeneration { updateError = WordSpotlightError.timedOut.localizedDescription }
+            return false
+        }
+        return result
     }
+
+    private static let operationTimeout = Duration.seconds(30)
 
     private func update(advance: Bool) async -> Bool {
         if advance { pendingAdvance += 1 }
@@ -124,7 +152,7 @@ package final class WordSpotlightController {
         updateError = nil
         notifications.error = nil
         guard preferences.isConfigured else {
-            clear()
+            if schedule != nil || WordSpotlightStore.read() != nil { clear() }
             return true
         }
         do {
@@ -136,6 +164,10 @@ package final class WordSpotlightController {
         } catch {
             guard isCurrent(revision, profileID: profileID) else { return false }
             pendingAdvance = 0
+            Log.widget.error("Word Spotlight update failed: \(String(describing: error))")
+            // A source that no longer exists must not keep serving its old words for two weeks.
+            if !savingPreferences, let error = error as? WordSpotlightError,
+               error == .invalidSource || error == .noWords { clear() }
             self.updateError = error.localizedDescription
             return false
         }
@@ -153,10 +185,12 @@ package final class WordSpotlightController {
     }
 
     private func publish(_ schedule: WordSpotlightSchedule, wordCount: Int, preferences: WordSpotlightPreferences) throws {
-        try WordSpotlightStore.write(schedule)
         pendingAdvance = 0
-        self.schedule = schedule
         self.wordCount = wordCount
+        guard schedule != self.schedule || preferences != publishedPreferences else { return }
+        try WordSpotlightStore.write(schedule)
+        self.schedule = schedule
+        publishedPreferences = preferences
         WidgetCenter.shared.reloadTimelines(ofKind: WordSpotlightStore.widgetKind)
         notifications.update(schedule: schedule, preferences: preferences)
     }
@@ -203,6 +237,7 @@ package final class WordSpotlightController {
     private func clear() {
         pendingAdvance = 0
         schedule = nil
+        publishedPreferences = nil
         wordCount = 0
         do { try WordSpotlightStore.clear() } catch { self.updateError = error.localizedDescription }
         WidgetCenter.shared.reloadTimelines(ofKind: WordSpotlightStore.widgetKind)
@@ -210,8 +245,30 @@ package final class WordSpotlightController {
     }
 }
 
+/// FFI calls can't be cancelled, so a hung one must not block every later save behind it.
+@MainActor
+private func value(of task: Task<Bool, Never>, timeout: Duration) async -> Bool? {
+    final class Once { var resumed = false }
+    let once = Once()
+    return await withCheckedContinuation { continuation in
+        let timer = Task { @MainActor in
+            try? await Task.sleep(for: timeout)
+            guard !once.resumed else { return }
+            once.resumed = true
+            continuation.resume(returning: nil)
+        }
+        Task { @MainActor in
+            let result = await task.value
+            timer.cancel()
+            guard !once.resumed else { return }
+            once.resumed = true
+            continuation.resume(returning: result)
+        }
+    }
+}
+
 enum WordSpotlightError: LocalizedError {
-    case invalidSource, missingWord, differentProfile, noWords
+    case invalidSource, missingWord, differentProfile, noWords, timedOut
 
     var errorDescription: String? {
         switch self {
@@ -219,6 +276,7 @@ enum WordSpotlightError: LocalizedError {
         case .missingWord: "This word is no longer available. It may have been deleted or its fields changed."
         case .differentProfile: "This word belongs to another profile. Switch to that profile to view it."
         case .noWords: "No eligible words found. Check the selected fields and add vocabulary cards to this deck."
+        case .timedOut: "Loading your vocabulary took too long. Try again."
         }
     }
 }

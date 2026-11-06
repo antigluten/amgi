@@ -1,7 +1,7 @@
 package import Foundation
 
-package struct WordSpotlightSchedule: Codable, Sendable {
-    package struct Entry: Codable, Sendable {
+package struct WordSpotlightSchedule: Codable, Equatable, Sendable {
+    package struct Entry: Codable, Equatable, Sendable {
         package var date: Date
         package var word: SpotlightWord
     }
@@ -10,6 +10,7 @@ package struct WordSpotlightSchedule: Codable, Sendable {
     package var source: String
     package var entries: [Entry]
     package var intervalHours = 24
+    package var timeZoneID = TimeZone.current.identifier
 
     package func expiration(calendar: Calendar = .current) -> Date? {
         guard let last = entries.last else { return nil }
@@ -43,7 +44,8 @@ package struct WordSpotlightSchedule: Codable, Sendable {
                                       hours: hours, previousHours: previous?.intervalHours, calendar: calendar)
         let entries = makeEntries(words: words, firstWordIndex: wordIndex,
                                   startDate: startDate, hours: hours, calendar: calendar)
-        return Self(profileID: profileID, source: source, entries: entries, intervalHours: hours)
+        return Self(profileID: profileID, source: source, entries: entries, intervalHours: hours,
+                    timeZoneID: calendar.timeZone.identifier)
     }
 
     private static func firstWordIndex(
