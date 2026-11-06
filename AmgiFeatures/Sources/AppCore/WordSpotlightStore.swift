@@ -1,4 +1,5 @@
-package import Foundation
+import Foundation
+import os
 
 package enum WordSpotlightStore {
     package static let widgetKind = "WordSpotlightWidget"
@@ -10,14 +11,34 @@ package enum WordSpotlightStore {
     /// Private to the app: clearing a widget on profile switch must not reset that profile's rotation.
     package static func rotation(profileID: String) -> WordSpotlightSchedule? {
         guard let data = UserDefaults.standard.data(forKey: rotationKey(profileID: profileID)) else { return nil }
-        return try? JSONDecoder().decode(WordSpotlightSchedule.self, from: data)
+        return decode(WordSpotlightSchedule.self, from: data)
     }
 
     package static func preferences(profileID: String) -> WordSpotlightPreferences {
-        guard let data = UserDefaults.standard.data(forKey: preferencesKey(profileID: profileID)),
-              let preferences = try? JSONDecoder().decode(WordSpotlightPreferences.self, from: data)
-        else { return WordSpotlightPreferences() }
-        return preferences
+        (try? loadPreferences(profileID: profileID)) ?? WordSpotlightPreferences()
+    }
+
+    /// Throws when stored preferences exist but can't be decoded, so callers can tell corruption from "never configured".
+    package static func loadPreferences(profileID: String) throws -> WordSpotlightPreferences {
+        guard let data = UserDefaults.standard.data(forKey: preferencesKey(profileID: profileID)) else {
+            return WordSpotlightPreferences()
+        }
+        do { return try JSONDecoder().decode(WordSpotlightPreferences.self, from: data) } catch {
+            Log.widget.error("Word Spotlight preferences failed to decode: \(String(describing: error))")
+            throw error
+        }
+    }
+
+    package static func removeProfile(_ profileID: String) {
+        UserDefaults.standard.removeObject(forKey: preferencesKey(profileID: profileID))
+        UserDefaults.standard.removeObject(forKey: rotationKey(profileID: profileID))
+    }
+
+    private static func decode<T: Decodable>(_ type: T.Type, from data: Data) -> T? {
+        do { return try JSONDecoder().decode(type, from: data) } catch {
+            Log.widget.error("Word Spotlight data failed to decode: \(String(describing: error))")
+            return nil
+        }
     }
 
     package static func save(_ preferences: WordSpotlightPreferences, profileID: String) throws {
@@ -26,7 +47,7 @@ package enum WordSpotlightStore {
 
     package static func read() -> WordSpotlightSchedule? {
         guard let url = try? fileURL(), let data = try? Data(contentsOf: url) else { return nil }
-        guard let schedule = try? JSONDecoder().decode(WordSpotlightSchedule.self, from: data),
+        guard let schedule = decode(WordSpotlightSchedule.self, from: data),
               UserDefaults(suiteName: AppGroup.identifier)?.string(forKey: activeProfileKey) == schedule.profileID
         else { return nil }
         return schedule

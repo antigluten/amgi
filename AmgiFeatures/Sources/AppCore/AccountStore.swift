@@ -121,6 +121,7 @@ public final class AccountStore {
         if deleteFiles {
             let dir = Self.profileDirectory(for: account.id)
             try? FileManager.default.removeItem(at: dir)
+            WordSpotlightStore.removeProfile(account.id)
         }
     }
 

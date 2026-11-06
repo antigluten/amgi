@@ -50,6 +50,15 @@ package final class WordSpotlightController {
         Task { await refresh() }
     }
 
+    /// Drops a profile's Word Spotlight state; for the active profile also clears the widget and reminders.
+    package func reset(profileID: String) {
+        if profileID == AccountStore.shared.selectedID {
+            generation += 1
+            clear()
+        }
+        WordSpotlightStore.removeProfile(profileID)
+    }
+
     @discardableResult
     package func save(_ preferences: WordSpotlightPreferences, profileID: String) async -> Bool {
         guard profileID == AccountStore.shared.selectedID, !switchingProfile else { return false }
@@ -148,9 +157,15 @@ package final class WordSpotlightController {
         generation += 1
         let revision = generation
         let profileID = AccountStore.shared.selectedID
-        let preferences = WordSpotlightStore.preferences(profileID: profileID)
         updateError = nil
         notifications.error = nil
+        let preferences: WordSpotlightPreferences
+        do { preferences = try WordSpotlightStore.loadPreferences(profileID: profileID) } catch {
+            // Unreadable settings are not "disabled": keep the published widget until the user re-saves.
+            pendingAdvance = 0
+            updateError = WordSpotlightError.invalidSource.localizedDescription
+            return false
+        }
         guard preferences.isConfigured else {
             if schedule != nil || WordSpotlightStore.read() != nil { clear() }
             return true
