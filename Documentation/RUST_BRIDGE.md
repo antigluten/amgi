@@ -83,7 +83,7 @@ anki-bridge-rs/
 
 `scripts/build-xcframework.sh` compiles each target, wraps each `cdylib` in an
 `AnkiRustLib.framework`, and packages them into `AnkiRustLib.xcframework`, which
-SPM consumes as a binary target.
+Tuist links through an `.xcframework` dependency in the repository-root `Project.swift`.
 
 The framework is **dynamic** on purpose. A static archive's symbols are
 invisible to XCPreviewAgent's JIT, which broke every package-target SwiftUI

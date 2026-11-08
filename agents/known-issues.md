@@ -23,7 +23,7 @@ Behaviour that looks like a bug in the code you are touching, and is not.
   the C++ still compiles, because the modulemap reaches the build through the
   dependency scanner. Not silenceable — the diagnostic has no group, and the one
   lever (`COMPILATION_CACHE_ENABLE_CACHING: NO`) cannot be scoped to those
-  targets and costs the whole caching win. The full write-up sits beside that
-  setting in `AmgiApp/project.yml`.
+  targets and costs the whole caching win. Keep that setting enabled in
+  `AmgiApp/Project.swift`.
 - **`CODE_SIGNING_ALLOWED=NO` breaks a keychain test.** See
   `agents/build-and-verify.md`.

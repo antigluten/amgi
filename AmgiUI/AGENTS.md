@@ -4,6 +4,8 @@
 built on `Theme`). Both are bare-noun modules: anything may depend on them, and
 they depend on no feature.
 
+Targets are declared in `AmgiUI/Project.swift`.
+
 ## Themes are data
 
 A theme is a string id plus `PaletteData`, never an enum case. User-created

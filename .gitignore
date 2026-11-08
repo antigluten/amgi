@@ -33,4 +33,8 @@ design/
 # xcode-build-benchmark artifacts (local measurement scratch)
 .build-benchmark/
 
-AmgiApp/*.xcodeproj/
+# Tuist-generated files
+*.xcodeproj/
+Derived/
+Tuist/.build/
+Tuist/.tuist-cache/

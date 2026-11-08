@@ -12,16 +12,17 @@ dictionary UI, widgets.
 
 ## Where things live
 
-Each package carries its own `AGENTS.md`. Read it before editing anything under
+Each module group carries its own `AGENTS.md`. Read it before editing anything under
 that path — it holds the rules that path enforces.
 
 | Path | What | Read first |
 |---|---|---|
-| `Sources/` | `AnkiBridge` package: the engine surface, down to the Rust FFI | `Sources/AGENTS.md` |
+| `Sources/` | `AnkiBridge` modules: the engine surface, down to the Rust FFI | `Sources/AGENTS.md` |
 | `AmgiFeatures/` | Every screen, plus the sinks they share | `AmgiFeatures/AGENTS.md` |
 | `AmgiUI/` | `Theme` (palettes, tokens) and `UI` (shared components) | `AmgiUI/AGENTS.md` |
 | `AmgiReader/` | Reader domain types, EPUB parsing, the C++ dictionary | `AmgiReader/AGENTS.md` |
-| `AmgiApp/` | xcodegen project: app, widget and watch targets | `AmgiApp/AGENTS.md` |
+| `AmgiApp/` | Tuist project: app, widget and watch targets | `AmgiApp/AGENTS.md` |
+| `Tuist/` | Shared project settings and remote dependencies | `Tuist/ProjectDescriptionHelpers/` and `Tuist/Package.swift` |
 | `anki-bridge-rs/` | The Rust crate exposing the C ABI | `Sources/AGENTS.md` |
 
 `Documentation/` carries the human-facing half: `ARCHITECTURE.md` (layers,
@@ -45,24 +46,27 @@ blocking FFI call.
 
 Builds, tests and previews go through MCP — `mcp__XcodeBuildMCP__*` when it is
 connected, otherwise `mcp__xcode__*`. The shell runs the three scripts in
-`scripts/` and `xcodegen`, nothing else.
+`scripts/`, `tuist install` and `tuist generate`, nothing else.
 
 ```bash
 ./scripts/build-xcframework.sh   # after anki-bridge-rs/ or anki-upstream/ changes
 ./scripts/generate-protos.sh     # after a .proto changes
-cd AmgiApp && xcodegen generate  # after project.yml changes
+tuist install                  # after Tuist/Package.swift changes
+tuist generate --path AmgiApp --no-open  # after Project.swift or source membership changes
 ```
 
 Read `agents/build-and-verify.md` when: picking the MCP branch for the first
 time this session, a build fails on signing or a run destination, tests report
-"not run", the watch or a package target needs its own build, or a preview
+"not run", the watch or a library target needs its own build, or a preview
 fails to render.
 
 ## Swift rules everywhere
 
-The packages run Swift 6.2 with `InternalImportsByDefault`,
+The library modules run Swift 6.2 with `InternalImportsByDefault`,
 `AccessLevelOnImport` and `MemberImportVisibility`; the app target does not, so
-a file moving into a package spells out imports it used to inherit.
+a file moving into a library module spells out imports it used to inherit.
+`Tuist/ProjectDescriptionHelpers/AmgiModule+SwiftSettings.swift` configures these flags and
+preserves each former package's Swift `package` visibility boundary.
 
 - `public import` for a module whose types appear in public API signatures,
   `package import` for package-wide surface, plain `import` otherwise.
