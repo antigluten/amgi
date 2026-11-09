@@ -15,39 +15,27 @@ public import Foundation
 public enum SyncEndpoint: Sendable {
     public enum ValidationError: LocalizedError, Sendable {
         case empty
-        case insecureScheme
         case malformed
 
         public var errorDescription: String? {
             switch self {
             case .empty:
                 return "Enter a server address."
-            case .insecureScheme:
-                return """
-                    http:// sends your username, password, and sync key in \
-                    cleartext. Use https://.
-                    """
             case .malformed:
                 return "That doesn't look like a valid server address."
             }
         }
     }
 
-    /// Trims, defaults a missing scheme to https, and rejects cleartext.
-    ///
-    /// The `http://` rejection matters more than it looks: App Transport
-    /// Security does not cover this traffic. ATS governs
-    /// NSURLSession/CFNetwork, but sync goes out through the Rust HTTP
-    /// client inside AnkiRustLib, so the platform provides no backstop
-    /// here — credentials really would travel in the clear.
+    /// Trims, defaults a missing scheme to https.
     public static func normalized(_ raw: String) throws(ValidationError) -> String {
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { throw .empty }
 
         let lowered = trimmed.lowercased()
-        if lowered.hasPrefix("http://") { throw .insecureScheme }
 
-        let withScheme = lowered.hasPrefix("https://") ? trimmed : "https://" + trimmed
+        let hasScheme = lowered.hasPrefix("https://") || lowered.hasPrefix("http://")
+        let withScheme = hasScheme ? trimmed : "https://" + trimmed
         guard let url = URL(string: withScheme), url.host?.isEmpty == false else {
             throw .malformed
         }
