@@ -228,9 +228,13 @@ final class CardWebViewCoordinator: NSObject, WKNavigationDelegate, WKScriptMess
             return
         }
 
-        // Custom app links should always go to the system.
         let isWebLink = scheme == "http" || scheme == "https"
-        if !isWebLink || openLinksExternally {
+        guard isWebLink else {
+            Log.review.error("Blocked script-initiated \(scheme ?? "unknown", privacy: .public) navigation from card content")
+            decisionHandler(.cancel)
+            return
+        }
+        if openLinksExternally {
             decisionHandler(.cancel)
             DispatchQueue.main.async { self.openExternally(url) }
         } else {
@@ -259,6 +263,22 @@ final class CardWebViewCoordinator: NSObject, WKNavigationDelegate, WKScriptMess
         Log.review.error("Provisional navigation failed: \(error)")
     }
 
+}
+
+extension CardWebViewCoordinator {
+    static let linkWorld = WKContentWorld.world(name: "amgiLinks")
+
+    static let linkTapScript = """
+        document.addEventListener('click', function(event) {
+            if (!event.isTrusted) return;
+            var anchor = event.target && event.target.closest ? event.target.closest('a[href]') : null;
+            if (!anchor) return;
+            var href = anchor.getAttribute('href');
+            if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
+            event.preventDefault();
+            window.webkit.messageHandlers.amgiOpenLink.postMessage(anchor.href || href);
+        }, true);
+        """
 }
 
 private extension CardWebViewCoordinator {

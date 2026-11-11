@@ -191,6 +191,10 @@ struct ChapterWebView: UIViewRepresentable {
             webView = nil
         }
 
+        func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction) async -> WKNavigationActionPolicy {
+            navigationAction.request.url?.scheme?.lowercased() == "about" ? .allow : .cancel
+        }
+
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             didFinishLoad = true
             applyPendingInitialProgressIfLoaded()

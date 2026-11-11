@@ -70,11 +70,15 @@ class EPUBArchiveServiceImplementation: EPUBArchiveService {
             return destination
         }
         
-        let success = SSZipArchive.unzipFile(atPath: url.path, toDestination: destination.path)
-        
+        let staging = destination.appendingPathExtension("partial")
+        try? FileManager.default.removeItem(at: staging)
+        let success = SSZipArchive.unzipFile(atPath: url.path, toDestination: staging.path)
+
         if success {
+            try FileManager.default.moveItem(at: staging, to: destination)
             return destination
         } else {
+            try? FileManager.default.removeItem(at: staging)
             throw EPUBParserError.unzipFailed(reason: NSError(domain: "SSZipArchive", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to unzip file at \(url.path)"]))
         }
     }
