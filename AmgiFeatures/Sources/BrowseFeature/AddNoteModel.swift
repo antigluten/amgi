@@ -99,14 +99,27 @@ final class AddNoteModel {
     /// uploading a second copy of every clip. Temporary originals stay until success.
     func fieldsWithAudio() async throws -> [String] {
         var fields = fieldValues
-        for (index, clips) in fieldAudio.enumerated() where fields.indices.contains(index) {
-            for url in clips {
-                try await mediaClient.save(Data(contentsOf: url), url.lastPathComponent)
-                let marker = "[sound:\(url.lastPathComponent)]"
-                fields[index] += fields[index].isEmpty ? marker : " " + marker
+        do {
+            for (index, clips) in fieldAudio.enumerated() where fields.indices.contains(index) {
+                for url in clips {
+                    let data = try await backendOffload { try Data(contentsOf: url) }
+                    try await mediaClient.save(data, url.lastPathComponent)
+                    let marker = "[sound:\(url.lastPathComponent)]"
+                    fields[index] += fields[index].isEmpty ? marker : " " + marker
+                }
             }
+        } catch {
+            await removeWrittenMedia()
+            throw error
         }
         return fields
+    }
+
+    /// Filenames are unique per clip, so deleting by name only touches this note's copies.
+    private func removeWrittenMedia() async {
+        for url in fieldAudio.flatMap({ $0 }) {
+            try? await mediaClient.delete(url.lastPathComponent)
+        }
     }
 
     init(preselectedDeckId: DeckID? = nil, initialDraft: AddNoteDraft? = nil) {
@@ -196,11 +209,16 @@ final class AddNoteModel {
             let deckID = selectedDeckId
             let fields = try await fieldsWithAudio()
             let tagList = tags.split(separator: " ").map(String.init)
-            try await backendOffload {
-                var template = try notes.newNote(notetypeID)
-                template.fields = fields
-                template.tags = tagList
-                try notes.addNote(template, deckID)
+            do {
+                try await backendOffload {
+                    var template = try notes.newNote(notetypeID)
+                    template.fields = fields
+                    template.tags = tagList
+                    try notes.addNote(template, deckID)
+                }
+            } catch {
+                await removeWrittenMedia()
+                throw error
             }
             // addNote doesn't surface OpChanges yet — invalidate the shared
             // tree cache conservatively so every host (DeckDetail, reader

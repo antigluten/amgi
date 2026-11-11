@@ -1,3 +1,4 @@
+import AnkiClients
 import Foundation
 import Dependencies
 import Testing
@@ -125,6 +126,7 @@ struct AddNoteAudioTests {
         let url = try recording()
         try await withDependencies {
             $0.mediaClient.save = { _, _ in throw AudioTestFailure.write }
+            $0.mediaClient.delete = { _ in }
         } operation: {
             let model = model()
             defer { model.discardAudio() }
@@ -136,11 +138,36 @@ struct AddNoteAudioTests {
             #expect(FileManager.default.fileExists(atPath: url.path))
         }
     }
+
+    @Test("a failure after earlier clips were written deletes them from media")
+    func partialFailureCleansUp() async throws {
+        let first = try recording()
+        let second = try recording()
+        let log = MediaWrites()
+        try await withDependencies {
+            $0.mediaClient.save = { data, filename in
+                if filename == second.lastPathComponent { throw AudioTestFailure.write }
+                await log.append(data: data, filename: filename)
+            }
+            $0.mediaClient.delete = { await log.delete($0) }
+        } operation: {
+            let model = model()
+            defer { model.discardAudio() }
+            model.attachAudio(first, toField: 0)
+            model.attachAudio(second, toField: 1)
+            await #expect(throws: AudioTestFailure.self) { _ = try await model.fieldsWithAudio() }
+            let deleted = await log.deleted
+            #expect(deleted.contains(first.lastPathComponent))
+            #expect(FileManager.default.fileExists(atPath: first.path))
+        }
+    }
 }
 
 private enum AudioTestFailure: Error { case write }
 
 private actor MediaWrites {
     var filenames: [String] = []
+    var deleted: [String] = []
     func append(data: Data, filename: String) { filenames.append(filename) }
+    func delete(_ filename: String) { deleted.append(filename) }
 }
