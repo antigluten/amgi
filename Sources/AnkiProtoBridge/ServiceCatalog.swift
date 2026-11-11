@@ -123,12 +123,14 @@ enum SearchMethod {
 }
 
 enum SyncMethod {
+    static let syncMedia: UInt32 = 0
     static let abortMediaSync: UInt32 = 1
     static let mediaSyncStatus: UInt32 = 2
     static let syncLogin: UInt32 = 3
     static let syncStatus: UInt32 = 4
     static let syncCollection: UInt32 = 5
     static let fullUploadOrDownload: UInt32 = 6
+    static let abortSync: UInt32 = 7
 }
 
 /// BackendTagsService (45).

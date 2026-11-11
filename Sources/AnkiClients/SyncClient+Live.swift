@@ -82,10 +82,11 @@ extension SyncClient: DependencyKey {
                 let hostKey = KeychainHelper.loadHostKey() ?? ""
                 guard !hostKey.isEmpty else { throw SyncError.authFailed }
                 let endpoint = KeychainHelper.loadCurrentEndpoint() ?? KeychainHelper.loadEndpoint() ?? ""
-                try await syncService.fullSync(endpoint, hostKey, direction)
+                try await syncService.fullSync(endpoint, hostKey, direction, true)
             },
             mediaSyncStatus: { try await syncService.mediaSyncStatus() },
             abortMediaSync: { try await syncService.abortMediaSync() },
+            abortSync: { try await syncService.abortSync() },
             merge: { progress in
                 let hostKey = KeychainHelper.loadHostKey() ?? ""
                 guard !hostKey.isEmpty else { throw SyncError.authFailed }
@@ -121,7 +122,7 @@ extension SyncClient: DependencyKey {
 
                 progress?("Downloading from server...")
                 try await wrap("download") {
-                    try await syncService.fullSync(endpoint, hostKey, .download)
+                    try await syncService.fullSync(endpoint, hostKey, .download, false)
                 }
 
                 progress?("Merging in local data...")
@@ -131,7 +132,7 @@ extension SyncClient: DependencyKey {
 
                 progress?("Uploading merged collection...")
                 try await wrap("upload") {
-                    try await syncService.fullSync(endpoint, hostKey, .upload)
+                    try await syncService.fullSync(endpoint, hostKey, .upload, true)
                 }
 
                 // Success — clean up.

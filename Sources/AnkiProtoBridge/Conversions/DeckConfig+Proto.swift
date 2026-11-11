@@ -67,18 +67,18 @@ package extension DeckConfig.Config {
         proto.fsrsParams4 = fsrsParams4
         proto.fsrsParams5 = fsrsParams5
         proto.fsrsParams6 = fsrsParams6
-        proto.newPerDay = UInt32(max(0, newPerDay))
-        proto.reviewsPerDay = UInt32(max(0, reviewsPerDay))
-        proto.newPerDayMinimum = UInt32(max(0, newPerDayMinimum))
+        proto.newPerDay = UInt32(clamping: max(0, newPerDay))
+        proto.reviewsPerDay = UInt32(clamping: max(0, reviewsPerDay))
+        proto.newPerDayMinimum = UInt32(clamping: max(0, newPerDayMinimum))
         proto.initialEase = initialEase
         proto.easyMultiplier = easyMultiplier
         proto.hardMultiplier = hardMultiplier
         proto.lapseMultiplier = lapseMultiplier
         proto.intervalMultiplier = intervalMultiplier
-        proto.maximumReviewInterval = UInt32(max(0, maximumReviewInterval))
-        proto.minimumLapseInterval = UInt32(max(0, minimumLapseInterval))
-        proto.graduatingIntervalGood = UInt32(max(0, graduatingIntervalGood))
-        proto.graduatingIntervalEasy = UInt32(max(0, graduatingIntervalEasy))
+        proto.maximumReviewInterval = UInt32(clamping: max(0, maximumReviewInterval))
+        proto.minimumLapseInterval = UInt32(clamping: max(0, minimumLapseInterval))
+        proto.graduatingIntervalGood = UInt32(clamping: max(0, graduatingIntervalGood))
+        proto.graduatingIntervalEasy = UInt32(clamping: max(0, graduatingIntervalEasy))
         proto.newCardInsertOrder = .init(newCardInsertOrder)
         proto.newCardGatherPriority = .init(newCardGatherPriority)
         proto.newCardSortOrder = .init(newCardSortOrder)
@@ -86,9 +86,9 @@ package extension DeckConfig.Config {
         proto.reviewOrder = .init(reviewOrder)
         proto.interdayLearningMix = .init(interdayLearningMix)
         proto.leechAction = .init(leechAction)
-        proto.leechThreshold = UInt32(max(0, leechThreshold))
+        proto.leechThreshold = UInt32(clamping: max(0, leechThreshold))
         proto.disableAutoplay = disableAutoplay
-        proto.capAnswerTimeToSecs = UInt32(max(0, capAnswerTimeToSecs))
+        proto.capAnswerTimeToSecs = UInt32(clamping: max(0, capAnswerTimeToSecs))
         proto.showTimer = showTimer
         proto.stopTimerOnAnswer = stopTimerOnAnswer
         proto.secondsToShowQuestion = secondsToShowQuestion
@@ -153,7 +153,7 @@ package extension DeckConfigsForUpdate.ConfigWithExtra {
     func toProto() -> Anki_DeckConfig_DeckConfigsForUpdate.ConfigWithExtra {
         var proto = Anki_DeckConfig_DeckConfigsForUpdate.ConfigWithExtra()
         proto.config = config.toProto()
-        proto.useCount = UInt32(max(0, useCount))
+        proto.useCount = UInt32(clamping: max(0, useCount))
         return proto
     }
 }
@@ -173,10 +173,10 @@ package extension DeckConfigsForUpdate.CurrentDeck.Limits {
 
     func toProto() -> Anki_DeckConfig_DeckConfigsForUpdate.CurrentDeck.Limits {
         var proto = Anki_DeckConfig_DeckConfigsForUpdate.CurrentDeck.Limits()
-        if let review { proto.review = UInt32(max(0, review)) }
-        if let new { proto.new = UInt32(max(0, new)) }
-        if let reviewToday { proto.reviewToday = UInt32(max(0, reviewToday)) }
-        if let newToday { proto.newToday = UInt32(max(0, newToday)) }
+        if let review { proto.review = UInt32(clamping: max(0, review)) }
+        if let new { proto.new = UInt32(clamping: max(0, new)) }
+        if let reviewToday { proto.reviewToday = UInt32(clamping: max(0, reviewToday)) }
+        if let newToday { proto.newToday = UInt32(clamping: max(0, newToday)) }
         proto.reviewTodayActive = reviewTodayActive
         proto.newTodayActive = newTodayActive
         if let desiredRetention { proto.desiredRetention = desiredRetention }

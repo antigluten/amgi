@@ -25,7 +25,7 @@ extension Request where Response == GraphsSnapshot {
             encode: {
                 var req = Anki_Stats_GraphsRequest()
                 req.search = search
-                req.days = UInt32(max(0, days))
+                req.days = UInt32(clamping: max(0, days))
                 return try req.serializedData()
             }
         )

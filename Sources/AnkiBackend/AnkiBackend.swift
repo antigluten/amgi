@@ -228,12 +228,14 @@ public final class AnkiBackend: Sendable {
 
     // MARK: - Raw FFI
 
-    private func callRaw(service: UInt32, method: UInt32, input: Data) throws(BackendError) -> Data {
+    private func callRaw(
+        service: UInt32, method: UInt32, input: Data, bypassesLock: Bool = false
+    ) throws(BackendError) -> Data {
         let t0 = DispatchTime.now().uptimeNanoseconds
-        lock.lock()
+        if !bypassesLock { lock.lock() }
         let tLocked = DispatchTime.now().uptimeNanoseconds
         defer {
-            lock.unlock()
+            if !bypassesLock { lock.unlock() }
             Self.perfLog.debug(
                 """
                 rpc svc=\(service, privacy: .public) m=\(method, privacy: .public) \
@@ -309,7 +311,8 @@ public final class AnkiBackend: Sendable {
             bytes = try backend.callRaw(
                 service: request.serviceId,
                 method: request.methodId,
-                input: input
+                input: input,
+                bypassesLock: request.bypassesLock
             )
         } catch {
             return .failure(error)
@@ -346,24 +349,25 @@ public final class AnkiBackend: Sendable {
 // MARK: - Internal service constants
 //
 // AnkiBackend's *internal* RPCs (openCollection/closeCollection and the
-// config-JSON helpers) keep a small private constant table. The
+// config-JSON helpers) keep a small constant table. The
 // canonical, exhaustive service/method ID catalog lives in AnkiProtoBridge.
 // Bridge factories are the only sanctioned way for service code to dispatch
 // RPCs — every other constant exposure was a drift risk.
+// Internal, not fileprivate, so DispatchTableTests can pin them.
 
 extension AnkiBackend {
-    fileprivate enum Service {
+    enum Service {
         static let collection: UInt32 = 3
         static let config: UInt32 = 9
     }
 
-    fileprivate enum CollectionMethod {
+    enum CollectionMethod {
         static let open: UInt32 = 0
         static let close: UInt32 = 1
     }
 
     // BackendConfigService (service 9). Verified against the DreamAfar fork.
-    fileprivate enum ConfigMethod {
+    enum ConfigMethod {
         static let getConfigJson: UInt32 = 0
         static let setConfigJsonNoUndo: UInt32 = 2
         static let removeConfig: UInt32 = 3

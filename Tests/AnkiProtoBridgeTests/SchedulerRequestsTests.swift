@@ -289,6 +289,49 @@ private import SwiftProtobuf
         #expect(proto.suspendAfterLapseCount == 7)
     }
 
+    @Test func simulateFsrsReview_clamps_oversized_values_without_trapping() throws {
+        let huge = Int.max
+        let request = FsrsSimulationRequest(
+            weights: FsrsWeights([0.1]),
+            desiredRetention: 0.9,
+            additionalCards: huge,
+            daysToSimulate: huge,
+            newLimit: huge,
+            reviewLimit: huge,
+            maxIntervalDays: huge,
+            search: "",
+            newCardsIgnoreReviewLimit: false,
+            historicalRetention: 0.9,
+            learningStepCount: huge,
+            relearningStepCount: huge,
+            suspendAfterLapseCount: huge
+        )
+        let envelope: Request<FsrsReviewSimulation> = .simulateFsrsReview(request)
+        let proto = try Anki_Scheduler_SimulateFsrsReviewRequest(serializedBytes: envelope.body)
+
+        #expect(proto.deckSize == UInt32.max)
+        #expect(proto.daysToSimulate == UInt32.max)
+        #expect(proto.newLimit == UInt32.max)
+        #expect(proto.reviewLimit == UInt32.max)
+        #expect(proto.maxInterval == UInt32.max)
+        #expect(proto.learningStepCount == UInt32.max)
+        #expect(proto.relearningStepCount == UInt32.max)
+        #expect(proto.suspendAfterLapseCount == UInt32.max)
+    }
+
+    @Test func computeFsrsParams_clamps_oversized_relearning_steps() throws {
+        let request = FsrsOptimizeRequest(
+            search: "",
+            currentWeights: FsrsWeights([0.1]),
+            ignoreRevlogsBefore: nil,
+            relearningStepsPerDay: Int.max,
+            runHealthCheck: false
+        )
+        let envelope: Request<FsrsOptimizeResult> = .computeFsrsParams(request)
+        let proto = try Anki_Scheduler_ComputeFsrsParamsRequest(serializedBytes: envelope.body)
+        #expect(proto.numOfRelearningSteps == UInt32.max)
+    }
+
     @Test func simulateFsrsReview_skips_suspendAfterLapseCount_when_nil() throws {
         let envelope: Request<FsrsReviewSimulation> = .simulateFsrsReview(makeSimulationRequest(suspendAfterLapseCount: nil))
         let proto = try Anki_Scheduler_SimulateFsrsReviewRequest(serializedBytes: envelope.body)

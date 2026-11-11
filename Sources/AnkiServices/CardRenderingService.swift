@@ -59,7 +59,7 @@ extension CardRenderingService: DependencyKey {
                 return try backend.invoke(.renderUncommittedCard(
                     notetypeId: notetype.id,
                     template: template,
-                    cardOrd: UInt32(template.ord ?? 0),
+                    cardOrd: UInt32(clamping: template.ord ?? 0),
                     sampleFields: sampleFields
                 ))
             },

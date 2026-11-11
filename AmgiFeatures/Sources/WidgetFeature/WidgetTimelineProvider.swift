@@ -17,6 +17,7 @@ struct WidgetEntry: TimelineEntry {
 struct WidgetTimelineProvider: AppIntentTimelineProvider {
     typealias Intent = AmgiWidgetIntent
     typealias Entry = WidgetEntry
+    var snapshotForDeck: @Sendable (Int64) -> WidgetSnapshot? = { WidgetSnapshotStore.read(deckId: $0) }
 
     func placeholder(in context: Context) -> WidgetEntry {
         WidgetEntry(date: Date(), snapshot: .placeholder)
@@ -30,7 +31,10 @@ struct WidgetTimelineProvider: AppIntentTimelineProvider {
     }
 
     func timeline(for configuration: AmgiWidgetIntent, in context: Context) async -> Timeline<WidgetEntry> {
-        let now = Date()
+        timeline(for: configuration, now: Date())
+    }
+
+    func timeline(for configuration: AmgiWidgetIntent, now: Date) -> Timeline<WidgetEntry> {
         guard let snapshot = read(configuration) else {
             // No snapshot at all — the app has never written one, so nothing
             // to poll for. Retry occasionally in case it launches.
@@ -59,6 +63,6 @@ private extension WidgetTimelineProvider {
     /// that deck no longer exists (deleted, or a profile switch).
     func read(_ configuration: AmgiWidgetIntent) -> WidgetSnapshot? {
         let deckId = Int64(configuration.deck?.id ?? "0") ?? 0
-        return WidgetSnapshotStore.read(deckId: deckId) ?? WidgetSnapshotStore.read(deckId: 0)
+        return snapshotForDeck(deckId) ?? snapshotForDeck(0)
     }
 }

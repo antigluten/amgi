@@ -155,7 +155,7 @@ extension CardWebView {
                   let textRange = Range(match.range(at: 2), in: result) else { continue }
 
             let options = parseTTSAttributes(String(result[attrsRange]))
-            let spokenText = String(result[textRange]).trimmingCharacters(in: .whitespacesAndNewlines)
+            let spokenText = CardText.plainTextForTTS(String(result[textRange]))
             let lang = options["lang"] ?? ""
             let voices = options["voices"] ?? ""
             let speed = options["speed"] ?? ""

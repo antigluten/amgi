@@ -236,7 +236,7 @@ extension Request where Response == FsrsOptimizeResult {
                 if let cutoff = input.ignoreRevlogsBefore {
                     proto.ignoreRevlogsBeforeMs = cutoff.ankiMillis
                 }
-                proto.numOfRelearningSteps = UInt32(max(0, input.relearningStepsPerDay))
+                proto.numOfRelearningSteps = UInt32(clamping: max(0, input.relearningStepsPerDay))
                 proto.healthCheck = input.runHealthCheck
                 return try proto.serializedData()
             },
@@ -301,18 +301,18 @@ private func makeSimulationProto(_ input: FsrsSimulationRequest) -> Anki_Schedul
     var proto = Anki_Scheduler_SimulateFsrsReviewRequest()
     proto.params = input.weights.values
     proto.desiredRetention = input.desiredRetention
-    proto.deckSize = UInt32(max(0, input.additionalCards))
-    proto.daysToSimulate = UInt32(max(1, input.daysToSimulate))
-    proto.newLimit = UInt32(max(0, input.newLimit))
-    proto.reviewLimit = UInt32(max(0, input.reviewLimit))
-    proto.maxInterval = UInt32(max(1, input.maxIntervalDays))
+    proto.deckSize = UInt32(clamping: max(0, input.additionalCards))
+    proto.daysToSimulate = UInt32(clamping: max(1, input.daysToSimulate))
+    proto.newLimit = UInt32(clamping: max(0, input.newLimit))
+    proto.reviewLimit = UInt32(clamping: max(0, input.reviewLimit))
+    proto.maxInterval = UInt32(clamping: max(1, input.maxIntervalDays))
     proto.search = input.search
     proto.newCardsIgnoreReviewLimit = input.newCardsIgnoreReviewLimit
     proto.historicalRetention = input.historicalRetention
-    proto.learningStepCount = UInt32(max(0, input.learningStepCount))
-    proto.relearningStepCount = UInt32(max(0, input.relearningStepCount))
+    proto.learningStepCount = UInt32(clamping: max(0, input.learningStepCount))
+    proto.relearningStepCount = UInt32(clamping: max(0, input.relearningStepCount))
     if let suspend = input.suspendAfterLapseCount {
-        proto.suspendAfterLapseCount = UInt32(max(1, suspend))
+        proto.suspendAfterLapseCount = UInt32(clamping: max(1, suspend))
     }
     return proto
 }

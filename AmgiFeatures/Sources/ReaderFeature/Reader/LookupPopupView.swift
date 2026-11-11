@@ -56,9 +56,11 @@ package struct LookupPopupView: View {
         self.onAddedNote = onAddedNote
         self.onMatched = onMatched
         self.onDismiss = onDismiss
+        // @State's Observable initializer defers a property default until install, outside the caller's withDependencies scope.
+        _model = State(initialValue: LookupPopupModel())
     }
 
-    @State private var model = LookupPopupModel()
+    @State private var model: LookupPopupModel
 
     @State private var query: String = ""
     @State private var pendingNoteDraft: NoteDraft?

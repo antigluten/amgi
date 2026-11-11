@@ -56,7 +56,6 @@ enum SyncSheetState {
 struct SyncSheet: View {
     @Binding var isPresented: Bool
 
-    @Dependency(\.syncClient) var syncClient
     @Dependency(\.syncCoordinator) private var coordinator
 
     @State private var syncState: SyncSheetState = .idle
@@ -148,16 +147,6 @@ private extension SyncSheet {
     }
 
     func mergeFullSync() async {
-        syncState = .syncing("Preparing merge...")
-        do {
-            try await syncClient.merge { message in
-                Task { @MainActor in
-                    syncState = .syncing(message)
-                }
-            }
-            syncState = .success(SyncSummary())
-        } catch {
-            syncState = .error(error.localizedDescription)
-        }
+        await coordinator.mergeFullSync()
     }
 }

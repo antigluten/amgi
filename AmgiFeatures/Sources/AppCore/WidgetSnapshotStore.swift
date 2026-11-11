@@ -17,6 +17,10 @@ public enum WidgetSnapshotStore {
         guard let url = fileURL(deckId: snapshot.deckId) else {
             throw CocoaError(.fileNoSuchFile)
         }
+        try write(snapshot, to: url)
+    }
+
+    static func write(_ snapshot: WidgetSnapshot, to url: URL) throws {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
         let data = try encoder.encode(snapshot)
@@ -24,11 +28,7 @@ public enum WidgetSnapshotStore {
     }
 
     public static func read(deckId: Int64) -> WidgetSnapshot? {
-        guard let url = fileURL(deckId: deckId) else { return nil }
-        guard let data = try? Data(contentsOf: url) else { return nil }
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        return try? decoder.decode(WidgetSnapshot.self, from: data)
+        fileURL(deckId: deckId).flatMap { read(from: $0) }
     }
 
     static func read(from url: URL) -> WidgetSnapshot? {

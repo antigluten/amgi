@@ -20,6 +20,8 @@ serde_json = "1"
 [profile.release]
 opt-level = "s"     # Optimize for size (iOS binary)
 lto = true
+codegen-units = 1
+panic = "abort"  # -2.6 MB; a panic in the media-sync / FSRS / tokio threads now kills the app instead of failing that task
 # Do NOT re-enable stripping here. ld64 lays LC_SYMTAB's string pool out
 # 8-byte aligned; every strip pass rewrites it without re-aligning, and ld then
 # refuses the framework in *every* consumer with

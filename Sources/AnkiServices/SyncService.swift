@@ -19,9 +19,10 @@ private let logger = Logger(label: "com.ankiapp.sync.service")
 @DependencyClient
 public struct SyncService: Sendable {
     public var sync: @Sendable (_ endpoint: String, _ hostKey: String) async throws -> SyncSummary
-    public var fullSync: @Sendable (_ endpoint: String, _ hostKey: String, _ direction: SyncDirection) async throws -> Void
+    public var fullSync: @Sendable (_ endpoint: String, _ hostKey: String, _ direction: SyncDirection, _ syncMedia: Bool) async throws -> Void
     public var mediaSyncStatus: @Sendable () async throws -> MediaSyncStatus
     public var abortMediaSync: @Sendable () async throws -> Void
+    public var abortSync: @Sendable () async throws -> Void
     public var login: @Sendable (_ endpoint: String, _ username: String, _ password: String) async throws -> String
 }
 
@@ -79,12 +80,14 @@ extension SyncService: DependencyKey {
                     throw SyncError(message: error.message)
                 }
             },
-            fullSync: { endpoint, hostKey, direction in
+            fullSync: { endpoint, hostKey, direction, syncMedia in
                 let auth = SyncAuth(hkey: hostKey, endpoint: endpoint)
                 do {
                     try await backend.invoke(.fullUploadOrDownload(
-                        auth: auth, upload: direction == .upload, serverUsn: 0
+                        auth: auth, upload: direction == .upload, serverUsn: nil
                     ))
+                    // serverUsn 0 would claim a known media version; SyncMedia fetches the real one.
+                    if syncMedia { try await backend.invoke(.syncMedia(auth: auth)) }
                 } catch let error as BackendError {
                     if error.isSyncAuthError { throw SyncError.authFailed }
                     throw SyncError(message: error.message)
@@ -100,6 +103,13 @@ extension SyncService: DependencyKey {
             abortMediaSync: {
                 do {
                     try await backend.invoke(.abortMediaSync)
+                } catch let error as BackendError {
+                    throw SyncError(message: error.message)
+                }
+            },
+            abortSync: {
+                do {
+                    try await backend.invoke(.abortSync)
                 } catch let error as BackendError {
                     throw SyncError(message: error.message)
                 }

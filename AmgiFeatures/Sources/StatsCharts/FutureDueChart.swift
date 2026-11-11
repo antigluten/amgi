@@ -22,6 +22,9 @@ public struct FutureDueChart: View {
 
     @Environment(\.palette) private var palette
     @State private var includeBacklog = false
+    @ScaledMetric(relativeTo: .caption) private var chartHeight: CGFloat = 180
+
+    private var cappedChartHeight: CGFloat { min(chartHeight, 270) }
 
     private var filteredData: [(day: Int, count: Int)] {
         let maxDay = period.days
@@ -61,7 +64,7 @@ public struct FutureDueChart: View {
                 Text("Future Due").amgiFont(.bodyEmphasis)
 
                 if filteredData.isEmpty {
-                    Text("No cards due").foregroundStyle(palette.textSecondary).frame(height: 180)
+                    Text("No cards due").foregroundStyle(palette.textSecondary).frame(height: cappedChartHeight)
                 } else {
                     Chart(filteredData, id: \.day) { item in
                         BarMark(
@@ -79,10 +82,10 @@ public struct FutureDueChart: View {
                     .chartXAxis {
                         AxisMarks(values: .automatic(desiredCount: 5)) { _ in
                             AxisGridLine()
-                            AxisValueLabel()
+                            AxisValueLabel(collisionResolution: .greedy)
                         }
                     }
-                    .frame(height: 180)
+                    .frame(height: cappedChartHeight)
                 }
 
                 if futureDue.haveBacklog {
@@ -90,11 +93,29 @@ public struct FutureDueChart: View {
                         .amgiFont(.caption)
                 }
 
-                HStack(spacing: 16) {
-                    footerItem("Total", value: "\(totalDue(filteredData))")
-                    footerItem("Avg/day", value: String(format: "%.1f", avgPerDay(filteredData)))
-                    footerItem("Tomorrow", value: "\(dueTomorrow(filteredData))")
-                    footerItem("Daily Load", value: "\(futureDue.dailyLoad)")
+                let items = [
+                    (label: "Total", value: "\(totalDue(filteredData))"),
+                    (label: "Avg/day", value: String(format: "%.1f", avgPerDay(filteredData))),
+                    (label: "Tomorrow", value: "\(dueTomorrow(filteredData))"),
+                    (label: "Daily Load", value: "\(futureDue.dailyLoad)"),
+                ]
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: AmgiSpacing.lg) {
+                        ForEach(items, id: \.label) { footerItem($0.label, value: $0.value) }
+                    }
+                    Grid(horizontalSpacing: AmgiSpacing.lg, verticalSpacing: AmgiSpacing.sm) {
+                        GridRow {
+                            footerItem(items[0].label, value: items[0].value)
+                            footerItem(items[1].label, value: items[1].value)
+                        }
+                        GridRow {
+                            footerItem(items[2].label, value: items[2].value)
+                            footerItem(items[3].label, value: items[3].value)
+                        }
+                    }
+                    VStack(spacing: AmgiSpacing.sm) {
+                        ForEach(items, id: \.label) { footerItem($0.label, value: $0.value) }
+                    }
                 }
             }
         }

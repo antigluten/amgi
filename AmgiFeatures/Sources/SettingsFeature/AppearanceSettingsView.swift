@@ -21,6 +21,11 @@ struct AppearanceSettingsView: View {
             SettingsSectionHeader(title: "Theme")
             themePickerRow
 
+            #if os(iOS)
+            SettingsSectionHeader(title: "App Icon")
+            AppIconPicker()
+            #endif
+
             SettingsSectionHeader(title: "Appearance")
             SettingsGroup {
                 Picker("Appearance", selection: $manager.appearance) {

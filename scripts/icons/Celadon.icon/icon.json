@@ -1,0 +1,19 @@
+{
+  "fill" : {
+    "solid" : "srgb:0.66275,0.78431,0.72157,1.00000"
+  },
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "glass" : true,
+          "image-name" : "mark.svg",
+          "name" : "mark"
+        }
+      ]
+    }
+  ],
+  "supported-platforms" : {
+    "squares" : "shared"
+  }
+}

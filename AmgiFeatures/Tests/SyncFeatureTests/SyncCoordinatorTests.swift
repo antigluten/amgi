@@ -118,6 +118,7 @@ struct SyncCoordinatorTests {
             $0.syncClient.sync = { SyncSummary() }
             $0.syncClient.mediaSyncStatus = { MediaSyncStatus(active: true, progress: nil) }
             $0.syncClient.abortMediaSync = { await abortRecorder.set() }
+            $0.syncClient.abortSync = {}
         } operation: {
             let coordinator = SyncCoordinator(mediaPollInterval: .seconds(10))
             await coordinator.startSync()
@@ -210,6 +211,72 @@ struct SyncCoordinatorTests {
     }
 
     @Test @MainActor
+    func mergeReportsMediaFailure() async throws {
+        try await withDependencies {
+            $0.appStorageKeyFormatWarningEnabled = false
+            $0.syncClient.sync = { throw SyncError.fullSyncRequired }
+            $0.syncClient.merge = { _ in }
+            $0.syncClient.mediaSyncStatus = { throw SyncError(message: "disk full") }
+        } operation: {
+            let coordinator = SyncCoordinator()
+            await coordinator.startSync()
+            try await Task.sleep(for: .milliseconds(100))
+            await coordinator.mergeFullSync()
+            try await Task.sleep(for: .milliseconds(100))
+            guard case .error(let message) = coordinator.state else {
+                Issue.record("expected .error after media failure, got \(coordinator.state)")
+                return
+            }
+            #expect(message.contains("disk full"))
+        }
+    }
+
+    @Test @MainActor
+    func mergeSuccessClearsFullSyncFlagAndStampsSyncTime() async throws {
+        try await withDependencies {
+            $0.appStorageKeyFormatWarningEnabled = false
+            $0.syncClient.sync = { throw SyncError.fullSyncRequired }
+            $0.syncClient.merge = { _ in }
+            $0.syncClient.mediaSyncStatus = { MediaSyncStatus(active: false, progress: nil) }
+        } operation: {
+            let coordinator = SyncCoordinator()
+            await coordinator.startSync()
+            try await Task.sleep(for: .milliseconds(100))
+            UserDefaults.standard.set(true, forKey: SyncPreferences.Keys.needsFullSyncForCurrentUser())
+            await coordinator.mergeFullSync()
+            try await Task.sleep(for: .milliseconds(100))
+            guard case .success = coordinator.state else {
+                Issue.record("expected .success after merge, got \(coordinator.state)")
+                return
+            }
+            #expect(!UserDefaults.standard.bool(forKey: SyncPreferences.Keys.needsFullSyncForCurrentUser()))
+            #expect(coordinator.lastSuccessfulSync != nil)
+        }
+    }
+
+    @Test @MainActor
+    func secondMergeWhileSyncingIsRefused() async throws {
+        let merges = CallCounter()
+        try await withDependencies {
+            $0.appStorageKeyFormatWarningEnabled = false
+            $0.syncClient.sync = { throw SyncError.fullSyncRequired }
+            $0.syncClient.merge = { _ in
+                await merges.increment()
+                try await Task.sleep(for: .milliseconds(200))
+            }
+            $0.syncClient.mediaSyncStatus = { MediaSyncStatus(active: false, progress: nil) }
+        } operation: {
+            let coordinator = SyncCoordinator()
+            await coordinator.startSync()
+            try await Task.sleep(for: .milliseconds(100))
+            await coordinator.mergeFullSync()
+            await coordinator.mergeFullSync()
+            try await Task.sleep(for: .milliseconds(400))
+            #expect(await merges.count == 1)
+        }
+    }
+
+    @Test @MainActor
     func logEntriesCappedAt100() {
         withDependencies {
             $0.appStorageKeyFormatWarningEnabled = false
@@ -232,6 +299,7 @@ struct SyncCoordinatorTests {
                 try await Task.sleep(for: .milliseconds(500))
                 return SyncSummary()
             }
+            $0.syncClient.abortSync = {}
         } operation: {
             let coordinator = SyncCoordinator()
             await coordinator.startSync()
@@ -245,12 +313,14 @@ struct SyncCoordinatorTests {
 
     @Test @MainActor
     func cancelMidSync() async throws {
+        let abortRecorder = AsyncFlag()
         try await withDependencies {
             $0.appStorageKeyFormatWarningEnabled = false
             $0.syncClient.sync = {
                 try await Task.sleep(for: .milliseconds(500))
                 return SyncSummary()
             }
+            $0.syncClient.abortSync = { await abortRecorder.set() }
         } operation: {
             let coordinator = SyncCoordinator()
             await coordinator.startSync()
@@ -262,6 +332,7 @@ struct SyncCoordinatorTests {
             try await Task.sleep(for: .milliseconds(100))
             #expect(coordinator.state == .idle)
             #expect(coordinator.logEntries.contains { $0.message.contains("cancelled") })
+            #expect(await abortRecorder.value)
         }
     }
 
@@ -279,6 +350,14 @@ struct SyncCoordinatorTests {
             #expect(coordinator.logEntries[0].level == .info)
             #expect(coordinator.logEntries[2].level == .error)
         }
+    }
+}
+
+private actor CallCounter {
+    private(set) var count = 0
+
+    func increment() {
+        count += 1
     }
 }
 

@@ -124,6 +124,9 @@ let package = Package(
         .testTarget(
             name: "AnkiProtoBridgeTests",
             dependencies: ["AnkiProtoBridge", "AnkiProto"],
+            // Read from disk via `#filePath`, like the other source-scanning
+            // tests here — not a bundle resource.
+            exclude: ["Fixtures"],
             swiftSettings: sharedSwiftSettings
         ),
         // MARK: - Libraries
@@ -183,7 +186,15 @@ let package = Package(
         ),
         .testTarget(
             name: "AnkiServicesTests",
-            dependencies: ["AnkiServices"],
+            dependencies: [
+                "AnkiServices",
+                "AnkiBackend",
+                "AnkiProtoBridge",
+                "AnkiKit",
+                .product(name: "Dependencies", package: "swift-dependencies"),
+            ],
+            // Read from disk via `#filePath`, not a bundle resource.
+            exclude: ["Fixtures"],
             swiftSettings: sharedSwiftSettings
         ),
         .testTarget(

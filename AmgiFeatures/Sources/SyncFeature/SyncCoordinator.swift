@@ -190,6 +190,42 @@ package final class SyncCoordinator {
         activeTask = task
     }
 
+    func mergeFullSync() async {
+        guard case .needsFullSync = state else {
+            appendLog("Cannot merge — not in needsFullSync state", level: .warning)
+            return
+        }
+
+        state = .syncing(message: "Preparing merge...")
+        appendLog("Merge started")
+
+        let task = Task { [weak self] in
+            guard let self else { return }
+            let client = self.syncClient
+            do {
+                try await client.merge { message in
+                    Task { @MainActor in
+                        guard case .syncing = self.state else { return }
+                        self.state = .syncing(message: message)
+                    }
+                }
+                let mediaFailure = try await self.awaitMediaCompletion(using: client)
+                self.lastSyncedAtUnix = Date().timeIntervalSince1970
+                self.needsFullSyncFlag = false
+                self.activeTask = nil
+                self.isCancelling = false
+                self.report(mediaFailure: mediaFailure, otherwise: SyncSummary())
+                await writeWidgetSnapshot()
+            } catch {
+                self.activeTask = nil
+                guard !self.finishCancellationIfNeeded() else { return }
+                self.appendLog("Merge failed: \(error.localizedDescription)", level: .error)
+                self.state = .error(error.localizedDescription)
+            }
+        }
+        activeTask = task
+    }
+
     func signOut() async {
         cancel()
         KeychainHelper.deleteEndpoint()
@@ -217,10 +253,10 @@ package final class SyncCoordinator {
         }
     }
 
-    /// Requests cancellation. Advisory only.
+    /// Requests cancellation.
     ///
-    /// The engine call is synchronous Rust FFI with no cancellation hook, so
-    /// the RPC runs to completion regardless. What matters is that
+    /// The engine is asked to abort its network step, but the RPC still
+    /// returns in its own time. What matters is that
     /// `activeTask` is *not* cleared here: doing so re-opened the re-entry
     /// gate in `startSync`, letting a second sync start while the first was
     /// still mutating the collection. Both then serialized behind the
@@ -231,20 +267,24 @@ package final class SyncCoordinator {
         guard activeTask != nil, !isCancelling else { return }
         isCancelling = true
         activeTask?.cancel()
+        let abort: @Sendable () async throws -> Void
         if case .syncing = state {
-            appendLog("Cancelling — finishing the current step in the background", level: .warning)
+            appendLog("Cancelling sync", level: .warning)
+            abort = syncClient.abortSync
         } else if case .syncingMedia = state {
             appendLog("Media sync cancelled", level: .warning)
-            let client = syncClient
-            mediaAbortTask = Task { [weak self] in
-                do {
-                    try await client.abortMediaSync()
-                } catch {
-                    self?.appendLog(
-                        "Failed to abort media sync: \(error.localizedDescription)",
-                        level: .error
-                    )
-                }
+            abort = syncClient.abortMediaSync
+        } else {
+            return
+        }
+        mediaAbortTask = Task { [weak self] in
+            do {
+                try await abort()
+            } catch {
+                self?.appendLog(
+                    "Failed to abort sync: \(error.localizedDescription)",
+                    level: .error
+                )
             }
         }
     }

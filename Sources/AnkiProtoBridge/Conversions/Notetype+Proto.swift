@@ -96,9 +96,9 @@ package extension Notetype.Config.CardRequirement {
 
     func toProto() -> Anki_Notetypes_Notetype.Config.CardRequirement {
         var proto = Anki_Notetypes_Notetype.Config.CardRequirement()
-        proto.cardOrd = UInt32(max(0, cardOrd))
+        proto.cardOrd = UInt32(clamping: max(0, cardOrd))
         proto.kind = .init(kind)
-        proto.fieldOrds = fieldOrds.map { UInt32(max(0, $0)) }
+        proto.fieldOrds = fieldOrds.map { UInt32(clamping: max(0, $0)) }
         return proto
     }
 }
@@ -125,7 +125,7 @@ package extension Notetype.Config {
     func toProto() -> Anki_Notetypes_Notetype.Config {
         var proto = Anki_Notetypes_Notetype.Config()
         proto.kind = .init(kind)
-        proto.sortFieldIdx = UInt32(max(0, sortFieldIdx))
+        proto.sortFieldIdx = UInt32(clamping: max(0, sortFieldIdx))
         proto.css = css
         proto.targetDeckIDUnused = targetDeckIDUnused
         proto.latexPre = latexPre
@@ -164,13 +164,13 @@ package extension Notetype.Field.Config {
         proto.sticky = sticky
         proto.rtl = rtl
         proto.fontName = fontName
-        proto.fontSize = UInt32(max(0, fontSize))
+        proto.fontSize = UInt32(clamping: max(0, fontSize))
         proto.description_p = description
         proto.plainText = plainText
         proto.collapsed = collapsed
         proto.excludeFromSearch = excludeFromSearch
         if let id { proto.id = id }
-        if let tag { proto.tag = UInt32(max(0, tag)) }
+        if let tag { proto.tag = UInt32(clamping: max(0, tag)) }
         proto.preventDeletion = preventDeletion
         proto.other = other
         return proto
@@ -192,7 +192,7 @@ package extension Notetype.Field {
         var proto = Anki_Notetypes_Notetype.Field()
         if let ord {
             var wrapper = Anki_Generic_UInt32()
-            wrapper.val = UInt32(max(0, ord))
+            wrapper.val = UInt32(clamping: max(0, ord))
             proto.ord = wrapper
         }
         proto.name = name
@@ -226,7 +226,7 @@ package extension Notetype.Template.Config {
         proto.aFormatBrowser = aFormatBrowser
         proto.targetDeckID = targetDeckID.rawValue
         proto.browserFontName = browserFontName
-        proto.browserFontSize = UInt32(max(0, browserFontSize))
+        proto.browserFontSize = UInt32(clamping: max(0, browserFontSize))
         if let id { proto.id = id }
         proto.other = other
         return proto
@@ -250,7 +250,7 @@ package extension Notetype.Template {
         var proto = Anki_Notetypes_Notetype.Template()
         if let ord {
             var wrapper = Anki_Generic_UInt32()
-            wrapper.val = UInt32(max(0, ord))
+            wrapper.val = UInt32(clamping: max(0, ord))
             proto.ord = wrapper
         }
         proto.name = name

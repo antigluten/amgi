@@ -21,6 +21,16 @@ public struct HourlyChart: View {
     }
 
     @Environment(\.palette) private var palette
+    @Environment(\.dynamicTypeSize) private var typeSize
+    @ScaledMetric(relativeTo: .caption) private var reviewChartHeight: CGFloat = 150
+    @ScaledMetric(relativeTo: .caption) private var accuracyChartHeight: CGFloat = 100
+
+    // At accessibility sizes even 3 labels touch on a 320pt phone, and .greedy does not add a gap.
+    private var hourTicks: [Int] { typeSize.isAccessibilitySize ? [0, 12] : [0, 4, 8, 12, 16, 20] }
+
+    private var cappedReviewHeight: CGFloat { min(reviewChartHeight, 225) }
+    private var cappedAccuracyHeight: CGFloat { min(accuracyChartHeight, 150) }
+    private var chartsHeight: CGFloat { cappedReviewHeight + AmgiSpacing.sm + cappedAccuracyHeight }
 
     private var hourData: [HoursBuckets.Hour] {
         switch period {
@@ -54,11 +64,11 @@ public struct HourlyChart: View {
             cornerRadius: AmgiRadius.inset,
             contentInsets: EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
         ) {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: AmgiSpacing.sm) {
                 Text("Hourly Breakdown").amgiFont(.bodyEmphasis)
 
                 if entries.allSatisfy({ $0.total == 0 }) {
-                    Text("No review data").foregroundStyle(palette.textSecondary).frame(height: 180)
+                    Text("No review data").foregroundStyle(palette.textSecondary).frame(height: chartsHeight)
                 } else {
                     Chart(entries) { entry in
                         BarMark(
@@ -70,15 +80,16 @@ public struct HourlyChart: View {
                         .accessibilityValue(ChartSpeech.count(entry.total, "review"))
                     }
                     .chartXAxis {
-                        AxisMarks(values: [0, 4, 8, 12, 16, 20]) { value in
+                        AxisMarks(values: hourTicks) { value in
                             AxisGridLine()
                             if let h = value.as(Int.self) {
-                                AxisValueLabel(formatHour(h))
+                                AxisValueLabel(formatHour(h), collisionResolution: .greedy)
                             }
                         }
                     }
                     .chartXScale(domain: 0...23)
-                    .frame(height: 150)
+                    .dynamicTypeSize(...DynamicTypeSize.accessibility3)
+                    .frame(height: cappedReviewHeight)
 
                     Chart(entries) { entry in
                         LineMark(
@@ -98,17 +109,18 @@ public struct HourlyChart: View {
                         .interpolationMethod(.catmullRom)
                     }
                     .chartXAxis {
-                        AxisMarks(values: [0, 4, 8, 12, 16, 20]) { value in
+                        AxisMarks(values: hourTicks) { value in
                             AxisGridLine()
                             if let h = value.as(Int.self) {
-                                AxisValueLabel(formatHour(h))
+                                AxisValueLabel(formatHour(h), collisionResolution: .greedy)
                             }
                         }
                     }
                     .chartXScale(domain: 0...23)
                     .chartYScale(domain: 0...100)
                     .chartYAxisLabel("Correct %")
-                    .frame(height: 100)
+                    .dynamicTypeSize(...DynamicTypeSize.accessibility3)
+                    .frame(height: cappedAccuracyHeight)
                 }
             }
         }

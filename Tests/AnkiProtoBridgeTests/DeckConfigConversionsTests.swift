@@ -74,6 +74,22 @@ import AnkiProto
         #expect(LeechAction(unknown) == .suspend)
     }
 
+    @Test func DeckConfig_Config_toProto_clamps_oversized_values() {
+        var mirror = DeckConfig.Config(Anki_DeckConfig_DeckConfig.Config())
+        mirror.newPerDay = Int.max
+        mirror.reviewsPerDay = Int(UInt32.max) + 1
+        mirror.maximumReviewInterval = Int.max
+        mirror.leechThreshold = Int.max
+        mirror.capAnswerTimeToSecs = Int.max
+
+        let proto = mirror.toProto()
+        #expect(proto.newPerDay == UInt32.max)
+        #expect(proto.reviewsPerDay == UInt32.max)
+        #expect(proto.maximumReviewInterval == UInt32.max)
+        #expect(proto.leechThreshold == UInt32.max)
+        #expect(proto.capAnswerTimeToSecs == UInt32.max)
+    }
+
     // MARK: - DeckConfig.Config round-trip
 
     @Test func DeckConfig_Config_round_trip_preserves_scalar_fields() {

@@ -170,4 +170,10 @@ private import SwiftProtobuf
         let req = try Anki_Stats_GraphsRequest(serializedBytes: envelope.body)
         #expect(req.days == 0)
     }
+
+    @Test func graphs_clamps_oversized_days_to_uint32_max() throws {
+        let envelope: Request<GraphsSnapshot> = .graphs(search: "", days: Int.max)
+        let req = try Anki_Stats_GraphsRequest(serializedBytes: envelope.body)
+        #expect(req.days == UInt32.max)
+    }
 }

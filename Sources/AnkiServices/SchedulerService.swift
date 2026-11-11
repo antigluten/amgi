@@ -25,7 +25,7 @@ extension SchedulerService: DependencyKey {
         @Dependency(\.ankiBackend) var backend
         return Self(
             getQueuedCards: { fetchLimit in
-                try backend.invoke(.getQueuedCards(fetchLimit: UInt32(max(0, fetchLimit))))
+                try backend.invoke(.getQueuedCards(fetchLimit: UInt32(clamping: max(0, fetchLimit))))
             },
             answerReviewCard: { cardId, rating, timeSpent, states in
                 try backend.invoke(.answerReviewCard(

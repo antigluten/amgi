@@ -148,6 +148,8 @@ let package = Package(
             name: "StatsFeatureTests",
             dependencies: [
                 "StatsFeature",
+                "StatsCharts",
+                .product(name: "Theme", package: "AmgiUI"),
                 .product(name: "AnkiKit", package: "amgi"),
                 .product(name: "AnkiClients", package: "amgi"),
                 .product(name: "Dependencies", package: "swift-dependencies"),
@@ -342,6 +344,11 @@ let package = Package(
             ],
             swiftSettings: sharedSwiftSettings
         ),
+        .testTarget(
+            name: "WidgetFeatureTests",
+            dependencies: ["WidgetFeature", "AppCore"],
+            swiftSettings: sharedSwiftSettings
+        ),
         // The settings aggregator: the Settings root plus every screen it
         // pushes to (appearance, accounts, sync, review, card rendering,
         // reader, code editor, template overrides, maintenance, empty cards,
@@ -394,6 +401,7 @@ let package = Package(
                 .product(name: "SwiftUINavigation", package: "swift-navigation"),
                 .product(name: "CasePaths", package: "swift-case-paths"),
             ],
+            resources: [.process("Resources")],
             swiftSettings: sharedSwiftSettings
         ),
         // Everything the watchOS app renders: its content root, deck list,
