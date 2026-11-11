@@ -31,6 +31,8 @@ __AMGI_BASE_TAG__
     body.amgi-centered { display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 40px); }
     .card-frame {
         width: 100%; box-sizing: border-box;
+        overflow-x: auto;
+        min-width: 0;
         padding-bottom: var(--amgi-card-padding-bottom, 0px);
     }
     hr { border: none; border-top: 1px solid __AMGI_HR_COLOR__; margin: 16px 0; }

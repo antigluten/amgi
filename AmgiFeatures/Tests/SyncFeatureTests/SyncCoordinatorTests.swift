@@ -118,6 +118,7 @@ struct SyncCoordinatorTests {
             $0.syncClient.sync = { SyncSummary() }
             $0.syncClient.mediaSyncStatus = { MediaSyncStatus(active: true, progress: nil) }
             $0.syncClient.abortMediaSync = { await abortRecorder.set() }
+            $0.syncClient.abortSync = {}
         } operation: {
             let coordinator = SyncCoordinator(mediaPollInterval: .seconds(10))
             await coordinator.startSync()
@@ -298,6 +299,7 @@ struct SyncCoordinatorTests {
                 try await Task.sleep(for: .milliseconds(500))
                 return SyncSummary()
             }
+            $0.syncClient.abortSync = {}
         } operation: {
             let coordinator = SyncCoordinator()
             await coordinator.startSync()
@@ -311,12 +313,14 @@ struct SyncCoordinatorTests {
 
     @Test @MainActor
     func cancelMidSync() async throws {
+        let abortRecorder = AsyncFlag()
         try await withDependencies {
             $0.appStorageKeyFormatWarningEnabled = false
             $0.syncClient.sync = {
                 try await Task.sleep(for: .milliseconds(500))
                 return SyncSummary()
             }
+            $0.syncClient.abortSync = { await abortRecorder.set() }
         } operation: {
             let coordinator = SyncCoordinator()
             await coordinator.startSync()
@@ -328,6 +332,7 @@ struct SyncCoordinatorTests {
             try await Task.sleep(for: .milliseconds(100))
             #expect(coordinator.state == .idle)
             #expect(coordinator.logEntries.contains { $0.message.contains("cancelled") })
+            #expect(await abortRecorder.value)
         }
     }
 

@@ -40,7 +40,7 @@ struct RichNoteFieldEditor: UIViewRepresentable {
         textView.delegate = context.coordinator
         textView.isEditable = true
         textView.isSelectable = true
-        textView.isScrollEnabled = false
+        textView.isScrollEnabled = true
         textView.backgroundColor = .clear
         textView.layer.cornerRadius = 0
         textView.textContainer.lineFragmentPadding = 0

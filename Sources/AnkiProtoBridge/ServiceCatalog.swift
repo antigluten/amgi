@@ -128,6 +128,7 @@ enum SyncMethod {
     static let syncStatus: UInt32 = 4
     static let syncCollection: UInt32 = 5
     static let fullUploadOrDownload: UInt32 = 6
+    static let abortSync: UInt32 = 7
 }
 
 /// BackendTagsService (45).

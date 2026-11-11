@@ -23,5 +23,8 @@
     startup: {
       typeset: false,
     },
+    options: {
+      enableMenu: false,
+    },
   };
 })();

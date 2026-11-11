@@ -143,6 +143,14 @@ private import SwiftProtobuf
         #expect(try request.body.isEmpty)
     }
 
+    @Test func abortSync_dispatches_with_empty_body() throws {
+        let request: Request<Void> = .abortSync
+        #expect(request.serviceId == ServiceID.sync)
+        #expect(request.methodId == SyncMethod.abortSync)
+        #expect(request.bypassesLock)
+        #expect(try request.body.isEmpty)
+    }
+
     // MARK: - syncLogin
 
     @Test func syncLogin_dispatches_and_encodes_credentials() throws {
