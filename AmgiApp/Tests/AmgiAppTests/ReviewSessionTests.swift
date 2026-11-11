@@ -648,8 +648,7 @@ import AnkiServices
 
     /// The card menu is not shut during a transition, so a take-out can land
     /// while an answer is in flight. Dropping it would leave the session's counts
-    /// adrift until the next grade — the drift ADR-0001 says not to reintroduce —
-    /// so it waits its turn instead.
+    /// adrift until the next grade, so it waits its turn instead.
     @Test func aTakeOutRequestedMidTransitionIsHonouredAfterIt() async throws {
         let c1 = stubCard(1, note: 100)
         let c2 = stubCard(2, note: 101)
@@ -678,6 +677,35 @@ import AnkiServices
             #expect(s.studyNotice?.cardsTakenOutOfStudyCount == 1)
             #expect(s.isFinished, "and the deck yielded nothing, so the session is finished")
             #expect(s.sessionStats.reviewed == 1, "still only the one real grade")
+            #expect(!s.canUndo)
+        }
+    }
+
+    /// Same, on the last card: the deferred re-queue finds no card on screen,
+    /// and must still disarm the answer's Undo on the finished screen.
+    @Test func aTakeOutMidTransitionOnTheLastCardDisarmsUndo() async throws {
+        let c1 = stubCard(1, note: 100)
+        let gathers = Tally()
+
+        try await withDependencies { deps in
+            stubReviewClients(&deps, gathers: gathers) { gather in
+                gather == 1 ? stubQueue([c1], new: 1) : stubQueue([], new: 0)
+            }
+        } operation: {
+            let s = ReviewSession(deckId: DeckID(1))
+            s.start()
+            try await pollUntil { !s.isAdvancing }
+
+            s.answer(rating: .good)
+            s.requeueAfterCardRemoval()
+            try await pollUntil { !s.isAdvancing }
+
+            #expect(s.isFinished)
+            #expect(!s.canUndo)
+            let graded = s.sessionStats
+            s.undo()
+            #expect(!s.isAdvancing)
+            #expect(s.sessionStats == graded)
         }
     }
 

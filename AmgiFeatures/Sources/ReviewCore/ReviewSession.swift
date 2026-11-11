@@ -354,6 +354,9 @@ public final class ReviewSession {
     /// Grades nothing: `sessionStats` is untouched, so a card taken out of study is
     /// never counted as reviewed.
     public func requeueAfterCardRemoval() {
+        // The take-out is now the last collection operation, so Undo no longer targets the answer.
+        canUndo = false
+        lastRating = nil
         // Deliberately not a way to start a session: with no card on screen
         // nothing was just taken out of study.
         guard currentQueuedCard != nil else { return }
@@ -366,9 +369,6 @@ public final class ReviewSession {
             return
         }
         isAdvancing = true
-        // The take-out is now the last collection operation, so Undo no longer targets the answer.
-        canUndo = false
-        lastRating = nil
         // The prefetch is rendering a card that has just left study. A typed-answer
         // diff already checks the card it was computed against before it lands, and
         // the advance below is what flips `showAnswer` off.
