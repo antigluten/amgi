@@ -2,6 +2,7 @@ import AppCore
 @testable import AppShared
 import AnkiClients
 import AnkiKit
+import AnkiServices
 import Dependencies
 import Foundation
 import Testing
@@ -35,9 +36,10 @@ struct WordSpotlightSettingsTests {
             $0.notetypesClient.get = { _ in
                 Notetype(id: NotetypeID(12), fields: [.init(name: "Front"), .init(name: "Back")])
             }
-            $0.noteClient.searchAll = { _, _ in
-                [NoteRecord(id: NoteID(42), guid: "", mid: NotetypeID(12), mod: 0,
-                            flds: "cat\u{1f}A cat", sfld: "", csum: 0)]
+            $0.notesService.searchNoteIds = { _ in [NoteID(42)] }
+            $0.notesService.getNote = { id in
+                NoteRecord(id: id, guid: "", mid: NotetypeID(12), mod: 0,
+                           flds: "cat\u{1f}A cat", sfld: "", csum: 0)
             }
         } operation: {
             let model = WordSpotlightSettingsModel(controller: WordSpotlightController())
@@ -64,9 +66,10 @@ struct WordSpotlightSettingsTests {
             $0.notetypesClient.get = { _ in
                 Notetype(id: NotetypeID(12), fields: [.init(name: "Front"), .init(name: "Back")])
             }
-            $0.noteClient.searchAll = { _, _ in
-                [NoteRecord(id: NoteID(42), guid: "", mid: NotetypeID(12), mod: 0,
-                            flds: "cat\u{1f}A cat", sfld: "", csum: 0)]
+            $0.notesService.searchNoteIds = { _ in [NoteID(42)] }
+            $0.notesService.getNote = { id in
+                NoteRecord(id: id, guid: "", mid: NotetypeID(12), mod: 0,
+                           flds: "cat\u{1f}A cat", sfld: "", csum: 0)
             }
         } operation: {
             let model = WordSpotlightSettingsModel(controller: WordSpotlightController())

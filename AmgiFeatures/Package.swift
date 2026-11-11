@@ -103,6 +103,7 @@ let package = Package(
                 "AppShared",
                 .product(name: "AnkiClients", package: "amgi"),
                 .product(name: "AnkiKit", package: "amgi"),
+                .product(name: "AnkiServices", package: "amgi"),
                 .product(name: "Dependencies", package: "swift-dependencies"),
             ],
             swiftSettings: sharedSwiftSettings

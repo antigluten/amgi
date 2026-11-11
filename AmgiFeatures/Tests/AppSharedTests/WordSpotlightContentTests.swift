@@ -1,6 +1,7 @@
 import AppCore
 import AnkiClients
 import AnkiKit
+import AnkiServices
 import Dependencies
 import Foundation
 import Testing
@@ -40,6 +41,27 @@ import Testing
         }
     }
 
+    @Test func readsOnlyTheFiveHundredLowestNoteIDs() async throws {
+        let fetched = LockIsolated<[Int64]>([])
+        let notetype = Notetype(id: NotetypeID(1), fields: [
+            .init(name: "Expression"), .init(name: "Reading"), .init(name: "Definition"),
+        ])
+        try await withDependencies {
+            $0.deckClient.fetchAll = { [DeckInfo(id: DeckID(1), name: "Vocabulary")] }
+            $0.notetypesClient.get = { _ in notetype }
+            $0.notesService.searchNoteIds = { _ in (1...600).reversed().map { NoteID(Int64($0)) } }
+            $0.notesService.getNote = { id in
+                fetched.withValue { $0.append(id.rawValue) }
+                return NoteRecord(id: id, guid: "", mid: NotetypeID(1), mod: 0, flds: "猫\u{1f}ねこ\u{1f}A cat", sfld: "", csum: 0)
+            }
+        } operation: {
+            let words = try await WordSpotlightController().preview(preferences, profileID: AccountStore.shared.selectedID)
+            #expect(words.count == 500)
+            #expect(Set(fetched.value) == Set((1...500).map { Int64($0) }))
+            #expect(fetched.value.count == 500)
+        }
+    }
+
     @Test func previewUsesDraftMappingWithoutEnablingIt() async throws {
         let profileID = AccountStore.shared.selectedID
         let saved = WordSpotlightStore.preferences(profileID: profileID)
@@ -51,11 +73,11 @@ import Testing
         try await withDependencies {
             $0.deckClient.fetchAll = { [DeckInfo(id: DeckID(1), name: "Vocabulary")] }
             $0.notetypesClient.get = { _ in notetype }
-            $0.noteClient.searchAll = { query, limit in
+            $0.notesService.searchNoteIds = { query in
                 #expect(query == #"deck:"Vocabulary" mid:1 -is:suspended -is:buried"#)
-                #expect(limit == nil)
-                return [sample]
+                return [sample.id]
             }
+            $0.notesService.getNote = { _ in sample }
         } operation: {
             let controller = WordSpotlightController()
             let words = try await controller.preview(preferences, profileID: profileID)
@@ -85,7 +107,8 @@ import Testing
         try await withDependencies {
             $0.deckClient.fetchAll = { [DeckInfo(id: DeckID(1), name: "Vocabulary")] }
             $0.notetypesClient.get = { _ in notetype }
-            $0.noteClient.searchAll = { _, _ in [sample] }
+            $0.notesService.searchNoteIds = { _ in [sample.id] }
+            $0.notesService.getNote = { _ in sample }
         } operation: {
             let controller = WordSpotlightController()
             #expect(await controller.refresh())
@@ -99,11 +122,13 @@ import Testing
                 release.continuation.finish()
             }
             await withDependencies {
-                $0.noteClient.searchAll = { _, _ in
+                $0.notetypesClient.get = { _ in
                     requests.continuation.yield()
                     var gate = release.stream.makeAsyncIterator()
                     await gate.next()
-                    return [sample]
+                    return Notetype(id: NotetypeID(1), fields: [
+                        .init(name: "Expression"), .init(name: "Reading"), .init(name: "Definition"),
+                    ])
                 }
             } operation: {
                 let save = Task { await controller.save(preferences, profileID: profileID) }
@@ -116,7 +141,7 @@ import Testing
                 #expect(await foreground.value)
             }
             await withDependencies {
-                $0.noteClient.searchAll = { _, _ in throw CocoaError(.fileReadUnknown) }
+                $0.notesService.searchNoteIds = { _ in throw CocoaError(.fileReadUnknown) }
             } operation: {
                 #expect(await controller.refresh(advance: true) == false)
                 #expect(controller.currentWord == original)
@@ -185,16 +210,15 @@ import Testing
             await withDependencies {
                 $0.deckClient.fetchAll = { [DeckInfo(id: DeckID(1), name: "Vocabulary")] }
                 $0.notetypesClient.get = { _ in
-                    Notetype(id: NotetypeID(1), fields: [
-                        .init(name: "Expression"), .init(name: "Reading"), .init(name: "Definition"),
-                    ])
-                }
-                $0.noteClient.searchAll = { _, _ in
                     started.continuation.yield()
                     var iterator = release.stream.makeAsyncIterator()
                     await iterator.next()
-                    return [sample]
+                    return Notetype(id: NotetypeID(1), fields: [
+                        .init(name: "Expression"), .init(name: "Reading"), .init(name: "Definition"),
+                    ])
                 }
+                $0.notesService.searchNoteIds = { _ in [sample.id] }
+                $0.notesService.getNote = { _ in sample }
             } operation: {
                 let controller = WordSpotlightController()
                 let refresh = Task { await controller.refresh() }
@@ -223,10 +247,11 @@ import Testing
                         .init(name: "Expression"), .init(name: "Reading"), .init(name: "Definition"),
                     ])
                 }
-                $0.noteClient.searchAll = { _, _ in
+                $0.notesService.searchNoteIds = { _ in
                     searches.withValue { $0 += 1 }
-                    return [sample]
+                    return [sample.id]
                 }
+                $0.notesService.getNote = { _ in sample }
             } operation: {
                 let controller = WordSpotlightController()
                 #expect(await controller.refresh())

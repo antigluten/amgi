@@ -1,13 +1,15 @@
 import AppCore
+import AnkiBackend
 import AnkiClients
 import AnkiKit
+import AnkiServices
 import Dependencies
 import Foundation
 
 @MainActor
 enum WordSpotlightSource {
     static func load(_ preferences: WordSpotlightPreferences, validate: () throws -> Void) async throws -> [SpotlightWord] {
-        @Dependency(\.noteClient) var noteClient
+        @Dependency(\.notesService) var notesService
         @Dependency(\.notetypesClient) var notetypesClient
         @Dependency(\.deckClient) var deckClient
         let decks = try await deckClient.fetchAll()
@@ -23,7 +25,13 @@ enum WordSpotlightSource {
             throw WordSpotlightError.invalidSource
         }
         let query = "\(DeckSearch.term(deck.name)) mid:\(preferences.notetypeID) -is:suspended -is:buried"
-        let notes = try await noteClient.searchAll(query, nil)
+        // shortcut: only the 500 oldest notes rotate; add paged rotation if larger pools are needed.
+        let notes = try await backendOffload {
+            try notesService.searchNoteIds(query)
+                .sorted { $0.rawValue < $1.rawValue }
+                .prefix(500)
+                .compactMap { try? notesService.getNote($0) }
+        }
         try validate()
         let words = await words(from: notes, fields: fields, preferences: preferences)
         try validate()
@@ -34,8 +42,7 @@ enum WordSpotlightSource {
     nonisolated private static func words(
         from notes: [NoteRecord], fields: [String], preferences: WordSpotlightPreferences
     ) async -> [SpotlightWord] {
-        // shortcut: only the 500 oldest notes rotate; add paged rotation if larger pools are needed.
-        notes.sorted { $0.id.rawValue < $1.id.rawValue }.prefix(500).compactMap {
+        notes.compactMap {
             word(from: $0, fields: fields, preferences: preferences)
         }
     }
