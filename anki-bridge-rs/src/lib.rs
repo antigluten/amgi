@@ -49,7 +49,10 @@ pub unsafe extern "C" fn anki_open_backend(
             unsafe { *out_ptr = ptr };
             0
         }
-        Err(_e) => -1,
+        Err(e) => {
+            eprintln!("anki_open_backend failed: {e:?}");
+            -1
+        }
     }
 }
 

@@ -41,13 +41,13 @@ NIGHTLY="${NIGHTLY_TOOLCHAIN:-nightly}"
 echo "==> Using protoc: $PROTOC"
 echo "==> Deployment target: iOS $IPHONEOS_DEPLOYMENT_TARGET / watchOS $WATCHOS_DEPLOYMENT_TARGET"
 echo "==> Building for iOS device (aarch64-apple-ios)..."
-cargo build \
+cargo build --locked \
     --manifest-path "$BRIDGE_DIR/Cargo.toml" \
     --target aarch64-apple-ios \
     --release
 
 echo "==> Building for iOS simulator (aarch64-apple-ios-sim)..."
-cargo build \
+cargo build --locked \
     --manifest-path "$BRIDGE_DIR/Cargo.toml" \
     --target aarch64-apple-ios-sim \
     --release
@@ -55,7 +55,7 @@ cargo build \
 echo "==> Building for watchOS simulator (aarch64-apple-watchos-sim, build-std)..."
 # ponytail: sim slice only. The watchOS *device* target is arm64_32-apple-watchos
 # (ILP32); add it here the same way once a physical-watch build is actually needed.
-cargo "+$NIGHTLY" build \
+cargo "+$NIGHTLY" build --locked \
     -Z build-std=std,panic_abort \
     --manifest-path "$BRIDGE_DIR/Cargo.toml" \
     --target aarch64-apple-watchos-sim \
