@@ -117,6 +117,7 @@ struct DispatchTableTests {
         Method(ServiceID.sync, SyncMethod.syncStatus, "sync_status"),
         Method(ServiceID.sync, SyncMethod.syncCollection, "sync_collection"),
         Method(ServiceID.sync, SyncMethod.fullUploadOrDownload, "full_upload_or_download"),
+        Method(ServiceID.sync, SyncMethod.abortSync, "abort_sync"),
         // backend_tags_service (45)
         Method(ServiceID.tags, TagsMethod.clearUnusedTags, "clear_unused_tags"),
         Method(ServiceID.tags, TagsMethod.allTags, "all_tags"),

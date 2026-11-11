@@ -86,6 +86,7 @@ extension SyncClient: DependencyKey {
             },
             mediaSyncStatus: { try await syncService.mediaSyncStatus() },
             abortMediaSync: { try await syncService.abortMediaSync() },
+            abortSync: { try await syncService.abortSync() },
             merge: { progress in
                 let hostKey = KeychainHelper.loadHostKey() ?? ""
                 guard !hostKey.isEmpty else { throw SyncError.authFailed }
