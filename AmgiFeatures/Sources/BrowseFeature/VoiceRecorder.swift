@@ -20,6 +20,7 @@ final class VoiceRecorder {
     enum Failure: Equatable {
         case permissionDenied
         case couldNotStart
+        case endedEarly
     }
 
     /// Field index currently being recorded into, if any.
@@ -27,10 +28,17 @@ final class VoiceRecorder {
     private(set) var recordingStartedAt: Date?
     private(set) var playingURL: URL?
     var failure: Failure?
+    /// Called with the clip kept when a recording ends without the user tapping stop.
+    @ObservationIgnored var onEndedEarly: ((fieldIndex: Int, url: URL)) -> Void = { _ in }
 
     @ObservationIgnored private var recorder: AVAudioRecorder?
     @ObservationIgnored private var player: AVAudioPlayer?
     @ObservationIgnored private var playbackEndTask: Task<Void, Never>?
+    @ObservationIgnored private var interruptionTask: Task<Void, Never>?
+    @ObservationIgnored private var recorderDelegate: RecorderDelegate?
+
+    // Bounds file size and the synchronous-free memory cost of attaching a clip.
+    private static let maxDuration: TimeInterval = 600
 
     private var startRequest: UUID?
 
@@ -69,8 +77,20 @@ final class VoiceRecorder {
             try session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetoothHFP])
             try session.setActive(true)
             let recorder = try AVAudioRecorder(url: url, settings: settings)
-            guard recorder.record() else { throw CocoaError(.fileWriteUnknown) }
+            let delegate = RecorderDelegate { [weak self, weak recorder] in
+                guard let self, let recorder, self.recorder === recorder else { return }
+                self.endEarly()
+            }
+            recorder.delegate = delegate
+            guard recorder.record(forDuration: Self.maxDuration) else { throw CocoaError(.fileWriteUnknown) }
             self.recorder = recorder
+            recorderDelegate = delegate
+            interruptionTask = Task { [weak self] in
+                for await note in NotificationCenter.default.notifications(named: AVAudioSession.interruptionNotification) {
+                    let raw = note.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt
+                    if raw == AVAudioSession.InterruptionType.began.rawValue { self?.endEarly() }
+                }
+            }
             recordingFieldIndex = fieldIndex
             recordingStartedAt = .now
         } catch {
@@ -88,6 +108,9 @@ final class VoiceRecorder {
         let duration = recorder.currentTime
         recorder.stop()
         self.recorder = nil
+        recorderDelegate = nil
+        interruptionTask?.cancel()
+        interruptionTask = nil
         recordingFieldIndex = nil
         recordingStartedAt = nil
         deactivateSession()
@@ -97,6 +120,11 @@ final class VoiceRecorder {
             return nil
         }
         return (fieldIndex, recorder.url)
+    }
+
+    private func endEarly() {
+        failure = .endedEarly
+        if let clip = stop() { onEndedEarly(clip) }
     }
 
     /// Abandons an in-flight recording without keeping it.
@@ -148,6 +176,19 @@ final class VoiceRecorder {
 
     private func deactivateSession() {
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+    }
+}
+
+private final class RecorderDelegate: NSObject, AVAudioRecorderDelegate, @unchecked Sendable {
+    private let onEnd: @MainActor () -> Void
+    init(onEnd: @escaping @MainActor () -> Void) { self.onEnd = onEnd }
+
+    func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
+        Task { @MainActor [onEnd] in onEnd() }
+    }
+
+    func audioRecorderEncodeErrorDidOccur(_ recorder: AVAudioRecorder, error: Error?) {
+        Task { @MainActor [onEnd] in onEnd() }
     }
 }
 #endif

@@ -124,6 +124,17 @@ extension AddNoteView {
             } message: {
                 Text("Please try recording again.")
             }
+            .alert("Recording ended", isPresented: Binding(
+                get: { recorder.failure == .endedEarly },
+                set: { if !$0 { recorder.failure = nil } }
+            )) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("Recording was interrupted or reached the 10-minute limit. The clip so far was kept.")
+            }
+            .onAppear {
+                recorder.onEndedEarly = { model.attachAudio($0.url, toField: $0.fieldIndex) }
+            }
         #else
         AddNoteContent(model: model)
         #endif
