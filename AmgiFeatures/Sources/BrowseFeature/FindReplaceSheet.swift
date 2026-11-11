@@ -46,23 +46,31 @@ struct FindReplaceSheet: View {
                     Button("Done") { dismiss() }
                         .disabled(model.isWorking)
                 }
-                ToolbarItem(placement: .confirmationAction) {
-                    if model.isWorking {
-                        ProgressView()
-                    } else {
-                        Button("Replace") { confirming = true }
-                            .disabled(!model.canApply)
-                    }
-                }
+                ToolbarItem(placement: .confirmationAction) { replaceControl }
             }
             .interactiveDismissDisabled(model.isWorking)
             .confirmationDialog("Replace in notes?", isPresented: $confirming, titleVisibility: .visible) {
-                Button("Replace", role: .destructive) { apply() }
+                confirmActions
             } message: {
                 Text(confirmMessage)
             }
             .task { await model.loadFieldNames() }
         }
+    }
+
+    @ViewBuilder
+    private var replaceControl: some View {
+        if model.isWorking {
+            ProgressView()
+        } else {
+            Button("Replace") { confirming = true }
+                .disabled(!model.canApply)
+        }
+    }
+
+    @ViewBuilder
+    private var confirmActions: some View {
+        Button("Replace", role: .destructive) { apply() }
     }
 
     @ViewBuilder
