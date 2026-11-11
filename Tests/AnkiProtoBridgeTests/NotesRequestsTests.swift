@@ -125,6 +125,44 @@ private import SwiftProtobuf
         #expect(proto.noteIds == [99])
     }
 
+    // MARK: - fieldNamesForNotes / findAndReplace
+
+    @Test func fieldNamesForNotes_dispatches_encodes_and_decodes() throws {
+        let envelope: Request<[String]> = .fieldNamesForNotes(noteIds: [NoteID(1), NoteID(2)])
+        #expect(envelope.serviceId == ServiceID.notes)
+        #expect(envelope.methodId == NotesMethod.fieldNamesForNotes)
+        #expect(try Anki_Notes_FieldNamesForNotesRequest(serializedBytes: envelope.body).nids == [1, 2])
+
+        var resp = Anki_Notes_FieldNamesForNotesResponse()
+        resp.fields = ["Front", "Back"]
+        #expect(try envelope.decode(resp.serializedData()) == ["Front", "Back"])
+    }
+
+    @Test func findAndReplace_dispatches_and_encodes_every_option() throws {
+        let envelope: Request<Int> = .findAndReplace(
+            noteIds: [NoteID(5)], search: "a+", replacement: "b",
+            regex: true, matchCase: true, fieldName: "Front"
+        )
+        #expect(envelope.serviceId == ServiceID.search)
+        #expect(envelope.methodId == SearchMethod.findAndReplace)
+        let proto = try Anki_Search_FindAndReplaceRequest(serializedBytes: envelope.body)
+        #expect(proto.nids == [5])
+        #expect(proto.search == "a+")
+        #expect(proto.replacement == "b")
+        #expect(proto.regex)
+        #expect(proto.matchCase)
+        #expect(proto.fieldName == "Front")
+    }
+
+    @Test func findAndReplace_decodes_the_changed_note_count() throws {
+        var resp = Anki_Collection_OpChangesWithCount()
+        resp.count = 3
+        let envelope: Request<Int> = .findAndReplace(
+            noteIds: [], search: "x", replacement: "y", regex: false, matchCase: false, fieldName: ""
+        )
+        #expect(try envelope.decode(resp.serializedData()) == 3)
+    }
+
     // MARK: - searchNoteIds
 
     @Test func searchNoteIds_dispatches_to_search_service() {
