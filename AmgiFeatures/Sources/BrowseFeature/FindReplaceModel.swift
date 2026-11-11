@@ -77,7 +77,7 @@ final class FindReplaceModel {
                 noteIDs, find, literalSafeReplacement, useRegex, matchCase, fieldName
             )
             outcome = .updated(count)
-            canUndo = count > 0
+            if count > 0 { canUndo = true }
             lastApplied = applied
         } catch {
             // The engine wraps regex parse errors in <pre> tags.
@@ -85,6 +85,7 @@ final class FindReplaceModel {
                 .replacing(/<\/?pre>/, with: "")
                 .trimmingCharacters(in: .whitespacesAndNewlines)
             outcome = .failed(message)
+            // A failed engine op clears the whole undo stack.
             canUndo = false
         }
     }

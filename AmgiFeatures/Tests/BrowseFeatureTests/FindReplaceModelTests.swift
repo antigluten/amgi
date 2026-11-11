@@ -160,6 +160,42 @@ struct FindReplaceModelTests {
         #expect(!model.canUndo)
     }
 
+    private final class Script: @unchecked Sendable {
+        var results: [Result<Int, any Error>]
+        init(_ results: [Result<Int, any Error>]) { self.results = results }
+        func next() throws -> Int { try results.removeFirst().get() }
+    }
+
+    private func makeScripted(_ results: [Result<Int, any Error>]) -> FindReplaceModel {
+        let script = Script(results)
+        return withDependencies {
+            $0.noteClient.findAndReplace = { _, _, _, _, _, _ in try script.next() }
+        } operation: {
+            FindReplaceModel(noteIDs: [NoteID(1)])
+        }
+    }
+
+    @Test func failedSecondReplaceDropsTheFirstUndo() async {
+        let model = makeScripted([.success(1), .failure(CocoaError(.fileReadUnknown))])
+        model.find = "a"
+        await model.apply()
+        model.find = "b"
+        await model.apply()
+        if case .failed = model.outcome {} else { Issue.record("expected a failed outcome") }
+        // The engine clears the whole undo stack when an op fails.
+        #expect(!model.canUndo)
+    }
+
+    @Test func zeroMatchSecondReplaceKeepsTheFirstUndo() async {
+        let model = makeScripted([.success(1), .success(0)])
+        model.find = "a"
+        await model.apply()
+        model.find = "b"
+        await model.apply()
+        #expect(model.outcome == .updated(0))
+        #expect(model.canUndo)
+    }
+
     @Test func undoCallsEngineOnceAndClearsUndo() async {
         let calls = Calls()
         let model = makeModel(ids: [NoteID(1)], calls: calls)
