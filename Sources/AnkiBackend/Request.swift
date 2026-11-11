@@ -22,6 +22,7 @@ public struct Request<Response: Sendable>: Sendable {
     package let methodId: UInt32
     package let encode: @Sendable () throws -> Data
     package let decode: @Sendable (Data) throws -> Response
+    package var bypassesLock = false
 
     package init(
         serviceId: UInt32,
