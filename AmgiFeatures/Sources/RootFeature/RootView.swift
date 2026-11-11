@@ -9,7 +9,6 @@ public import SwiftUI
 import AppCore
 import AppShared
 import Theme
-import AnkiClients
 import AnkiKit
 import Dependencies
 import Foundation
@@ -39,7 +38,6 @@ public struct RootView: View {
     @State private var showImport = false
     @State private var refreshID = UUID()
     @State private var lastLoad = Date()
-    @Dependency(\.statsClient) private var statsClient
 
     @Shared(.appStorage(ReaderPreferences.Keys.showTab))
     private var showReaderTab: Bool = true
@@ -62,7 +60,7 @@ public struct RootView: View {
                 // rollover; due counts and today's stats would otherwise
                 // stay frozen until the next mutation (#64).
                 if oldPhase == .background, newPhase != .background {
-                    Task { await refreshIfDayRolledOver(from: oldPhase, to: newPhase) }
+                    refreshIfDayRolledOver()
                 }
             }
             .onOpenURL { url in
@@ -89,11 +87,11 @@ public struct RootView: View {
         }
     }
 
-    private func refreshIfDayRolledOver(from old: ScenePhase, to new: ScenePhase) async {
-        guard let hour = try? await statsClient.fetchGraphs("", 1).rolloverHour else { return }
+    private func refreshIfDayRolledOver() {
         let now = Date()
         guard AnkiDay.shouldRefreshOnResume(
-            from: old, to: new, lastLoad: lastLoad, now: now, rolloverHour: hour
+            lastLoad: lastLoad, now: now,
+            rolloverHour: WidgetSnapshotStore.read(deckId: 0)?.forecast?.rolloverHour
         ) else { return }
         lastLoad = now
         store.invalidateAll()
