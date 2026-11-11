@@ -457,9 +457,9 @@ import AnkiServices
     // Suspending, burying, forgetting, deleting the note and setting a due date
     // all report `shouldAdvance`. The session answers every one of them the same
     // way: throw the queue snapshot away, ask the deck what it yields now, and
-    // take that card. See Documentation/adr/0001-live-session-total.md.
+    // take that card.
 
-    /// Acceptance 1: the next card the deck yields appears, and the total is
+    /// The next card the deck yields appears, and the total is
     /// reduced by the card that left.
     @Test func requeueAdvancesToTheNextCardAndShrinksTheLiveTotal() async throws {
         let c1 = stubCard(1, note: 100)
@@ -528,7 +528,7 @@ import AnkiServices
         }
     }
 
-    /// Acceptance 2: a note-level action takes every card of that note out in
+    /// A note-level action takes every card of that note out in
     /// one step, and the caption names the real number (`ReviewStudyNotice` puts
     /// `cardsTakenOutOfStudyCount` into words; this is the number it must name).
     @Test func noteLevelTakeOutRemovesEveryCardOfTheNoteAtOnce() async throws {
@@ -560,7 +560,7 @@ import AnkiServices
         }
     }
 
-    /// Acceptance 3 / R5: the last remaining card going out ends the session on
+    /// The last remaining card going out ends the session on
     /// the finished surface — not an error state — and nothing may be claimed
     /// reviewed.
     @Test func takingOutTheLastRemainingCardEndsTheSessionFinished() async throws {
@@ -587,7 +587,7 @@ import AnkiServices
         }
     }
 
-    /// Acceptance 4 / R6: a card the deck hands straight back — "Forget Card"
+    /// A card the deck hands straight back — "Forget Card"
     /// re-queues it as new — is never reported as gone, and it is a different
     /// card now, so it has to be prepared again rather than reused from the
     /// prefetch cache.
@@ -681,7 +681,7 @@ import AnkiServices
         }
     }
 
-    /// Acceptance 6: the hazard `answer()`'s own comment describes. A failed
+    /// The hazard `answer()`'s own comment describes. A failed
     /// re-gather leaves the card in front of the user and says so; it never
     /// silently drops a card or claims one gone.
     @Test func failedRequeueLeavesTheCardOnScreenAndSaysSo() async throws {
@@ -712,7 +712,7 @@ import AnkiServices
         }
     }
 
-    /// Acceptance 5 / R4: a re-queue changes no card and grades nothing. The
+    /// A re-queue changes no card and grades nothing. The
     /// graded counts are exactly what the answers produced, before and after.
     @Test func requeueGradesNothingAndLeavesTheGradedCountsAlone() async throws {
         let c1 = stubCard(1, note: 100)
@@ -748,6 +748,42 @@ import AnkiServices
                     "the one graded card plus the one card the deck still yields, nothing else")
             #expect(s.cardPosition == 2)
             #expect(s.studyNotice?.cardsTakenOutOfStudyCount == 1)
+        }
+    }
+
+    /// Undo reverses the last collection operation. After a take-out that is the
+    /// suspend, not the answer, so the answer's Undo and its stats rollback go.
+    @Test func requeueInvalidatesUndoOfThePreviousAnswer() async throws {
+        let c1 = stubCard(1, note: 100)
+        let c2 = stubCard(2, note: 101)
+        let c3 = stubCard(3, note: 102)
+        let gathers = Tally()
+
+        try await withDependencies { deps in
+            stubReviewClients(&deps, gathers: gathers) { gather in
+                switch gather {
+                case 1: stubQueue([c1, c2, c3], new: 3)
+                case 2: stubQueue([c2, c3], new: 2)
+                default: stubQueue([c3], new: 1)
+                }
+            }
+        } operation: {
+            let s = ReviewSession(deckId: DeckID(1))
+            s.start()
+            try await pollUntil { !s.isAdvancing }
+
+            s.answer(rating: .good)
+            try await pollUntil { !s.isAdvancing }
+            #expect(s.canUndo)
+
+            s.requeueAfterCardRemoval()
+            try await pollUntil { !s.isAdvancing }
+
+            #expect(!s.canUndo)
+            let graded = s.sessionStats
+            s.undo()
+            #expect(!s.isAdvancing, "undo is a no-op, so no transition starts")
+            #expect(s.sessionStats == graded)
         }
     }
 

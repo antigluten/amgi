@@ -366,6 +366,9 @@ public final class ReviewSession {
             return
         }
         isAdvancing = true
+        // The take-out is now the last collection operation, so Undo no longer targets the answer.
+        canUndo = false
+        lastRating = nil
         // The prefetch is rendering a card that has just left study. A typed-answer
         // diff already checks the card it was computed against before it lands, and
         // the advance below is what flips `showAnswer` off.

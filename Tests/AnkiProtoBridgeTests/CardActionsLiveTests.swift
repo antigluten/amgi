@@ -60,8 +60,7 @@ import AnkiKit
         #expect(try backend.invoke(.getCard(id: cardIds[1])).queue == -3)
     }
 
-    /// The behaviour the whole re-queue design rests on (see
-    /// `Documentation/adr/0001-live-session-total.md`): a card that is taken out
+    /// The behaviour the whole re-queue design rests on: a card that is taken out
     /// of study is simply absent from the *next* gathering, the counts are
     /// derived from that same gathering so they drop with it, and the collection
     /// undo stack is the only way back — nothing in the wrapped surface
