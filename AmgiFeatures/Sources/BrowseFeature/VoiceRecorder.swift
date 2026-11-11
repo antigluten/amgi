@@ -28,7 +28,6 @@ final class VoiceRecorder {
     private(set) var recordingStartedAt: Date?
     private(set) var playingURL: URL?
     var failure: Failure?
-    /// Called with the clip kept when a recording ends without the user tapping stop.
     @ObservationIgnored var onEndedEarly: ((fieldIndex: Int, url: URL)) -> Void = { _ in }
 
     @ObservationIgnored private var recorder: AVAudioRecorder?
@@ -37,7 +36,6 @@ final class VoiceRecorder {
     @ObservationIgnored private var interruptionTask: Task<Void, Never>?
     @ObservationIgnored private var recorderDelegate: RecorderDelegate?
 
-    // Bounds file size and the synchronous-free memory cost of attaching a clip.
     private static let maxDuration: TimeInterval = 600
 
     private var startRequest: UUID?
@@ -105,7 +103,8 @@ final class VoiceRecorder {
     /// short to be intentional (an accidental tap).
     func stop() -> (fieldIndex: Int, url: URL)? {
         guard let recorder, let fieldIndex = recordingFieldIndex else { return nil }
-        let duration = recorder.currentTime
+        // currentTime reads 0 once the system has stopped the recorder (duration cap, encode error).
+        let duration = recordingStartedAt.map { Date.now.timeIntervalSince($0) } ?? 0
         recorder.stop()
         self.recorder = nil
         recorderDelegate = nil
@@ -123,8 +122,9 @@ final class VoiceRecorder {
     }
 
     private func endEarly() {
+        guard let clip = stop() else { return }
         failure = .endedEarly
-        if let clip = stop() { onEndedEarly(clip) }
+        onEndedEarly(clip)
     }
 
     /// Abandons an in-flight recording without keeping it.
@@ -187,7 +187,7 @@ private final class RecorderDelegate: NSObject, AVAudioRecorderDelegate, @unchec
         Task { @MainActor [onEnd] in onEnd() }
     }
 
-    func audioRecorderEncodeErrorDidOccur(_ recorder: AVAudioRecorder, error: Error?) {
+    func audioRecorderEncodeErrorDidOccur(_ recorder: AVAudioRecorder, error: (any Error)?) {
         Task { @MainActor [onEnd] in onEnd() }
     }
 }
