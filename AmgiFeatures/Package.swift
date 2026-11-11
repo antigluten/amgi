@@ -83,7 +83,6 @@ let package = Package(
                 .product(name: "AnkiKit", package: "amgi"),
                 .product(name: "AnkiClients", package: "amgi"),
                 .product(name: "AnkiServices", package: "amgi"),
-                .product(name: "AmgiCardWeb", package: "amgi"),
                 .product(name: "Theme", package: "AmgiUI"),
                 .product(name: "UI", package: "AmgiUI"),
                 .product(name: "Dependencies", package: "swift-dependencies"),

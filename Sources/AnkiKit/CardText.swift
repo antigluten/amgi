@@ -1,6 +1,6 @@
 //
 //  CardText.swift
-//  AmgiCardWeb
+//  AnkiKit
 //
 //  Created by Vladimir Gusev on 20.08.2026.
 //
@@ -16,8 +16,8 @@ import Foundation
 /// and the watch's sound pattern was case-insensitive where the others were
 /// not, so audio extraction differed by surface.
 ///
-/// `AmgiCardWeb` is Foundation-only and already linked by every consumer,
-/// including the watch, so this adds no dependency edges.
+/// `AnkiKit` is Foundation-only and linked by every consumer, including
+/// the watch and the widget.
 public enum CardText {
     /// Anki's audio marker. Case-insensitive: real collections contain
     /// `[Sound:…]`, and the watch already matched it that way.

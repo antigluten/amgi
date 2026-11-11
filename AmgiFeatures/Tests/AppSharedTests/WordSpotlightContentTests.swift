@@ -53,7 +53,7 @@ import Testing
             $0.notetypesClient.get = { _ in notetype }
             $0.noteClient.searchAll = { query, limit in
                 #expect(query == #"deck:"Vocabulary" mid:1 -is:suspended -is:buried"#)
-                #expect(limit == 500)
+                #expect(limit == nil)
                 return [sample]
             }
         } operation: {

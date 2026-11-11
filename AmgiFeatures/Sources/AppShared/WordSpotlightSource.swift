@@ -1,5 +1,4 @@
 import AppCore
-import AmgiCardWeb
 import AnkiClients
 import AnkiKit
 import Dependencies
@@ -24,8 +23,7 @@ enum WordSpotlightSource {
             throw WordSpotlightError.invalidSource
         }
         let query = "\(DeckSearch.term(deck.name)) mid:\(preferences.notetypeID) -is:suspended -is:buried"
-        // shortcut: cap full-note reads at the 500 oldest notes; add paged rotation if larger pools are needed.
-        let notes = try await noteClient.searchAll(query, 500)
+        let notes = try await noteClient.searchAll(query, nil)
         try validate()
         let words = await words(from: notes, fields: fields, preferences: preferences)
         try validate()
@@ -36,7 +34,8 @@ enum WordSpotlightSource {
     nonisolated private static func words(
         from notes: [NoteRecord], fields: [String], preferences: WordSpotlightPreferences
     ) async -> [SpotlightWord] {
-        notes.sorted { $0.id.rawValue < $1.id.rawValue }.compactMap {
+        // shortcut: only the 500 oldest notes rotate; add paged rotation if larger pools are needed.
+        notes.sorted { $0.id.rawValue < $1.id.rawValue }.prefix(500).compactMap {
             word(from: $0, fields: fields, preferences: preferences)
         }
     }

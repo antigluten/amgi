@@ -47,7 +47,7 @@ extension NoteClient: DependencyKey {
             searchAll: { query, limit in
                 try await backendOffload {
                     let ids = try notes.searchNoteIds(query)
-                    let bounded = limit.map { Array(ids.sorted { $0.rawValue < $1.rawValue }.prefix($0)) } ?? ids
+                    let bounded = Array(ids.prefix(limit ?? Int.max))
                     var results: [NoteRecord] = []
                     results.reserveCapacity(bounded.count)
                     // No lazy placeholders — every record gets a real

@@ -20,8 +20,7 @@ public struct NoteClient: Sendable {
     public var search: @Sendable (_ query: String, _ limit: Int?) async throws -> [NoteRecord]
     /// Eager search — returns full NoteRecords for every hit, no lazy
     /// placeholders. Slower for large results but required when the
-    /// caller reads `flds` immediately. A `limit` keeps the lowest note
-    /// ids (oldest notes), so the capped set doesn't follow browser sort.
+    /// caller reads `flds` immediately.
     public var searchAll: @Sendable (_ query: String, _ limit: Int?) async throws -> [NoteRecord]
     public var save: @Sendable (_ note: NoteRecord) async throws -> Void
     public var delete: @Sendable (_ noteId: NoteID) async throws -> Void
