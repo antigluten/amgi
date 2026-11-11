@@ -2,7 +2,9 @@ import AppCore
 import Foundation
 package import SwiftUI
 import Theme
+#if canImport(UIKit)
 import UIKit
+#endif
 import AppShared
 import AnkiKit
 
@@ -170,10 +172,12 @@ package struct WordSpotlightSettingsView: View {
             if model.controller.notificationsDenied {
                 Text("Notifications are disabled in system settings.")
                     .foregroundStyle(palette.textSecondary)
+                #if canImport(UIKit)
                 Button("Open Notification Settings") {
                     guard let url = URL(string: UIApplication.openNotificationSettingsURLString) else { return }
                     UIApplication.shared.open(url)
                 }
+                #endif
             }
         } footer: {
             Text("Optional, silent reminders. Open Amgi at least every two weeks to prepare more words. Time-zone changes take effect next time you open the app.")
