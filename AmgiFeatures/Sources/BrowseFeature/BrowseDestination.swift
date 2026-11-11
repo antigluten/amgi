@@ -26,6 +26,8 @@ enum BrowseDestination {
     case addNote
     case addImageOcclusion
     case batchTag
+    case findReplaceSelected
+    case findReplaceAll
     case deleteSelected
     case deleteNote(NoteRecord)
 }

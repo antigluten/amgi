@@ -68,6 +68,62 @@ import AnkiKit
         }
     }
 
+    @Test func findAndReplace_scopesByNotesAndFieldAndUndoes() throws {
+        try withScratchCollection("notes-find-replace") { backend, _ in
+            let a = try addBasicNote(backend, front: "cat sat", back: "cat")
+            let b = try addBasicNote(backend, front: "cat ran", back: "cat")
+            #expect(try backend.invoke(.fieldNamesForNotes(noteIds: [a])).sorted() == ["Back", "Front"])
+
+            let selected = try backend.invoke(.findAndReplace(
+                noteIds: [a], search: "cat", replacement: "dog",
+                regex: false, matchCase: false, fieldName: "Front"
+            ))
+            #expect(selected == 1)
+            #expect(try backend.invoke(.getNote(id: a)).flds == "dog sat\(Self.separator)cat")
+            #expect(try backend.invoke(.getNote(id: b)).flds == "cat ran\(Self.separator)cat")
+
+            try backend.invoke(.undoLastAction)
+            #expect(try backend.invoke(.getNote(id: a)).flds == "cat sat\(Self.separator)cat")
+
+            let whole = try backend.invoke(.findAndReplace(
+                noteIds: [], search: "CAT", replacement: "dog",
+                regex: false, matchCase: true, fieldName: ""
+            ))
+            #expect(whole == 0, "match case must skip lowercase text")
+
+            let regex = try backend.invoke(.findAndReplace(
+                noteIds: [], search: "c.t", replacement: "dog",
+                regex: true, matchCase: false, fieldName: ""
+            ))
+            #expect(regex == 2)
+            #expect(try backend.invoke(.getNote(id: b)).flds == "dog ran\(Self.separator)dog")
+        }
+    }
+
+    @Test func findAndReplace_literalDollarReplacementWithEscape() throws {
+        try withScratchCollection("notes-find-replace-dollar") { backend, _ in
+            let id = try addBasicNote(backend, front: "price", back: "x")
+            _ = try backend.invoke(.findAndReplace(
+                noteIds: [id], search: "price", replacement: "$$5",
+                regex: false, matchCase: false, fieldName: "Front"
+            ))
+            #expect(try backend.invoke(.getNote(id: id)).flds == "$5\(Self.separator)x")
+        }
+    }
+
+    @Test func findAndReplace_invalidRegexThrows() throws {
+        try withScratchCollection("notes-find-replace-bad") { backend, _ in
+            _ = try addBasicNote(backend, front: "cat", back: "x")
+            #expect {
+                try backend.invoke(.findAndReplace(
+                    noteIds: [], search: "(", replacement: "", regex: true, matchCase: false, fieldName: ""
+                ))
+            } throws: { error in
+                (error as? BackendError)?.message.hasPrefix("<pre>") == true
+            }
+        }
+    }
+
     @Test func updateNote_thenRemoveNote() throws {
         try withScratchCollection("notes-update") { backend, _ in
             let id = try addBasicNote(backend, front: "before", back: "back")
