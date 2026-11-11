@@ -141,6 +141,10 @@ struct LookupStructuredContentView: UIViewRepresentable {
 
         // MARK: WKNavigationDelegate
 
+        func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction) async -> WKNavigationActionPolicy {
+            navigationAction.request.url?.scheme?.lowercased() == "about" ? .allow : .cancel
+        }
+
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             // One measurement now, then a ResizeObserver reports every
             // subsequent change. This used to be three polls at 0, 50ms and
@@ -189,7 +193,8 @@ struct LookupStructuredContentView: UIViewRepresentable {
                 onLookupRequested?(text)
             case "openLink":
                 guard let urlString = message.body as? String,
-                      let url = URL(string: urlString) else { return }
+                      let url = URL(string: urlString),
+                      ["http", "https", "mailto"].contains(url.scheme?.lowercased() ?? "") else { return }
                 UIApplication.shared.open(url)
             default:
                 return
@@ -264,31 +269,32 @@ private extension LookupStructuredContentView.Coordinator {
 
     // MARK: HTML
 
+    static func scriptLiteral(_ value: some Encodable, fallback: String) -> String {
+        guard let data = try? JSONEncoder().encode(value),
+              let json = String(data: data, encoding: .utf8) else { return fallback }
+        return json.replacingOccurrences(of: "<", with: "\\u003c")
+    }
+
     static func makeHTML(
         dictionary: String,
         glossaries: [DictionaryLookupGlossary],
         dictionaryStyle: String,
         scanLength: Int
     ) -> String {
-        let dictionaryData = (try? JSONEncoder().encode(glossaries))
-            .flatMap { String(data: $0, encoding: .utf8) } ?? "[]"
-        let escapedDictionary = dictionary
-            .replacingOccurrences(of: "\\", with: "\\\\")
-            .replacingOccurrences(of: "\"", with: "\\\"")
-        // Backticks would close the template literal we drop the
-        // dictionary CSS into below — escape them.
-        let escapedStyle = dictionaryStyle
-            .replacingOccurrences(of: "\\", with: "\\\\")
-            .replacingOccurrences(of: "`", with: "\\`")
+        let dictionaryData = scriptLiteral(glossaries, fallback: "[]")
+        let dictionaryName = scriptLiteral(dictionary, fallback: "\"\"")
+        let dictionaryCSS = scriptLiteral(dictionaryStyle, fallback: "\"\"")
+        let nonce = UUID().uuidString
 
         return """
         <!doctype html>
         <html>
         <head>
         <meta charset="utf-8">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src image: data: blob:; media-src audio: data: blob:; connect-src audio: image:; style-src 'unsafe-inline'; script-src 'nonce-\(nonce)'">
         <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
         <style>\(ReaderLookupStructuredContentResources.popupCSS)</style>
-        <script>\(ReaderLookupStructuredContentResources.popupJS)</script>
+        <script nonce="\(nonce)">\(ReaderLookupStructuredContentResources.popupJS)</script>
         <style>
         body { padding: 0; margin: 0; }
         #content { padding: 0; }
@@ -296,12 +302,13 @@ private extension LookupStructuredContentView.Coordinator {
         </style>
         </head>
         <body>
-        <div id="content" data-dictionary="\(escapedDictionary)"></div>
-        <script>
+        <div id="content"></div>
+        <script nonce="\(nonce)">
         (function() {
-            const dictName = "\(escapedDictionary)";
+            const dictName = \(dictionaryName);
             const glossaryItems = \(dictionaryData);
-            window.dictionaryStyles = { [dictName]: `\(escapedStyle)` };
+            document.getElementById('content').dataset.dictionary = dictName;
+            window.dictionaryStyles = { [dictName]: \(dictionaryCSS) };
             window.compactGlossaries = false;
             window.lookupScanLength = \(max(1, scanLength));
 
