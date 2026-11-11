@@ -86,12 +86,26 @@ let package = Package(
                 .product(name: "Theme", package: "AmgiUI"),
                 .product(name: "UI", package: "AmgiUI"),
                 .product(name: "Dependencies", package: "swift-dependencies"),
+                .product(name: "DependenciesMacros", package: "swift-dependencies"),
             ],
             swiftSettings: sharedSwiftSettings
         ),
         .testTarget(
             name: "AppSharedTests",
             dependencies: ["AppShared"],
+            swiftSettings: sharedSwiftSettings
+        ),
+        .testTarget(
+            name: "SettingsFeatureTests",
+            dependencies: [
+                "SettingsFeature",
+                "AppCore",
+                "AppShared",
+                .product(name: "AnkiClients", package: "amgi"),
+                .product(name: "AnkiKit", package: "amgi"),
+                .product(name: "AnkiServices", package: "amgi"),
+                .product(name: "Dependencies", package: "swift-dependencies"),
+            ],
             swiftSettings: sharedSwiftSettings
         ),
         .target(

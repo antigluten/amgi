@@ -16,6 +16,7 @@ import ReaderFeature
 import ReviewFeature
 import Sharing
 import SyncFeature
+import SettingsFeature
 
 /// The app's whole view composition. The host target supplies only `@main`.
 ///
@@ -37,6 +38,8 @@ public struct RootView: View {
     @State private var pendingReviewDeckId: DeckID?
     @State private var showImport = false
     @State private var refreshID = UUID()
+    @State private var wordSheet: WordSpotlightSheet?
+    private let wordSpotlight = WordSpotlightController.shared
     @State private var lastLoad = Date()
 
     @Shared(.appStorage(ReaderPreferences.Keys.showTab))
@@ -51,10 +54,23 @@ public struct RootView: View {
             // itself, so `pendingReviewDeckId` needs the explicit clear
             // below.
             .id(accountStore.selectedID)
-            .onChange(of: accountStore.selectedID) { pendingReviewDeckId = nil }
+            .onChange(of: accountStore.selectedID) {
+                pendingReviewDeckId = nil
+                wordSheet = nil
+            }
+            .task(id: store.generation) {
+                guard AmgiRoot.startupError == nil else { return }
+                await wordSpotlight.refresh()
+            }
+            .onChange(of: wordSpotlight.pendingLink, initial: true) { _, link in
+                guard let link else { return }
+                wordSheet = .word(link)
+                wordSpotlight.pendingLink = nil
+            }
             .onChange(of: scenePhase) { oldPhase, newPhase in
                 if newPhase == .active {
                     Task { await writeWidgetSnapshot() }
+                    Task { await wordSpotlight.refreshIfNeeded() }
                 }
                 // A suspended app can resume past the scheduler's day
                 // rollover; due counts and today's stats would otherwise
@@ -64,6 +80,14 @@ public struct RootView: View {
                 }
             }
             .onOpenURL { url in
+                if let link = WordSpotlightLink(url: url) {
+                    wordSheet = .word(link)
+                    return
+                }
+                if url.scheme == "amgi", url.host == "word-settings" {
+                    wordSheet = .settings
+                    return
+                }
                 guard url.scheme == "amgi",
                       url.host == "review",
                       let deckIdStr = URLComponents(url: url, resolvingAgainstBaseURL: false)?
@@ -72,8 +96,26 @@ public struct RootView: View {
                 else { return }
                 pendingReviewDeckId = DeckID(deckId)
             }
+            .sheet(item: $wordSheet) { spotlightSheet($0) }
             .themedRoot()
             .environment(\.appFont, AppFont(rawValue: appFontRaw) ?? .system)
+    }
+
+    private func spotlightSheet(_ destination: WordSpotlightSheet) -> some View {
+        NavigationStack {
+            Group {
+                switch destination {
+                case .settings: WordSpotlightSettingsView()
+                case .word(let link): WordSpotlightDetailView(link: link)
+                }
+            }
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") { wordSheet = nil }
+                        .accessibilityIdentifier("wordSpotlight.dismiss")
+                }
+            }
+        }
     }
 
     @ViewBuilder
@@ -128,5 +170,17 @@ public struct RootView: View {
         }
         .environment(\.lookupPopup, ReaderLookupPopup())
         .environment(\.dictionarySettings, ReaderDictionarySettings())
+    }
+}
+
+private enum WordSpotlightSheet: Identifiable {
+    case settings
+    case word(WordSpotlightLink)
+
+    var id: String {
+        switch self {
+        case .settings: "settings"
+        case .word(let link): link.url?.absoluteString ?? "word"
+        }
     }
 }

@@ -12,6 +12,7 @@ import WebKit
 import UIKit
 import AVFoundation
 import AmgiCardWeb
+import AnkiKit
 
 extension CardWebView {
     /// Builds the static HTML frame page (no card content). Card HTML is injected

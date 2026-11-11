@@ -1,12 +1,12 @@
 //
 //  CardTextTests.swift
-//  AmgiCardWebTests
+//  AnkiKitTests
 //
 //  Created by Vladimir Gusev on 20.08.2026.
 //
 
 import Testing
-@testable import AmgiCardWeb
+@testable import AnkiKit
 
 /// `CardText` replaced four mutually inequivalent HTML strippers and three
 /// spellings of the `[sound:]` pattern, so these pin the behaviour the

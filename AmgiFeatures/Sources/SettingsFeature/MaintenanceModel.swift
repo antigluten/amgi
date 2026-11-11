@@ -6,6 +6,7 @@
 //
 
 import AppCore
+import AppShared
 import AnkiBackend
 import AnkiServices
 import AnkiSync
@@ -61,6 +62,7 @@ final class MaintenanceModel {
             // Already closed, or never opened — deletion is still correct.
         }
         KeychainHelper.deleteAll(forProfile: profileID)
+        WordSpotlightController.shared.reset(profileID: profileID)
         do {
             try FileManager.default.removeItem(at: profileDirectory)
             statusMessage = "Reset complete. Please restart the app."
