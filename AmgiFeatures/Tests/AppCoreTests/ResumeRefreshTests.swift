@@ -9,9 +9,10 @@ import Testing
         return cal
     }
 
-    private func date(_ day: Int, _ hour: Int, _ second: Int = 0) -> Date {
+    private func date(_ day: Int, _ hour: Int, _ minute: Int = 0, _ second: Int = 0) -> Date {
         DateComponents(
-            calendar: calendar, year: 2026, month: 7, day: day, hour: hour, second: second
+            calendar: calendar, year: 2026, month: 7, day: day,
+            hour: hour, minute: minute, second: second
         ).date!
     }
 
@@ -34,7 +35,7 @@ import Testing
     }
 
     @Test func oneSecondBeforeRolloverDoesNotRefresh() {
-        #expect(!should(lastLoad: date(10, 22), now: date(11, 3, 59)))
+        #expect(!should(lastLoad: date(10, 22), now: date(11, 3, 59, 59)))
     }
 
     @Test func multiDayGapRefreshes() {
