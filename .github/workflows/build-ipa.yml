@@ -2,9 +2,7 @@ name: Build Unsigned IPA
 
 on:
   workflow_dispatch:
-  pull_request:
   push:
-    branches: [main, develop]
     tags:
       - 'v*'
 
