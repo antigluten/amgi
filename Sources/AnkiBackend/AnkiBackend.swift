@@ -228,12 +228,14 @@ public final class AnkiBackend: Sendable {
 
     // MARK: - Raw FFI
 
-    private func callRaw(service: UInt32, method: UInt32, input: Data) throws(BackendError) -> Data {
+    private func callRaw(
+        service: UInt32, method: UInt32, input: Data, bypassesLock: Bool = false
+    ) throws(BackendError) -> Data {
         let t0 = DispatchTime.now().uptimeNanoseconds
-        lock.lock()
+        if !bypassesLock { lock.lock() }
         let tLocked = DispatchTime.now().uptimeNanoseconds
         defer {
-            lock.unlock()
+            if !bypassesLock { lock.unlock() }
             Self.perfLog.debug(
                 """
                 rpc svc=\(service, privacy: .public) m=\(method, privacy: .public) \
@@ -309,7 +311,8 @@ public final class AnkiBackend: Sendable {
             bytes = try backend.callRaw(
                 service: request.serviceId,
                 method: request.methodId,
-                input: input
+                input: input,
+                bypassesLock: request.bypassesLock
             )
         } catch {
             return .failure(error)

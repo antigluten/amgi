@@ -127,6 +127,7 @@ final class EPUBChapterPageController: UIViewController {
         userContent.add(bridge, name: "wordTap")
 
         config.userContentController = userContent
+        config.defaultWebpagePreferences.allowsContentJavaScript = false
         config.suppressesIncrementalRendering = false
         config.defaultWebpagePreferences.preferredContentMode = .mobile
 
@@ -405,6 +406,11 @@ final class ScriptBridge: NSObject, WKScriptMessageHandler, WKNavigationDelegate
     }
 
     // MARK: WKNavigationDelegate
+
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction) async -> WKNavigationActionPolicy {
+        let url = navigationAction.request.url
+        return url?.isFileURL == true || url?.scheme?.lowercased() == "about" ? .allow : .cancel
+    }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         owner?.markInitialLoadFinished()

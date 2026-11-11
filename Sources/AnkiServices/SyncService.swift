@@ -22,6 +22,7 @@ public struct SyncService: Sendable {
     public var fullSync: @Sendable (_ endpoint: String, _ hostKey: String, _ direction: SyncDirection, _ syncMedia: Bool) async throws -> Void
     public var mediaSyncStatus: @Sendable () async throws -> MediaSyncStatus
     public var abortMediaSync: @Sendable () async throws -> Void
+    public var abortSync: @Sendable () async throws -> Void
     public var login: @Sendable (_ endpoint: String, _ username: String, _ password: String) async throws -> String
 }
 
@@ -102,6 +103,13 @@ extension SyncService: DependencyKey {
             abortMediaSync: {
                 do {
                     try await backend.invoke(.abortMediaSync)
+                } catch let error as BackendError {
+                    throw SyncError(message: error.message)
+                }
+            },
+            abortSync: {
+                do {
+                    try await backend.invoke(.abortSync)
                 } catch let error as BackendError {
                     throw SyncError(message: error.message)
                 }
