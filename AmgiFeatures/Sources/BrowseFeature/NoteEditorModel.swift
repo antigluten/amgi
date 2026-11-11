@@ -7,6 +7,7 @@
 
 import OSLog
 import AppCore
+import AppShared
 import AnkiBackend
 import AnkiKit
 import AnkiClients
@@ -26,6 +27,7 @@ final class NoteEditorModel {
     var isSaving = false
 
     @ObservationIgnored @Dependency(\.noteClient) private var noteClient
+    @ObservationIgnored @Dependency(\.collectionStore) private var store
     @ObservationIgnored @Dependency(\.notetypesService) private var notetypesService
     @ObservationIgnored private let note: NoteRecord
 
@@ -76,6 +78,7 @@ final class NoteEditorModel {
 
         do {
             try await noteClient.save(updatedNote)
+            store.apply(CollectionChanges(note: true))
             return true
         } catch {
             return false
