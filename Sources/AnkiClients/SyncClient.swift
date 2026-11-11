@@ -16,6 +16,7 @@ public struct SyncClient: Sendable {
     public var fullSync: @Sendable (_ direction: SyncDirection) async throws -> Void
     public var mediaSyncStatus: @Sendable () async throws -> MediaSyncStatus
     public var abortMediaSync: @Sendable () async throws -> Void
+    public var abortSync: @Sendable () async throws -> Void
 
     /// Merge local + server collections by:
     /// 1. exporting local as a temporary .apkg

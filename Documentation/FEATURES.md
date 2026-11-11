@@ -33,7 +33,7 @@ What Amgi does today. For how it is put together, see [ARCHITECTURE.md](ARCHITEC
 - **EPUB reader** — read books chapter by chapter with native paging, vertical writing mode, and Latin/CJK auto-detection.
 - **Offline dictionary lookup** — tap any word for a Yomitan-compatible lookup, with chained popups, search history, and per-dictionary collapsed memory.
 - **Text-to-speech** — a speak button with language-aware voice selection.
-- **Bundled Korean fonts** — Sarasa Mono K, Nanum Myeongjo, Nanum Gothic.
+- **Bundled Korean fonts** — Nanum Myeongjo, Nanum Gothic.
 - **Progress sync** — reading position travels with the collection across devices.
 
 ## Sync and accounts
