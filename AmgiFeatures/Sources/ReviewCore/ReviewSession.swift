@@ -23,6 +23,12 @@ public enum ResolvedRenderMode: Equatable, Sendable {
     case html
 }
 
+/// How many cards the session asks the engine to gather at a time.
+///
+/// File scope rather than a static of the class: every gather happens inside a
+/// `Task.detached`, and a MainActor-isolated static is not reachable from there.
+private let queueFetchLimit: Int32 = 200
+
 @Observable @MainActor
 public final class ReviewSession {
     public let deckId: DeckID
@@ -61,6 +67,12 @@ public final class ReviewSession {
     public private(set) var isAdvancing: Bool = false
     public var answerError: String?
     public private(set) var startError: String?
+    /// A re-queue whose re-gather failed. Unlike a failed answer there is nothing
+    /// to roll back: the card stays on screen and the counts stay where the
+    /// engine last said they were. Surfaced, never swallowed.
+    public var requeueError: String?
+    /// What the last re-queue may tell the user, or nil when it may say nothing.
+    public private(set) var studyNotice: StudyNotice?
 
     var reviewStartTime: ContinuousClock.Instant = .now
     var cardQueue: [QueuedReviewCard] = []
@@ -69,6 +81,16 @@ public final class ReviewSession {
     private var lastRating: Rating? = nil
     private var preparedNext: (id: CardID, card: PreparedCard)?
     @ObservationIgnored private var prefetchTask: Task<Void, Never>?
+    private var studyNoticeSequence: Int = 0
+    @ObservationIgnored private var studyNoticeDismissTask: Task<Void, Never>?
+    /// A take-out asked for while a transition was in flight. The engine-side
+    /// action has already landed, so the session's re-read waits for that
+    /// transition rather than being dropped — see `finishTransition`.
+    @ObservationIgnored private var pendingRequeue = false
+
+    /// How long the take-out caption stays up: the same beat as the sync toast's
+    /// success message, long enough to read and gone before it becomes chrome.
+    private static let studyNoticeDisplay: Duration = .seconds(2)
 
     var renderedFrontHTML: String = ""
     var renderedBackHTML: String = ""
@@ -150,20 +172,15 @@ public final class ReviewSession {
         let cardRendering = self.cardRendering
         let deckId = self.deckId
         Task {
-            defer { isAdvancing = false }
+            defer { finishTransition() }
             do {
                 let (queue, name) = try await Task.detached { () -> (QueuedCardsResult, String) in
                     try decks.setCurrentDeck(deckId)
                     let name = (try? decks.getCurrentDeck().name) ?? ""
-                    return (try scheduler.getQueuedCards(200), name)
+                    return (try scheduler.getQueuedCards(queueFetchLimit), name)
                 }.value
-                cardQueue = queue.cards
                 deckName = name
-                remainingCounts = DeckCounts(
-                    newCount: queue.newCount,
-                    learnCount: queue.learningCount,
-                    reviewCount: queue.reviewCount
-                )
+                applyFreshGather(queue)
                 Log.review.info("Started with \(self.cardQueue.count) cards, counts: new=\(queue.newCount) learn=\(queue.learningCount) review=\(queue.reviewCount)")
                 await advanceToNextCard(notes: notes, notetypes: notetypes, notetypesClient: notetypesClient, cardRendering: cardRendering)
             } catch {
@@ -233,12 +250,12 @@ public final class ReviewSession {
         // synchronous prologue above: the scheduler round-trip and the
         // advance are what the user actually waits on.
         Task {
-            defer { isAdvancing = false }
+            defer { finishTransition() }
             await AppSignpost.measure("AnswerCard") {
                 do {
                     let queue = try await Task.detached {
                         try scheduler.answerReviewCard(cardId, rating, timeSpent, states)
-                        return try scheduler.getQueuedCards(200)
+                        return try scheduler.getQueuedCards(queueFetchLimit)
                     }.value
 
                     answerError = nil
@@ -248,12 +265,7 @@ public final class ReviewSession {
                     lastRating = rating
                     canUndo = true
 
-                    cardQueue = queue.cards
-                    remainingCounts = DeckCounts(
-                        newCount: queue.newCount,
-                        learnCount: queue.learningCount,
-                        reviewCount: queue.reviewCount
-                    )
+                    applyFreshGather(queue)
                     await advanceToNextCard(notes: notes, notetypes: notetypes, notetypesClient: notetypesClient, cardRendering: cardRendering)
                 } catch {
                     // Do NOT drop the card. Silently removing it from the queue
@@ -280,12 +292,12 @@ public final class ReviewSession {
         let cardRendering = self.cardRendering
 
         Task {
-            defer { isAdvancing = false }
+            defer { finishTransition() }
             do {
                 let queue = try await Task.detached {
                     try collection.undoLast()
                     // Re-fetch queue — Anki places the undone card at the front
-                    return try scheduler.getQueuedCards(200)
+                    return try scheduler.getQueuedCards(queueFetchLimit)
                 }.value
 
                 canUndo = false
@@ -303,15 +315,110 @@ public final class ReviewSession {
                 }
                 lastRating = nil
 
-                cardQueue = queue.cards
-                remainingCounts = DeckCounts(
-                    newCount: queue.newCount,
-                    learnCount: queue.learningCount,
-                    reviewCount: queue.reviewCount
-                )
+                applyFreshGather(queue)
                 await advanceToNextCard(notes: notes, notetypes: notetypes, notetypesClient: notetypesClient, cardRendering: cardRendering)
             } catch {
                 Log.review.error("Undo failed: \(error)")
+            }
+        }
+    }
+
+    // MARK: - Re-queue
+
+    /// A re-queue's claim about what left study, and the cue it warrants.
+    /// How that claim is put into words is the study screen's business; this is
+    /// only what the session can prove.
+    ///
+    /// Counted by identity — the ids in the queue snapshot that was thrown away,
+    /// minus the ids the deck just handed back — never inferred from the totals.
+    /// A card the deck still yields did not leave study, so "Forget Card" claims
+    /// nothing. `id` rises with every claim, so a second take-out of the same
+    /// size is still a new cue for the caption and its haptic.
+    public struct StudyNotice: Equatable, Sendable {
+        public let id: Int
+        public let cardsTakenOutOfStudyCount: Int
+    }
+
+    /// What the session does after a card is taken out of study — suspended,
+    /// buried, forgotten, deleted with its note, rescheduled past today: the queue
+    /// it was working through is discarded rather than repaired, the remaining
+    /// counts are read again, and study continues with whatever the deck yields
+    /// next. If nothing is yielded the session is finished, which is the ordinary
+    /// finished surface and not an error.
+    ///
+    /// Re-gathering is not caution, it is the only correct option: any card change
+    /// but a flag clears the engine's own study queue, so this snapshot is already
+    /// stale by the time the action returns. Splicing our own array instead is the
+    /// drift `answer()`'s catch block describes.
+    ///
+    /// Grades nothing: `sessionStats` is untouched, so a card taken out of study is
+    /// never counted as reviewed.
+    public func requeueAfterCardRemoval() {
+        guard !isAdvancing else {
+            // The card menu is not shut during a transition, so a take-out can
+            // land mid-answer. The engine already has it; the session's re-read
+            // waits its turn rather than being dropped, which is what would
+            // leave the counts adrift until the next grade.
+            // With no card on screen (start() in flight) nothing was taken out.
+            if currentQueuedCard != nil { pendingRequeue = true }
+            return
+        }
+        // Below the deferral guard: an in-flight undo still reads `lastRating`.
+        // The take-out is now the last collection operation, so Undo no longer targets the answer.
+        canUndo = false
+        lastRating = nil
+        // Deliberately not a way to start a session: with no card on screen
+        // nothing was just taken out of study.
+        guard currentQueuedCard != nil else { return }
+        isAdvancing = true
+        // The prefetch is rendering a card that has just left study. A typed-answer
+        // diff already checks the card it was computed against before it lands, and
+        // the advance below is what flips `showAnswer` off.
+        invalidatePrefetch()
+
+        let scheduler = self.scheduler
+        let notes = self.notes
+        let notetypes = self.notetypes
+        let notetypesClient = self.notetypesClient
+        let cardRendering = self.cardRendering
+        let targetNoteId = currentQueuedCard?.card.nid
+
+        // Identity snapshot of what this action could have touched. A card-menu
+        // action aims at the card on screen or at its note, so only that note's
+        // queued cards are candidates: a card of another note the fresh gather
+        // no longer holds left for some other reason — a sync, another device —
+        // and this session does not speak for it.
+        let queuedIds = Set(
+            cardQueue.filter { $0.card.nid == targetNoteId }.map { $0.card.id }
+        )
+
+        Task {
+            defer { finishTransition() }
+            do {
+                let queue = try await Task.detached {
+                    try scheduler.getQueuedCards(queueFetchLimit)
+                }.value
+
+                requeueError = nil
+                applyFreshGather(queue)
+
+                let gone = queuedIds.subtracting(queue.cards.map { $0.card.id }).count
+                if gone > 0 {
+                    studyNoticeSequence += 1
+                    studyNotice = StudyNotice(
+                        id: studyNoticeSequence,
+                        cardsTakenOutOfStudyCount: gone
+                    )
+                    scheduleStudyNoticeDismiss()
+                }
+
+                await advanceToNextCard(notes: notes, notetypes: notetypes, notetypesClient: notetypesClient, cardRendering: cardRendering)
+            } catch {
+                // Honest, not silent. The card stays in front of the user, the
+                // counts stay where the engine last said they were, and nothing is
+                // claimed about a card we never got the chance to re-gather.
+                Log.review.error("Re-queue failed: \(error)")
+                requeueError = error.localizedDescription
             }
         }
     }
@@ -411,6 +518,31 @@ public final class ReviewSession {
 }
 
 private extension ReviewSession {
+    // MARK: - Private: transitions
+
+    /// Clears the transition gate, then honours a take-out that asked while it
+    /// was shut. Nothing may set `isAdvancing = false` on its own: a dropped
+    /// re-queue is a session whose counts no longer match the deck's.
+    func finishTransition() {
+        isAdvancing = false
+        if pendingRequeue {
+            pendingRequeue = false
+            requeueAfterCardRemoval()
+        }
+    }
+
+    /// Assign a freshly gathered queue and the counts that came with it. Every
+    /// path that changes a card goes through here; nothing edits `cardQueue` in
+    /// place, because the engine has already thrown its own queue away.
+    func applyFreshGather(_ queue: QueuedCardsResult) {
+        cardQueue = queue.cards
+        remainingCounts = DeckCounts(
+            newCount: queue.newCount,
+            learnCount: queue.learningCount,
+            reviewCount: queue.reviewCount
+        )
+    }
+
     // MARK: - Private: card advancement
 
     /// Advances to the next queued card. Pops the queue on the main actor,
@@ -520,6 +652,18 @@ private extension ReviewSession {
         prefetchTask?.cancel()
         prefetchTask = nil
         preparedNext = nil
+    }
+
+    /// The caption is acknowledgment, not a control: it says what happened and
+    /// leaves. Cancelling first is what keeps a second take-out from being cut
+    /// short by the first one's dismiss timer.
+    func scheduleStudyNoticeDismiss() {
+        studyNoticeDismissTask?.cancel()
+        studyNoticeDismissTask = Task { [weak self] in
+            try? await Task.sleep(for: Self.studyNoticeDisplay)
+            guard !Task.isCancelled else { return }
+            self?.studyNotice = nil
+        }
     }
 
 }

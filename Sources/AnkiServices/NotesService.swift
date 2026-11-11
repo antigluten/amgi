@@ -20,6 +20,11 @@ public struct NotesService: Sendable {
     public var newNote: @Sendable (_ notetypeId: NotetypeID) throws -> NewNoteTemplate
     public var addNote: @Sendable (_ template: NewNoteTemplate, _ deckId: DeckID) throws -> Void
     public var findDuplicates: @Sendable () throws -> [DuplicateGroup]
+    public var fieldNamesForNotes: @Sendable (_ noteIds: [NoteID]) throws -> [String]
+    public var findAndReplace: @Sendable (
+        _ noteIds: [NoteID], _ search: String, _ replacement: String,
+        _ regex: Bool, _ matchCase: Bool, _ fieldName: String
+    ) throws -> Int
 }
 
 extension NotesService: DependencyKey {
@@ -46,6 +51,15 @@ extension NotesService: DependencyKey {
             },
             findDuplicates: {
                 try backend.invoke(.findDuplicates)
+            },
+            fieldNamesForNotes: { noteIds in
+                try backend.invoke(.fieldNamesForNotes(noteIds: noteIds))
+            },
+            findAndReplace: { noteIds, search, replacement, regex, matchCase, fieldName in
+                try backend.invoke(.findAndReplace(
+                    noteIds: noteIds, search: search, replacement: replacement,
+                    regex: regex, matchCase: matchCase, fieldName: fieldName
+                ))
             }
         )
     }()
