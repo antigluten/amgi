@@ -57,6 +57,9 @@ import AnkiKit
 
             try backend.invoke(.abortMediaSync)
             #expect(try backend.invoke(.mediaSyncStatus).active == false)
+
+            try backend.invoke(.abortSync)
+            #expect(try backend.invoke(.mediaSyncStatus).active == false)
         }
     }
 
