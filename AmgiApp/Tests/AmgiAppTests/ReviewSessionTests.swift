@@ -709,6 +709,37 @@ import AnkiServices
         }
     }
 
+    /// A take-out landing during an in-flight undo must wait: clearing
+    /// `lastRating` first would skip the undo's stats rollback.
+    @Test func aTakeOutDuringAnUndoStillRollsBackTheStats() async throws {
+        let c1 = stubCard(1, note: 100)
+        let c2 = stubCard(2, note: 101)
+        let gathers = Tally()
+
+        try await withDependencies { deps in
+            stubReviewClients(&deps, gathers: gathers) { gather in
+                gather == 2 ? stubQueue([c2], new: 1) : stubQueue([c1, c2], new: 2)
+            }
+            deps.collectionService.undoLast = {}
+        } operation: {
+            let s = ReviewSession(deckId: DeckID(1))
+            s.start()
+            try await pollUntil { !s.isAdvancing }
+
+            s.answer(rating: .good)
+            try await pollUntil { !s.isAdvancing }
+            #expect(s.sessionStats.reviewed == 1)
+
+            s.undo()
+            s.requeueAfterCardRemoval()
+            try await pollUntil { !s.isAdvancing }
+
+            #expect(s.sessionStats.reviewed == 0)
+            #expect(s.sessionStats.correct == 0)
+            #expect(!s.canUndo)
+        }
+    }
+
     /// The hazard `answer()`'s own comment describes. A failed
     /// re-gather leaves the card in front of the user and says so; it never
     /// silently drops a card or claims one gone.

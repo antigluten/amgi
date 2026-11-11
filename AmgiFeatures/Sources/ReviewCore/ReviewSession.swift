@@ -354,20 +354,22 @@ public final class ReviewSession {
     /// Grades nothing: `sessionStats` is untouched, so a card taken out of study is
     /// never counted as reviewed.
     public func requeueAfterCardRemoval() {
+        guard !isAdvancing else {
+            // The card menu is not shut during a transition, so a take-out can
+            // land mid-answer. The engine already has it; the session's re-read
+            // waits its turn rather than being dropped, which is what would
+            // leave the counts adrift until the next grade.
+            // With no card on screen (start() in flight) nothing was taken out.
+            if currentQueuedCard != nil { pendingRequeue = true }
+            return
+        }
+        // Below the deferral guard: an in-flight undo still reads `lastRating`.
         // The take-out is now the last collection operation, so Undo no longer targets the answer.
         canUndo = false
         lastRating = nil
         // Deliberately not a way to start a session: with no card on screen
         // nothing was just taken out of study.
         guard currentQueuedCard != nil else { return }
-        guard !isAdvancing else {
-            // The card menu is not shut during a transition, so a take-out can
-            // land mid-answer. The engine already has it; the session's re-read
-            // waits its turn rather than being dropped, which is what would
-            // leave the counts adrift until the next grade.
-            pendingRequeue = true
-            return
-        }
         isAdvancing = true
         // The prefetch is rendering a card that has just left study. A typed-answer
         // diff already checks the card it was computed against before it lands, and
