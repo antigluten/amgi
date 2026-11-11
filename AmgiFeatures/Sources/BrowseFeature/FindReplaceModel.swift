@@ -85,7 +85,6 @@ final class FindReplaceModel {
                 .replacing(/<\/?pre>/, with: "")
                 .trimmingCharacters(in: .whitespacesAndNewlines)
             outcome = .failed(message)
-            canUndo = false
         }
     }
 

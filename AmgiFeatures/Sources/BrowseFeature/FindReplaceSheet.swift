@@ -18,6 +18,13 @@ struct FindReplaceSheet: View {
     @Environment(\.palette) private var palette
 
     @State private var model: FindReplaceModel
+    @State private var confirming = false
+
+    private var confirmMessage: LocalizedStringKey {
+        model.noteIDs.isEmpty
+            ? "This changes matching notes across the whole collection. You can undo it afterwards."
+            : "This changes matching notes among ^[\(model.noteIDs.count) selected note](inflect: true). You can undo it afterwards."
+    }
 
     // Empty `noteIDs` means the whole collection.
     init(noteIDs: [NoteID], onChanged: @escaping () -> Void) {
@@ -37,11 +44,22 @@ struct FindReplaceSheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Done") { dismiss() }
+                        .disabled(model.isWorking)
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Replace") { apply() }
-                        .disabled(!model.canApply)
+                    if model.isWorking {
+                        ProgressView()
+                    } else {
+                        Button("Replace") { confirming = true }
+                            .disabled(!model.canApply)
+                    }
                 }
+            }
+            .interactiveDismissDisabled(model.isWorking)
+            .confirmationDialog("Replace in notes?", isPresented: $confirming, titleVisibility: .visible) {
+                Button("Replace", role: .destructive) { apply() }
+            } message: {
+                Text(confirmMessage)
             }
             .task { await model.loadFieldNames() }
         }

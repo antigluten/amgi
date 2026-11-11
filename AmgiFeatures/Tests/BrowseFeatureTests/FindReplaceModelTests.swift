@@ -160,6 +160,26 @@ struct FindReplaceModelTests {
         #expect(!model.canUndo)
     }
 
+    @Test func failedSecondReplaceKeepsTheFirstUndo() async {
+        final class Flag: @unchecked Sendable { var fail = false }
+        let flag = Flag()
+        let model = withDependencies {
+            $0.noteClient.findAndReplace = { _, _, _, _, _, _ in
+                if flag.fail { throw CocoaError(.fileReadUnknown) }
+                return 1
+            }
+        } operation: {
+            FindReplaceModel(noteIDs: [NoteID(1)])
+        }
+        model.find = "a"
+        await model.apply()
+        flag.fail = true
+        model.find = "b"
+        await model.apply()
+        if case .failed = model.outcome {} else { Issue.record("expected a failed outcome") }
+        #expect(model.canUndo)
+    }
+
     @Test func undoCallsEngineOnceAndClearsUndo() async {
         let calls = Calls()
         let model = makeModel(ids: [NoteID(1)], calls: calls)
