@@ -40,6 +40,7 @@ public struct RootView: View {
     @State private var refreshID = UUID()
     @State private var wordSheet: WordSpotlightSheet?
     private let wordSpotlight = WordSpotlightController.shared
+    @State private var lastLoad = Date()
 
     @Shared(.appStorage(ReaderPreferences.Keys.showTab))
     private var showReaderTab: Bool = true
@@ -66,10 +67,16 @@ public struct RootView: View {
                 wordSheet = .word(link)
                 wordSpotlight.pendingLink = nil
             }
-            .onChange(of: scenePhase) { _, newPhase in
+            .onChange(of: scenePhase) { oldPhase, newPhase in
                 if newPhase == .active {
                     Task { await writeWidgetSnapshot() }
                     Task { await wordSpotlight.refreshIfNeeded() }
+                }
+                // A suspended app can resume past the scheduler's day
+                // rollover; due counts and today's stats would otherwise
+                // stay frozen until the next mutation (#64).
+                if oldPhase == .background, newPhase != .background {
+                    refreshIfDayRolledOver()
                 }
             }
             .onOpenURL { url in
@@ -120,6 +127,17 @@ public struct RootView: View {
         } else {
             OnboardingView()
         }
+    }
+
+    private func refreshIfDayRolledOver() {
+        let now = Date()
+        guard AnkiDay.shouldRefreshOnResume(
+            lastLoad: lastLoad, now: now,
+            rolloverHour: WidgetSnapshotStore.read(deckId: 0)?.forecast?.rolloverHour
+        ) else { return }
+        lastLoad = now
+        store.invalidateAll()
+        refreshID = UUID()
     }
 
     private var main: some View {
