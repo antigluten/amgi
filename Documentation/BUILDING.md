@@ -87,6 +87,10 @@ packages into native Xcode targets.
 The generated `Bundle.module` accessors preserve resource access, and
 `-package-name` preserves the former packages' visibility boundaries.
 
+`Package.swift` and `AmgiReader/Package.swift` keep `AnkiBridge` usable as a
+SwiftPM package outside this repo. The app build does not read them, so a target
+added to `Project.swift` or `AmgiReader/Project.swift` must be added there too.
+
 ## Tests
 
 `AnkiRustLib.xcframework` ships iOS and watchOS slices. **Tests run through the
@@ -105,10 +109,14 @@ Two things that will otherwise waste your time:
 - Boot the simulator first. Tests report as "not run" until one is booted and
   selected as the active destination.
 
-The manual/tag GitHub workflow installs the pinned Tuist version, enforces
-`Tuist/Package.resolved`, builds iOS and watchOS, and runs the test plan before
-archiving. Its `build-diagnostics` artifact retains build logs and the test
-result bundle, including on failure.
+The `AmgiApp` scheme's test targets are listed in `AmgiApp/Workspace.swift`. Add
+a new test target there.
+
+`.github/workflows/build-ipa.yml` runs only when started by hand or on a `v*` tag.
+It installs the pinned Tuist, builds the xcframework, generates the project,
+does a Debug simulator build, archives an unsigned Release build and uploads it
+as an `.ipa` with a build summary. On a tag it also publishes a GitHub Release.
+It runs no tests and does not build the watch app.
 
 ## The watch app builds separately
 
