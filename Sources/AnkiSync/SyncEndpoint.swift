@@ -36,15 +36,12 @@ public enum SyncEndpoint: Sendable {
     }
 
     /// Trims, defaults a missing scheme to https, and allows `http://` only
-    /// for private hosts.
-    ///
-    /// App Transport Security does not cover this traffic — sync goes out
-    /// through the Rust HTTP client inside AnkiRustLib, not NSURLSession —
-    /// so this host check is the only thing keeping credentials off a
-    /// cleartext connection to the public internet.
+    /// for private hosts — ATS doesn't cover the Rust sync client, so this is the only guard.
     public static func normalized(_ raw: String) throws(ValidationError) -> String {
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { throw .empty }
+        // The Rust URL parser reads "\" as "/", so "http://evil.com\@10.0.0.1" connects to evil.com.
+        guard !trimmed.contains("\\") else { throw .malformed }
 
         let lowered = trimmed.lowercased()
         let isCleartext = lowered.hasPrefix("http://")
@@ -52,7 +49,9 @@ public enum SyncEndpoint: Sendable {
         guard let url = URL(string: withScheme), let host = url.host, !host.isEmpty else {
             throw .malformed
         }
-        if isCleartext, !isPrivateHost(host) { throw .insecureScheme }
+        if isCleartext, url.user != nil || url.password != nil || !isPrivateHost(host) {
+            throw .insecureScheme
+        }
         return withScheme
     }
 
@@ -66,8 +65,7 @@ public enum SyncEndpoint: Sendable {
         return isSingleLabelName(host)
     }
 
-    // Leading zeros are rejected: the Rust URL parser reads "010" as octal 8,
-    // so "010.0.0.1" would pass here as 10.x and connect to 8.0.0.1.
+    // No leading zeros: the Rust URL parser reads "010.0.0.1" as octal, i.e. 8.0.0.1.
     private static func ipv4Octets(_ host: String) -> [UInt8]? {
         let parts = host.split(separator: ".", omittingEmptySubsequences: false)
         guard parts.count == 4 else { return nil }
@@ -96,12 +94,10 @@ public enum SyncEndpoint: Sendable {
         let bytes = withUnsafeBytes(of: address) { Array($0) }
         let isLoopback = bytes.dropLast().allSatisfy { $0 == 0 } && bytes.last == 1
         let isUniqueLocal = bytes[0] & 0xFE == 0xFC
-        let isLinkLocal = bytes[0] == 0xFE && bytes[1] & 0xC0 == 0x80
-        return isLoopback || isUniqueLocal || isLinkLocal
+        return isLoopback || isUniqueLocal
     }
 
-    // A letter first, so numeric hosts ("134744072", "0x8080808"), which the
-    // Rust URL parser treats as IPv4 addresses, never count as LAN names.
+    // A letter first: the Rust URL parser treats "134744072" and "0x8080808" as IPv4 addresses.
     private static func isSingleLabelName(_ host: String) -> Bool {
         guard let first = host.first, first.isASCII, first.isLetter else { return false }
         return host.allSatisfy { $0.isASCII && ($0.isLetter || $0.isNumber || $0 == "-") }

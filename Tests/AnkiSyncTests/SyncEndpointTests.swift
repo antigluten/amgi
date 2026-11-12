@@ -21,7 +21,6 @@ import Testing
         "http://box.tailnet-x.ts.net",
         "http://[::1]:8080",
         "http://[fd00::1]",
-        "http://[fe80::1]",
         "HTTP://192.168.1.5",
     ])
     func cleartextToPrivateHostIsAllowed(_ raw: String) throws {
@@ -42,6 +41,9 @@ import Testing
         "http://evil.com.local.example.com",
         "http://[2001:4860:4860::8888]",
         "http://[::ffff:10.0.0.1]",
+        "http://[fe80::1]",
+        "http://user:pass@10.0.0.1",
+        "http://evil.com#@10.0.0.1",
     ])
     func cleartextToPublicHostIsRejected(_ raw: String) {
         #expect(throws: SyncEndpoint.ValidationError.insecureScheme) {
@@ -58,5 +60,8 @@ import Testing
     @Test func emptyAndMalformedInputThrow() {
         #expect(throws: SyncEndpoint.ValidationError.empty) { try SyncEndpoint.normalized("  ") }
         #expect(throws: SyncEndpoint.ValidationError.malformed) { try SyncEndpoint.normalized("http://") }
+        #expect(throws: SyncEndpoint.ValidationError.malformed) {
+            try SyncEndpoint.normalized(#"http://evil.com\@10.0.0.1"#)
+        }
     }
 }

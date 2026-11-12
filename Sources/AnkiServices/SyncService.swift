@@ -38,6 +38,9 @@ extension SyncService: DependencyKey {
                     logger.info("SyncCollection: required=\(result.required), message='\(result.serverMessage)'")
 
                     if let newEndpoint = result.newEndpoint {
+                        guard (try? SyncEndpoint.normalized(newEndpoint)) != nil else {
+                            throw SyncError(message: "The server redirected sync to an unencrypted public address. Sync stopped.")
+                        }
                         auth = SyncAuth(hkey: auth.hkey, endpoint: newEndpoint)
                         // AnkiWeb pins upload/download to a specific shard and
                         // only emits the redirect here — persist it so later
