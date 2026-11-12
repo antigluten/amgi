@@ -2,8 +2,23 @@ import ProjectDescription
 
 let app: TargetReference = .project(path: ".", target: "AmgiApp")
 
-func tests(_ project: Path, _ names: String..., parallel: Bool = true) -> [TestableTarget] {
-    names.map { .testableTarget(target: .project(path: project, target: $0), parallelization: parallel ? .enabled : .disabled) }
+let testGroups: [(project: Path, parallel: Bool, names: [String])] = [
+    (".", false, ["AmgiAppUITests"]),
+    (".", true, ["AmgiAppTests"]),
+    ("../AmgiReader", true, ["ReaderTests", "ReaderDictionaryTests"]),
+    ("..", true, ["AnkiKitTests", "AnkiProtoBridgeTests", "AmgiCardWebTests", "AnkiServicesTests", "AnkiClientsTests", "AnkiSyncTests"]),
+    ("../AmgiFeatures", true, ["AppCoreTests", "StatsFeatureTests", "BrowseFeatureTests", "DecksFeatureTests", "SyncFeatureTests", "WidgetFeatureTests"]),
+    ("../AmgiFeatures", false, ["AppSharedTests", "SettingsFeatureTests"]),
+    ("../AmgiUI", true, ["ThemeTests", "UITests"]),
+]
+
+let testTargets: [TestableTarget] = testGroups.flatMap { group in
+    group.names.map { name in
+        TestableTarget.testableTarget(
+            target: .project(path: group.project, target: name),
+            parallelization: group.parallel ? .enabled : .disabled
+        )
+    }
 }
 
 // The scheme lives here, not in Project.swift: a project scheme cannot list test targets from other projects.
@@ -14,16 +29,7 @@ let workspace = Workspace(
         .scheme(
             name: "AmgiApp",
             buildAction: .buildAction(targets: [app]),
-            testAction: .targets(
-                tests(".", "AmgiAppUITests", parallel: false)
-                    + tests(".", "AmgiAppTests")
-                    + tests("../AmgiReader", "ReaderTests", "ReaderDictionaryTests")
-                    + tests("..", "AnkiKitTests", "AnkiProtoBridgeTests", "AmgiCardWebTests", "AnkiServicesTests", "AnkiClientsTests", "AnkiSyncTests")
-                    + tests("../AmgiFeatures", "AppCoreTests", "StatsFeatureTests", "BrowseFeatureTests", "DecksFeatureTests", "SyncFeatureTests", "WidgetFeatureTests")
-                    + tests("../AmgiFeatures", "AppSharedTests", "SettingsFeatureTests", parallel: false)
-                    + tests("../AmgiUI", "ThemeTests", "UITests"),
-                expandVariableFromTarget: app
-            ),
+            testAction: .targets(testTargets, expandVariableFromTarget: app),
             runAction: .runAction(configuration: .debug, executable: app),
             archiveAction: .archiveAction(configuration: .release),
             profileAction: .profileAction(configuration: .release, executable: app),
