@@ -24,6 +24,7 @@ that path — it holds the rules that path enforces.
 | `AmgiApp/` | Tuist project: app, widget and watch targets | `AmgiApp/AGENTS.md` |
 | `Tuist/` | Shared project settings and remote dependencies | `Tuist/ProjectDescriptionHelpers/` and `Tuist/Package.swift` |
 | `anki-bridge-rs/` | The Rust crate exposing the C ABI | `Sources/AGENTS.md` |
+| `Package.swift`, `AmgiReader/Package.swift` | SwiftPM manifests for outside consumers of `AnkiBridge`; the app does not use them. A target added to `Project.swift` or `AmgiReader/Project.swift` goes here too | — |
 
 `Documentation/` carries the human-facing half: `ARCHITECTURE.md` (layers,
 package layout), `RUST_BRIDGE.md` (the C seam and its build pipeline),
