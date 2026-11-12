@@ -37,8 +37,9 @@ extension SyncService: DependencyKey {
                     let result = try await backend.invoke(.syncCollection(auth: auth, syncMedia: true))
                     logger.info("SyncCollection: required=\(result.required), message='\(result.serverMessage)'")
 
-                    if let newEndpoint = result.newEndpoint {
-                        guard (try? SyncEndpoint.normalized(newEndpoint)) != nil else {
+                    if let rawEndpoint = result.newEndpoint {
+                        // Use the normalized form: Rust reads "http:/evil.com" as http://evil.com.
+                        guard let newEndpoint = try? SyncEndpoint.normalized(rawEndpoint) else {
                             throw SyncError(message: "The server redirected sync to an unencrypted public address. Sync stopped.")
                         }
                         auth = SyncAuth(hkey: auth.hkey, endpoint: newEndpoint)
