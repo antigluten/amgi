@@ -14,7 +14,7 @@ Three modules, split along one line: which of them touches C++.
 an internal actor inside `ReaderDictionary`. The public `+Live.swift` imports no
 Cxx — it constructs the runtime and delegates.
 
-That containment is what keeps `.interoperabilityMode(.Cxx)` scoped to this
+That containment is what keeps Tuist's `cxx: true` setting scoped to this
 module. Every target that imports a Cxx-mode module inherits the setting and
 loses compilation caching with it, so `ReaderDictionary` is the wall: importing
 `Reader` or `ReaderEPUB` stays Cxx-free, and only `ReaderFeature` pays. See the

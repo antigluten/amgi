@@ -1,3 +1,2 @@
 [tools]
 tuist = "4.210.0"
-xcodegen = "2.46.0"

@@ -4,6 +4,8 @@ The engine surface, from `@DependencyClient` structs down to the four C FFI
 symbols. The Rust engine is a black-box RPC service — every call goes through
 the layers in order.
 
+Targets are declared in the repository-root `Project.swift` (`AnkiBridge`).
+
 | Module | Role |
 |---|---|
 | `AnkiKit` | Pure Swift domain types (`Rating`, `FSRSState`, `DeckInfo`, `EntityID`). No deps. |
@@ -14,7 +16,7 @@ the layers in order.
 | `AnkiClients` | `@DependencyClient` structs + live values. The UI's entry point. |
 | `AnkiSync` | `KeychainHelper`, scoped per profile. |
 | `AmgiCardWeb` | WebKit card renderer host. |
-| `AnkiRustLib` | `binaryTarget` → `AnkiRustLib.xcframework`. iOS and watchOS slices. |
+| `AnkiRustLib` | `.xcframework` dependency → `AnkiRustLib.xcframework`. iOS and watchOS slices. |
 
 ## Service and method IDs
 

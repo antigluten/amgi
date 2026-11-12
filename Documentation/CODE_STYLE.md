@@ -45,8 +45,8 @@ with the rules that package enforces. The ones that bite most often:
   edges cut a cached clean build by 27%.
 - Prefer routing shared code **down into a sink** (`AppCore`, `AppShared`,
   `ReviewCore`, `StatsCharts`) over adding a feature→feature edge.
-- `project.yml` must contain no per-file `path:` entries under `Sources/`.
-  Cross-target file sharing goes through an SPM product.
+- `AmgiApp/Project.swift` uses directory source globs under `Sources/`.
+  Cross-target file sharing goes through a shared module.
 
 ## Design tokens
 
@@ -62,6 +62,7 @@ blue/green/red card states, stay as they are.
   for long cards and allow larger touch targets. Again and Good are the
   recommended buttons for avoiding
   [ease hell](https://readbroca.com/anki/ease-hell/) for users not yet on FSRS.
-- Stats sources in `AmgiApp/project.yml` are hand-enumerated so that new stat
-  pages get a manual review for watch fit. Text may be small and wrap awkwardly,
+- Watch stats live in the `StatsCharts` and `WatchFeature` modules declared in
+  `AmgiFeatures/Project.swift`. Review new pages
+  for watch fit. Text may be small and wrap awkwardly,
   but every included diagram and graph must fit horizontally.

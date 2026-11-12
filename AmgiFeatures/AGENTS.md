@@ -3,6 +3,8 @@
 Every screen the app renders, plus the sinks they share. Nothing here depends on
 the app target; the sinks never depend on a `*Feature`.
 
+Targets are declared in `AmgiFeatures/Project.swift`.
+
 ## Naming
 
 - `Anki*` — derived from the upstream engine.
@@ -40,7 +42,7 @@ Cxx chain below.
 
 ## The Cxx chain
 
-`ReaderFeature` declares `.interoperabilityMode(.Cxx)` because it touches
+`ReaderFeature` declares `cxx: true` in its Tuist target because it touches
 `ReaderDictionary` → `hoshidicts`. Interop is transitive through the module
 graph: a target importing a Cxx-mode module gets the `CHoshiDicts` modulemap in
 its own Clang dependency scan and fails with "module 'CHoshiDicts' requires

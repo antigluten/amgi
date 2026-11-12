@@ -53,7 +53,7 @@ The full list is in **[Documentation/FEATURES.md](Documentation/FEATURES.md)**.
 ## Quick start
 
 Install the toolchain first — Xcode 26, Rust (stable *and* nightly, for the
-watchOS slice), protoc and xcodegen.
+watchOS slice), protoc and Tuist (pinned in `mise.toml`).
 **[Documentation/BUILDING.md](Documentation/BUILDING.md)** has the exact
 commands, plus how to run the tests.
 
@@ -63,8 +63,10 @@ cd amgi
 
 ./scripts/build-xcframework.sh            # Rust engine → xcframework
 ./scripts/generate-protos.sh              # protobuf → Swift types
-cd AmgiApp && xcodegen generate && cd ..  # project is generated, not checked in
-open AmgiApp/AmgiApp.xcodeproj
+mise install                             # install the pinned Tuist version
+mise exec -- tuist install                # resolve packages for native Xcode targets
+mise exec -- tuist generate --path AmgiApp --no-open
+open AmgiApp/AmgiApp.xcworkspace
 ```
 
 ## Documentation
@@ -112,7 +114,7 @@ Swift owns the UI. Rust owns everything else — database, sync, FSRS scheduling
 - **Serialization**: Protocol Buffers (25 .proto service definitions)
 - **Database**: SQLite (owned by Rust backend)
 - **EPUB**: vendored [EPUBKit](Libraries/EPUBKit) (MIT), with `hoshidicts` for Yomitan dictionaries
-- **Build**: SPM for library and feature modules, xcodegen for the app, widget, and watch targets
+- **Build**: Tuist generates the app, widget, watch, library and test targets from Swift manifests
 
 ## License
 
