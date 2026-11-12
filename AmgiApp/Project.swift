@@ -68,6 +68,8 @@ let project = Project(
             bundleId: "com.amgiapp.AmgiApp.watch",
             deploymentTargets: .watchOS("11.0"),
             infoPlist: .extendingDefault(with: [
+                "CFBundleShortVersionString": "$(MARKETING_VERSION)",
+                "CFBundleVersion": "$(CURRENT_PROJECT_VERSION)",
                 "WKCompanionAppBundleIdentifier": "com.amgiapp.AmgiApp",
             ]),
             sources: ["Sources/Watch/**"],
