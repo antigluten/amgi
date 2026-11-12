@@ -6,6 +6,7 @@
 //
 
 import AppCore
+import AppShared
 import AnkiClients
 import AnkiBackend
 import AnkiKit
@@ -66,6 +67,7 @@ final class BrowseModel {
     private let pageSize = 50
 
     @ObservationIgnored @Dependency(\.noteClient) private var noteClient
+    @ObservationIgnored @Dependency(\.collectionStore) private var store
     @ObservationIgnored @Dependency(\.deckClient) private var deckClient
     @ObservationIgnored @Dependency(\.cardClient) private var cardClient
     @ObservationIgnored @Dependency(\.tagClient) private var tagClient
@@ -225,6 +227,7 @@ final class BrowseModel {
 
     func delete(_ id: NoteID) async {
         await runBatch("delete", over: [id]) { try await self.noteClient.delete($0) }
+        store.apply(CollectionChanges(card: true, note: true))
     }
 
     func suspendSelected(_ noteIDs: Set<NoteID>) async {
@@ -239,6 +242,7 @@ final class BrowseModel {
 
     func deleteSelected(_ noteIDs: Set<NoteID>) async {
         await runBatch("delete", over: Array(noteIDs)) { try await self.noteClient.delete($0) }
+        store.apply(CollectionChanges(card: true, note: true))
     }
 
     /// Applies `work` to every id, counting failures rather than discarding

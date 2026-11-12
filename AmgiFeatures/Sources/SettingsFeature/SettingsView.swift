@@ -109,6 +109,15 @@ package struct SettingsView: View {
             SettingsSectionHeader(title: "Study")
             SettingsGroup {
                 SettingsRowLink(
+                    title: "Word Spotlight",
+                    systemImage: "character.book.closed",
+                    tone: .accent
+                ) {
+                    WordSpotlightSettingsView()
+                }
+                .accessibilityIdentifier("settings.wordSpotlight")
+                SettingsSeparator()
+                SettingsRowLink(
                     title: "Review Behavior",
                     systemImage: "timer",
                     tone: .review

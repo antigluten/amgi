@@ -24,7 +24,7 @@ public struct CardFlagPicker: View {
     public init(
         model: CardContextMenuModel,
         cardId: CardID,
-        onAction: @escaping (_ shouldAdvance: Bool) -> Void = { _ in }
+        onAction: @escaping (_ shouldAdvance: Bool) -> Void
     ) {
         self.model = model
         self.cardId = cardId
@@ -75,7 +75,7 @@ public struct CardActionSections: View {
         cardId: CardID,
         noteId: NoteID? = nil,
         confirmDeleteNote: Binding<Bool>,
-        onAction: @escaping (_ shouldAdvance: Bool) -> Void = { _ in }
+        onAction: @escaping (_ shouldAdvance: Bool) -> Void
     ) {
         self.model = model
         self.cardId = cardId
@@ -137,13 +137,18 @@ extension View {
     /// Error alert, delete confirmation, due-date prompt, and initial load for
     /// `CardActionSections`/`CardFlagPicker`. Apply this to the view that
     /// *hosts* the `Menu`, never inside the menu's content.
+    ///
+    /// Every `onAction` is required, with no default to fall back on: a host
+    /// that means "a card left study changes my list" has to say so, and a host
+    /// that means "it doesn't" says `{ _ in }` out loud. A silent default is
+    /// what made the review page ignore its own card menu.
     @MainActor
     public func cardActionPresentations(
         model: CardContextMenuModel,
         cardId: CardID?,
         noteId: NoteID?,
         confirmDeleteNote: Binding<Bool>,
-        onAction: @escaping (_ shouldAdvance: Bool) -> Void = { _ in }
+        onAction: @escaping (_ shouldAdvance: Bool) -> Void
     ) -> some View {
         modifier(CardActionPresentations(
             model: model,

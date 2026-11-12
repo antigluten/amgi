@@ -10,6 +10,8 @@ public import Foundation
 public import Dependencies
 import DependenciesMacros
 
+public enum MediaClientError: Error { case noMediaFolder }
+
 @DependencyClient
 public struct MediaClient: Sendable {
     public var localURL: @Sendable (_ filename: String) -> URL? = { _ in nil }

@@ -71,6 +71,16 @@ extension Request where Response == Void {
             decode: { _ in () }
         )
     }
+
+    public static var abortSync: Self {
+        var request = Self.empty(
+            serviceId: ServiceID.sync,
+            methodId: SyncMethod.abortSync,
+            decode: { _ in () }
+        )
+        request.bypassesLock = true
+        return request
+    }
 }
 
 extension Request where Response == MediaSyncStatus {

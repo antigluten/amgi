@@ -105,10 +105,12 @@ struct DispatchTableTests {
         Method(ServiceID.notes, NotesMethod.updateNotes, "update_notes"),
         Method(ServiceID.notes, NotesMethod.getNote, "get_note"),
         Method(ServiceID.notes, NotesMethod.removeNotes, "remove_notes"),
+        Method(ServiceID.notes, NotesMethod.fieldNamesForNotes, "field_names_for_notes"),
         Method(ServiceID.notes, NotesMethod.cardsOfNote, "cards_of_note"),
         // backend_search_service (29)
         Method(ServiceID.search, SearchMethod.searchCards, "search_cards"),
         Method(ServiceID.search, SearchMethod.searchNotes, "search_notes"),
+        Method(ServiceID.search, SearchMethod.findAndReplace, "find_and_replace"),
         // backend_sync_service (1)
         Method(ServiceID.sync, SyncMethod.syncMedia, "sync_media"),
         Method(ServiceID.sync, SyncMethod.abortMediaSync, "abort_media_sync"),
@@ -117,6 +119,7 @@ struct DispatchTableTests {
         Method(ServiceID.sync, SyncMethod.syncStatus, "sync_status"),
         Method(ServiceID.sync, SyncMethod.syncCollection, "sync_collection"),
         Method(ServiceID.sync, SyncMethod.fullUploadOrDownload, "full_upload_or_download"),
+        Method(ServiceID.sync, SyncMethod.abortSync, "abort_sync"),
         // backend_tags_service (45)
         Method(ServiceID.tags, TagsMethod.clearUnusedTags, "clear_unused_tags"),
         Method(ServiceID.tags, TagsMethod.allTags, "all_tags"),
