@@ -180,6 +180,11 @@ let package = Package(
             swiftSettings: sharedSwiftSettings
         ),
         .testTarget(
+            name: "AnkiSyncTests",
+            dependencies: ["AnkiSync"],
+            swiftSettings: sharedSwiftSettings
+        ),
+        .testTarget(
             name: "AnkiKitTests",
             dependencies: ["AnkiKit"],
             swiftSettings: sharedSwiftSettings
