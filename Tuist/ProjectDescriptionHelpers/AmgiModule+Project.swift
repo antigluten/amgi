@@ -4,8 +4,8 @@ extension AmgiModule {
     public static let settings: Settings = .settings(
         base: [
             "SWIFT_VERSION": "6.0",
-            "MARKETING_VERSION": "0.2.0",
-            "CURRENT_PROJECT_VERSION": "7",
+            "MARKETING_VERSION": "0.3.0",
+            "CURRENT_PROJECT_VERSION": "8",
             "SWIFT_STRICT_CONCURRENCY": "complete",
             // Keep async function mangling consistent between the app and local modules.
             "OTHER_SWIFT_FLAGS": "$(inherited) -enable-upcoming-feature NonisolatedNonsendingByDefault",
