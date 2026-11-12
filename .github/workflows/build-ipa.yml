@@ -85,7 +85,10 @@ jobs:
       # ── 6. Install Homebrew dependencies ──────────────────────────
       - name: Install Homebrew dependencies
         run: |
-          brew install protobuf swift-protobuf xcodegen
+          brew install protobuf swift-protobuf
+
+      - name: Install mise tools
+        uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
 
       # ── 7. Build Rust XCFramework ─────────────────────────────────
       - name: Build Rust XCFramework
@@ -102,18 +105,19 @@ jobs:
       # ── 9. Generate Xcode project ─────────────────────────────────
       - name: Generate Xcode project
         run: |
-          cd AmgiApp && xcodegen generate
+          tuist install
+          tuist generate --path AmgiApp --no-open
           echo "=== Files in AmgiApp/ ==="
-          ls -la ../AmgiApp/
+          ls -la AmgiApp/
 
       # ── 9.2. Simulator smoke check (catch UI/platform compile issues early) ──
       - name: Build Debug Simulator (Compatibility Smoke Check)
         run: |
           set -o pipefail
           DERIVED_DATA_PATH="$RUNNER_TEMP/DerivedData"
-          if xcodebuild -list -project AmgiApp/AmgiApp.xcodeproj | grep -q "Tests"; then
+          if xcodebuild -list -workspace AmgiApp/AmgiApp.xcworkspace | grep -q "Tests"; then
             xcodebuild build-for-testing \
-              -project AmgiApp/AmgiApp.xcodeproj \
+              -workspace AmgiApp/AmgiApp.xcworkspace \
               -scheme AmgiApp \
               -configuration Debug \
               -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max' \
@@ -123,7 +127,7 @@ jobs:
               2>&1 | tee simulator-build.log
           else
             xcodebuild build \
-              -project AmgiApp/AmgiApp.xcodeproj \
+              -workspace AmgiApp/AmgiApp.xcworkspace \
               -scheme AmgiApp \
               -configuration Debug \
               -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max' \
@@ -148,7 +152,7 @@ jobs:
         run: |
           set -o pipefail
           xcodebuild archive \
-            -project AmgiApp/AmgiApp.xcodeproj \
+            -workspace AmgiApp/AmgiApp.xcworkspace \
             -scheme AmgiApp \
             -configuration Release \
             -archivePath "$RUNNER_TEMP/AmgiApp.xcarchive" \

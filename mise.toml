@@ -1,2 +1,2 @@
 [tools]
-"aqua:tuist/tuist" = "4.210.0"
+tuist = "4.210.0"
