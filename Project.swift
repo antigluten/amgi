@@ -103,6 +103,14 @@ let project = AmgiModule.project(
             tests: true
         ),
         AmgiModule.target(
+            "AnkiSyncTests",
+            package: "AnkiBridge",
+            dependencies: [
+                .target(name: "AnkiSync"),
+            ],
+            tests: true
+        ),
+        AmgiModule.target(
             "AnkiKitTests",
             package: "AnkiBridge",
             dependencies: [

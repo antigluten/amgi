@@ -70,6 +70,14 @@ extension NoteClient: DependencyKey {
             },
             findDuplicates: {
                 try await backendOffload { try notes.findDuplicates() }
+            },
+            fieldNamesForNotes: { noteIDs in
+                try await backendOffload { try notes.fieldNamesForNotes(noteIDs) }
+            },
+            findAndReplace: { noteIDs, search, replacement, regex, matchCase, fieldName in
+                try await backendOffload {
+                    try notes.findAndReplace(noteIDs, search, replacement, regex, matchCase, fieldName)
+                }
             }
         )
     }()

@@ -29,7 +29,7 @@ extension MediaClient: DependencyKey {
             },
             save: { data, filename in
                 try await backendOffload {
-                    guard let folder = backend.currentMediaFolderPath else { return }
+                    guard let folder = backend.currentMediaFolderPath else { throw MediaClientError.noMediaFolder }
                     let url = URL(fileURLWithPath: folder).appendingPathComponent(filename)
                     try data.write(to: url)
                 }

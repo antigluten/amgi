@@ -22,6 +22,7 @@ public struct SyncService: Sendable {
     public var fullSync: @Sendable (_ endpoint: String, _ hostKey: String, _ direction: SyncDirection, _ syncMedia: Bool) async throws -> Void
     public var mediaSyncStatus: @Sendable () async throws -> MediaSyncStatus
     public var abortMediaSync: @Sendable () async throws -> Void
+    public var abortSync: @Sendable () async throws -> Void
     public var login: @Sendable (_ endpoint: String, _ username: String, _ password: String) async throws -> String
 }
 
@@ -36,7 +37,11 @@ extension SyncService: DependencyKey {
                     let result = try await backend.invoke(.syncCollection(auth: auth, syncMedia: true))
                     logger.info("SyncCollection: required=\(result.required), message='\(result.serverMessage)'")
 
-                    if let newEndpoint = result.newEndpoint {
+                    if let rawEndpoint = result.newEndpoint {
+                        // Use the normalized form: Rust reads "http:/evil.com" as http://evil.com.
+                        guard let newEndpoint = try? SyncEndpoint.normalized(rawEndpoint) else {
+                            throw SyncError(message: "The server redirected sync to an unencrypted public address. Sync stopped.")
+                        }
                         auth = SyncAuth(hkey: auth.hkey, endpoint: newEndpoint)
                         // AnkiWeb pins upload/download to a specific shard and
                         // only emits the redirect here — persist it so later
@@ -102,6 +107,13 @@ extension SyncService: DependencyKey {
             abortMediaSync: {
                 do {
                     try await backend.invoke(.abortMediaSync)
+                } catch let error as BackendError {
+                    throw SyncError(message: error.message)
+                }
+            },
+            abortSync: {
+                do {
+                    try await backend.invoke(.abortSync)
                 } catch let error as BackendError {
                     throw SyncError(message: error.message)
                 }

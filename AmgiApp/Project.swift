@@ -103,17 +103,17 @@ let project = Project(
             dependencies: [.target(name: "AmgiApp")],
             settings: .settings(base: cxxSettings)
         ),
+        .target(
+            name: "AmgiAppUITests",
+            destinations: .iOS,
+            product: .uiTests,
+            bundleId: "com.amgiapp.AmgiAppUITests",
+            deploymentTargets: .iOS("18.0"),
+            sources: ["Tests/AmgiAppUITests/**"],
+            dependencies: [.target(name: "AmgiApp")]
+        ),
     ],
     schemes: [
-        .scheme(
-            name: "AmgiApp",
-            buildAction: .buildAction(targets: ["AmgiApp"]),
-            testAction: .testPlans(["AmgiApp.xctestplan"]),
-            runAction: .runAction(configuration: .debug),
-            archiveAction: .archiveAction(configuration: .release),
-            profileAction: .profileAction(configuration: .release),
-            analyzeAction: .analyzeAction(configuration: .debug)
-        ),
         .scheme(
             name: "AmgiWatchApp",
             buildAction: .buildAction(targets: ["AmgiWatchApp"]),
@@ -123,6 +123,5 @@ let project = Project(
             analyzeAction: .analyzeAction(configuration: .debug)
         ),
     ],
-    additionalFiles: ["AmgiApp.xctestplan"],
     resourceSynthesizers: []
 )

@@ -99,7 +99,13 @@ struct CardWebView {
         config.defaultWebpagePreferences.allowsContentJavaScript = true
         config.setURLSchemeHandler(CardAssetScheme(), forURLScheme: CardAssetPath.scheme)
         config.userContentController.add(coordinator, name: "amgiAudioState")
-        config.userContentController.add(coordinator, name: "amgiOpenLink")
+        config.userContentController.add(coordinator, contentWorld: CardWebViewCoordinator.linkWorld, name: "amgiOpenLink")
+        config.userContentController.addUserScript(WKUserScript(
+            source: CardWebViewCoordinator.linkTapScript,
+            injectionTime: .atDocumentStart,
+            forMainFrameOnly: false,
+            in: CardWebViewCoordinator.linkWorld
+        ))
         config.userContentController.add(coordinator, name: "amgiSpeakTts")
         config.userContentController.add(coordinator, name: "amgiStopTts")
         config.userContentController.add(coordinator, name: "amgiCardTheme")
@@ -128,7 +134,7 @@ struct CardWebView {
     static func dismantleWebView(_ webView: WKWebView, coordinator: CardWebViewCoordinator) {
         webView.evaluateJavaScript("window.amgiStopAllAudio && window.amgiStopAllAudio();")
         webView.configuration.userContentController.removeScriptMessageHandler(forName: "amgiAudioState")
-        webView.configuration.userContentController.removeScriptMessageHandler(forName: "amgiOpenLink")
+        webView.configuration.userContentController.removeScriptMessageHandler(forName: "amgiOpenLink", contentWorld: CardWebViewCoordinator.linkWorld)
         webView.configuration.userContentController.removeScriptMessageHandler(forName: "amgiSpeakTts")
         webView.configuration.userContentController.removeScriptMessageHandler(forName: "amgiStopTts")
         webView.configuration.userContentController.removeScriptMessageHandler(forName: "amgiCardTheme")

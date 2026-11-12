@@ -7,6 +7,7 @@
 
 import OSLog
 import AppCore
+import AppShared
 import AnkiBackend
 import AnkiKit
 import AnkiClients
@@ -76,6 +77,7 @@ final class NoteEditorModel {
 
         do {
             try await noteClient.save(updatedNote)
+            Task { await WordSpotlightController.shared.refresh() }
             return true
         } catch {
             return false

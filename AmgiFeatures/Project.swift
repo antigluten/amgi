@@ -277,6 +277,20 @@ let project = AmgiModule.project(
             ]
         ),
         AmgiModule.target(
+            "SettingsFeatureTests",
+            package: "AmgiFeatures",
+            dependencies: [
+                .target(name: "SettingsFeature"),
+                .target(name: "AppCore"),
+                .target(name: "AppShared"),
+                .project(target: "AnkiClients", path: .relativeToRoot(".")),
+                .project(target: "AnkiKit", path: .relativeToRoot(".")),
+                .project(target: "AnkiServices", path: .relativeToRoot(".")),
+                .external(name: "Dependencies"),
+            ],
+            tests: true
+        ),
+        AmgiModule.target(
             "WatchFeature",
             package: "AmgiFeatures",
             dependencies: [

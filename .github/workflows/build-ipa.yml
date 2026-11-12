@@ -1,24 +1,22 @@
 name: Build Unsigned IPA
 
 on:
-  workflow_dispatch:        # manual trigger from Actions UI
+  workflow_dispatch:
   push:
     tags:
-      - 'v*'                # any version tag triggers release publish
+      - 'v*'
 
-# Cancel in-progress runs for branches/dispatch only. Tag-triggered release
-# runs use a tag-specific group with cancel-in-progress disabled so a re-tag
-# (or rapid push) doesn't abort a release publish mid-flight.
 concurrency:
   group: build-ipa-${{ github.ref_type == 'tag' && format('tag-{0}', github.ref) || github.ref }}
   cancel-in-progress: ${{ github.ref_type != 'tag' }}
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  NIGHTLY_TOOLCHAIN: nightly-2026-08-17
 
-# Default shell options for every `run:` step — fail on undefined vars and on
-# the first error in a pipeline, so `xcodebuild ... | tee log.txt` failures
-# aren't masked by tee's success exit code.
+permissions:
+  contents: read
+
 defaults:
   run:
     shell: bash
@@ -28,61 +26,44 @@ jobs:
     runs-on: macos-26
     timeout-minutes: 60
 
-    # GITHUB_TOKEN scopes — minimal set required for tag-triggered release publish.
-    permissions:
-      contents: write
-
     steps:
-      # ── 1. Select Xcode 26.3 (release build, not RC) ─────────────
       - name: Select Xcode 26.3
-        uses: maxim-lobanov/setup-xcode@v1
+        uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90
         with:
           xcode-version: '26.3'
 
-      # ── 2. Confirm toolchain versions ────────────────────────────
       - name: Show versions
         run: |
           xcodebuild -version
           swift --version
 
-      # ── 3. Checkout repository (including submodules) ────────────
       - name: Checkout repository with submodules
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           submodules: recursive
+          persist-credentials: false
 
-      # ── 4. Install Rust toolchain ─────────────────────────────────
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec
         with:
           toolchain: "1.95"
           targets: aarch64-apple-ios,aarch64-apple-ios-sim,x86_64-apple-ios
 
-      # ── 4.5. Install nightly + rust-src (watchOS build-std) ───────
-      # build-xcframework.sh builds the tier-3 watchOS sim slice with
-      # `cargo +nightly -Z build-std`, which compiles std from source and
-      # therefore needs rust-src. Plain `rustup toolchain install` (not the
-      # dtolnay action) so stable 1.95 above stays the default toolchain.
       - name: Install Rust nightly with rust-src
-        run: rustup toolchain install nightly --profile minimal --component rust-src
+        run: rustup toolchain install "$NIGHTLY_TOOLCHAIN" --profile minimal --component rust-src
 
-      # ── 5. Cache Rust build artifacts ─────────────────────────────
       - name: Cache Rust build artifacts
-        uses: actions/cache@v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
             anki-bridge-rs/target
             anki-upstream/out
-          # Toolchain version is part of the key so a Rust upgrade (1.95 → ...)
-          # forces a clean rebuild rather than reusing artifacts from the prior compiler.
           key: ${{ runner.os }}-rust-1.95-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-rust-1.95-
-            ${{ runner.os }}-rust-
 
-      # ── 6. Install Homebrew dependencies ──────────────────────────
       - name: Install Homebrew dependencies
         run: |
           brew install protobuf swift-protobuf
@@ -90,19 +71,16 @@ jobs:
       - name: Install mise tools
         uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
 
-      # ── 7. Build Rust XCFramework ─────────────────────────────────
       - name: Build Rust XCFramework
         run: |
           chmod +x ./scripts/build-xcframework.sh
           ./scripts/build-xcframework.sh
 
-      # ── 8. Generate Swift protobuf types ──────────────────────────
       - name: Generate Swift protobuf types
         run: |
           chmod +x ./scripts/generate-protos.sh
           ./scripts/generate-protos.sh
 
-      # ── 9. Generate Xcode project ─────────────────────────────────
       - name: Generate Xcode project
         run: |
           tuist install
@@ -110,7 +88,6 @@ jobs:
           echo "=== Files in AmgiApp/ ==="
           ls -la AmgiApp/
 
-      # ── 9.2. Simulator smoke check (catch UI/platform compile issues early) ──
       - name: Build Debug Simulator (Compatibility Smoke Check)
         run: |
           set -o pipefail
@@ -122,6 +99,7 @@ jobs:
               -configuration Debug \
               -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max' \
               -derivedDataPath "$DERIVED_DATA_PATH" \
+              -disableAutomaticPackageResolution \
               -skipPackagePluginValidation \
               -skipMacroValidation \
               2>&1 | tee simulator-build.log
@@ -132,22 +110,12 @@ jobs:
               -configuration Debug \
               -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max' \
               -derivedDataPath "$DERIVED_DATA_PATH" \
+              -disableAutomaticPackageResolution \
               -skipPackagePluginValidation \
               -skipMacroValidation \
               2>&1 | tee simulator-build.log
           fi
 
-      # ── 9.5. Run tests ────────────────────────────────────────────
-      # TODO: Add CI test step once testability is sorted out.
-      #       AmgiThemeTests (SPM) require the iOS-only Rust XCFramework,
-      #       so `swift test` doesn't run cleanly on macOS CI runners.
-      #       Xcode integration tests need a test target wired into the
-      #       AmgiApp scheme first.
-
-      # ── 10. Build unsigned xcarchive ──────────────────────────────
-      # -skipPackagePluginValidation: allows Swift macro plugins (e.g.
-      #   DependenciesMacrosPlugin) without the interactive trust prompt.
-      # -skipMacroValidation: skips Xcode's macro validation for the same reason.
       - name: Build unsigned xcarchive
         run: |
           set -o pipefail
@@ -161,6 +129,7 @@ jobs:
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
+            -disableAutomaticPackageResolution \
             -skipPackagePluginValidation \
             -skipMacroValidation \
             2>&1 | tee build.log
@@ -171,7 +140,6 @@ jobs:
           fi
           echo "Archive build successful."
 
-      # ── 11. Package .app into unsigned .ipa ───────────────────────
       - name: Package .app into unsigned .ipa
         run: |
           ARCHIVE_PATH="$RUNNER_TEMP/AmgiApp.xcarchive"
@@ -196,15 +164,14 @@ jobs:
           echo "=== IPA created ==="
           ls -lh /tmp/AmgiApp-unsigned.ipa
 
-      # ── 12. Upload unsigned IPA as workflow artifact ───────────────
       - name: Upload unsigned IPA
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: AmgiApp-unsigned-ipa
           path: /tmp/AmgiApp-unsigned.ipa
           retention-days: 7
+          if-no-files-found: error
 
-      # ── 13. Generate build summary ────────────────────────────────
       - name: Generate Build Summary
         if: always()
         run: |
@@ -213,8 +180,8 @@ jobs:
             echo "# Amgi iOS IPA Build Summary"
             echo ""
             echo "**Build Date**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
-            echo "**Commit**: \`${{ github.sha }}\`"
-            echo "**Branch / Ref**: \`${{ github.ref_name }}\`"
+            echo "**Commit**: \`${GITHUB_SHA}\`"
+            echo "**Branch / Ref**: \`${GITHUB_REF_NAME}\`"
             echo "**IPA File**: AmgiApp-unsigned.ipa"
             if [ -f "$IPA_PATH" ]; then
               IPA_SIZE=$(ls -lh "$IPA_PATH" | awk '{print $5}')
@@ -224,7 +191,6 @@ jobs:
             else
               echo "**IPA Size**: N/A (IPA not generated)"
               echo "**IPA SHA256**: N/A"
-              IPA_SHA256="N/A"
             fi
           } > build-summary.md
 
@@ -240,38 +206,47 @@ jobs:
 
           cat build-summary.md
 
-          # Export SHA256 for the release step below
-          echo "IPA_SHA256=${IPA_SHA256}" >> "$GITHUB_ENV"
-
-      # ── 14. Upload build summary as workflow artifact ─────────────
       - name: Upload Build Summary
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: build-summary
           path: build-summary.md
           retention-days: 7
 
-      # ── 15. Publish GitHub Release (tag builds only) ──────────────
-      # Runs only when the workflow was triggered by a 'v*' tag push.
-      # workflow_dispatch runs still upload the artifact above but do not
-      # create a release.
+  release:
+    if: github.ref_type == 'tag'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
 
-      # The release notes are the annotated tag's own message, so what a reader
-      # sees on the release page is what the tagger wrote — not a template that
-      # only explains sideloading. The install/verify boilerplate is appended
-      # below it. An unannotated tag yields an empty message here, and the
-      # release falls back to the boilerplate alone.
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - name: Download unsigned IPA
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: AmgiApp-unsigned-ipa
+          path: dist
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8
+        with:
+          subject-path: dist/AmgiApp-unsigned.ipa
+
       - name: Compose release notes from the tag
-        if: github.ref_type == 'tag'
         run: |
-          # actions/checkout fetches a tag push as `+<sha>:refs/tags/<name>`,
-          # which lands a *lightweight* tag — the annotated object never reaches
-          # the runner, and %(contents) falls back to the commit message. Re-fetch
-          # the tag itself so the tagger's text is what gets published.
           git fetch --force origin "refs/tags/${GITHUB_REF_NAME}:refs/tags/${GITHUB_REF_NAME}"
-          git tag -l --format='%(contents)' "$GITHUB_REF_NAME" > /tmp/release-notes.md
-          cat >> /tmp/release-notes.md <<NOTES
+          git tag -l --format='%(contents)' "$GITHUB_REF_NAME" > release-notes.md
+          IPA_SHA256=$(sha256sum dist/AmgiApp-unsigned.ipa | awk '{print $1}')
+          cat >> release-notes.md <<NOTES
 
           ---
 
@@ -290,6 +265,7 @@ jobs:
 
           \`\`\`
           shasum -a 256 AmgiApp-unsigned.ipa
+          gh attestation verify AmgiApp-unsigned.ipa --repo ${GITHUB_REPOSITORY}
           \`\`\`
 
           Expected SHA256: \`${IPA_SHA256}\`
@@ -303,11 +279,10 @@ jobs:
           NOTES
 
       - name: Publish GitHub Release
-        if: github.ref_type == 'tag' && env.IPA_SHA256 != '' && env.IPA_SHA256 != 'N/A'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3
         with:
           name: ${{ github.ref_name }}
           draft: false
           prerelease: ${{ contains(github.ref_name, '-rc') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-alpha') }}
-          files: /tmp/AmgiApp-unsigned.ipa
-          body_path: /tmp/release-notes.md
+          files: dist/AmgiApp-unsigned.ipa
+          body_path: release-notes.md

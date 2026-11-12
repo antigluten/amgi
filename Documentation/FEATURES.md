@@ -33,7 +33,7 @@ What Amgi does today. For how it is put together, see [ARCHITECTURE.md](ARCHITEC
 - **EPUB reader** — read books chapter by chapter with native paging, vertical writing mode, and Latin/CJK auto-detection.
 - **Offline dictionary lookup** — tap any word for a Yomitan-compatible lookup, with chained popups, search history, and per-dictionary collapsed memory.
 - **Text-to-speech** — a speak button with language-aware voice selection.
-- **Bundled Korean fonts** — Sarasa Mono K, Nanum Myeongjo, Nanum Gothic.
+- **Bundled Korean fonts** — Nanum Myeongjo, Nanum Gothic.
 - **Progress sync** — reading position travels with the collection across devices.
 
 ## Sync and accounts
@@ -54,6 +54,7 @@ What Amgi does today. For how it is put together, see [ARCHITECTURE.md](ARCHITEC
 ## Beyond the phone
 
 - **Home-screen widgets** — small, medium, and large families driven by a precomputed forecast timeline, configurable per deck through AppIntents, with no background refresh required.
+- **Word Spotlight** — words from your vocabulary deck on Home and Lock Screen widgets, with configurable rotation, a Next word action, and optional daily local reminders. Opening Amgi replenishes the two-week schedule; viewing a word does not grade its card.
 - **Apple Watch app** — deck list, card review with audio playback, stats, and sync, with the Anki engine running on-device.
 - **Shortcuts and Siri** — study a deck, sync the collection, or ask how many cards are due, from Shortcuts, Spotlight, or by voice.
 
