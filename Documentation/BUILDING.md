@@ -13,7 +13,7 @@ The one place setup lives. [README](../README.md) and
 | Rust | 1.92+ (via rustup), plus nightly with `rust-src` |
 | protoc | 3.0+ |
 | protoc-gen-swift | latest |
-| xcodegen | latest |
+| [mise](https://mise.jdx.dev) | installs the pinned xcodegen and Tuist from `mise.toml` |
 
 ## Setup
 
@@ -35,8 +35,11 @@ rustup target add aarch64-apple-ios aarch64-apple-ios-sim
 rustup toolchain install nightly
 rustup component add rust-src --toolchain nightly
 
-# Protobuf compiler and Swift plugin, and the Xcode project generator
-brew install protobuf swift-protobuf xcodegen
+# Protobuf compiler and Swift plugin
+brew install protobuf swift-protobuf
+
+# Project generators, at the versions pinned in mise.toml
+mise install
 ```
 
 ## Build
