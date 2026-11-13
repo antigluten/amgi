@@ -49,6 +49,16 @@ struct ReviewContent: View {
         destination == nil && !confirmDeleteNote
     }
 
+    /// With "match toolbar to card background" on, the whole screen takes
+    /// the card's color — the render-mode chip row, the strip under the
+    /// answer buttons and the home-indicator area included — so the card
+    /// reads as one surface instead of a panel set into the app background.
+    private var screenBackground: Color {
+        autoMatchCardBackground && session.cardChromeColor != .clear
+            ? session.cardChromeColor
+            : palette.background
+    }
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -77,7 +87,7 @@ struct ReviewContent: View {
                     )
                 }
             }
-            .background(palette.background)
+            .background(screenBackground)
             .reviewHaptics(session: session)
             .reviewStudyNotice(session.studyNotice)
             .navigationBarTitleDisplayMode(.inline)
