@@ -364,13 +364,19 @@ struct BrowseContent: View {
     /// checkmarks, tap-to-toggle, VoiceOver traits and two-finger drag to
     /// select a run of notes. iOS only: on macOS a selectable list would
     /// change what a click on a note row does.
+    ///
+    /// Writes outside select mode are dropped: tapping a row's
+    /// `NavigationLink` also selects that row, and keeping it would leave a
+    /// selection behind on the way back. Select mode itself only turns on
+    /// through edit mode — the menu, the long press, or the two-finger drag,
+    /// which switches editing on before it selects.
     private var listSelection: Binding<Set<NoteID>>? {
         #if os(iOS)
         Binding(
             get: { selectionState.selectedNoteIDs },
             set: { ids in
+                guard selectionState.isSelectMode else { return }
                 selectionState.selectedNoteIDs = ids
-                if !ids.isEmpty { selectionState.beginSelecting() }
             }
         )
         #else
