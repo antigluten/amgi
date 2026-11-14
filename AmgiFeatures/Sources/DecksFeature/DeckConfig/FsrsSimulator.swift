@@ -45,7 +45,7 @@ struct FsrsSimulatorView: View {
 
     var body: some View {
         formBody
-            .navigationTitle("FSRS Simulator")
+            .navigationTitle(String(localized: "FSRS Simulator", bundle: .module))
             .navigationBarTitleDisplayMode(.inline)
     }
 
@@ -91,9 +91,9 @@ struct FsrsSimulatorModeSection: View {
 
     var body: some View {
         Section {
-            Picker("Mode", selection: $mode) {
-                Text("Review").tag(FsrsSimulatorMode.review)
-                Text("Workload").tag(FsrsSimulatorMode.workload)
+            Picker(String(localized: "Mode", bundle: .module), selection: $mode) {
+                Text("Review", bundle: .module).tag(FsrsSimulatorMode.review)
+                Text("Workload", bundle: .module).tag(FsrsSimulatorMode.workload)
             }
             .pickerStyle(.segmented)
         }
@@ -110,22 +110,22 @@ struct FsrsSimulatorSettingsSection: View {
     @Binding var search: String
 
     var body: some View {
-        Section("Settings") {
-            Stepper("Days: \(daysToSimulate)", value: $daysToSimulate, in: 30...3650, step: 30)
-            Stepper("Additional cards: \(additionalCards)", value: $additionalCards, in: 0...100000, step: 100)
+        Section(String(localized: "Settings", bundle: .module)) {
+            Stepper(String(localized: "Days: \(daysToSimulate)", bundle: .module), value: $daysToSimulate, in: 30...3650, step: 30)
+            Stepper(String(localized: "Additional cards: \(additionalCards)", bundle: .module), value: $additionalCards, in: 0...100000, step: 100)
             if mode == .review {
                 LabeledSlider(
-                    label: "Desired retention",
+                    label: String(localized: "Desired retention", bundle: .module),
                     value: $desiredRetentionPercent,
                     in: 70...99,
                     step: 1,
                     valueText: "\(Int(desiredRetentionPercent))%"
                 )
             }
-            Stepper("New/day: \(newCardsPerDay)", value: $newCardsPerDay, in: 0...9999)
-            Stepper("Reviews/day: \(reviewsPerDay)", value: $reviewsPerDay, in: 0...9999)
-            LabeledContent("Search") {
-                TextField("preset:\"…\" -is:suspended", text: $search)
+            Stepper(String(localized: "New/day: \(newCardsPerDay)", bundle: .module), value: $newCardsPerDay, in: 0...9999)
+            Stepper(String(localized: "Reviews/day: \(reviewsPerDay)", bundle: .module), value: $reviewsPerDay, in: 0...9999)
+            LabeledContent(String(localized: "Search", bundle: .module)) {
+                TextField(String(localized: "preset:\"…\" -is:suspended", bundle: .module), text: $search)
                     .multilineTextAlignment(.trailing)
                     .autocorrectionDisabled()
                     .textInputAutocapitalization(.never)
@@ -144,12 +144,12 @@ struct FsrsSimulatorRunSection: View {
             Button(action: onRun) {
                 HStack {
                     if isRunning { ProgressView().controlSize(.small) }
-                    Text(isRunning ? "Running…" : "Run Simulation")
+                    Text(isRunning ? "Running…" : "Run Simulation", bundle: .module)
                 }
             }
             .disabled(isRunning)
             if isRunning {
-                Button("Cancel", role: .cancel, action: onCancel)
+                Button(String(localized: "Cancel", bundle: .module), role: .cancel, action: onCancel)
             }
         }
     }
@@ -164,14 +164,14 @@ struct FsrsSimulatorResultsSections: View {
 
     var body: some View {
         if !summary.isEmpty {
-            Section("Summary") {
+            Section(String(localized: "Summary", bundle: .module)) {
                 ForEach(summary, id: \.label) { item in
                     LabeledContent(item.label, value: item.value)
                 }
             }
         }
         if !workloadRows.isEmpty {
-            Section("Retention vs cost") {
+            Section(String(localized: "Retention vs cost", bundle: .module)) {
                 ForEach(workloadRows, id: \.label) { row in
                     LabeledContent(row.label, value: row.value)
                 }

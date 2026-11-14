@@ -39,20 +39,20 @@ struct FindReplaceSheet: View {
                 optionsSection
                 outcomeSection
             }
-            .navigationTitle("Find & Replace")
+            .navigationTitle(String(localized: "Find & Replace", bundle: .module))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") { dismiss() }
+                    Button(String(localized: "Done", bundle: .module)) { dismiss() }
                         .disabled(model.isWorking)
                 }
                 ToolbarItem(placement: .confirmationAction) { replaceControl }
             }
             .interactiveDismissDisabled(model.isWorking)
-            .confirmationDialog("Replace in notes?", isPresented: $confirming, titleVisibility: .visible) {
+            .confirmationDialog(String(localized: "Replace in notes?", bundle: .module), isPresented: $confirming, titleVisibility: .visible) {
                 confirmActions
             } message: {
-                Text(confirmMessage)
+                Text(confirmMessage, bundle: .module)
             }
             .task { await model.loadFieldNames() }
         }
@@ -63,32 +63,32 @@ struct FindReplaceSheet: View {
         if model.isWorking {
             ProgressView()
         } else {
-            Button("Replace") { confirming = true }
+            Button(String(localized: "Replace", bundle: .module)) { confirming = true }
                 .disabled(!model.canApply)
         }
     }
 
     @ViewBuilder
     private var confirmActions: some View {
-        Button("Replace", role: .destructive) { apply() }
+        Button(String(localized: "Replace", bundle: .module), role: .destructive) { apply() }
     }
 
     @ViewBuilder
     private var scope: some View {
         if model.noteIDs.isEmpty {
-            Text("Applies to every note in the collection.")
+            Text("Applies to every note in the collection.", bundle: .module)
         } else {
-            Text("Applies to ^[\(model.noteIDs.count) selected note](inflect: true).")
+            Text("Applies to ^[\(model.noteIDs.count) selected note](inflect: true).", bundle: .module)
         }
     }
 
     private var inputSection: some View {
         @Bindable var model = model
         return Section {
-            TextField("Find", text: $model.find)
+            TextField(String(localized: "Find", bundle: .module), text: $model.find)
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
-            TextField("Replace With", text: $model.replacement)
+            TextField(String(localized: "Replace With", bundle: .module), text: $model.replacement)
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
         } footer: {
@@ -99,12 +99,12 @@ struct FindReplaceSheet: View {
     private var optionsSection: some View {
         @Bindable var model = model
         return Section {
-            Picker("In", selection: $model.fieldName) {
-                Text("All Fields").tag("")
+            Picker(String(localized: "In", bundle: .module), selection: $model.fieldName) {
+                Text("All Fields", bundle: .module).tag("")
                 ForEach(model.fieldNames, id: \.self) { Text($0).tag($0) }
             }
-            Toggle("Treat input as regular expression", isOn: $model.useRegex)
-            Toggle("Match case", isOn: $model.matchCase)
+            Toggle(String(localized: "Treat input as regular expression", bundle: .module), isOn: $model.useRegex)
+            Toggle(String(localized: "Match case", bundle: .module), isOn: $model.matchCase)
         }
     }
 
@@ -115,20 +115,20 @@ struct FindReplaceSheet: View {
                 switch outcome {
                 case .updated(let count):
                     Label {
-                        Text("^[\(count) note](inflect: true) updated")
+                        Text("^[\(count) note](inflect: true) updated", bundle: .module)
                     } icon: {
                         Image(systemName: "checkmark.circle")
                     }
                     .foregroundStyle(palette.textPrimary)
                 case .undone:
-                    Label("Change undone", systemImage: "arrow.uturn.backward")
+                    Label(String(localized: "Change undone", bundle: .module), systemImage: "arrow.uturn.backward")
                         .foregroundStyle(palette.textSecondary)
                 case .failed(let message):
                     Label(message, systemImage: "exclamationmark.triangle")
                         .foregroundStyle(palette.danger)
                 }
                 if model.canUndo {
-                    Button("Undo", systemImage: "arrow.uturn.backward") { undo() }
+                    Button(String(localized: "Undo", bundle: .module), systemImage: "arrow.uturn.backward") { undo() }
                         .disabled(model.isWorking)
                 }
             }

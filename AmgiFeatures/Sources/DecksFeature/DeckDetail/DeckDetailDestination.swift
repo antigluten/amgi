@@ -54,4 +54,20 @@ enum DeckLimitKind {
         case .review: "Review"
         }
     }
+
+    /// Whole sentences per kind rather than `noun` spliced into one
+    /// template, so each language can word them naturally.
+    var promptTitle: String {
+        switch self {
+        case .new: String(localized: "Increase Today's New Limit", bundle: .module)
+        case .review: String(localized: "Increase Today's Review Limit", bundle: .module)
+        }
+    }
+
+    var promptFooter: String {
+        switch self {
+        case .new: String(localized: "Extra new cards to show today, on top of this deck's daily limit. Resets tomorrow.", bundle: .module)
+        case .review: String(localized: "Extra review cards to show today, on top of this deck's daily limit. Resets tomorrow.", bundle: .module)
+        }
+    }
 }

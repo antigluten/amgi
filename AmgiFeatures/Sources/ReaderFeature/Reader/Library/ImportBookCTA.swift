@@ -15,7 +15,7 @@ struct ImportBookCTA: View {
 
     var body: some View {
         Button(action: action) {
-            Label("Import EPUB", systemImage: "square.and.arrow.down")
+            Label(String(localized: "Import EPUB", bundle: .module), systemImage: "square.and.arrow.down")
                 .amgiFont(.body)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 14)

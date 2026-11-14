@@ -35,29 +35,29 @@ struct RenameDeckSheet: View {
         NavigationStack {
             Form {
                 Section {
-                    TextField("Deck name", text: $name)
+                    TextField(String(localized: "Deck name", bundle: .module), text: $name)
                         .autocorrectionDisabled()
                 }
             }
-            .navigationTitle("Rename Deck")
+            .navigationTitle(String(localized: "Rename Deck", bundle: .module))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button(String(localized: "Cancel", bundle: .module)) { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
+                    Button(String(localized: "Save", bundle: .module)) {
                         Task { await rename() }
                     }
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty || isSaving)
                 }
             }
             .alert(
-                "Couldn't rename deck",
+                String(localized: "Couldn't rename deck", bundle: .module),
                 isPresented: Binding(get: { errorMessage != nil }, set: { if !$0 { errorMessage = nil } }),
                 presenting: errorMessage
             ) { _ in
-                Button("OK") {}
+                Button(String(localized: "OK", bundle: .module)) {}
             } message: { message in
                 Text(message)
             }
@@ -74,7 +74,7 @@ private extension RenameDeckSheet {
             store.apply(changes)
             onDone()
         } catch {
-            errorMessage = "Failed to rename deck: \(error.localizedDescription)"
+            errorMessage = String(localized: "Failed to rename deck: \(error.localizedDescription)", bundle: .module)
         }
         isSaving = false
     }

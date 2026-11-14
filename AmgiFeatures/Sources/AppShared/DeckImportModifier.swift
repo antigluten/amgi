@@ -24,11 +24,11 @@ private struct DeckImportModifier: ViewModifier {
             .overlay(alignment: .top) { ImportStatusBanner(status: status) }
             .animation(AmgiMotion.momentum, value: status)
             .alert(
-                "Couldn't import deck",
+                String(localized: "Couldn't import deck", bundle: .module),
                 isPresented: Binding(get: { failure != nil }, set: { if !$0 { failure = nil } }),
                 presenting: failure
             ) { _ in
-                Button("OK", role: .cancel) {}
+                Button(String(localized: "OK", bundle: .module), role: .cancel) {}
             } message: { message in
                 Text(message)
             }
@@ -42,7 +42,7 @@ private extension DeckImportModifier {
         case .success(let url):
             let ext = url.pathExtension.lowercased()
             guard ext == "apkg" || ext == "colpkg" else {
-                failure = "Unsupported file type. Please select an .apkg or .colpkg file."
+                failure = String(localized: "Unsupported file type. Please select an .apkg or .colpkg file.", bundle: .module)
                 return
             }
             Task {
@@ -59,7 +59,7 @@ private extension DeckImportModifier {
                 }
             }
         case .failure(let error):
-            failure = "Could not select file: \(error.localizedDescription)"
+            failure = String(localized: "Could not select file: \(error.localizedDescription)", bundle: .module)
         }
     }
 }

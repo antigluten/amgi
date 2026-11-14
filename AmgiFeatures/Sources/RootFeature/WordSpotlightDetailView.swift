@@ -29,7 +29,7 @@ struct WordSpotlightDetailView: View {
     var body: some View {
         content
             .background(palette.background)
-            .navigationTitle("Word Spotlight")
+            .navigationTitle(String(localized: "Word Spotlight", bundle: .module))
             .navigationBarTitleDisplayMode(.inline)
             .task(id: link.url) { await load() }
     }
@@ -41,7 +41,7 @@ struct WordSpotlightDetailView: View {
         case .loaded(let word, let advanceState):
             wordContent(word, advanceState: advanceState)
         case .failed(let message):
-            ContentUnavailableView("Word unavailable", systemImage: "character.book.closed", description: Text(message))
+            ContentUnavailableView(String(localized: "Word unavailable", bundle: .module), systemImage: "character.book.closed", description: Text(message))
         }
     }
 
@@ -59,7 +59,7 @@ struct WordSpotlightDetailView: View {
                         Task { await advance() }
                     } label: {
                         HStack {
-                            Label("Next word", systemImage: "arrow.forward")
+                            Label(String(localized: "Next word", bundle: .module), systemImage: "arrow.forward")
                             if advanceState.isLoading { ProgressView() }
                         }
                     }
@@ -67,12 +67,12 @@ struct WordSpotlightDetailView: View {
                               || link.profileID != AccountStore.shared.selectedID)
                 }
                 if controller.wordCount == 1 {
-                    Text("Only one eligible word. Add more vocabulary cards to see another.")
+                    Text("Only one eligible word. Add more vocabulary cards to see another.", bundle: .module)
                         .amgiFont(.caption).foregroundStyle(palette.textSecondary)
                 }
                 if case .failed(let message) = advanceState {
                     Text(message).foregroundStyle(palette.danger)
-                    Button("Retry") { Task { await advance() } }
+                    Button(String(localized: "Retry", bundle: .module)) { Task { await advance() } }
                 }
             }
             .textSelection(.enabled)

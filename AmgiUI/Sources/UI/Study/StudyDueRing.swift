@@ -52,7 +52,7 @@ public struct StudyDueRing: View {
 
     private var centerContent: some View {
         VStack(spacing: 2) {
-            Text("DUE NOW")
+            Text("DUE NOW", bundle: .module)
                 .amgiFont(.micro)
                 .foregroundStyle(palette.textSecondary)
 
@@ -70,9 +70,9 @@ public struct StudyDueRing: View {
     }
 
     private var sublineLabel: String {
-        guard summary.totalDue > 0 else { return "Nothing due today" }
+        guard summary.totalDue > 0 else { return String(localized: "Nothing due today", bundle: .module) }
         let n = summary.deckCount
-        return "across \(n) deck\(n == 1 ? "" : "s")"
+        return String(localized: "across \(n) decks", bundle: .module)
     }
 }
 

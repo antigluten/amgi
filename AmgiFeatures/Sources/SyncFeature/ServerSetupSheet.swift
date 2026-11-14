@@ -30,7 +30,7 @@ struct ServerSetupSheet: View {
         NavigationStack {
             Form {
                 Section {
-                    TextField("Server URL", text: $serverURL)
+                    TextField(String(localized: "Server URL", bundle: .module), text: $serverURL)
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
                         .keyboardType(.URL)
@@ -39,23 +39,23 @@ struct ServerSetupSheet: View {
                             .amgiStatusText(.danger, font: .caption)
                     }
                 } header: {
-                    Text("Sync Server")
+                    Text("Sync Server", bundle: .module)
                 } footer: {
-                    Text("Enter the URL of your Anki sync server (e.g. https://sync.example.com).")
+                    Text("Enter the URL of your Anki sync server (e.g. https://sync.example.com).", bundle: .module)
                 }
 
                 Section {
-                    Button("Save") {
+                    Button(String(localized: "Save", bundle: .module)) {
                         save()
                     }
                     .disabled(serverURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
             }
-            .navigationTitle("Server Setup")
+            .navigationTitle(String(localized: "Server Setup", bundle: .module))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { isPresented = false }
+                    Button(String(localized: "Cancel", bundle: .module)) { isPresented = false }
                 }
             }
         }

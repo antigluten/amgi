@@ -54,20 +54,20 @@ struct DeckConfigPresentations: ViewModifier {
         switch prompt {
         case .createPreset:
             TextPromptSheet(
-                title: "Add Preset",
-                placeholder: "Preset name",
-                footer: "Cloned from \(currentPresetName.map { "\"\($0)\"" } ?? "the current preset") and selected for this deck.",
-                confirmLabel: "Create",
+                title: String(localized: "Add Preset", bundle: .module),
+                placeholder: String(localized: "Preset name", bundle: .module),
+                footer: String(localized: "Cloned from \(currentPresetName.map { "\"\($0)\"" } ?? String(localized: "the current preset", bundle: .module)) and selected for this deck.", bundle: .module),
+                confirmLabel: String(localized: "Create", bundle: .module),
                 isValid: { !$0.trimmingCharacters(in: .whitespaces).isEmpty },
                 onConfirm: { _ in await onCreate() },
                 text: $newPresetName
             )
         case .renamePreset:
             TextPromptSheet(
-                title: "Rename Preset",
-                placeholder: "Preset name",
+                title: String(localized: "Rename Preset", bundle: .module),
+                placeholder: String(localized: "Preset name", bundle: .module),
                 footer: nil,
-                confirmLabel: "Save",
+                confirmLabel: String(localized: "Save", bundle: .module),
                 isValid: { !$0.trimmingCharacters(in: .whitespaces).isEmpty },
                 onConfirm: { _ in await onRename() },
                 text: $renamePresetDraft
@@ -84,13 +84,13 @@ struct DeckConfigAlertActions: View {
     var body: some View {
         switch alert {
         case .saveFailed, .fsrsError, .presetError:
-            Button("OK", role: .cancel) {}
+            Button(String(localized: "OK", bundle: .module), role: .cancel) {}
         case .deletePresetConfirm:
-            Button("Delete", role: .destructive) { onDelete() }
-            Button("Cancel", role: .cancel) {}
+            Button(String(localized: "Delete", bundle: .module), role: .destructive) { onDelete() }
+            Button(String(localized: "Cancel", bundle: .module), role: .cancel) {}
         case .discardChanges:
-            Button("Discard", role: .destructive) { onDiscard() }
-            Button("Cancel", role: .cancel) {}
+            Button(String(localized: "Discard", bundle: .module), role: .destructive) { onDiscard() }
+            Button(String(localized: "Cancel", bundle: .module), role: .cancel) {}
         }
     }
 }
@@ -106,12 +106,12 @@ struct DeckConfigAlertMessage: View {
             Text(msg)
         case .deletePresetConfirm:
             if let name = deletingPresetName, let fallback = fallbackPresetName {
-                Text("\"\(name)\" will be removed and decks using it will switch to \"\(fallback)\".")
+                Text("\"\(name)\" will be removed and decks using it will switch to \"\(fallback)\".", bundle: .module)
             } else {
-                Text("This preset will be removed.")
+                Text("This preset will be removed.", bundle: .module)
             }
         case .discardChanges:
-            Text("You have unsaved changes to this deck's options. Discard them?")
+            Text("You have unsaved changes to this deck's options. Discard them?", bundle: .module)
         }
     }
 }

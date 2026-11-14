@@ -43,7 +43,7 @@ struct MainTabView: View {
     var body: some View {
         TabView(selection: $selection) {
             // 1. Library
-            Tab("Library", systemImage: "rectangle.stack", value: MainTab.library) {
+            Tab(String(localized: "Library", bundle: .module), systemImage: "rectangle.stack", value: MainTab.library) {
                 NavigationStack {
                     DeckListView(
                         onSwitchProfile: { await switchProfile(to: $0) },
@@ -54,32 +54,32 @@ struct MainTabView: View {
             }
             // 2. Reader and 3. Study both live in ReaderFeature.
             if showReaderTab {
-                Tab("Read", systemImage: "book", value: MainTab.read) {
+                Tab(String(localized: "Read", bundle: .module), systemImage: "book", value: MainTab.read) {
                     NavigationStack {
                         ReaderLibraryView(refreshID: refreshID)
                     }
                 }
             }
-            Tab("Study", systemImage: "graduationcap", value: MainTab.study) {
+            Tab(String(localized: "Study", bundle: .module), systemImage: "graduationcap", value: MainTab.study) {
                 NavigationStack {
                     StudyLandingView(onSelectDeck: onSelectStudyDeck)
                 }
             }
             // 4. Stats
-            Tab("Stats", systemImage: "chart.bar", value: MainTab.stats) {
+            Tab(String(localized: "Stats", bundle: .module), systemImage: "chart.bar", value: MainTab.stats) {
                 NavigationStack {
                     StatsDashboardView(refreshID: refreshID)
                 }
             }
             // 5. Settings
-            Tab("Settings", systemImage: "gearshape", value: MainTab.settings) {
+            Tab(String(localized: "Settings", bundle: .module), systemImage: "gearshape", value: MainTab.settings) {
                 NavigationStack {
                     SettingsView(onSwitchProfile: { await switchProfile(to: $0) })
                 }
             }
         }
         .background {
-            Button("Settings") { selection = .settings }
+            Button(String(localized: "Settings", bundle: .module)) { selection = .settings }
                 .keyboardShortcut(",", modifiers: .command)
                 .opacity(0)
                 .accessibilityHidden(true)

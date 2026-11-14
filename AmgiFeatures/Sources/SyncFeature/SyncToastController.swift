@@ -25,7 +25,7 @@ final class SyncToastController {
 
     func presentSyncing() {
         cancelDismiss()
-        toast = .progress("Syncing\u{2026}")
+        toast = .progress(String(localized: "Syncing\u{2026}", bundle: .module))
     }
 
     /// Drive the toast from a coordinator state change.
@@ -33,7 +33,7 @@ final class SyncToastController {
         switch state {
         case .syncing(let message):
             cancelDismiss()
-            toast = .progress(message.isEmpty ? "Syncing\u{2026}" : message)
+            toast = .progress(message.isEmpty ? String(localized: "Syncing\u{2026}", bundle: .module) : message)
         case .syncingMedia(let message):
             cancelDismiss()
             toast = .progress(message)
@@ -83,7 +83,7 @@ extension View {
                     SyncToast(kind: kind)
                 }
                 .buttonStyle(.pressScale)
-                .accessibilityHint("Dismisses this message")
+                .accessibilityHint(String(localized: "Dismisses this message", bundle: .module))
                 .transition(AmgiMotion.slide(from: .bottom))
             }
         }

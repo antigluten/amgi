@@ -40,7 +40,7 @@ struct ReaderTypographySettingsView: View {
                 pageMarginSection
                 justifySection
             }
-            .navigationTitle("Reading Style")
+            .navigationTitle(String(localized: "Reading Style", bundle: .module))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { doneButton }
         }
@@ -75,9 +75,9 @@ struct ReaderTypographySettingsView: View {
                 }
                 .buttonStyle(.bordered)
                 .disabled(fontSize <= 12)
-                .accessibilityLabel("Decrease text size")
+                .accessibilityLabel(String(localized: "Decrease text size", bundle: .module))
 
-                Text("\(fontSize) pt")
+                Text("\(fontSize) pt", bundle: .module)
                     .amgiFont(.body, .monospacedDigits)
                     .frame(width: 64)
 
@@ -88,23 +88,23 @@ struct ReaderTypographySettingsView: View {
                 }
                 .buttonStyle(.bordered)
                 .disabled(fontSize >= 28)
-                .accessibilityLabel("Increase text size")
+                .accessibilityLabel(String(localized: "Increase text size", bundle: .module))
             }
         } header: {
-            Label("Font Size", systemImage: "textformat.size")
+            Label(String(localized: "Font Size", bundle: .module), systemImage: "textformat.size")
         }
     }
 
     private var fontFamilySection: some View {
         Section {
-            Picker("Font", selection: fontFamilyBinding) {
+            Picker(String(localized: "Font", bundle: .module), selection: fontFamilyBinding) {
                 ForEach(ReaderTypographyPreferences.FontFamily.allCases) { option in
                     Text(option.label).tag(option)
                 }
             }
             .pickerStyle(.segmented)
         } header: {
-            Label("Font", systemImage: "textformat")
+            Label(String(localized: "Font", bundle: .module), systemImage: "textformat")
         }
     }
 
@@ -112,7 +112,7 @@ struct ReaderTypographySettingsView: View {
         Section {
             Stepper(value: lineHeightBinding, in: 1.2...2.0, step: 0.1) {
                 HStack {
-                    Text("Line Height")
+                    Text("Line Height", bundle: .module)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     Text(String(format: "%.1f", lineHeight))
                         .amgiFont(.body, .monospacedDigits)
@@ -120,34 +120,34 @@ struct ReaderTypographySettingsView: View {
                 }
             }
         } header: {
-            Label("Spacing", systemImage: "arrow.up.and.down.text.horizontal")
+            Label(String(localized: "Spacing", bundle: .module), systemImage: "arrow.up.and.down.text.horizontal")
         }
     }
 
     private var pageMarginSection: some View {
         Section {
-            Picker("Margins", selection: pageMarginBinding) {
+            Picker(String(localized: "Margins", bundle: .module), selection: pageMarginBinding) {
                 ForEach(ReaderTypographyPreferences.PageMargin.allCases) { option in
                     Text(option.label).tag(option)
                 }
             }
             .pickerStyle(.segmented)
         } header: {
-            Label("Margins", systemImage: "rectangle.compress.vertical")
+            Label(String(localized: "Margins", bundle: .module), systemImage: "rectangle.compress.vertical")
         }
     }
 
     private var justifySection: some View {
         Section {
             Toggle(isOn: justifyBinding) {
-                Label("Justify Text", systemImage: "text.justify")
+                Label(String(localized: "Justify Text", bundle: .module), systemImage: "text.justify")
             }
         }
     }
 
     private var doneButton: some ToolbarContent {
         ToolbarItem(placement: .confirmationAction) {
-            Button("Done") { dismiss() }
+            Button(String(localized: "Done", bundle: .module)) { dismiss() }
                 .fontWeight(.semibold)
         }
     }
@@ -218,7 +218,7 @@ private struct ThemeSwatchButton: View {
                         lineWidth: isSelected ? 2 : 1
                     )
                 )
-            Text("Aa")
+            Text("Aa", bundle: .module)
                 .amgiFont(.bodyEmphasis)
                 .foregroundStyle(ReaderThemeColor.color(fromHex: theme.foregroundHex, fallback: palette.textPrimary))
         }

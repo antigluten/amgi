@@ -213,10 +213,10 @@ private extension TemplateSourceEditor.Coordinator {
         stack.spacing = 2
         scrollView.addSubview(stack)
 
-        stack.addArrangedSubview(makeIconButton(systemName: "arrow.uturn.backward", title: "Undo") { [weak self] in
+        stack.addArrangedSubview(makeIconButton(systemName: "arrow.uturn.backward", title: String(localized: "Undo", bundle: .module)) { [weak self] in
             self?.textView?.undoManager?.undo()
         })
-        stack.addArrangedSubview(makeIconButton(systemName: "arrow.uturn.forward", title: "Redo") { [weak self] in
+        stack.addArrangedSubview(makeIconButton(systemName: "arrow.uturn.forward", title: String(localized: "Redo", bundle: .module)) { [weak self] in
             self?.textView?.undoManager?.redo()
         })
 
@@ -237,7 +237,7 @@ private extension TemplateSourceEditor.Coordinator {
                 UIAction(title: token) { [weak self] _ in self?.insert(token) }
             }
             stack.addArrangedSubview(makeMenuButton(
-                title: "Insert",
+                title: String(localized: "Insert", bundle: .module),
                 menu: UIMenu(children: tokenActions)
             ))
         }

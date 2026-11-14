@@ -40,11 +40,11 @@ struct TextPromptSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbarContent }
             .alert(
-                "Couldn't \(confirmLabel.lowercased())",
+                String(localized: "Couldn't \(confirmLabel.lowercased())", bundle: .module),
                 isPresented: Binding(get: { errorMessage != nil }, set: { if !$0 { errorMessage = nil } }),
                 presenting: errorMessage
             ) { _ in
-                Button("OK") {}
+                Button(String(localized: "OK", bundle: .module)) {}
             } message: { message in
                 Text(message)
             }
@@ -54,7 +54,7 @@ struct TextPromptSheet: View {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .cancellationAction) {
-            Button("Cancel") { dismiss() }
+            Button(String(localized: "Cancel", bundle: .module)) { dismiss() }
         }
         ToolbarItem(placement: .confirmationAction) {
             Button(confirmLabel) { Task { await confirm() } }

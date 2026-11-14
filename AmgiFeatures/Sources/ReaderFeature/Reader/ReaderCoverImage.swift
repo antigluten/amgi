@@ -52,7 +52,7 @@ struct ReaderCoverImage<Placeholder: View>: View {
         ZStack(alignment: .topTrailing) {
             content
             if isEPUB {
-                Text("EPUB")
+                Text("EPUB", bundle: .module)
                     .amgiFont(size: 9, weight: .heavy, relativeTo: .caption2)
                     .padding(.horizontal, 5)
                     .padding(.vertical, 2)

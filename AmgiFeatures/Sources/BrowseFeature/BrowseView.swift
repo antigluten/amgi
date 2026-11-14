@@ -15,6 +15,15 @@ enum BrowseSortOrder: String, CaseIterable, Sendable {
     case dateDesc = "Date (newest)"
     case titleAsc = "Title (A→Z)"
     case templateAsc = "Type (A→Z)"
+
+    /// The order's display name; `rawValue` stays the stable identifier.
+    var title: String {
+        switch self {
+        case .dateDesc: String(localized: "Date (newest)", bundle: .module)
+        case .titleAsc: String(localized: "Title (A→Z)", bundle: .module)
+        case .templateAsc: String(localized: "Type (A→Z)", bundle: .module)
+        }
+    }
 }
 
 /// Browse container: owns navigation, sheets, selection, and the toolbar,
@@ -44,7 +53,7 @@ package struct BrowseView: View {
     package var body: some View {
         @Bindable var model = model
         decoratedContent
-            .searchable(text: $model.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search notes...")
+            .searchable(text: $model.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: String(localized: "Search notes...", bundle: .module))
             .searchFocused($searchFocused)
             .task { await model.loadInitial() }
             // Keyed on the assembled query so text, deck, and tag changes all
@@ -58,7 +67,7 @@ package struct BrowseView: View {
 
     private var decoratedContent: some View {
         dialogContent
-            .navigationTitle("Browse")
+            .navigationTitle(String(localized: "Browse", bundle: .module))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbarContent }
             .toolbarVisibility(selectionState.isSelectMode ? .hidden : .automatic, for: .tabBar)
@@ -72,27 +81,27 @@ package struct BrowseView: View {
     private var dialogContent: some View {
         sheetContent
             .confirmationDialog(
-                "Delete this note?",
+                String(localized: "Delete this note?", bundle: .module),
                 isPresented: Binding($destination.deleteNote),
                 presenting: pendingSwipeDelete
             ) { note in
-                Button("Delete", role: .destructive) {
+                Button(String(localized: "Delete", bundle: .module), role: .destructive) {
                     Task { await model.delete(note.id) }
                 }
-                Button("Cancel", role: .cancel) {}
+                Button(String(localized: "Cancel", bundle: .module), role: .cancel) {}
             } message: { _ in
-                Text("This action cannot be undone.")
+                Text("This action cannot be undone.", bundle: .module)
             }
             .confirmationDialog(
-                "Delete \(selectionState.count) note\(selectionState.count == 1 ? "" : "s")?",
+                String(localized: "Delete \(selectionState.count) notes?", bundle: .module),
                 isPresented: $destination.deleteSelected
             ) {
-                Button("Delete", role: .destructive) {
+                Button(String(localized: "Delete", bundle: .module), role: .destructive) {
                     deleteSelected()
                 }
-                Button("Cancel", role: .cancel) {}
+                Button(String(localized: "Cancel", bundle: .module), role: .cancel) {}
             } message: {
-                Text("This action cannot be undone.")
+                Text("This action cannot be undone.", bundle: .module)
             }
     }
 
@@ -118,13 +127,13 @@ package struct BrowseView: View {
         }
         #endif
         .alert(
-            "Some changes didn't apply",
+            String(localized: "Some changes didn't apply", bundle: .module),
             isPresented: Binding(
                 get: { model.errorMessage != nil },
                 set: { if !$0 { model.errorMessage = nil } }
             )
         ) {
-            Button("OK", role: .cancel) { model.errorMessage = nil }
+            Button(String(localized: "OK", bundle: .module), role: .cancel) { model.errorMessage = nil }
         } message: {
             Text(model.errorMessage ?? "")
         }
@@ -154,7 +163,7 @@ package struct BrowseView: View {
     private var toolbarContent: some ToolbarContent {
         if selectionState.isSelectMode {
             ToolbarItem(placement: .confirmationAction) {
-                Button("Done") {
+                Button(String(localized: "Done", bundle: .module)) {
                     selectionState.exitSelectMode()
                 }
             }
@@ -162,48 +171,48 @@ package struct BrowseView: View {
         } else {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
-                    Button("Add Note", systemImage: "square.and.pencil") {
+                    Button(String(localized: "Add Note", bundle: .module), systemImage: "square.and.pencil") {
                         destination = .addNote
                     }
                     .keyboardShortcut("n", modifiers: .command)
-                    Button("Add Image Occlusion", systemImage: "rectangle.on.rectangle") {
+                    Button(String(localized: "Add Image Occlusion", bundle: .module), systemImage: "rectangle.on.rectangle") {
                         destination = .addImageOcclusion
                     }
                 } label: {
-                    Label("Add", systemImage: "plus")
+                    Label(String(localized: "Add", bundle: .module), systemImage: "plus")
                 }
             }
             ToolbarItem(placement: .primaryAction) {
                 Menu {
                     if !model.notes.isEmpty {
                         Section {
-                            Button("Select", systemImage: "checkmark.circle") {
+                            Button(String(localized: "Select", bundle: .module), systemImage: "checkmark.circle") {
                                 selectionState.enterSelectMode()
                             }
                         }
                         Section {
-                            Picker("Sort By", selection: $model.sortOrder) {
+                            Picker(String(localized: "Sort By", bundle: .module), selection: $model.sortOrder) {
                                 ForEach(BrowseSortOrder.allCases, id: \.self) { order in
-                                    Text(order.rawValue).tag(order)
+                                    Text(order.title).tag(order)
                                 }
                             }
                             .pickerStyle(.inline)
                         }
                     }
                     Section {
-                        Button("Find", systemImage: "magnifyingglass") {
+                        Button(String(localized: "Find", bundle: .module), systemImage: "magnifyingglass") {
                             searchFocused = true
                         }
                         .keyboardShortcut("f", modifiers: .command)
-                        Button("Find Duplicates", systemImage: "doc.on.doc") {
+                        Button(String(localized: "Find Duplicates", bundle: .module), systemImage: "doc.on.doc") {
                             pendingTool = .duplicates
                         }
-                        Button("Find & Replace", systemImage: "text.magnifyingglass") {
+                        Button(String(localized: "Find & Replace", bundle: .module), systemImage: "text.magnifyingglass") {
                             destination = .findReplaceAll
                         }
                     }
                 } label: {
-                    Label("More", systemImage: "ellipsis")
+                    Label(String(localized: "More", bundle: .module), systemImage: "ellipsis")
                 }
             }
         }
@@ -215,24 +224,24 @@ package struct BrowseView: View {
             Button {
                 suspendSelected()
             } label: {
-                Label("Suspend", systemImage: "pause.circle")
+                Label(String(localized: "Suspend", bundle: .module), systemImage: "pause.circle")
             }
             .disabled(selectionState.isEmpty)
         }
         ToolbarItem(placement: .bottomBar) { Spacer() }
         ToolbarItem(placement: .bottomBar) {
             Menu {
-                Button { applyFlag(1) } label: { Label("Red flag",       systemImage: "flag.fill") }
-                Button { applyFlag(2) } label: { Label("Orange flag",    systemImage: "flag.fill") }
-                Button { applyFlag(3) } label: { Label("Green flag",     systemImage: "flag.fill") }
-                Button { applyFlag(4) } label: { Label("Blue flag",      systemImage: "flag.fill") }
-                Button { applyFlag(5) } label: { Label("Pink flag",      systemImage: "flag.fill") }
-                Button { applyFlag(6) } label: { Label("Turquoise flag", systemImage: "flag.fill") }
-                Button { applyFlag(7) } label: { Label("Purple flag",    systemImage: "flag.fill") }
+                Button { applyFlag(1) } label: { Label(String(localized: "Red flag", bundle: .module),       systemImage: "flag.fill") }
+                Button { applyFlag(2) } label: { Label(String(localized: "Orange flag", bundle: .module),    systemImage: "flag.fill") }
+                Button { applyFlag(3) } label: { Label(String(localized: "Green flag", bundle: .module),     systemImage: "flag.fill") }
+                Button { applyFlag(4) } label: { Label(String(localized: "Blue flag", bundle: .module),      systemImage: "flag.fill") }
+                Button { applyFlag(5) } label: { Label(String(localized: "Pink flag", bundle: .module),      systemImage: "flag.fill") }
+                Button { applyFlag(6) } label: { Label(String(localized: "Turquoise flag", bundle: .module), systemImage: "flag.fill") }
+                Button { applyFlag(7) } label: { Label(String(localized: "Purple flag", bundle: .module),    systemImage: "flag.fill") }
                 Divider()
-                Button { applyFlag(0) } label: { Label("Clear flag",     systemImage: "flag.slash") }
+                Button { applyFlag(0) } label: { Label(String(localized: "Clear flag", bundle: .module),     systemImage: "flag.slash") }
             } label: {
-                Label("Flag", systemImage: "flag")
+                Label(String(localized: "Flag", bundle: .module), systemImage: "flag")
             }
             .disabled(selectionState.isEmpty)
         }
@@ -241,7 +250,7 @@ package struct BrowseView: View {
             Button {
                 destination = .batchTag
             } label: {
-                Label("Tags", systemImage: "tag")
+                Label(String(localized: "Tags", bundle: .module), systemImage: "tag")
             }
             .disabled(selectionState.isEmpty)
         }
@@ -250,7 +259,7 @@ package struct BrowseView: View {
             Button {
                 destination = .findReplaceSelected
             } label: {
-                Label("Find & Replace", systemImage: "text.magnifyingglass")
+                Label(String(localized: "Find & Replace", bundle: .module), systemImage: "text.magnifyingglass")
             }
             .disabled(selectionState.isEmpty)
         }
@@ -259,7 +268,7 @@ package struct BrowseView: View {
             Button(role: .destructive) {
                 destination = .deleteSelected
             } label: {
-                Label("Delete", systemImage: "trash")
+                Label(String(localized: "Delete", bundle: .module), systemImage: "trash")
             }
             .disabled(selectionState.isEmpty)
         }
@@ -314,17 +323,17 @@ struct BrowseContent: View {
         if model.notes.isEmpty && !model.isLoading && model.searchText.isEmpty
             && model.activeDeck == nil && model.activeTag == nil {
             ContentUnavailableView(
-                "Browse Notes",
+                String(localized: "Browse Notes", bundle: .module),
                 systemImage: "magnifyingglass",
-                description: Text("Search by content, tags, or filter by deck.")
+                description: Text("Search by content, tags, or filter by deck.", bundle: .module)
             )
         } else if model.notes.isEmpty && !model.isLoading && model.searchFailed {
             ContentUnavailableView {
-                Label("Search Failed", systemImage: "exclamationmark.triangle")
+                Label(String(localized: "Search Failed", bundle: .module), systemImage: "exclamationmark.triangle")
             } description: {
-                Text("The collection couldn't be searched.")
+                Text("The collection couldn't be searched.", bundle: .module)
             } actions: {
-                Button("Try Again") {
+                Button(String(localized: "Try Again", bundle: .module)) {
                     Task { await model.performSearch(debounce: .zero) }
                 }
             }
@@ -345,7 +354,7 @@ struct BrowseContent: View {
                         Button(role: .destructive) {
                             onSwipeDelete(note)
                         } label: {
-                            Label("Delete", systemImage: "trash")
+                            Label(String(localized: "Delete", bundle: .module), systemImage: "trash")
                         }
                     }
             }
@@ -402,7 +411,7 @@ struct BrowseContent: View {
                 // The long press is the only way into select mode, and it's
                 // not a gesture VoiceOver can perform — expose it as a named
                 // action in the rotor as well.
-                .accessibilityAction(named: "Select") {
+                .accessibilityAction(named: String(localized: "Select", bundle: .module)) {
                     selectionState.enterSelectMode(preselect: note.id)
                 }
             }
@@ -437,7 +446,7 @@ struct BrowseContent: View {
     private var tagChipRow: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                chipButton(label: "All", isSelected: model.activeTag == nil) {
+                chipButton(label: String(localized: "All", bundle: .module), isSelected: model.activeTag == nil) {
                     model.activeTag = nil
                 }
                 ForEach(model.allTags, id: \.self) { tag in
@@ -456,7 +465,7 @@ struct BrowseContent: View {
             // Top-level deck chips
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
-                    chipButton(label: "All", isSelected: model.activeDeck == nil) {
+                    chipButton(label: String(localized: "All", bundle: .module), isSelected: model.activeDeck == nil) {
                         model.parentDeck = nil
                         model.activeDeck = nil
                     }
@@ -480,7 +489,7 @@ struct BrowseContent: View {
                     HStack(spacing: 8) {
                         // "All" chip = parent deck (includes subdecks)
                         chipButton(
-                            label: "All",
+                            label: String(localized: "All", bundle: .module),
                             isSelected: model.activeDeck?.id == model.parentDeck?.id,
                             small: true
                         ) {

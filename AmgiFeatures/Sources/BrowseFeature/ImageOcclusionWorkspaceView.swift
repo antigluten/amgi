@@ -21,11 +21,11 @@ private enum IOMaskFillOption: CaseIterable {
 
     var label: String {
         switch self {
-        case .default: return "Default"
-        case .yellow:  return "Yellow"
-        case .red:     return "Red"
-        case .blue:    return "Blue"
-        case .green:   return "Green"
+        case .default: return String(localized: "Default", bundle: .module)
+        case .yellow:  return String(localized: "Yellow", bundle: .module)
+        case .red:     return String(localized: "Red", bundle: .module)
+        case .blue:    return String(localized: "Blue", bundle: .module)
+        case .green:   return String(localized: "Green", bundle: .module)
         }
     }
 
@@ -120,11 +120,11 @@ struct ImageOcclusionWorkspaceView: View {
     @ToolbarContentBuilder
     private var workspaceToolbar: some ToolbarContent {
         ToolbarItem(placement: .cancellationAction) {
-            Button("Cancel") { requestDismiss() }
+            Button(String(localized: "Cancel", bundle: .module)) { requestDismiss() }
                 .amgiToolbarTextButton(tone: .neutral)
         }
         ToolbarItem(placement: .confirmationAction) {
-            Button("Save") { saveWorkspace() }
+            Button(String(localized: "Save", bundle: .module)) { saveWorkspace() }
                 .amgiToolbarTextButton()
         }
     }
@@ -178,14 +178,14 @@ private struct WorkspacePresentations: ViewModifier {
     func body(content: Content) -> some View {
         content
             .confirmationDialog(
-                "Discard changes?",
+                String(localized: "Discard changes?", bundle: .module),
                 isPresented: $destination.discardConfirmation,
                 titleVisibility: .visible
             ) {
-                Button("Discard", role: .destructive) { onDiscard() }
-                Button("Cancel", role: .cancel) {}
+                Button(String(localized: "Discard", bundle: .module), role: .destructive) { onDiscard() }
+                Button(String(localized: "Cancel", bundle: .module), role: .cancel) {}
             } message: {
-                Text("Unsaved changes will be lost.")
+                Text("Unsaved changes will be lost.", bundle: .module)
             }
             .sheet(item: $destination.textEditor) { $draft in
                 IOTextEditorSheet(draft: $draft) { submitted in
@@ -216,20 +216,20 @@ private struct IOTextEditorSheet: View {
     let onCancel: () -> Void
 
     private var title: String {
-        if case .insert = draft.target { return "Prompt" }
-        return "Edit text"
+        if case .insert = draft.target { return String(localized: "Prompt", bundle: .module) }
+        return String(localized: "Edit text", bundle: .module)
     }
 
     var body: some View {
         NavigationStack {
             Form {
-                Section("Prompt") {
-                    TextField("Enter prompt text", text: $draft.text, axis: .vertical)
+                Section(String(localized: "Prompt", bundle: .module)) {
+                    TextField(String(localized: "Enter prompt text", bundle: .module), text: $draft.text, axis: .vertical)
                         .lineLimit(3...6)
                 }
 
-                Section("Text color") {
-                    ColorPicker("Custom", selection: $draft.color, supportsOpacity: true)
+                Section(String(localized: "Text color", bundle: .module)) {
+                    ColorPicker(String(localized: "Custom", bundle: .module), selection: $draft.color, supportsOpacity: true)
                 }
             }
             .scrollContentBackground(.hidden)
@@ -238,11 +238,11 @@ private struct IOTextEditorSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { onCancel() }
+                    Button(String(localized: "Cancel", bundle: .module)) { onCancel() }
                         .amgiToolbarTextButton(tone: .neutral)
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") { onSave(draft) }
+                    Button(String(localized: "Save", bundle: .module)) { onSave(draft) }
                         .amgiToolbarTextButton()
                         .disabled(!draft.isSubmittable)
                 }
@@ -261,25 +261,25 @@ private struct IOFillEditorSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Custom") {
-                    ColorPicker("Custom", selection: $draft.color, supportsOpacity: true)
+                Section(String(localized: "Custom", bundle: .module)) {
+                    ColorPicker(String(localized: "Custom", bundle: .module), selection: $draft.color, supportsOpacity: true)
                 }
             }
             .scrollContentBackground(.hidden)
             .background(palette.background)
-            .navigationTitle("Custom")
+            .navigationTitle(String(localized: "Custom", bundle: .module))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { onCancel() }
+                    Button(String(localized: "Cancel", bundle: .module)) { onCancel() }
                         .amgiToolbarTextButton(tone: .neutral)
                 }
                 ToolbarItem(placement: .primaryAction) {
-                    Button("Default") { onDefault() }
+                    Button(String(localized: "Default", bundle: .module)) { onDefault() }
                         .amgiToolbarTextButton(tone: .neutral)
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") { onSave(draft.color) }
+                    Button(String(localized: "Save", bundle: .module)) { onSave(draft.color) }
                         .amgiToolbarTextButton()
                 }
             }
@@ -357,10 +357,10 @@ private struct IOToolPalette: View, Equatable {
                     Button(option.label) { onApplyFill(option.hex) }
                 }
                 Divider()
-                Button("Custom") { onCustomFill() }
-                Button("Default") { onApplyFill(nil) }
+                Button(String(localized: "Custom", bundle: .module)) { onCustomFill() }
+                Button(String(localized: "Default", bundle: .module)) { onApplyFill(nil) }
             } label: {
-                IOPaletteChip(title: "Fill", systemImage: "paintpalette", isSelected: false)
+                IOPaletteChip(title: String(localized: "Fill", bundle: .module), systemImage: "paintpalette", isSelected: false)
             }
             .frame(maxWidth: .infinity)
             .disabled(!hasSelection)
@@ -370,7 +370,7 @@ private struct IOToolPalette: View, Equatable {
                     Button(mode.label) { onSelectOcclusionMode(mode) }
                 }
             } label: {
-                IOPaletteChip(title: "Mode", systemImage: "square.stack.3d.up", isSelected: false)
+                IOPaletteChip(title: String(localized: "Mode", bundle: .module), systemImage: "square.stack.3d.up", isSelected: false)
             }
             .frame(maxWidth: .infinity)
         }

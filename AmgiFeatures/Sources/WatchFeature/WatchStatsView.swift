@@ -34,14 +34,14 @@ struct WatchStatsView: View {
         Group {
             switch state {
             case .loading:
-                ProgressView("Loading statistics...")
+                ProgressView(String(localized: "Loading statistics...", bundle: .module))
             case .failed(let error):
                 ContentUnavailableView {
-                    Label("Couldn't Load Stats", systemImage: "exclamationmark.triangle")
+                    Label(String(localized: "Couldn't Load Stats", bundle: .module), systemImage: "exclamationmark.triangle")
                 } description: {
                     Text(error)
                 } actions: {
-                    Button("Try Again") { Task { await loadStats() } }
+                    Button(String(localized: "Try Again", bundle: .module)) { Task { await loadStats() } }
                 }
             case .loaded(let graphs):
                 List {
@@ -57,7 +57,7 @@ struct WatchStatsView: View {
                 }
             }
         }
-        .navigationTitle("Stats")
+        .navigationTitle(String(localized: "Stats", bundle: .module))
         .task { await loadDecks() }
         // Keyed on the two inputs the query is built from, so changing either
         // cancels the in-flight fetch instead of racing it.
@@ -73,12 +73,12 @@ struct WatchStatsView: View {
     }
     private var deckPicker: some View {
         Picker(selection: $selectedDeck) {
-            Text("Collection").tag(nil as DeckInfo?)
+            Text("Collection", bundle: .module).tag(nil as DeckInfo?)
             ForEach(decks) { deck in
                 Text(deck.name).tag(deck as DeckInfo?)
             }
         } label: {
-            Text("Deck")
+            Text("Deck", bundle: .module)
         }
     }
     private var periodPicker: some View {
@@ -87,7 +87,7 @@ struct WatchStatsView: View {
                 Text(p.rawValue).tag(p)
             }
         } label: {
-            Text("Period")
+            Text("Period", bundle: .module)
         }
     }
     private func loadDecks() async {

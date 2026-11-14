@@ -40,14 +40,14 @@ struct StatsDashboardContent: View {
 
                 switch state {
                 case .loading:
-                    ProgressView("Loading statistics...").padding(.top, 40)
+                    ProgressView(String(localized: "Loading statistics...", bundle: .module)).padding(.top, 40)
                 case .failed(let message):
                     ContentUnavailableView {
-                        Label("Couldn't Load Stats", systemImage: "exclamationmark.triangle")
+                        Label(String(localized: "Couldn't Load Stats", bundle: .module), systemImage: "exclamationmark.triangle")
                     } description: {
                         Text(message)
                     } actions: {
-                        Button("Try Again") { onRetry() }
+                        Button(String(localized: "Try Again", bundle: .module)) { onRetry() }
                     }
                 case .loaded(let graphs):
                     charts(graphs)
@@ -75,8 +75,8 @@ struct StatsDashboardContent: View {
     private var deckMenu: some View {
         Menu {
             Button { onSelectDeck(nil) } label: {
-                if selectedDeck == nil { Label("Whole Collection", systemImage: "checkmark") }
-                else { Text("Whole Collection") }
+                if selectedDeck == nil { Label(String(localized: "Whole Collection", bundle: .module), systemImage: "checkmark") }
+                else { Text("Whole Collection", bundle: .module) }
             }
             Divider()
             ForEach(topLevelDecks) { deck in
@@ -88,19 +88,19 @@ struct StatsDashboardContent: View {
         } label: {
             filterCapsule(
                 icon: "rectangle.stack",
-                label: selectedDeck?.name ?? "Collection"
+                label: selectedDeck?.name ?? String(localized: "Collection", bundle: .module)
             )
         }
-        .accessibilityLabel("Deck filter")
-        .accessibilityValue(selectedDeck?.name ?? "Whole collection")
+        .accessibilityLabel(String(localized: "Deck filter", bundle: .module))
+        .accessibilityValue(selectedDeck?.name ?? String(localized: "Whole collection", bundle: .module))
     }
 
     private var periodMenu: some View {
         Menu {
             ForEach(StatsPeriod.allCases, id: \.self) { p in
                 Button { onSelectPeriod(p) } label: {
-                    if period == p { Label(p.rawValue, systemImage: "checkmark") }
-                    else { Text(p.rawValue) }
+                    if period == p { Label(p.title, systemImage: "checkmark") }
+                    else { Text(p.title) }
                 }
             }
         } label: {
@@ -109,8 +109,8 @@ struct StatsDashboardContent: View {
                 label: period.shortLabel
             )
         }
-        .accessibilityLabel("Time period")
-        .accessibilityValue(period.rawValue)
+        .accessibilityLabel(String(localized: "Time period", bundle: .module))
+        .accessibilityValue(period.title)
     }
 
     private func filterCapsule(icon: String, label: String) -> some View {

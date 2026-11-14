@@ -21,7 +21,7 @@ package struct DuplicatesView: View {
     package var body: some View {
         content
             .background(palette.background)
-            .navigationTitle("Duplicates")
+            .navigationTitle(String(localized: "Duplicates", bundle: .module))
             .navigationBarTitleDisplayMode(.inline)
             .task { await model.load() }
     }
@@ -35,18 +35,18 @@ package struct DuplicatesView: View {
 
         case .failed(let message):
             ContentUnavailableView {
-                Label("Couldn't Check for Duplicates", systemImage: "exclamationmark.triangle")
+                Label(String(localized: "Couldn't Check for Duplicates", bundle: .module), systemImage: "exclamationmark.triangle")
             } description: {
                 Text(message)
             } actions: {
-                Button("Try Again") { Task { await model.load() } }
+                Button(String(localized: "Try Again", bundle: .module)) { Task { await model.load() } }
             }
 
         case .loaded(let groups) where groups.isEmpty:
             ContentUnavailableView(
-                "No Duplicates",
+                String(localized: "No Duplicates", bundle: .module),
                 systemImage: "checkmark.circle",
-                description: Text("No two notes in your collection share a first field.")
+                description: Text("No two notes in your collection share a first field.", bundle: .module)
             )
 
         case .loaded(let groups):
@@ -61,9 +61,9 @@ package struct DuplicatesView: View {
                     groupRow(group)
                 }
             } header: {
-                Text("\(groups.count) group\(groups.count == 1 ? "" : "s")")
+                Text("\(groups.count) groups", bundle: .module)
             } footer: {
-                Text("Notes are duplicates when their first fields match once formatting is ignored — the same rule Anki uses when it warns you while adding a note.")
+                Text("Notes are duplicates when their first fields match once formatting is ignored — the same rule Anki uses when it warns you while adding a note.", bundle: .module)
             }
         }
         .scrollContentBackground(.hidden)
@@ -84,7 +84,7 @@ package struct DuplicatesView: View {
                     DuplicateNoteRow(note: note)
                 }
                 .swipeActions {
-                    Button("Delete", role: .destructive) {
+                    Button(String(localized: "Delete", bundle: .module), role: .destructive) {
                         Task { await model.delete(note, from: group) }
                     }
                 }
@@ -94,7 +94,7 @@ package struct DuplicatesView: View {
                 Text(group.value)
                     .amgiFont(.body)
                     .lineLimit(1)
-                Text("\(group.noteIDs.count) notes")
+                Text("\(group.noteIDs.count) notes", bundle: .module)
                     .amgiFont(.caption)
                     .foregroundStyle(palette.textSecondary)
             }
@@ -131,7 +131,7 @@ private struct DuplicateNoteRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(remainder.isEmpty ? "No other fields" : remainder)
+            Text(remainder.isEmpty ? String(localized: "No other fields", bundle: .module) : remainder)
                 .amgiFont(.body)
                 .foregroundStyle(remainder.isEmpty ? palette.textSecondary : palette.textPrimary)
                 .lineLimit(2)

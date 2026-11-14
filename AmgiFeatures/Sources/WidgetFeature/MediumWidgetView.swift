@@ -41,16 +41,16 @@ struct MediumWidgetView: View {
 
             // Right: category breakdown + done today
             VStack(alignment: .leading, spacing: AmgiSpacing.sm) {
-                CountLegendRow(color: palette.cardStateNew, label: "New", count: snapshot.newCount)
-                CountLegendRow(color: palette.cardStateLearning, label: "Learn", count: snapshot.learnCount)
-                CountLegendRow(color: palette.cardStateReview, label: "Review", count: snapshot.reviewCount)
+                CountLegendRow(color: palette.cardStateNew, label: String(localized: "New", bundle: .module), count: snapshot.newCount)
+                CountLegendRow(color: palette.cardStateLearning, label: String(localized: "Learn", bundle: .module), count: snapshot.learnCount)
+                CountLegendRow(color: palette.cardStateReview, label: String(localized: "Review", bundle: .module), count: snapshot.reviewCount)
 
                 Rectangle()
                     .fill(palette.separator)
                     .frame(height: 1)
 
                 HStack {
-                    Text("Done today")
+                    Text("Done today", bundle: .module)
                         .amgiFont(.micro)
                         .foregroundStyle(palette.textTertiary)
                         .frame(maxWidth: .infinity, alignment: .leading)

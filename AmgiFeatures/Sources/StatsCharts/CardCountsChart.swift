@@ -23,13 +23,13 @@ public struct CardCountsChart: View {
     private var chartData: [(name: String, count: Int, color: Color)] {
         let c = cardCounts.excludingInactive
         return [
-            ("New", Int(c.newCards), palette.cardStateNew),
-            ("Learning", Int(c.learn), palette.cardStateLearning),
-            ("Relearning", Int(c.relearn), palette.cardStateRelearn),
-            ("Young", Int(c.young), palette.cardStateReview),
-            ("Mature", Int(c.mature), palette.cardStateMature),
-            ("Suspended", Int(c.suspended), palette.cardStateSuspended),
-            ("Buried", Int(c.buried), palette.textTertiary),
+            (String(localized: "New", bundle: .module), Int(c.newCards), palette.cardStateNew),
+            (String(localized: "Learning", bundle: .module), Int(c.learn), palette.cardStateLearning),
+            (String(localized: "Relearning", bundle: .module), Int(c.relearn), palette.cardStateRelearn),
+            (String(localized: "Young", bundle: .module), Int(c.young), palette.cardStateReview),
+            (String(localized: "Mature", bundle: .module), Int(c.mature), palette.cardStateMature),
+            (String(localized: "Suspended", bundle: .module), Int(c.suspended), palette.cardStateSuspended),
+            (String(localized: "Buried", bundle: .module), Int(c.buried), palette.textTertiary),
         ].filter { $0.count > 0 }
     }
 
@@ -43,23 +43,23 @@ public struct CardCountsChart: View {
         ) {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
-                    Text("Card Counts").amgiFont(.bodyEmphasis)
+                    Text("Card Counts", bundle: .module).amgiFont(.bodyEmphasis)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                    Text("\(total) total").amgiFont(.caption).foregroundStyle(palette.textSecondary)
+                    Text("\(total) total", bundle: .module).amgiFont(.caption).foregroundStyle(palette.textSecondary)
                 }
 
                 if chartData.isEmpty {
-                    Text("No cards").foregroundStyle(palette.textSecondary).frame(height: 180)
+                    Text("No cards", bundle: .module).foregroundStyle(palette.textSecondary).frame(height: 180)
                 } else {
                     Chart(chartData, id: \.name) { item in
                         SectorMark(
-                            angle: .value("Count", item.count),
+                            angle: .value(String(localized: "Count", bundle: .module), item.count),
                             innerRadius: .ratio(0.5),
                             angularInset: 1
                         )
                         .foregroundStyle(item.color)
                         .accessibilityLabel(item.name)
-                        .accessibilityValue(ChartSpeech.count(item.count, "card"))
+                        .accessibilityValue(ChartSpeech.count(item.count, .card))
                     }
                     .frame(height: 200)
 

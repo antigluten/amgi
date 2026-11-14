@@ -85,22 +85,22 @@ public struct RetrievabilityChart: View {
         VStack(alignment: .leading, spacing: AmgiSpacing.sm) {
             HStack {
                 VStack(alignment: .leading, spacing: AmgiSpacing.xxs) {
-                    Text("Retrievability")
+                    Text("Retrievability", bundle: .module)
                         .amgiFont(.sectionHeading)
                         .foregroundStyle(palette.textPrimary)
 
-                    Text("Distribution of card recall probability")
+                    Text("Distribution of card recall probability", bundle: .module)
                         .amgiFont(.caption)
                         .foregroundStyle(palette.textSecondary)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                Text("Avg: \(averageLabel)")
+                Text("Avg: \(averageLabel)", bundle: .module)
                     .amgiFont(.captionBold)
                     .foregroundStyle(palette.textSecondary)
             }
 
             if chartData.allSatisfy({ $0.count == 0 }) {
-                Text("No retrievability data yet")
+                Text("No retrievability data yet", bundle: .module)
                     .amgiFont(.body)
                     .foregroundStyle(palette.textSecondary)
                     .frame(maxWidth: .infinity, minHeight: 180)
@@ -137,20 +137,20 @@ private extension RetrievabilityChart {
     @ChartContentBuilder
     private func retrievabilityBarMark(for item: Bucket) -> some ChartContent {
         BarMark(
-            x: .value("Retrievability", item.center),
-            y: .value("Cards", item.count)
+            x: .value(String(localized: "Retrievability", bundle: .module), item.center),
+            y: .value(String(localized: "Cards", bundle: .module), item.count)
         )
         .foregroundStyle(bucketColor(for: item.center).gradient)
         .accessibilityLabel(item.label)
-        .accessibilityValue(ChartSpeech.count(item.count, "card"))
+        .accessibilityValue(ChartSpeech.count(item.count, .card))
     }
 
     @ChartContentBuilder
     private func selectedRetrievabilityRuleMark(for item: Bucket) -> some ChartContent {
         if let selectedBucket,
            selectedBucket.start == item.start {
-            let countLabel = "Cards"
-            RuleMark(x: .value("Selected Retrievability", selectedBucket.center))
+            let countLabel = String(localized: "Cards", bundle: .module)
+            RuleMark(x: .value(String(localized: "Selected Retrievability", bundle: .module), selectedBucket.center))
                 .foregroundStyle(palette.accent.opacity(0.35))
                 .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
                 .annotation(position: .top, spacing: 0, overflowResolution: .init(x: .fit, y: .fit)) {

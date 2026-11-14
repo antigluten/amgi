@@ -11,6 +11,9 @@ let project = AmgiModule.project(
                 .project(target: "AnkiKit", path: .relativeToRoot(".")),
                 .external(name: "Sharing"),
             ],
+            resources: [
+                .glob(pattern: .relativeToManifest("Sources/AppCore/Resources/Localizable.xcstrings")),
+            ],
             watchOS: true
         ),
         AmgiModule.target(
@@ -34,6 +37,9 @@ let project = AmgiModule.project(
                 .project(target: "UI", path: .relativeToRoot("AmgiUI")),
                 .external(name: "Dependencies"),
                 .external(name: "DependenciesMacros"),
+            ],
+            resources: [
+                .glob(pattern: .relativeToManifest("Sources/AppShared/Resources/Localizable.xcstrings")),
             ]
         ),
         AmgiModule.target(
@@ -52,6 +58,9 @@ let project = AmgiModule.project(
                 .project(target: "Theme", path: .relativeToRoot("AmgiUI")),
                 .project(target: "UI", path: .relativeToRoot("AmgiUI")),
             ],
+            resources: [
+                .glob(pattern: .relativeToManifest("Sources/StatsCharts/Resources/Localizable.xcstrings")),
+            ],
             watchOS: true
         ),
         AmgiModule.target(
@@ -68,6 +77,9 @@ let project = AmgiModule.project(
                 .external(name: "Sharing"),
                 .external(name: "SwiftUINavigation"),
                 .external(name: "CasePaths"),
+            ],
+            resources: [
+                .glob(pattern: .relativeToManifest("Sources/TemplatesFeature/Resources/Localizable.xcstrings")),
             ]
         ),
         AmgiModule.target(
@@ -81,6 +93,9 @@ let project = AmgiModule.project(
                 .project(target: "Theme", path: .relativeToRoot("AmgiUI")),
                 .project(target: "UI", path: .relativeToRoot("AmgiUI")),
                 .external(name: "Dependencies"),
+            ],
+            resources: [
+                .glob(pattern: .relativeToManifest("Sources/StatsFeature/Resources/Localizable.xcstrings")),
             ]
         ),
         AmgiModule.target(
@@ -122,6 +137,9 @@ let project = AmgiModule.project(
                 .external(name: "Dependencies"),
                 .external(name: "SwiftUINavigation"),
                 .external(name: "CasePaths"),
+            ],
+            resources: [
+                .glob(pattern: .relativeToManifest("Sources/BrowseFeature/Resources/Localizable.xcstrings")),
             ]
         ),
         AmgiModule.target(
@@ -162,6 +180,9 @@ let project = AmgiModule.project(
                 .external(name: "Dependencies"),
                 .external(name: "SwiftUINavigation"),
                 .external(name: "CasePaths"),
+            ],
+            resources: [
+                .glob(pattern: .relativeToManifest("Sources/DecksFeature/Resources/Localizable.xcstrings")),
             ]
         ),
         AmgiModule.target(
@@ -183,6 +204,9 @@ let project = AmgiModule.project(
                 .external(name: "Sharing"),
                 .external(name: "SwiftUINavigation"),
                 .external(name: "CasePaths"),
+            ],
+            resources: [
+                .glob(pattern: .relativeToManifest("Sources/ReviewFeature/Resources/Localizable.xcstrings")),
             ]
         ),
         AmgiModule.target(
@@ -201,6 +225,9 @@ let project = AmgiModule.project(
                 .external(name: "Dependencies"),
                 .external(name: "Sharing"),
             ],
+            resources: [
+                .glob(pattern: .relativeToManifest("Sources/ReaderFeature/Resources/Localizable.xcstrings")),
+            ],
             cxx: true
         ),
         AmgiModule.target(
@@ -216,6 +243,9 @@ let project = AmgiModule.project(
                 .project(target: "UI", path: .relativeToRoot("AmgiUI")),
                 .external(name: "Dependencies"),
                 .external(name: "Sharing"),
+            ],
+            resources: [
+                .glob(pattern: .relativeToManifest("Sources/SyncFeature/Resources/Localizable.xcstrings")),
             ]
         ),
         AmgiModule.target(
@@ -236,6 +266,9 @@ let project = AmgiModule.project(
             dependencies: [
                 .target(name: "AppCore"),
                 .project(target: "Theme", path: .relativeToRoot("AmgiUI")),
+            ],
+            resources: [
+                .glob(pattern: .relativeToManifest("Sources/WidgetFeature/Resources/Localizable.xcstrings")),
             ]
         ),
         AmgiModule.target(
@@ -304,6 +337,9 @@ let project = AmgiModule.project(
                 .project(target: "Theme", path: .relativeToRoot("AmgiUI")),
                 .external(name: "Dependencies"),
             ],
+            resources: [
+                .glob(pattern: .relativeToManifest("Sources/WatchFeature/Resources/Localizable.xcstrings")),
+            ],
             watchOS: true
         ),
         AmgiModule.target(
@@ -338,6 +374,9 @@ let project = AmgiModule.project(
                 .project(target: "UI", path: .relativeToRoot("AmgiUI")),
                 .external(name: "Dependencies"),
                 .external(name: "Sharing"),
+            ],
+            resources: [
+                .glob(pattern: .relativeToManifest("Sources/RootFeature/Resources/Localizable.xcstrings")),
             ],
             cxx: true
         ),

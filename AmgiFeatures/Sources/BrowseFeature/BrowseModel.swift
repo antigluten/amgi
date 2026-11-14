@@ -266,9 +266,10 @@ final class BrowseModel {
             }
         }
         if failures > 0 {
+            let reason = firstError ?? String(localized: "unknown error", bundle: .module)
             errorMessage = failures == ids.count
-                ? "Couldn't \(verb) \(failures == 1 ? "that item" : "those \(failures) items"): \(firstError ?? "unknown error")"
-                : "\(failures) of \(ids.count) items couldn't be \(verb)d: \(firstError ?? "unknown error")"
+                ? Self.batchFailureMessage(verb, failures: failures, reason: reason)
+                : Self.partialBatchFailureMessage(verb, failures: failures, total: ids.count, reason: reason)
         }
         await performSearch()
     }
@@ -300,5 +301,29 @@ final class BrowseModel {
             }
         }
         return result
+    }
+}
+
+// MARK: - Batch failure messages
+
+extension BrowseModel {
+    /// One whole sentence per batch verb, so each language words it
+    /// naturally instead of splicing an English verb into a template.
+    static func batchFailureMessage(_ verb: String, failures: Int, reason: String) -> String {
+        switch verb {
+        case "delete": String(localized: "Couldn't delete \(failures) items: \(reason)", bundle: .module)
+        case "suspend": String(localized: "Couldn't suspend \(failures) items: \(reason)", bundle: .module)
+        case "flag": String(localized: "Couldn't flag \(failures) items: \(reason)", bundle: .module)
+        default: String(localized: "Couldn't update \(failures) items: \(reason)", bundle: .module)
+        }
+    }
+
+    static func partialBatchFailureMessage(_ verb: String, failures: Int, total: Int, reason: String) -> String {
+        switch verb {
+        case "delete": String(localized: "\(failures) of \(total) items couldn't be deleted: \(reason)", bundle: .module)
+        case "suspend": String(localized: "\(failures) of \(total) items couldn't be suspended: \(reason)", bundle: .module)
+        case "flag": String(localized: "\(failures) of \(total) items couldn't be flagged: \(reason)", bundle: .module)
+        default: String(localized: "\(failures) of \(total) items couldn't be updated: \(reason)", bundle: .module)
+        }
     }
 }

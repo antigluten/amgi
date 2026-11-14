@@ -24,25 +24,25 @@ package struct WordSpotlightSettingsView: View {
             notificationsSection
 
             if model.isSaving {
-                Section { ProgressView("Saving…") }
+                Section { ProgressView(String(localized: "Saving…", bundle: .module)) }
             }
             if model.savedPreferences.isConfigured {
                 Section {
-                    Button("Turn Off Word Spotlight", role: .destructive) {
+                    Button(String(localized: "Turn Off Word Spotlight", bundle: .module), role: .destructive) {
                         Task { await model.disable() }
                     }
                 }
             }
             Section {
-                Text("Home Screen: touch and hold → Edit → Add Widget → Amgi → Word Spotlight.")
-                Text("Lock Screen: touch and hold → Customize → Lock Screen → Add Widgets → Amgi.")
+                Text("Home Screen: touch and hold → Edit → Add Widget → Amgi → Word Spotlight.", bundle: .module)
+                Text("Lock Screen: touch and hold → Customize → Lock Screen → Add Widgets → Amgi.", bundle: .module)
             }
             .foregroundStyle(palette.textSecondary)
         }
         .disabled(model.isLoading || model.isSaving || model.isAdvancing)
         .scrollContentBackground(.hidden)
         .background(palette.background)
-        .navigationTitle("Word Spotlight")
+        .navigationTitle(String(localized: "Word Spotlight", bundle: .module))
         .task { await model.load() }
         .task(id: model.preferences.notetypeID) { await model.loadFields() }
         .task(id: "\(model.preferences.sourceID)-\(model.isLoading)") { await model.loadPreview() }
@@ -59,12 +59,12 @@ package struct WordSpotlightSettingsView: View {
 
     @ViewBuilder private var currentWordSection: some View {
         if model.savedPreferences.isConfigured {
-            Section("Current word") {
+            Section(String(localized: "Current word", bundle: .module)) {
                 TimelineView(.periodic(from: .now, by: 60)) { context in
                     if let word = model.controller.schedule?.word(on: context.date) {
                         wordContent(word)
                     } else {
-                        Text("No word is available. Refresh or check your vocabulary source.")
+                        Text("No word is available. Refresh or check your vocabulary source.", bundle: .module)
                             .foregroundStyle(palette.textSecondary)
                     }
                 }
@@ -72,14 +72,14 @@ package struct WordSpotlightSettingsView: View {
                     Task { await model.advance() }
                 } label: {
                     HStack {
-                        Label("Next word", systemImage: "arrow.forward")
+                        Label(String(localized: "Next word", bundle: .module), systemImage: "arrow.forward")
                         Spacer()
                         if model.isAdvancing { ProgressView() }
                     }
                 }
                 .disabled(!model.controller.canAdvance || model.isAdvancing)
                 if model.controller.wordCount == 1 {
-                    Text("Only one eligible word. Add more vocabulary cards to see another.")
+                    Text("Only one eligible word. Add more vocabulary cards to see another.", bundle: .module)
                         .foregroundStyle(palette.textSecondary)
                 }
             }
@@ -90,29 +90,29 @@ package struct WordSpotlightSettingsView: View {
         if let error = model.error ?? model.controller.error {
             Section {
                 Text(error).foregroundStyle(palette.danger)
-                Button("Retry") { Task { await model.retry() } }
+                Button(String(localized: "Retry", bundle: .module)) { Task { await model.retry() } }
             }
         }
     }
 
     private var sourceSection: some View {
         Section {
-            Picker("Vocabulary deck", selection: $model.preferences.deckID) {
-                Text("Choose a deck").tag(Int64(0))
+            Picker(String(localized: "Vocabulary deck", bundle: .module), selection: $model.preferences.deckID) {
+                Text("Choose a deck", bundle: .module).tag(Int64(0))
                 ForEach(model.decks) { Text($0.name).tag($0.id.rawValue) }
             }
             .accessibilityIdentifier("wordSpotlight.deck")
-            Picker("Note type", selection: $model.preferences.notetypeID) {
-                Text("Choose a note type").tag(Int64(0))
+            Picker(String(localized: "Note type", bundle: .module), selection: $model.preferences.notetypeID) {
+                Text("Choose a note type", bundle: .module).tag(Int64(0))
                 ForEach(model.notetypes) { Text($0.name).tag($0.id.rawValue) }
             }
-            fieldPicker("Word", selection: $model.preferences.termField)
-            fieldPicker("Meaning", selection: $model.preferences.meaningField)
-            fieldPicker("Reading (optional)", selection: $model.preferences.readingField)
+            fieldPicker(String(localized: "Word", bundle: .module), selection: $model.preferences.termField)
+            fieldPicker(String(localized: "Meaning", bundle: .module), selection: $model.preferences.meaningField)
+            fieldPicker(String(localized: "Reading (optional)", bundle: .module), selection: $model.preferences.readingField)
 
             if model.needsSourceSave { sourcePreview }
 
-            Button(model.savedPreferences.isConfigured ? "Save source" : "Enable Word Spotlight") {
+            Button(model.savedPreferences.isConfigured ? String(localized: "Save source", bundle: .module) : String(localized: "Enable Word Spotlight", bundle: .module)) {
                 Task { await model.saveSource() }
             }
             .disabled(!model.canSaveSource)
@@ -121,66 +121,66 @@ package struct WordSpotlightSettingsView: View {
                 Text(sourceStatus).foregroundStyle(palette.textSecondary)
             }
         } header: {
-            Text("Your vocabulary")
+            Text("Your vocabulary", bundle: .module)
         } footer: {
-            Text("Uses up to 500 notes. Suspended, buried, cloze and media-only entries are skipped. Viewing a word does not grade its card.")
+            Text("Uses up to 500 notes. Suspended, buried, cloze and media-only entries are skipped. Viewing a word does not grade its card.", bundle: .module)
         }
     }
 
     @ViewBuilder private var sourcePreview: some View {
         switch model.preview {
         case .loading:
-            ProgressView("Loading preview…")
+            ProgressView(String(localized: "Loading preview…", bundle: .module))
         case .ready(_, let words) where !words.isEmpty:
             if let word = words.first { wordContent(word) }
-            Text("\(words.count) eligible words. Confirm that the word and meaning look right.")
+            Text("\(words.count) eligible words. Confirm that the word and meaning look right.", bundle: .module)
                 .amgiFont(.caption).foregroundStyle(palette.textSecondary)
         case .failed(let message):
             Text(message).foregroundStyle(palette.danger)
-            Button("Retry preview") { Task { await model.loadPreview() } }
+            Button(String(localized: "Retry preview", bundle: .module)) { Task { await model.loadPreview() } }
         case .idle, .ready:
             Text(model.preferences.isConfigured
                  ? "No eligible words found. Check the fields or add vocabulary cards to this deck."
-                 : "Choose a source to preview a word before enabling the widget.")
+                 : "Choose a source to preview a word before enabling the widget.", bundle: .module)
                 .foregroundStyle(palette.textSecondary)
         }
     }
 
     private var rotationSection: some View {
         Section {
-            Picker("Change word", selection: Binding(
+            Picker(String(localized: "Change word", bundle: .module), selection: Binding(
                 get: { model.preferences.rotationHours }, set: { model.preferences.intervalHours = $0 }
             )) {
-                Text("Daily").tag(24)
-                Text("Every hour").tag(1)
-                Text("Every 3 hours").tag(3)
-                Text("Every 6 hours").tag(6)
-                Text("Every 12 hours").tag(12)
+                Text("Daily", bundle: .module).tag(24)
+                Text("Every hour", bundle: .module).tag(1)
+                Text("Every 3 hours", bundle: .module).tag(3)
+                Text("Every 6 hours", bundle: .module).tag(6)
+                Text("Every 12 hours", bundle: .module).tag(12)
             }
         } footer: {
-            Text("Changes save automatically for your active source. iOS schedules widget updates, which may appear later.")
+            Text("Changes save automatically for your active source. iOS schedules widget updates, which may appear later.", bundle: .module)
         }
     }
 
     private var notificationsSection: some View {
         Section {
-            Toggle("Daily notification", isOn: $model.preferences.notifications)
+            Toggle(String(localized: "Daily notification", bundle: .module), isOn: $model.preferences.notifications)
             if model.preferences.notifications {
-                DatePicker("Time", selection: notificationTime, displayedComponents: .hourAndMinute)
-                Toggle("Show word in notification", isOn: $model.preferences.showWord)
+                DatePicker(String(localized: "Time", bundle: .module), selection: notificationTime, displayedComponents: .hourAndMinute)
+                Toggle(String(localized: "Show word in notification", bundle: .module), isOn: $model.preferences.showWord)
             }
             if model.controller.notificationsDenied {
-                Text("Notifications are disabled in system settings.")
+                Text("Notifications are disabled in system settings.", bundle: .module)
                     .foregroundStyle(palette.textSecondary)
                 #if canImport(UIKit)
-                Button("Open Notification Settings") {
+                Button(String(localized: "Open Notification Settings", bundle: .module)) {
                     guard let url = URL(string: UIApplication.openNotificationSettingsURLString) else { return }
                     UIApplication.shared.open(url)
                 }
                 #endif
             }
         } footer: {
-            Text("Optional, silent reminders. Open Amgi at least every two weeks to prepare more words. Time-zone changes take effect next time you open the app.")
+            Text("Optional, silent reminders. Open Amgi at least every two weeks to prepare more words. Time-zone changes take effect next time you open the app.", bundle: .module)
         }
     }
 
@@ -195,7 +195,7 @@ package struct WordSpotlightSettingsView: View {
 
     private func fieldPicker(_ title: String, selection: Binding<String>) -> some View {
         Picker(title, selection: selection) {
-            Text("None").tag("")
+            Text("None", bundle: .module).tag("")
             ForEach(model.fields, id: \.self) { Text($0).tag($0) }
         }
         .disabled(model.fields.isEmpty)

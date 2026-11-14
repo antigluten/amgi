@@ -89,10 +89,10 @@ final class WordSpotlightNotifications: NSObject, UNUserNotificationCenterDelega
 
     private func notificationContent(for word: SpotlightWord, profileID: String, showWord: Bool) -> UNMutableNotificationContent {
         let content = UNMutableNotificationContent()
-        content.title = "Word Spotlight"
+        content.title = String(localized: "Word Spotlight", bundle: .module)
         content.body = showWord
             ? "\(word.term.prefix(80)) — \(word.meaning.prefix(160))"
-            : "Take a moment for vocabulary."
+            : String(localized: "Take a moment for vocabulary.", bundle: .module)
         content.userInfo = ["wordURL": WordSpotlightLink(profileID: profileID, noteID: word.noteID).url?.absoluteString ?? ""]
         return content
     }

@@ -45,27 +45,27 @@ package struct ReaderDictionarySettingsView: View {
     private static let zipType = UTType(filenameExtension: "zip") ?? .data
 
     private var libraryFooter: String {
-        let base = "Import Yomitan-format dictionary ZIP archives. Reordering and update-on-version-change land when the lookup engine is fully wired."
+        let base = String(localized: "Import Yomitan-format dictionary ZIP archives. Reordering and update-on-version-change land when the lookup engine is fully wired.", bundle: .module)
         guard model.lacksFrequencyDictionary else { return base }
-        return base + " Add a frequency dictionary to sort common words first."
+        return base + String(localized: " Add a frequency dictionary to sort common words first.", bundle: .module)
     }
 
     package var body: some View {
         Form {
-            Section("Lookup behavior") {
-                Stepper("Max results: \(maxResults)", value: Binding($maxResults), in: 1...50)
-                Stepper("Scan length: \(scanLength)", value: Binding($scanLength), in: 4...64)
+            Section(String(localized: "Lookup behavior", bundle: .module)) {
+                Stepper(String(localized: "Max results: \(maxResults)", bundle: .module), value: Binding($maxResults), in: 1...50)
+                Stepper(String(localized: "Scan length: \(scanLength)", bundle: .module), value: Binding($scanLength), in: 4...64)
             }
 
             Section {
-                Toggle("Autoplay audio", isOn: Binding($audioAutoplay))
-                Picker("Playback mode", selection: Binding($audioPlaybackModeRaw)) {
+                Toggle(String(localized: "Autoplay audio", bundle: .module), isOn: Binding($audioAutoplay))
+                Picker(String(localized: "Playback mode", bundle: .module), selection: Binding($audioPlaybackModeRaw)) {
                     ForEach(LookupAudioPlaybackMode.allCases) { mode in
                         Text(mode.label).tag(mode.rawValue)
                     }
                 }
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Source URL template").amgiFont(.caption).foregroundStyle(palette.textSecondary)
+                    Text("Source URL template", bundle: .module).amgiFont(.caption).foregroundStyle(palette.textSecondary)
                     TextField(
                         LookupAudioDefaults.defaultTemplate,
                         text: Binding($audioTemplate),
@@ -77,23 +77,23 @@ package struct ReaderDictionarySettingsView: View {
                     .font(.system(.footnote, design: .monospaced))
                 }
             } header: {
-                Text("Audio")
+                Text("Audio", bundle: .module)
             } footer: {
-                Text("Use {term} and {reading} placeholders. Endpoint must return Yomichan-style audioSourceList JSON.")
+                Text("Use {term} and {reading} placeholders. Endpoint must return Yomichan-style audioSourceList JSON.", bundle: .module)
             }
 
             Section {
-                Picker("Type", selection: $model.selectedKind) {
-                    Text("Term").tag(AppDictionaryKind.term)
-                    Text("Frequency").tag(AppDictionaryKind.frequency)
-                    Text("Pitch").tag(AppDictionaryKind.pitch)
+                Picker(String(localized: "Type", bundle: .module), selection: $model.selectedKind) {
+                    Text("Term", bundle: .module).tag(AppDictionaryKind.term)
+                    Text("Frequency", bundle: .module).tag(AppDictionaryKind.frequency)
+                    Text("Pitch", bundle: .module).tag(AppDictionaryKind.pitch)
                 }
                 .pickerStyle(.segmented)
             }
 
             Section {
                 if model.dictionaries.isEmpty {
-                    Text("No \(model.selectedKind.label) dictionaries imported yet.")
+                    Text("No \(model.selectedKind.label) dictionaries imported yet.", bundle: .module)
                         .foregroundStyle(palette.textSecondary)
                 } else {
                     ForEach(model.dictionaries) { dict in
@@ -112,18 +112,18 @@ package struct ReaderDictionarySettingsView: View {
                 Button {
                     showImporter = true
                 } label: {
-                    Label("Import \(model.selectedKind.label) archive…", systemImage: "square.and.arrow.down")
+                    Label(String(localized: "Import \(model.selectedKind.label) archive…", bundle: .module), systemImage: "square.and.arrow.down")
                 }
                 .disabled(model.isBusy)
 
                 Button {
                     Task { await model.refresh() }
                 } label: {
-                    Label("Reload library", systemImage: "arrow.clockwise")
+                    Label(String(localized: "Reload library", bundle: .module), systemImage: "arrow.clockwise")
                 }
                 .disabled(model.isBusy)
             } header: {
-                Text("Library")
+                Text("Library", bundle: .module)
             } footer: {
                 Text(libraryFooter)
             }
@@ -132,12 +132,12 @@ package struct ReaderDictionarySettingsView: View {
                 Section {
                     HStack(spacing: 8) {
                         ProgressView().controlSize(.small)
-                        Text("Working…")
+                        Text("Working…", bundle: .module)
                     }
                 }
             }
         }
-        .navigationTitle("Dictionaries")
+        .navigationTitle(String(localized: "Dictionaries", bundle: .module))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -152,14 +152,14 @@ package struct ReaderDictionarySettingsView: View {
             model.handleImport(result)
         }
         .alert(
-            "Dictionary",
+            String(localized: "Dictionary", bundle: .module),
             isPresented: Binding(
                 get: { model.actionError != nil },
                 set: { if !$0 { model.actionError = nil } }
             ),
             presenting: model.actionError
         ) { _ in
-            Button("OK", role: .cancel) {}
+            Button(String(localized: "OK", bundle: .module), role: .cancel) {}
         } message: { Text($0) }
         .task { await model.refresh() }
     }
@@ -178,7 +178,7 @@ private struct DictionaryRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(info.title).amgiFont(.body)
                 if !info.index.revision.isEmpty {
-                    Text("rev \(info.index.revision)")
+                    Text("rev \(info.index.revision)", bundle: .module)
                         .amgiFont(.caption)
                         .foregroundStyle(palette.textSecondary)
                 }
@@ -192,7 +192,7 @@ private struct DictionaryRow: View {
             Button(role: .destructive) {
                 onDelete()
             } label: {
-                Label("Delete", systemImage: "trash")
+                Label(String(localized: "Delete", bundle: .module), systemImage: "trash")
             }
             .disabled(isBusy)
         }
@@ -202,9 +202,9 @@ private struct DictionaryRow: View {
 private extension AppDictionaryKind {
     var label: String {
         switch self {
-        case .term: return "term"
-        case .frequency: return "frequency"
-        case .pitch: return "pitch"
+        case .term: return String(localized: "term", bundle: .module)
+        case .frequency: return String(localized: "frequency", bundle: .module)
+        case .pitch: return String(localized: "pitch", bundle: .module)
         }
     }
 }

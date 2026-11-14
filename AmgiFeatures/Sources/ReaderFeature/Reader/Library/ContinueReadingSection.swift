@@ -50,7 +50,7 @@ struct ContinueReadingSection: View {
     }
 
     private var sectionHeader: some View {
-        Text("CONTINUE READING")
+        Text("CONTINUE READING", bundle: .module)
             .amgiFont(.captionBold)
             .tracking(1.4)
             .foregroundStyle(palette.textSecondary)

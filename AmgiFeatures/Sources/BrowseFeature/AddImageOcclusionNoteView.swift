@@ -40,23 +40,23 @@ struct AddImageOcclusionNoteView: View {
                 onEditMasks: { showOcclusionEditor = true }
             )
             .toolbarVisibility(.hidden, for: .tabBar)
-            .navigationTitle("Image Occlusion")
+            .navigationTitle(String(localized: "Image Occlusion", bundle: .module))
             .navigationBarTitleDisplayMode(.inline)
             .task { await model.loadDecks() }
             .interactiveDismissDisabled(model.hasUnsavedChanges)
             .confirmationDialog(
-                "Discard this note?",
+                String(localized: "Discard this note?", bundle: .module),
                 isPresented: $showDiscardConfirm,
                 titleVisibility: .visible
             ) {
-                Button("Discard", role: .destructive) { dismiss() }
-                Button("Cancel", role: .cancel) {}
+                Button(String(localized: "Discard", bundle: .module), role: .destructive) { dismiss() }
+                Button(String(localized: "Cancel", bundle: .module), role: .cancel) {}
             } message: {
-                Text("The note hasn't been saved yet. Discarding loses the image and its masks.")
+                Text("The note hasn't been saved yet. Discarding loses the image and its masks.", bundle: .module)
             }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button(String(localized: "Cancel", bundle: .module)) {
                         if model.hasUnsavedChanges {
                             showDiscardConfirm = true
                         } else {
@@ -66,7 +66,7 @@ struct AddImageOcclusionNoteView: View {
                     .amgiToolbarTextButton(tone: .neutral)
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
+                    Button(String(localized: "Save", bundle: .module)) {
                         Task {
                             if await model.save() {
                                 onSave()
@@ -85,7 +85,7 @@ struct AddImageOcclusionNoteView: View {
                 if let selectedImage = model.selectedImage {
                     NavigationStack {
                         ImageOcclusionWorkspaceView(
-                            title: "Edit",
+                            title: String(localized: "Edit", bundle: .module),
                             image: selectedImage,
                             initialMasks: model.masks
                         ) { updatedMasks in
@@ -112,8 +112,8 @@ struct AddImageOcclusionContent: View {
 
     var body: some View {
         Form {
-            Section("Deck") {
-                Picker("Deck", selection: $model.selectedDeckId) {
+            Section(String(localized: "Deck", bundle: .module)) {
+                Picker(String(localized: "Deck", bundle: .module), selection: $model.selectedDeckId) {
                     ForEach(model.decks) { deck in
                         Text(deck.name).tag(deck.id)
                     }
@@ -121,12 +121,12 @@ struct AddImageOcclusionContent: View {
             }
 
             Section {
-                Text("Add Image Occlusion")
+                Text("Add Image Occlusion", bundle: .module)
                     .foregroundStyle(palette.textPrimary)
             } header: {
-                Text("Note Type")
+                Text("Note Type", bundle: .module)
             } footer: {
-                Text("Pick an image, draw occlusions over the regions you want to test, then save.")
+                Text("Pick an image, draw occlusions over the regions you want to test, then save.", bundle: .module)
                     .amgiFont(.caption)
                     .foregroundStyle(palette.textSecondary)
             }
@@ -143,14 +143,14 @@ struct AddImageOcclusionContent: View {
                     matching: .images,
                     photoLibrary: .shared()
                 ) {
-                    Label("Pick image", systemImage: pickImageSymbol)
+                    Label(String(localized: "Pick image", bundle: .module), systemImage: pickImageSymbol)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .onChange(of: selectedItem) {
                     Task { await model.loadImage(from: selectedItem) }
                 }
             } header: {
-                Text("Image")
+                Text("Image", bundle: .module)
             }
 
             if let uiImage = model.selectedImage {
@@ -161,25 +161,25 @@ struct AddImageOcclusionContent: View {
                     .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
                     .listRowBackground(Color.clear)
                 } header: {
-                    Text("Masks")
+                    Text("Masks", bundle: .module)
                 } footer: {
-                    Text("Tap and drag to draw a mask. Drag handles to resize.")
+                    Text("Tap and drag to draw a mask. Drag handles to resize.", bundle: .module)
                         .amgiFont(.caption)
                         .foregroundStyle(palette.textSecondary)
                 }
             }
 
-            Section("Content") {
-                TextField("Header", text: $model.header)
-                TextField("Extra info shown on the back", text: $model.backExtra)
+            Section(String(localized: "Content", bundle: .module)) {
+                TextField(String(localized: "Header", bundle: .module), text: $model.header)
+                TextField(String(localized: "Extra info shown on the back", bundle: .module), text: $model.backExtra)
             }
 
             Section {
-                TextField("Tags", text: $model.tagsText)
+                TextField(String(localized: "Tags", bundle: .module), text: $model.tagsText)
             } header: {
-                Text("Tags")
+                Text("Tags", bundle: .module)
             } footer: {
-                Text("Space-separated")
+                Text("Space-separated", bundle: .module)
                     .amgiFont(.caption)
                     .foregroundStyle(palette.textSecondary)
             }

@@ -96,7 +96,7 @@ final class DeckDetailModel {
             } else {
                 self.statsSnapshot = DeckDetailStats.Snapshot(
                     insights: .empty,
-                    subtitle: self.isEmpty ? "No cards yet · Add some to start studying" : ""
+                    subtitle: self.isEmpty ? String(localized: "No cards yet · Add some to start studying", bundle: .module) : ""
                 )
             }
         }
@@ -118,7 +118,7 @@ final class DeckDetailModel {
         defer { actionInFlight = false }
         do {
             let count = try await deckClient.rebuildFilteredDeck(deck.id)
-            showFeedback("Rebuilt — \(count) cards")
+            showFeedback(String(localized: "Rebuilt — \(count) cards", bundle: .module))
             // Rebuild's request only decodes a count — invalidate conservatively.
             store.apply(CollectionChanges(card: true, deck: true, studyQueues: true))
             return nil
@@ -169,14 +169,14 @@ final class DeckDetailModel {
             }.value
             return .success(url)
         } catch {
-            return .failure("Failed to export deck: \(error.localizedDescription)")
+            return .failure(String(localized: "Failed to export deck: \(error.localizedDescription)", bundle: .module))
         }
     }
 
     /// Returns nil on success; otherwise an error message to surface.
     func createSubdeck(rawName: String) async -> String? {
         let trimmed = rawName.trimmingCharacters(in: .whitespaces)
-        guard !trimmed.isEmpty else { return "Name cannot be empty." }
+        guard !trimmed.isEmpty else { return String(localized: "Name cannot be empty.", bundle: .module) }
         // Anki uses :: as the deck-hierarchy separator. Strip any user-supplied
         // separator collisions to avoid creating multi-level decks unexpectedly.
         let leafName = trimmed.replacingOccurrences(of: "::", with: "_")
@@ -186,7 +186,7 @@ final class DeckDetailModel {
             store.apply(creation.changes)
             return nil
         } catch {
-            return "Failed to create subdeck: \(error.localizedDescription)"
+            return String(localized: "Failed to create subdeck: \(error.localizedDescription)", bundle: .module)
         }
     }
 }

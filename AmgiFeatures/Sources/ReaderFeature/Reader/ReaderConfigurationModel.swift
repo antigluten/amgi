@@ -26,7 +26,7 @@ final class ReaderConfigurationModel {
         do {
             decks = try await deckClient.fetchAll().sorted { $0.name < $1.name }
         } catch {
-            loadError = "Failed to load decks: \(error.localizedDescription)"
+            loadError = String(localized: "Failed to load decks: \(error.localizedDescription)", bundle: .module)
         }
     }
 }

@@ -36,11 +36,11 @@ public struct ReviewsChart: View {
     private var entries: [ReviewEntry] {
         let maxDay = period.days
         let types: [(String, KeyPath<ReviewCountsAndTimes.Reviews, Int>, Color)] = [
-            ("Learn", \.learn, palette.cardStateNew),
-            ("Relearn", \.relearn, palette.cardStateRelearn),
-            ("Young", \.young, palette.cardStateLearning),
-            ("Mature", \.mature, palette.cardStateMature),
-            ("Filtered", \.filtered, palette.textTertiary),
+            (String(localized: "Learn", bundle: .module), \.learn, palette.cardStateNew),
+            (String(localized: "Relearn", bundle: .module), \.relearn, palette.cardStateRelearn),
+            (String(localized: "Young", bundle: .module), \.young, palette.cardStateLearning),
+            (String(localized: "Mature", bundle: .module), \.mature, palette.cardStateMature),
+            (String(localized: "Filtered", bundle: .module), \.filtered, palette.textTertiary),
         ]
         var result: [ReviewEntry] = []
         for (day, rev) in reviews.count {
@@ -76,26 +76,26 @@ public struct ReviewsChart: View {
             contentInsets: EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
         ) {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Reviews").amgiFont(.bodyEmphasis)
+                Text("Reviews", bundle: .module).amgiFont(.bodyEmphasis)
 
                 if entries.isEmpty {
-                    Text("No review data").foregroundStyle(palette.textSecondary).frame(height: 180)
+                    Text("No review data", bundle: .module).foregroundStyle(palette.textSecondary).frame(height: 180)
                 } else {
                     Chart(entries) { entry in
                         BarMark(
-                            x: .value("Day", entry.day),
-                            y: .value("Count", entry.count)
+                            x: .value(String(localized: "Day", bundle: .module), entry.day),
+                            y: .value(String(localized: "Count", bundle: .module), entry.count)
                         )
-                        .foregroundStyle(by: .value("Type", entry.type))
+                        .foregroundStyle(by: .value(String(localized: "Type", bundle: .module), entry.type))
                         .accessibilityLabel("\(entry.type), \(ChartSpeech.day(entry.day))")
-                        .accessibilityValue(ChartSpeech.count(entry.count, "review"))
+                        .accessibilityValue(ChartSpeech.count(entry.count, .review))
                     }
                     .chartForegroundStyleScale([
-                        "Learn": palette.cardStateNew,
-                        "Relearn": palette.cardStateRelearn,
-                        "Young": palette.cardStateLearning,
-                        "Mature": palette.cardStateMature,
-                        "Filtered": palette.textTertiary,
+                        String(localized: "Learn", bundle: .module): palette.cardStateNew,
+                        String(localized: "Relearn", bundle: .module): palette.cardStateRelearn,
+                        String(localized: "Young", bundle: .module): palette.cardStateLearning,
+                        String(localized: "Mature", bundle: .module): palette.cardStateMature,
+                        String(localized: "Filtered", bundle: .module): palette.textTertiary,
                     ])
                     .chartXAxis {
                         AxisMarks(values: .automatic(desiredCount: 5)) { _ in
@@ -107,8 +107,8 @@ public struct ReviewsChart: View {
                 }
 
                 HStack(spacing: 16) {
-                    footerItem("Total", value: "\(totalReviews(entries))")
-                    footerItem("Avg/day", value: String(format: "%.1f", avgPerDay(entries)))
+                    footerItem(String(localized: "Total", bundle: .module), value: "\(totalReviews(entries))")
+                    footerItem(String(localized: "Avg/day", bundle: .module), value: String(format: "%.1f", avgPerDay(entries)))
                 }
             }
         }

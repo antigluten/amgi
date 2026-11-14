@@ -50,7 +50,7 @@ struct TemplatePreviewSheet: View {
 
     private var currentTemplateName: String {
         guard notetype.templates.indices.contains(selectedTemplateIndex) else {
-            return "No template selected."
+            return String(localized: "No template selected.", bundle: .module)
         }
         return notetype.templates[selectedTemplateIndex].name
     }
@@ -88,7 +88,7 @@ struct TemplatePreviewSheet: View {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .confirmationAction) {
-            Button("Done") { dismiss() }
+            Button(String(localized: "Done", bundle: .module)) { dismiss() }
                 .amgiToolbarTextButton()
         }
     }
@@ -115,7 +115,7 @@ private extension TemplatePreviewSheet {
         guard notetype.templates.indices.contains(selectedTemplateIndex) else {
             isLoading = false
             isEmptyCard = false
-            errorMessage = "No template selected."
+            errorMessage = String(localized: "No template selected.", bundle: .module)
             renderedFrontHTML = ""
             renderedBackHTML = ""
             return
@@ -162,8 +162,8 @@ enum CardPreviewSide: CaseIterable {
 
     var label: String {
         switch self {
-        case .front: return "Front"
-        case .back: return "Back"
+        case .front: return String(localized: "Front", bundle: .module)
+        case .back: return String(localized: "Back", bundle: .module)
         }
     }
 }
@@ -180,7 +180,7 @@ struct TemplatePreviewHeader: View {
                 .amgiFont(.bodyEmphasis)
                 .foregroundStyle(palette.textSecondary)
 
-            Picker("Side", selection: $previewSide) {
+            Picker(String(localized: "Side", bundle: .module), selection: $previewSide) {
                 ForEach(CardPreviewSide.allCases, id: \.self) { side in
                     Text(side.label).tag(side)
                 }

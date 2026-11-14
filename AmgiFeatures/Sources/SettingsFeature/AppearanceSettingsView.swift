@@ -18,44 +18,44 @@ struct AppearanceSettingsView: View {
 
     var body: some View {
         SettingsPage {
-            SettingsSectionHeader(title: "Theme")
+            SettingsSectionHeader(title: String(localized: "Theme", bundle: .module))
             themePickerRow
 
             #if os(iOS)
-            SettingsSectionHeader(title: "App Icon")
+            SettingsSectionHeader(title: String(localized: "App Icon", bundle: .module))
             AppIconPicker()
             #endif
 
-            SettingsSectionHeader(title: "Appearance")
+            SettingsSectionHeader(title: String(localized: "Appearance", bundle: .module))
             SettingsGroup {
-                Picker("Appearance", selection: $manager.appearance) {
-                    Text("System").tag(Appearance.system)
-                    Text("Light").tag(Appearance.light)
-                    Text("Dark").tag(Appearance.dark)
+                Picker(String(localized: "Appearance", bundle: .module), selection: $manager.appearance) {
+                    Text("System", bundle: .module).tag(Appearance.system)
+                    Text("Light", bundle: .module).tag(Appearance.light)
+                    Text("Dark", bundle: .module).tag(Appearance.dark)
                 }
                 .pickerStyle(.segmented)
                 .padding(AmgiSpacing.md)
             }
 
-            SettingsSectionHeader(title: "App Font")
+            SettingsSectionHeader(title: String(localized: "App Font", bundle: .module))
             SettingsGroup {
                 SettingsPickerRow(
-                    title: "Font",
+                    title: String(localized: "Font", bundle: .module),
                     systemImage: "textformat",
                     tone: .accent,
                     selection: Binding($appFontRaw)
                 ) {
-                    Text("System").tag(AppFont.system.rawValue)
-                    Text("Serif").tag(AppFont.serif.rawValue)
+                    Text("System", bundle: .module).tag(AppFont.system.rawValue)
+                    Text("Serif", bundle: .module).tag(AppFont.serif.rawValue)
                 }
             }
-            SettingsFootnote("Changes the font used throughout the app. Card-template content and hero numbers stay in their own typeface.")
+            SettingsFootnote(String(localized: "Changes the font used throughout the app. Card-template content and hero numbers stay in their own typeface.", bundle: .module))
 
-            SettingsSectionHeader(title: "Preview")
+            SettingsSectionHeader(title: String(localized: "Preview", bundle: .module))
             PreviewCard()
                 .padding(.horizontal, AmgiSpacing.lg)
         }
-        .navigationTitle("Appearance")
+        .navigationTitle(String(localized: "Appearance", bundle: .module))
         .navigationBarTitleDisplayMode(.inline)
     }
 
@@ -130,20 +130,20 @@ private struct PreviewCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: AmgiSpacing.sm) {
-            Text("Preview")
+            Text("Preview", bundle: .module)
                 .amgiFont(.cardTitle)
                 .foregroundStyle(palette.textPrimary)
-            Text("Body text in the active palette.")
+            Text("Body text in the active palette.", bundle: .module)
                 .amgiFont(.body)
                 .foregroundStyle(palette.textSecondary)
 
             HStack(spacing: AmgiSpacing.sm) {
-                badge("Positive", color: palette.positive)
-                badge("Warning", color: palette.warning)
-                badge("Danger", color: palette.danger)
+                badge(String(localized: "Positive", bundle: .module), color: palette.positive)
+                badge(String(localized: "Warning", bundle: .module), color: palette.warning)
+                badge(String(localized: "Danger", bundle: .module), color: palette.danger)
             }
 
-            Button("Primary action") {}
+            Button(String(localized: "Primary action", bundle: .module)) {}
                 .buttonStyle(AmgiPrimaryButtonStyle())
         }
         .padding(AmgiSpacing.lg)

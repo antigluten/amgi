@@ -26,6 +26,9 @@ let project = AmgiModule.project(
             dependencies: [
                 .target(name: "Theme"),
             ],
+            resources: [
+                .glob(pattern: .relativeToManifest("Sources/UI/Resources/Localizable.xcstrings")),
+            ],
             watchOS: true
         ),
         AmgiModule.target(

@@ -31,10 +31,10 @@ struct PresetSection: View {
     @Environment(\.palette) private var palette
 
     var body: some View {
-        Section("Preset") {
-            LabeledContent("Preset") {
+        Section(String(localized: "Preset", bundle: .module)) {
+            LabeledContent(String(localized: "Preset", bundle: .module)) {
                 Menu {
-                    Picker("Preset", selection: Binding(
+                    Picker(String(localized: "Preset", bundle: .module), selection: Binding(
                         get: { selectedPresetID },
                         set: { newID in
                             guard newID != selectedPresetID,
@@ -58,28 +58,28 @@ struct PresetSection: View {
                 .disabled(isPresetMutating || presetOptions.isEmpty)
             }
 
-            LabeledContent("Used by") {
-                Text("\(presetUseCount) deck\(presetUseCount == 1 ? "" : "s")")
+            LabeledContent(String(localized: "Used by", bundle: .module)) {
+                Text("\(presetUseCount) decks", bundle: .module)
                     .foregroundStyle(palette.textSecondary)
             }
 
             Menu {
                 Button { onAdd() } label: {
-                    Label("Add Preset…", systemImage: "plus")
+                    Label(String(localized: "Add Preset…", bundle: .module), systemImage: "plus")
                 }
                 Button { onRename() } label: {
-                    Label("Rename Preset…", systemImage: "pencil")
+                    Label(String(localized: "Rename Preset…", bundle: .module), systemImage: "pencil")
                 }
                 .disabled(!hasLoadedConfig)
                 Button(role: .destructive) { onDelete() } label: {
-                    Label("Delete Preset", systemImage: "trash")
+                    Label(String(localized: "Delete Preset", bundle: .module), systemImage: "trash")
                 }
                 .disabled(!canDeletePreset)
             } label: {
                 if isPresetMutating {
-                    HStack { ProgressView().controlSize(.small); Text("Working…") }
+                    HStack { ProgressView().controlSize(.small); Text("Working…", bundle: .module) }
                 } else {
-                    Label("Manage Preset", systemImage: "slider.horizontal.below.rectangle")
+                    Label(String(localized: "Manage Preset", bundle: .module), systemImage: "slider.horizontal.below.rectangle")
                 }
             }
             .disabled(isPresetMutating)
@@ -94,11 +94,11 @@ struct DailyLimitsSection: View {
     @Binding var applyAllParentLimits: Bool
 
     var body: some View {
-        Section("Daily Limits") {
-            Stepper("New cards/day: \(newCardsPerDay)", value: $newCardsPerDay, in: 0...9999)
-            Stepper("Reviews/day: \(reviewsPerDay)", value: $reviewsPerDay, in: 0...9999)
-            Toggle("New cards ignore review limit", isOn: $newCardsIgnoreReviewLimit)
-            Toggle("Apply all parent limits", isOn: $applyAllParentLimits)
+        Section(String(localized: "Daily Limits", bundle: .module)) {
+            Stepper(String(localized: "New cards/day: \(newCardsPerDay)", bundle: .module), value: $newCardsPerDay, in: 0...9999)
+            Stepper(String(localized: "Reviews/day: \(reviewsPerDay)", bundle: .module), value: $reviewsPerDay, in: 0...9999)
+            Toggle(String(localized: "New cards ignore review limit", bundle: .module), isOn: $newCardsIgnoreReviewLimit)
+            Toggle(String(localized: "Apply all parent limits", bundle: .module), isOn: $applyAllParentLimits)
         }
     }
 }
@@ -109,16 +109,16 @@ struct NewCardsSection: View {
     @Binding var graduatingEasyDays: Int32
 
     var body: some View {
-        Section("New Cards") {
-            LabeledContent("Learning steps") {
+        Section(String(localized: "New Cards", bundle: .module)) {
+            LabeledContent(String(localized: "Learning steps", bundle: .module)) {
                 TextField("1m 10m", text: $learningStepsText)
                     .multilineTextAlignment(.trailing)
                     .amgiFont(.body, .monospaced)
                     .autocorrectionDisabled()
                     .textInputAutocapitalization(.never)
             }
-            Stepper("Graduating interval: \(graduatingGoodDays)d", value: $graduatingGoodDays, in: 0...365)
-            Stepper("Easy interval: \(graduatingEasyDays)d", value: $graduatingEasyDays, in: 0...365)
+            Stepper(String(localized: "Graduating interval: \(graduatingGoodDays)d", bundle: .module), value: $graduatingGoodDays, in: 0...365)
+            Stepper(String(localized: "Easy interval: \(graduatingEasyDays)d", bundle: .module), value: $graduatingEasyDays, in: 0...365)
         }
     }
 }
@@ -129,18 +129,18 @@ struct LapsesSection: View {
     @Binding var leechAction: LeechAction
 
     var body: some View {
-        Section("Lapses") {
-            LabeledContent("Relearning steps") {
+        Section(String(localized: "Lapses", bundle: .module)) {
+            LabeledContent(String(localized: "Relearning steps", bundle: .module)) {
                 TextField("10m", text: $relearningStepsText)
                     .multilineTextAlignment(.trailing)
                     .amgiFont(.body, .monospaced)
                     .autocorrectionDisabled()
                     .textInputAutocapitalization(.never)
             }
-            Stepper("Leech threshold: \(leechThreshold)", value: $leechThreshold, in: 1...9999)
-            Picker("Leech action", selection: $leechAction) {
-                Text("Suspend card").tag(LeechAction.suspend)
-                Text("Tag only").tag(LeechAction.tagOnly)
+            Stepper(String(localized: "Leech threshold: \(leechThreshold)", bundle: .module), value: $leechThreshold, in: 1...9999)
+            Picker(String(localized: "Leech action", bundle: .module), selection: $leechAction) {
+                Text("Suspend card", bundle: .module).tag(LeechAction.suspend)
+                Text("Tag only", bundle: .module).tag(LeechAction.tagOnly)
             }
         }
     }
@@ -155,44 +155,44 @@ struct OrderSection: View {
     @Binding var interdayLearningMix: ReviewMix
 
     var body: some View {
-        Section("Order") {
-            Picker("New card insert order", selection: $newCardInsertOrder) {
-                Text("Sequential (oldest first)").tag(NewCardInsertOrder.due)
-                Text("Random").tag(NewCardInsertOrder.random)
+        Section(String(localized: "Order", bundle: .module)) {
+            Picker(String(localized: "New card insert order", bundle: .module), selection: $newCardInsertOrder) {
+                Text("Sequential (oldest first)", bundle: .module).tag(NewCardInsertOrder.due)
+                Text("Random", bundle: .module).tag(NewCardInsertOrder.random)
             }
-            Picker("New gather priority", selection: $newCardGatherPriority) {
-                Text("Deck").tag(NewCardGatherPriority.deck)
-                Text("Deck, then random notes").tag(NewCardGatherPriority.deckThenRandomNotes)
-                Text("Position — lowest first").tag(NewCardGatherPriority.lowestPosition)
-                Text("Position — highest first").tag(NewCardGatherPriority.highestPosition)
-                Text("Random notes").tag(NewCardGatherPriority.randomNotes)
-                Text("Random cards").tag(NewCardGatherPriority.randomCards)
+            Picker(String(localized: "New gather priority", bundle: .module), selection: $newCardGatherPriority) {
+                Text("Deck", bundle: .module).tag(NewCardGatherPriority.deck)
+                Text("Deck, then random notes", bundle: .module).tag(NewCardGatherPriority.deckThenRandomNotes)
+                Text("Position — lowest first", bundle: .module).tag(NewCardGatherPriority.lowestPosition)
+                Text("Position — highest first", bundle: .module).tag(NewCardGatherPriority.highestPosition)
+                Text("Random notes", bundle: .module).tag(NewCardGatherPriority.randomNotes)
+                Text("Random cards", bundle: .module).tag(NewCardGatherPriority.randomCards)
             }
-            Picker("New card sort order", selection: $newCardSortOrder) {
-                Text("Card template, then gather order").tag(NewCardSortOrder.template)
-                Text("Gather order").tag(NewCardSortOrder.noSort)
-                Text("Card template, then random").tag(NewCardSortOrder.templateThenRandom)
-                Text("Random note, then template").tag(NewCardSortOrder.randomNoteThenTemplate)
-                Text("Random").tag(NewCardSortOrder.randomCard)
+            Picker(String(localized: "New card sort order", bundle: .module), selection: $newCardSortOrder) {
+                Text("Card template, then gather order", bundle: .module).tag(NewCardSortOrder.template)
+                Text("Gather order", bundle: .module).tag(NewCardSortOrder.noSort)
+                Text("Card template, then random", bundle: .module).tag(NewCardSortOrder.templateThenRandom)
+                Text("Random note, then template", bundle: .module).tag(NewCardSortOrder.randomNoteThenTemplate)
+                Text("Random", bundle: .module).tag(NewCardSortOrder.randomCard)
             }
-            Picker("New/review mix", selection: $newMix) {
-                Text("Mix with reviews").tag(ReviewMix.mixWithReviews)
-                Text("After reviews").tag(ReviewMix.afterReviews)
-                Text("Before reviews").tag(ReviewMix.beforeReviews)
+            Picker(String(localized: "New/review mix", bundle: .module), selection: $newMix) {
+                Text("Mix with reviews", bundle: .module).tag(ReviewMix.mixWithReviews)
+                Text("After reviews", bundle: .module).tag(ReviewMix.afterReviews)
+                Text("Before reviews", bundle: .module).tag(ReviewMix.beforeReviews)
             }
-            Picker("Review order", selection: $reviewOrder) {
-                Text("Mixed by day").tag(ReviewCardOrder.day)
-                Text("Day, then deck").tag(ReviewCardOrder.dayThenDeck)
-                Text("Deck, then day").tag(ReviewCardOrder.deckThenDay)
-                Text("Intervals — ascending").tag(ReviewCardOrder.intervalsAscending)
-                Text("Intervals — descending").tag(ReviewCardOrder.intervalsDescending)
-                Text("Retrievability — descending").tag(ReviewCardOrder.retrievabilityDescending)
-                Text("Random").tag(ReviewCardOrder.random)
+            Picker(String(localized: "Review order", bundle: .module), selection: $reviewOrder) {
+                Text("Mixed by day", bundle: .module).tag(ReviewCardOrder.day)
+                Text("Day, then deck", bundle: .module).tag(ReviewCardOrder.dayThenDeck)
+                Text("Deck, then day", bundle: .module).tag(ReviewCardOrder.deckThenDay)
+                Text("Intervals — ascending", bundle: .module).tag(ReviewCardOrder.intervalsAscending)
+                Text("Intervals — descending", bundle: .module).tag(ReviewCardOrder.intervalsDescending)
+                Text("Retrievability — descending", bundle: .module).tag(ReviewCardOrder.retrievabilityDescending)
+                Text("Random", bundle: .module).tag(ReviewCardOrder.random)
             }
-            Picker("Interday learning mix", selection: $interdayLearningMix) {
-                Text("Mix with reviews").tag(ReviewMix.mixWithReviews)
-                Text("After reviews").tag(ReviewMix.afterReviews)
-                Text("Before reviews").tag(ReviewMix.beforeReviews)
+            Picker(String(localized: "Interday learning mix", bundle: .module), selection: $interdayLearningMix) {
+                Text("Mix with reviews", bundle: .module).tag(ReviewMix.mixWithReviews)
+                Text("After reviews", bundle: .module).tag(ReviewMix.afterReviews)
+                Text("Before reviews", bundle: .module).tag(ReviewMix.beforeReviews)
             }
         }
     }
@@ -204,10 +204,10 @@ struct BurySection: View {
     @Binding var buryInterdayLearning: Bool
 
     var body: some View {
-        Section("Bury siblings") {
-            Toggle("Bury new siblings", isOn: $buryNew)
-            Toggle("Bury review siblings", isOn: $buryReviews)
-            Toggle("Bury interday-learning siblings", isOn: $buryInterdayLearning)
+        Section(String(localized: "Bury siblings", bundle: .module)) {
+            Toggle(String(localized: "Bury new siblings", bundle: .module), isOn: $buryNew)
+            Toggle(String(localized: "Bury review siblings", bundle: .module), isOn: $buryReviews)
+            Toggle(String(localized: "Bury interday-learning siblings", bundle: .module), isOn: $buryInterdayLearning)
         }
     }
 }
@@ -218,10 +218,10 @@ struct TimerSection: View {
     @Binding var stopTimerOnAnswer: Bool
 
     var body: some View {
-        Section("Answer timer") {
-            Toggle("Show answer timer", isOn: $showTimer)
-            Stepper("Max answer seconds: \(capAnswerTimeToSecs)", value: $capAnswerTimeToSecs, in: 5...600, step: 5)
-            Toggle("Stop timer on answer", isOn: $stopTimerOnAnswer)
+        Section(String(localized: "Answer timer", bundle: .module)) {
+            Toggle(String(localized: "Show answer timer", bundle: .module), isOn: $showTimer)
+            Stepper(String(localized: "Max answer seconds: \(capAnswerTimeToSecs)", bundle: .module), value: $capAnswerTimeToSecs, in: 5...600, step: 5)
+            Toggle(String(localized: "Stop timer on answer", bundle: .module), isOn: $stopTimerOnAnswer)
         }
     }
 }
@@ -233,31 +233,31 @@ struct AutoAdvanceSection: View {
     @Binding var answerAction: AnswerAction
 
     var body: some View {
-        Section("Auto-advance") {
+        Section(String(localized: "Auto-advance", bundle: .module)) {
             LabeledSlider(
-                label: "Seconds to show question",
+                label: String(localized: "Seconds to show question", bundle: .module),
                 value: $secondsToShowQuestion,
                 in: 0...60,
                 step: 0.5,
                 valueText: String(format: "%.1f s", secondsToShowQuestion)
             )
             LabeledSlider(
-                label: "Seconds to show answer",
+                label: String(localized: "Seconds to show answer", bundle: .module),
                 value: $secondsToShowAnswer,
                 in: 0...60,
                 step: 0.5,
                 valueText: String(format: "%.1f s", secondsToShowAnswer)
             )
-            Picker("After question", selection: $questionAction) {
-                Text("Show answer").tag(QuestionAction.showAnswer)
-                Text("Show reminder").tag(QuestionAction.showReminder)
+            Picker(String(localized: "After question", bundle: .module), selection: $questionAction) {
+                Text("Show answer", bundle: .module).tag(QuestionAction.showAnswer)
+                Text("Show reminder", bundle: .module).tag(QuestionAction.showReminder)
             }
-            Picker("After answer", selection: $answerAction) {
-                Text("Bury card").tag(AnswerAction.buryCard)
-                Text("Answer Again").tag(AnswerAction.answerAgain)
-                Text("Answer Hard").tag(AnswerAction.answerHard)
-                Text("Answer Good").tag(AnswerAction.answerGood)
-                Text("Show reminder").tag(AnswerAction.showReminder)
+            Picker(String(localized: "After answer", bundle: .module), selection: $answerAction) {
+                Text("Bury card", bundle: .module).tag(AnswerAction.buryCard)
+                Text("Answer Again", bundle: .module).tag(AnswerAction.answerAgain)
+                Text("Answer Hard", bundle: .module).tag(AnswerAction.answerHard)
+                Text("Answer Good", bundle: .module).tag(AnswerAction.answerGood)
+                Text("Show reminder", bundle: .module).tag(AnswerAction.showReminder)
             }
         }
     }
@@ -272,31 +272,31 @@ struct AdvancedSection: View {
     @Binding var waitForAudio: Bool
 
     var body: some View {
-        Section("Advanced (SM-2)") {
-            Stepper("Maximum review interval: \(maximumReviewIntervalDays)d", value: $maximumReviewIntervalDays, in: 1...36500, step: 30)
+        Section(String(localized: "Advanced (SM-2)", bundle: .module)) {
+            Stepper(String(localized: "Maximum review interval: \(maximumReviewIntervalDays)d", bundle: .module), value: $maximumReviewIntervalDays, in: 1...36500, step: 30)
             LabeledSlider(
-                label: "Interval multiplier",
+                label: String(localized: "Interval multiplier", bundle: .module),
                 value: $intervalMultiplierPercent,
                 in: 50...200,
                 step: 1,
                 valueText: "\(Int(intervalMultiplierPercent))%"
             )
             LabeledSlider(
-                label: "Hard multiplier",
+                label: String(localized: "Hard multiplier", bundle: .module),
                 value: $hardMultiplierPercent,
                 in: 80...200,
                 step: 1,
                 valueText: "\(Int(hardMultiplierPercent))%"
             )
             LabeledSlider(
-                label: "Easy multiplier",
+                label: String(localized: "Easy multiplier", bundle: .module),
                 value: $easyMultiplierPercent,
                 in: 100...300,
                 step: 1,
                 valueText: "\(Int(easyMultiplierPercent))%"
             )
-            Toggle("Disable autoplay audio", isOn: $disableAutoplay)
-            Toggle("Wait for audio before answering", isOn: $waitForAudio)
+            Toggle(String(localized: "Disable autoplay audio", bundle: .module), isOn: $disableAutoplay)
+            Toggle(String(localized: "Wait for audio before answering", bundle: .module), isOn: $waitForAudio)
         }
     }
 }
@@ -315,29 +315,29 @@ struct FsrsSection: View {
     let onOptimizeAll: () -> Void
 
     var body: some View {
-        Section("FSRS") {
-            Toggle("Enable FSRS", isOn: $fsrsEnabled)
+        Section(String(localized: "FSRS", bundle: .module)) {
+            Toggle(String(localized: "Enable FSRS", bundle: .module), isOn: $fsrsEnabled)
             LabeledSlider(
-                label: "Desired retention",
+                label: String(localized: "Desired retention", bundle: .module),
                 value: $desiredRetentionPercent,
                 in: 70...97,
                 step: 1,
                 valueText: "\(Int(desiredRetentionPercent))%"
             )
             LabeledSlider(
-                label: "Historical retention",
+                label: String(localized: "Historical retention", bundle: .module),
                 value: $historicalRetentionPercent,
                 in: 70...100,
                 step: 1,
                 valueText: "\(Int(historicalRetentionPercent))%"
             )
-            Toggle("Run FSRS health check on save", isOn: $fsrsHealthCheck)
+            Toggle(String(localized: "Run FSRS health check on save", bundle: .module), isOn: $fsrsHealthCheck)
 
             if fsrsEnabled {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Weights").amgiFont(.body)
+                    Text("Weights", bundle: .module).amgiFont(.body)
                     TextField(
-                        "Space- or comma-separated parameters",
+                        String(localized: "Space- or comma-separated parameters", bundle: .module),
                         text: $fsrsWeightsText,
                         axis: .vertical
                     )
@@ -350,29 +350,29 @@ struct FsrsSection: View {
                 Button(action: onOptimizeCurrent) {
                     HStack {
                         if isOptimizingFsrs { ProgressView().controlSize(.small) }
-                        Text(isOptimizingFsrs ? "Optimizing…" : "Optimize Weights")
+                        Text(isOptimizingFsrs ? "Optimizing…" : "Optimize Weights", bundle: .module)
                     }
                 }
                 .disabled(isOptimizingFsrs)
 
                 if isOptimizingFsrs {
-                    Button("Cancel", role: .cancel, action: onCancelOptimize)
+                    Button(String(localized: "Cancel", bundle: .module), role: .cancel, action: onCancelOptimize)
                 }
 
                 Button(action: onOpenSimulatorReview) {
-                    Label("Open FSRS Simulator", systemImage: "chart.line.uptrend.xyaxis")
+                    Label(String(localized: "Open FSRS Simulator", bundle: .module), systemImage: "chart.line.uptrend.xyaxis")
                 }
                 .disabled(isOptimizingFsrs)
 
                 Button(action: onOpenSimulatorWorkload) {
-                    Label("Help Me Decide (Workload)", systemImage: "scale.3d")
+                    Label(String(localized: "Help Me Decide (Workload)", bundle: .module), systemImage: "scale.3d")
                 }
                 .disabled(isOptimizingFsrs)
 
                 Button(action: onOptimizeAll) {
                     HStack {
                         if isOptimizingFsrs { ProgressView().controlSize(.small) }
-                        Text("Optimize All Presets")
+                        Text("Optimize All Presets", bundle: .module)
                     }
                 }
                 .disabled(isOptimizingFsrs)
@@ -402,13 +402,13 @@ struct EasyDaysSection: View {
                     )
                 }
             } else {
-                Text("Enable FSRS to configure Easy Days.")
+                Text("Enable FSRS to configure Easy Days.", bundle: .module)
                     .foregroundStyle(palette.textSecondary)
             }
         } header: {
-            Text("Easy Days")
+            Text("Easy Days", bundle: .module)
         } footer: {
-            Text("Reduce the daily workload on specific weekdays. 100% means a normal day; lower values back off reviews on that day.")
+            Text("Reduce the daily workload on specific weekdays. 100% means a normal day; lower values back off reviews on that day.", bundle: .module)
         }
     }
 }
@@ -418,9 +418,9 @@ struct ApplySection: View {
 
     var body: some View {
         Section {
-            Toggle("Apply to subdecks", isOn: $applyToChildren)
+            Toggle(String(localized: "Apply to subdecks", bundle: .module), isOn: $applyToChildren)
         } footer: {
-            Text("Settings will be applied to this deck and any nested subdecks that share its preset.")
+            Text("Settings will be applied to this deck and any nested subdecks that share its preset.", bundle: .module)
         }
     }
 }
@@ -460,6 +460,6 @@ private extension EasyDaysSection {
     /// short labels rather than `Calendar.shortWeekdaySymbols` so the UI
     /// order matches the underlying storage regardless of locale.
     static func weekdayLabel(_ idx: Int) -> String {
-        ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"][idx]
+        [String(localized: "Monday", bundle: .module), String(localized: "Tuesday", bundle: .module), String(localized: "Wednesday", bundle: .module), String(localized: "Thursday", bundle: .module), String(localized: "Friday", bundle: .module), String(localized: "Saturday", bundle: .module), String(localized: "Sunday", bundle: .module)][idx]
     }
 }

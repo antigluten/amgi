@@ -42,12 +42,12 @@ public struct RetentionChart: View {
             )
         }
         return [
-            row("Today", trueRetention.today),
-            row("Yesterday", trueRetention.yesterday),
-            row("Week", trueRetention.week),
-            row("Month", trueRetention.month),
-            row("Year", trueRetention.year),
-            row("All Time", trueRetention.allTime),
+            row(String(localized: "Today", bundle: .module), trueRetention.today),
+            row(String(localized: "Yesterday", bundle: .module), trueRetention.yesterday),
+            row(String(localized: "Week", bundle: .module), trueRetention.week),
+            row(String(localized: "Month", bundle: .module), trueRetention.month),
+            row(String(localized: "Year", bundle: .module), trueRetention.year),
+            row(String(localized: "All Time", bundle: .module), trueRetention.allTime),
         ]
     }
 
@@ -58,13 +58,13 @@ public struct RetentionChart: View {
             contentInsets: EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
         ) {
             VStack(alignment: .leading, spacing: 8) {
-                Text("True Retention").amgiFont(.bodyEmphasis)
+                Text("True Retention", bundle: .module).amgiFont(.bodyEmphasis)
 
                 Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 6) {
                     GridRow {
-                        Text("Period").amgiFont(.captionBold).foregroundStyle(palette.textSecondary)
-                        Text("Young").amgiFont(.captionBold).foregroundStyle(palette.textSecondary)
-                        Text("Mature").amgiFont(.captionBold).foregroundStyle(palette.textSecondary)
+                        Text("Period", bundle: .module).amgiFont(.captionBold).foregroundStyle(palette.textSecondary)
+                        Text("Young", bundle: .module).amgiFont(.captionBold).foregroundStyle(palette.textSecondary)
+                        Text("Mature", bundle: .module).amgiFont(.captionBold).foregroundStyle(palette.textSecondary)
                     }
                     Divider()
                     ForEach(rows) { row in
@@ -76,7 +76,7 @@ public struct RetentionChart: View {
                         .accessibilityElement(children: .ignore)
                         .accessibilityLabel(row.label)
                         .accessibilityValue(
-                            "Young \(retentionSpeech(row.youngRate)), mature \(retentionSpeech(row.matureRate))"
+                            String(localized: "Young \(retentionSpeech(row.youngRate)), mature \(retentionSpeech(row.matureRate))", bundle: .module)
                         )
                     }
                 }
@@ -94,7 +94,7 @@ private extension RetentionChart {
     }
 
     func retentionSpeech(_ rate: Double) -> String {
-        rate > 0 ? ChartSpeech.percent(rate * 100) : "no data"
+        rate > 0 ? ChartSpeech.percent(rate * 100) : String(localized: "no data", bundle: .module)
     }
 
     func retentionColor(_ rate: Double) -> Color {

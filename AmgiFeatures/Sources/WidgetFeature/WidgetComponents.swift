@@ -18,7 +18,7 @@ struct StreakLabel: View {
                 Image(systemName: "flame.fill")
                     .amgiFont(size: 12, weight: .bold, relativeTo: .footnote)
                     .accessibilityHidden(true)
-                Text("\(days) day streak")
+                Text("\(days) day streak", bundle: .module)
                     .amgiFont(.captionBold, .monospacedDigits)
             }
             .foregroundStyle(palette.warning)
@@ -45,7 +45,7 @@ struct DueHero: View {
                 .foregroundStyle(palette.textPrimary)
                 .minimumScaleFactor(0.6)
                 .lineLimit(1)
-            Text("cards due")
+            Text("cards due", bundle: .module)
                 .amgiFont(.caption)
                 .foregroundStyle(palette.textSecondary)
         }

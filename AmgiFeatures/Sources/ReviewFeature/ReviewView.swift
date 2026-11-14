@@ -76,12 +76,12 @@ package struct ReviewView: View {
             ReviewAudioSession.apply(playInSilent: playAudioInSilentMode)
             session.start()
         }
-        .reviewSessionAlert("Couldn't save that review", \ReviewSession.answerError, in: session)
+        .reviewSessionAlert(String(localized: "Couldn't save that review", bundle: .module), \ReviewSession.answerError, in: session)
         // The card-menu action itself did land in the collection; what failed was
         // reading the deck back, so the card stays on screen and the session keeps
         // its last known counts. `start()`'s failure is not here: that gets its own
         // retry surface in `ReviewContent`, because a failure is not a finished deck.
-        .reviewSessionAlert("Couldn't update the session", \ReviewSession.requeueError, in: session)
+        .reviewSessionAlert(String(localized: "Couldn't update the session", bundle: .module), \ReviewSession.requeueError, in: session)
         .onChange(of: playAudioInSilentMode) { _, newValue in
             ReviewAudioSession.apply(playInSilent: newValue)
         }
@@ -120,7 +120,7 @@ private struct ReviewSessionErrorAlert: ViewModifier {
                     set: { if !$0 { session[keyPath: channel] = nil } }
                 )
             ) {
-                Button("OK", role: .cancel) { session[keyPath: channel] = nil }
+                Button(String(localized: "OK", bundle: .module), role: .cancel) { session[keyPath: channel] = nil }
             } message: {
                 Text(session[keyPath: channel] ?? "")
             }

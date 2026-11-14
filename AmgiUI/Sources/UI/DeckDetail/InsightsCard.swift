@@ -24,19 +24,19 @@ public struct InsightsCard: View {
     public var body: some View {
         VStack(spacing: 0) {
             InsightRow(
-                label: "Retention (30d)",
+                label: String(localized: "Retention (30d)", bundle: .module),
                 value: data.retention30dPercent.map { "\($0)%" } ?? "—",
                 tone: data.retention30dPercent != nil ? palette.positive : nil,
                 isFirst: true
             )
             InsightRow(
-                label: "Avg cards/day",
+                label: String(localized: "Avg cards/day", bundle: .module),
                 value: data.avgCardsPerDay.map(String.init) ?? "—",
                 tone: nil,
                 isFirst: false
             )
             InsightRow(
-                label: "Mature cards",
+                label: String(localized: "Mature cards", bundle: .module),
                 value: "\(data.matureCards)",
                 tone: nil,
                 isFirst: false

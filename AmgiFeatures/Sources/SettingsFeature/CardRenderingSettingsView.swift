@@ -31,7 +31,7 @@ struct CardRenderingSettingsView: View {
             // above a row also called Engine just says it twice.
             SettingsGroup {
                 SettingsPickerRow(
-                    title: "Engine",
+                    title: String(localized: "Engine", bundle: .module),
                     systemImage: "cpu",
                     tone: .accent,
                     selection: engineBinding
@@ -44,20 +44,20 @@ struct CardRenderingSettingsView: View {
             .padding(.top, AmgiSpacing.lg)
             SettingsFootnote(selectedEngine.summary)
 
-            SettingsSectionHeader(title: "Overrides")
+            SettingsSectionHeader(title: String(localized: "Overrides", bundle: .module))
             SettingsGroup {
                 SettingsRowLink(
-                    title: "Per-template overrides",
+                    title: String(localized: "Per-template overrides", bundle: .module),
                     systemImage: "arrow.turn.down.right",
                     tone: .neutral,
-                    detail: "\(overrideCount) set"
+                    detail: String(localized: "\(overrideCount) set", bundle: .module)
                 ) {
                     TemplateOverridesView()
                 }
             }
-            SettingsFootnote("Overrides pick an engine for every card of one template and beat the global choice. Stored on this device only.")
+            SettingsFootnote(String(localized: "Overrides pick an engine for every card of one template and beat the global choice. Stored on this device only.", bundle: .module))
         }
-        .navigationTitle("Card Rendering")
+        .navigationTitle(String(localized: "Card Rendering", bundle: .module))
         .navigationBarTitleDisplayMode(.inline)
     }
 

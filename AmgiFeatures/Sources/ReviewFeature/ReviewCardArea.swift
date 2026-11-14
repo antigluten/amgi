@@ -63,7 +63,7 @@ struct ReviewCardArea: View {
             Spacer()
             ProgressView()
                 .controlSize(.large)
-            Text("Preparing cards\u{2026}")
+            Text("Preparing cards\u{2026}", bundle: .module)
                 .amgiFont(.body)
                 .foregroundStyle(palette.textSecondary)
             Spacer()
@@ -109,7 +109,7 @@ struct ReviewCardArea: View {
                 Button {
                     session.revealAnswer()
                 } label: {
-                    Text("Show Answer")
+                    Text("Show Answer", bundle: .module)
                         .amgiFont(.bodyEmphasis)
                         .frame(maxWidth: .infinity)
                         .padding()
@@ -157,16 +157,16 @@ struct ReviewCardArea: View {
     private var renderModeExplainer: String {
         switch session.resolvedMode {
         case .native:
-            return "shown with the built-in renderer."
+            return String(localized: "shown with the built-in renderer.", bundle: .module)
         case .html:
             let prefs = currentRenderEnginePreferences(
                 mid: session.currentNote?.mid,
                 ord: Int(session.currentCardOrdinal)
             )
             if (prefs.override ?? prefs.global) == .alwaysHTML {
-                return "shown with its own template, because you chose that below."
+                return String(localized: "shown with its own template, because you chose that below.", bundle: .module)
             }
-            return "shown with its own template, because it uses formatting the built-in renderer can't show."
+            return String(localized: "shown with its own template, because it uses formatting the built-in renderer can't show.", bundle: .module)
         }
     }
 
@@ -235,7 +235,7 @@ struct TypedAnswerField: View {
     @FocusState private var focused: Bool
 
     var body: some View {
-        TextField("Type the answer", text: text)
+        TextField(String(localized: "Type the answer", bundle: .module), text: text)
             .textFieldStyle(.roundedBorder)
             .autocorrectionDisabled()
             .textInputAutocapitalization(.never)

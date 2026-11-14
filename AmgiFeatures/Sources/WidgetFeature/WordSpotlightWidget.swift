@@ -11,8 +11,8 @@ public struct WordSpotlightWidget: Widget {
         StaticConfiguration(kind: WordSpotlightStore.widgetKind, provider: WordSpotlightProvider()) { entry in
             WordSpotlightWidgetView(entry: entry)
         }
-        .configurationDisplayName("Word Spotlight")
-        .description("A word from your vocabulary cards, refreshed at your chosen interval.")
+        .configurationDisplayName(String(localized: "Word Spotlight", bundle: .module))
+        .description(String(localized: "A word from your vocabulary cards, refreshed at your chosen interval.", bundle: .module))
         .supportedFamilies([.systemSmall, .systemMedium, .accessoryRectangular])
     }
 }
@@ -73,8 +73,8 @@ private struct WordSpotlightWidgetView: View {
                         Text(word.term).amgiFont(.bodyEmphasis).lineLimit(1).minimumScaleFactor(0.8)
                         Text(word.meaning).amgiFont(.caption).foregroundStyle(palette.textSecondary).lineLimit(2)
                     } else {
-                        Text("Word Spotlight").amgiFont(.bodyEmphasis)
-                        Text("Open Amgi to choose your words.").amgiFont(.caption).lineLimit(2)
+                        Text("Word Spotlight", bundle: .module).amgiFont(.bodyEmphasis)
+                        Text("Open Amgi to choose your words.", bundle: .module).amgiFont(.caption).lineLimit(2)
                     }
                 }
                 .privacySensitive()
@@ -114,7 +114,7 @@ private struct WordSpotlightWidgetView: View {
                 }
                 .privacySensitive()
             } else {
-                Text(entry.hasSource ? "Open Amgi to refresh your words." : "Choose a vocabulary deck in Amgi.")
+                Text(entry.hasSource ? "Open Amgi to refresh your words." : "Choose a vocabulary deck in Amgi.", bundle: .module)
                     .amgiFont(.caption)
                     .foregroundStyle(palette.textSecondary)
             }

@@ -60,27 +60,27 @@ public struct DeckListRowView: View {
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
             // A destructive swipe removes the row before the user can confirm.
             Button { showDeleteAlert = true } label: {
-                Label("Delete", systemImage: "trash")
+                Label(String(localized: "Delete", bundle: .module), systemImage: "trash")
             }
             .tint(palette.danger)
             Button { onRename() } label: {
-                Label("Rename", systemImage: "pencil")
+                Label(String(localized: "Rename", bundle: .module), systemImage: "pencil")
             }
             .tint(.orange)
         }
-        .alert("Delete \"\(data.name)\"?", isPresented: $showDeleteAlert) {
-            Button("Delete", role: .destructive, action: onDelete)
-            Button("Cancel", role: .cancel) {}
+        .alert(String(localized: "Delete \"\(data.name)\"?", bundle: .module), isPresented: $showDeleteAlert) {
+            Button(String(localized: "Delete", bundle: .module), role: .destructive, action: onDelete)
+            Button(String(localized: "Cancel", bundle: .module), role: .cancel) {}
         } message: {
-            Text("This will permanently delete the deck and all its cards.")
+            Text("This will permanently delete the deck and all its cards.", bundle: .module)
         }
     }
 
     private var metaLine: String {
         switch (data.totalCount, data.subdeckCount) {
-        case (0, _):           return "Up to date"
-        case (let n, 0):       return "\(n) due"
-        case (let n, let s):   return "\(n) due · \(s) subdeck\(s == 1 ? "" : "s")"
+        case (0, _):           return String(localized: "Up to date", bundle: .module)
+        case (let n, 0):       return String(localized: "\(n) due", bundle: .module)
+        case (let n, let s):   return String(localized: "\(n) due · \(s) subdecks", bundle: .module)
         }
     }
 

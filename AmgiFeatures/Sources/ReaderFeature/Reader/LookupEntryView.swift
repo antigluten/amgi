@@ -67,14 +67,14 @@ struct LookupEntryHeaderView: View {
                 }
                 .buttonStyle(.pressScale)
                 .disabled(isResolvingAudio)
-                .accessibilityLabel("Play pronunciation")
+                .accessibilityLabel(String(localized: "Play pronunciation", bundle: .module))
                 Button {
                     ReaderTTS.shared.speak(term, languageHint: languageHint)
                 } label: {
                     Image(systemName: "waveform.badge.mic").amgiFont(.cardTitle)
                 }
                 .buttonStyle(.pressScale)
-                .accessibilityLabel("Speak with TTS")
+                .accessibilityLabel(String(localized: "Speak with TTS", bundle: .module))
                 Button {
                     onMakeNote()
                 } label: {
@@ -82,7 +82,7 @@ struct LookupEntryHeaderView: View {
                         .amgiFont(.cardTitle)
                 }
                 .buttonStyle(.pressScale)
-                .accessibilityLabel("Make note from this entry")
+                .accessibilityLabel(String(localized: "Make note from this entry", bundle: .module))
             }
         }
     }
@@ -218,7 +218,7 @@ private extension LookupEntryView {
             ) {
                 inner
             } label: {
-                Text(group.dictionary.isEmpty ? "Definitions" : group.dictionary)
+                Text(group.dictionary.isEmpty ? String(localized: "Definitions", bundle: .module) : group.dictionary)
                     .font(.system(size: styling.dictionaryNameFontSize))
                     .foregroundStyle(palette.textSecondary)
             }

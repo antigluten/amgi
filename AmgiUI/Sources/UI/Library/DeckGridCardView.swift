@@ -15,7 +15,7 @@ public enum DeckLayout: String, CaseIterable, Identifiable, Sendable {
 
     public var id: String { rawValue }
 
-    var label: String { self == .list ? "List view" : "Grid view" }
+    var label: String { self == .list ? String(localized: "List view", bundle: .module) : String(localized: "Grid view", bundle: .module) }
     var symbol: String { self == .list ? "list.bullet" : "square.grid.2x2" }
 }
 
@@ -71,16 +71,16 @@ public struct DeckGridCardView: View {
         .accessibilityLabel("\(data.name), \(accessibilityCounts)")
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .contextMenu {
-            Button { onRename() } label: { Label("Rename", systemImage: "pencil") }
+            Button { onRename() } label: { Label(String(localized: "Rename", bundle: .module), systemImage: "pencil") }
             Button(role: .destructive) { showDeleteAlert = true } label: {
-                Label("Delete", systemImage: "trash")
+                Label(String(localized: "Delete", bundle: .module), systemImage: "trash")
             }
         }
-        .alert("Delete \"\(data.name)\"?", isPresented: $showDeleteAlert) {
-            Button("Delete", role: .destructive, action: onDelete)
-            Button("Cancel", role: .cancel) {}
+        .alert(String(localized: "Delete \"\(data.name)\"?", bundle: .module), isPresented: $showDeleteAlert) {
+            Button(String(localized: "Delete", bundle: .module), role: .destructive, action: onDelete)
+            Button(String(localized: "Cancel", bundle: .module), role: .cancel) {}
         } message: {
-            Text("This will permanently delete the deck and all its cards.")
+            Text("This will permanently delete the deck and all its cards.", bundle: .module)
         }
     }
 
@@ -117,20 +117,20 @@ public struct DeckGridCardView: View {
     }
 
     private var metaLine: String {
-        if data.isFiltered { return "Filtered deck" }
-        if data.totalCount == 0 { return "Up to date" }
+        if data.isFiltered { return String(localized: "Filtered deck", bundle: .module) }
+        if data.totalCount == 0 { return String(localized: "Up to date", bundle: .module) }
         if data.subdeckCount > 0 {
-            return "\(data.subdeckCount) subdeck\(data.subdeckCount == 1 ? "" : "s")"
+            return String(localized: "\(data.subdeckCount) subdecks", bundle: .module)
         }
-        return data.totalCount == 1 ? "card due" : "cards due"
+        return data.totalCount == 1 ? String(localized: "card due", bundle: .module) : String(localized: "cards due", bundle: .module)
     }
 
     private var accessibilityCounts: String {
-        guard data.totalCount > 0 else { return "up to date" }
+        guard data.totalCount > 0 else { return String(localized: "up to date", bundle: .module) }
         var parts: [String] = []
-        if data.newCount > 0 { parts.append("\(data.newCount) new") }
-        if data.learnCount > 0 { parts.append("\(data.learnCount) learning") }
-        if data.reviewCount > 0 { parts.append("\(data.reviewCount) to review") }
+        if data.newCount > 0 { parts.append(String(localized: "\(data.newCount) new", bundle: .module)) }
+        if data.learnCount > 0 { parts.append(String(localized: "\(data.learnCount) learning", bundle: .module)) }
+        if data.reviewCount > 0 { parts.append(String(localized: "\(data.reviewCount) to review", bundle: .module)) }
         return parts.joined(separator: ", ")
     }
 }

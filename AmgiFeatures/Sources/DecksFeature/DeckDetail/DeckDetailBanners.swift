@@ -25,7 +25,7 @@ struct FeedbackToast: View {
                     .background(palette.accent, in: Capsule())
             }
             .buttonStyle(.pressScale)
-            .accessibilityHint("Dismisses this message")
+            .accessibilityHint(String(localized: "Dismisses this message", bundle: .module))
             .padding(.bottom, 24)
             .transition(AmgiMotion.slide(from: .bottom))
         }

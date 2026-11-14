@@ -93,7 +93,7 @@ public struct WidgetSnapshot: Codable, Sendable {
     public static var placeholder: WidgetSnapshot {
         WidgetSnapshot(
             deckId: 0,
-            deckName: "All Decks",
+            deckName: String(localized: "All Decks", bundle: .module),
             newCount: 5,
             learnCount: 8,
             reviewCount: 22,

@@ -39,9 +39,9 @@ struct TemplateOverridesView: View {
         List {
             if entries.isEmpty {
                 ContentUnavailableView(
-                    "No Overrides",
+                    String(localized: "No Overrides", bundle: .module),
                     systemImage: "rectangle.on.rectangle.slash",
-                    description: Text("Set one from the render-mode sheet while reviewing.")
+                    description: Text("Set one from the render-mode sheet while reviewing.", bundle: .module)
                 )
                 .listRowBackground(Color.clear)
             } else {
@@ -54,7 +54,7 @@ struct TemplateOverridesView: View {
         }
         .scrollContentBackground(.hidden)
         .background(palette.background)
-        .navigationTitle("Template Overrides")
+        .navigationTitle(String(localized: "Template Overrides", bundle: .module))
         .navigationBarTitleDisplayMode(.inline)
         .task(id: overridesRaw) { await resolveNames() }
     }
@@ -100,7 +100,7 @@ struct TemplateOverridesView: View {
             guard let notetype = notetypes[mid] ?? nil else { continue }
             let templateName = notetype.templates.indices.contains(ord)
                 ? notetype.templates[ord].name
-                : "Card \(ord + 1)"
+                : String(localized: "Card \(ord + 1)", bundle: .module)
             resolved[entry.key] = "\(notetype.name) · \(templateName)"
         }
         displayNames = resolved

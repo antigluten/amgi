@@ -25,12 +25,12 @@ public struct PeriodStatsCard: View {
 
     private var periodTitle: String {
         switch period {
-        case .day: return "Today"
-        case .week: return "Last 7 Days"
-        case .month: return "Last Month"
-        case .threeMonths: return "Last 3 Months"
-        case .year: return "Last Year"
-        case .all: return "All Time"
+        case .day: return String(localized: "Today", bundle: .module)
+        case .week: return String(localized: "Last 7 Days", bundle: .module)
+        case .month: return String(localized: "Last Month", bundle: .module)
+        case .threeMonths: return String(localized: "Last 3 Months", bundle: .module)
+        case .year: return String(localized: "Last Year", bundle: .module)
+        case .all: return String(localized: "All Time", bundle: .module)
         }
     }
 
@@ -95,32 +95,32 @@ public struct PeriodStatsCard: View {
 
             if period == .day {
                 HStack(spacing: AmgiSpacing.sm) {
-                    statItem(title: "Reviewed", value: "\(today.answerCount)", color: palette.textPrimary)
-                    statItem(title: "Time", value: formatMillis(UInt64(today.answerMillis)), color: palette.textPrimary)
-                    statItem(title: "Correct", value: todayAccuracy, color: palette.positive)
-                    statItem(title: "Mature%", value: todayMatureAccuracy, color: palette.cardStateMature)
+                    statItem(title: String(localized: "Reviewed", bundle: .module), value: "\(today.answerCount)", color: palette.textPrimary)
+                    statItem(title: String(localized: "Time", bundle: .module), value: formatMillis(UInt64(today.answerMillis)), color: palette.textPrimary)
+                    statItem(title: String(localized: "Correct", bundle: .module), value: todayAccuracy, color: palette.positive)
+                    statItem(title: String(localized: "Mature%", bundle: .module), value: todayMatureAccuracy, color: palette.cardStateMature)
                 }
                 Divider()
                 HStack(spacing: AmgiSpacing.sm) {
-                    statBadge("New", count: today.learnCount, color: palette.cardStateNew)
-                    statBadge("Relearn", count: today.relearnCount, color: palette.cardStateRelearn)
-                    statBadge("Review", count: today.reviewCount, color: palette.cardStateLearning)
-                    statBadge("Again", count: today.answerCount - today.correctCount, color: palette.danger)
+                    statBadge(String(localized: "New", bundle: .module), count: today.learnCount, color: palette.cardStateNew)
+                    statBadge(String(localized: "Relearn", bundle: .module), count: today.relearnCount, color: palette.cardStateRelearn)
+                    statBadge(String(localized: "Review", bundle: .module), count: today.reviewCount, color: palette.cardStateLearning)
+                    statBadge(String(localized: "Again", bundle: .module), count: today.answerCount - today.correctCount, color: palette.danger)
                 }
             } else {
                 let agg = aggregated
                 HStack(spacing: AmgiSpacing.sm) {
-                    statItem(title: "Reviewed", value: "\(agg.total)", color: palette.textPrimary)
-                    statItem(title: "Time", value: formatMillis(agg.timeMillis), color: palette.textPrimary)
-                    statItem(title: "Young", value: "\(agg.young)", color: palette.cardStateLearning)
-                    statItem(title: "Mature", value: "\(agg.mature)", color: palette.cardStateMature)
+                    statItem(title: String(localized: "Reviewed", bundle: .module), value: "\(agg.total)", color: palette.textPrimary)
+                    statItem(title: String(localized: "Time", bundle: .module), value: formatMillis(agg.timeMillis), color: palette.textPrimary)
+                    statItem(title: String(localized: "Young", bundle: .module), value: "\(agg.young)", color: palette.cardStateLearning)
+                    statItem(title: String(localized: "Mature", bundle: .module), value: "\(agg.mature)", color: palette.cardStateMature)
                 }
                 Divider()
                 HStack(spacing: AmgiSpacing.sm) {
-                    statBadge("New", count: agg.learn, color: palette.cardStateNew)
-                    statBadge("Relearn", count: agg.relearn, color: palette.cardStateRelearn)
-                    statBadge("Young", count: agg.young, color: palette.cardStateLearning)
-                    statBadge("Mature", count: agg.mature, color: palette.cardStateMature)
+                    statBadge(String(localized: "New", bundle: .module), count: agg.learn, color: palette.cardStateNew)
+                    statBadge(String(localized: "Relearn", bundle: .module), count: agg.relearn, color: palette.cardStateRelearn)
+                    statBadge(String(localized: "Young", bundle: .module), count: agg.young, color: palette.cardStateLearning)
+                    statBadge(String(localized: "Mature", bundle: .module), count: agg.mature, color: palette.cardStateMature)
                 }
             }
         }

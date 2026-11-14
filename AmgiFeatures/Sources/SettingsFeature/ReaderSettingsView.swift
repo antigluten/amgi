@@ -111,7 +111,7 @@ struct ReaderSettingsView: View {
             toolbarSection
             popupSection
         }
-        .navigationTitle("Reader Display")
+        .navigationTitle(String(localized: "Reader Display", bundle: .module))
         .navigationBarTitleDisplayMode(.inline)
     }
 
@@ -121,17 +121,17 @@ struct ReaderSettingsView: View {
     /// the design's grouping reads better with both under one header.
     private var readerTabSection: some View {
         Group {
-            SettingsSectionHeader(title: "Reader")
+            SettingsSectionHeader(title: String(localized: "Reader", bundle: .module))
             SettingsGroup {
                 SettingsToggleRow(
-                    title: "Show Reader tab",
+                    title: String(localized: "Show Reader tab", bundle: .module),
                     systemImage: "book",
                     tone: .accent,
                     isOn: Binding($showTab)
                 )
                 SettingsSeparator()
                 SettingsToggleRow(
-                    title: "Tap word to look up",
+                    title: String(localized: "Tap word to look up", bundle: .module),
                     systemImage: "hand.tap",
                     tone: .info,
                     isOn: Binding($tapLookup)
@@ -144,10 +144,10 @@ struct ReaderSettingsView: View {
 
     private var displaySection: some View {
         Group {
-            SettingsSectionHeader(title: "Display")
+            SettingsSectionHeader(title: String(localized: "Display", bundle: .module))
             SettingsGroup {
                 SettingsPickerRow(
-                    title: "Font",
+                    title: String(localized: "Font", bundle: .module),
                     systemImage: "textformat",
                     tone: .accent,
                     selection: Binding($selectedFontRaw)
@@ -158,7 +158,7 @@ struct ReaderSettingsView: View {
                 }
                 SettingsSeparator()
                 SettingsStepperRow(
-                    title: "Font size",
+                    title: String(localized: "Font size", bundle: .module),
                     systemImage: "textformat.size",
                     tone: .accent,
                     value: Binding($fontSize),
@@ -167,7 +167,7 @@ struct ReaderSettingsView: View {
                 ) { "\(Int($0))pt" }
                 SettingsSeparator()
                 SettingsStepperRow(
-                    title: "Line height",
+                    title: String(localized: "Line height", bundle: .module),
                     systemImage: "arrow.up.and.down.text.horizontal",
                     tone: .link,
                     value: Binding($lineHeight),
@@ -176,7 +176,7 @@ struct ReaderSettingsView: View {
                 ) { String(format: "%.1f", $0) }
                 SettingsSeparator()
                 SettingsStepperRow(
-                    title: "Horizontal padding",
+                    title: String(localized: "Horizontal padding", bundle: .module),
                     systemImage: "arrow.left.and.right",
                     tone: .neutral,
                     value: Binding($horizontalPadding),
@@ -185,7 +185,7 @@ struct ReaderSettingsView: View {
                 ) { "\(Int($0))pt" }
                 SettingsSeparator()
                 SettingsStepperRow(
-                    title: "Vertical padding",
+                    title: String(localized: "Vertical padding", bundle: .module),
                     systemImage: "arrow.up.and.down",
                     tone: .neutral,
                     value: Binding($verticalPadding),
@@ -194,7 +194,7 @@ struct ReaderSettingsView: View {
                 ) { "\(Int($0))pt" }
                 SettingsSeparator()
                 SettingsStepperRow(
-                    title: "Letter spacing",
+                    title: String(localized: "Letter spacing", bundle: .module),
                     systemImage: "character",
                     tone: .link,
                     value: Binding($characterSpacing),
@@ -203,28 +203,28 @@ struct ReaderSettingsView: View {
                 ) { String(format: "%.2fem", $0 / 100) }
                 SettingsSeparator()
                 SettingsToggleRow(
-                    title: "Justify text",
+                    title: String(localized: "Justify text", bundle: .module),
                     systemImage: "text.justify",
                     tone: .mature,
                     isOn: Binding($justifyText)
                 )
                 SettingsSeparator()
                 SettingsToggleRow(
-                    title: "Avoid breaking paragraphs",
+                    title: String(localized: "Avoid breaking paragraphs", bundle: .module),
                     systemImage: "paragraphsign",
                     tone: .mature,
                     isOn: Binding($avoidPageBreak)
                 )
                 SettingsSeparator()
                 SettingsToggleRow(
-                    title: "Hide furigana / ruby",
+                    title: String(localized: "Hide furigana / ruby", bundle: .module),
                     systemImage: "eye.slash",
                     tone: .learning,
                     isOn: Binding($hideFurigana)
                 )
                 SettingsSeparator()
                 SettingsToggleRow(
-                    title: "Vertical writing (CJK)",
+                    title: String(localized: "Vertical writing (CJK)", bundle: .module),
                     systemImage: "character.textbox",
                     tone: .learning,
                     isOn: Binding($verticalLayout)
@@ -237,10 +237,10 @@ struct ReaderSettingsView: View {
 
     private var themeSection: some View {
         Group {
-            SettingsSectionHeader(title: "Theme")
+            SettingsSectionHeader(title: String(localized: "Theme", bundle: .module))
             SettingsGroup {
                 SettingsPickerRow(
-                    title: "Theme",
+                    title: String(localized: "Theme", bundle: .module),
                     systemImage: "circle.lefthalf.filled",
                     tone: .mature,
                     selection: Binding($themeModeRaw)
@@ -257,14 +257,14 @@ struct ReaderSettingsView: View {
                     // reader's CSS without further conversion.
                     SettingsSeparator()
                     SettingsColorRow(
-                        title: "Text colour",
+                        title: String(localized: "Text colour", bundle: .module),
                         systemImage: "paintbrush",
                         tone: .link,
                         color: hexBinding(for: $customTextColorHex, fallback: palette.textPrimary)
                     )
                     SettingsSeparator()
                     SettingsColorRow(
-                        title: "Background colour",
+                        title: String(localized: "Background colour", bundle: .module),
                         systemImage: "paintpalette",
                         tone: .neutral,
                         color: hexBinding(for: $customBackgroundColorHex, fallback: palette.background)
@@ -272,7 +272,7 @@ struct ReaderSettingsView: View {
                     if !hideFurigana {
                         SettingsSeparator()
                         SettingsColorRow(
-                            title: "Furigana / hint colour",
+                            title: String(localized: "Furigana / hint colour", bundle: .module),
                             systemImage: "eyedropper",
                             tone: .info,
                             color: hexBinding(for: $customHintColorHex, fallback: palette.textSecondary)
@@ -287,31 +287,31 @@ struct ReaderSettingsView: View {
 
     private var toolbarSection: some View {
         Group {
-            SettingsSectionHeader(title: "Toolbar")
+            SettingsSectionHeader(title: String(localized: "Toolbar", bundle: .module))
             SettingsGroup {
                 SettingsToggleRow(
-                    title: "Show chapter title",
+                    title: String(localized: "Show chapter title", bundle: .module),
                     systemImage: "textformat",
                     tone: .accent,
                     isOn: Binding($showTitle)
                 )
                 SettingsSeparator()
                 SettingsToggleRow(
-                    title: "Show percentage",
+                    title: String(localized: "Show percentage", bundle: .module),
                     systemImage: "percent",
                     tone: .review,
                     isOn: Binding($showPercentage)
                 )
                 SettingsSeparator()
                 SettingsToggleRow(
-                    title: "Top progress bar",
+                    title: String(localized: "Top progress bar", bundle: .module),
                     systemImage: "rectangle.topthird.inset.filled",
                     tone: .review,
                     isOn: Binding($showProgressTop)
                 )
                 SettingsSeparator()
                 SettingsToggleRow(
-                    title: "Debug overlay",
+                    title: String(localized: "Debug overlay", bundle: .module),
                     systemImage: "ladybug",
                     tone: .danger,
                     isOn: Binding($debugInfoEnabled)
@@ -324,10 +324,10 @@ struct ReaderSettingsView: View {
 
     private var popupSection: some View {
         Group {
-            SettingsSectionHeader(title: "Lookup Popup")
+            SettingsSectionHeader(title: String(localized: "Lookup Popup", bundle: .module))
             SettingsGroup {
                 SettingsToggleRow(
-                    title: "Full-screen popup",
+                    title: String(localized: "Full-screen popup", bundle: .module),
                     systemImage: "arrow.up.left.and.arrow.down.right",
                     tone: .accent,
                     isOn: Binding($popupFullWidth)
@@ -335,7 +335,7 @@ struct ReaderSettingsView: View {
                 if !popupFullWidth {
                     SettingsSeparator()
                     SettingsStepperRow(
-                        title: "Popup height",
+                        title: String(localized: "Popup height", bundle: .module),
                         systemImage: "arrow.up.and.down",
                         tone: .accent,
                         value: Binding($popupHeight),
@@ -345,28 +345,28 @@ struct ReaderSettingsView: View {
                 }
                 SettingsSeparator()
                 SettingsToggleRow(
-                    title: "Swipe-down handle",
+                    title: String(localized: "Swipe-down handle", bundle: .module),
                     systemImage: "hand.draw",
                     tone: .info,
                     isOn: Binding($popupSwipeToDismiss)
                 )
                 SettingsSeparator()
                 SettingsToggleRow(
-                    title: "Collapse dictionaries",
+                    title: String(localized: "Collapse dictionaries", bundle: .module),
                     systemImage: "rectangle.compress.vertical",
                     tone: .neutral,
                     isOn: Binding($popupCollapseDictionaries)
                 )
                 SettingsSeparator()
                 SettingsToggleRow(
-                    title: "Compact glossaries",
+                    title: String(localized: "Compact glossaries", bundle: .module),
                     systemImage: "list.bullet",
                     tone: .neutral,
                     isOn: Binding($popupCompactGlossaries)
                 )
                 SettingsSeparator()
                 SettingsStepperRow(
-                    title: "Body font",
+                    title: String(localized: "Body font", bundle: .module),
                     systemImage: "textformat.size",
                     tone: .mature,
                     value: Binding($popupFontSize),
@@ -375,7 +375,7 @@ struct ReaderSettingsView: View {
                 ) { "\(Int($0))pt" }
                 SettingsSeparator()
                 SettingsStepperRow(
-                    title: "Definition font",
+                    title: String(localized: "Definition font", bundle: .module),
                     systemImage: "text.alignleft",
                     tone: .mature,
                     value: Binding($popupContentFontSize),
@@ -384,7 +384,7 @@ struct ReaderSettingsView: View {
                 ) { "\(Int($0))pt" }
                 SettingsSeparator()
                 SettingsStepperRow(
-                    title: "Reading font",
+                    title: String(localized: "Reading font", bundle: .module),
                     systemImage: "quote.bubble",
                     tone: .link,
                     value: Binding($popupKanaFontSize),
@@ -393,7 +393,7 @@ struct ReaderSettingsView: View {
                 ) { "\(Int($0))pt" }
                 SettingsSeparator()
                 SettingsStepperRow(
-                    title: "Frequency font",
+                    title: String(localized: "Frequency font", bundle: .module),
                     systemImage: "number",
                     tone: .review,
                     value: Binding($popupFrequencyFontSize),
@@ -402,7 +402,7 @@ struct ReaderSettingsView: View {
                 ) { "\(Int($0))pt" }
                 SettingsSeparator()
                 SettingsStepperRow(
-                    title: "Dictionary header",
+                    title: String(localized: "Dictionary header", bundle: .module),
                     systemImage: "character.book.closed",
                     tone: .learning,
                     value: Binding($popupDictionaryNameFontSize),
@@ -429,10 +429,10 @@ extension ReaderSettingsView {
 extension ReaderThemeMode {
     var label: String {
         switch self {
-        case .system: return "Match system"
-        case .eyeCare: return "Eye-care"
-        case .sepia: return "Sepia"
-        case .custom: return "Custom"
+        case .system: return String(localized: "Match system", bundle: .module)
+        case .eyeCare: return String(localized: "Eye-care", bundle: .module)
+        case .sepia: return String(localized: "Sepia", bundle: .module)
+        case .custom: return String(localized: "Custom", bundle: .module)
         }
     }
 }

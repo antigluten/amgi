@@ -39,7 +39,7 @@ public struct LibraryHeroCard: View {
 
     public var body: some View {
         AmgiHeroSummary(
-            eyebrow: "Due today",
+            eyebrow: String(localized: "Due today", bundle: .module),
             bigNumber: "\(data.totalDue)",
             subtitle: subtitleText,
             background: heroGradient,
@@ -50,7 +50,7 @@ public struct LibraryHeroCard: View {
             footer: {
                 VStack(spacing: 12) {
                     Button(action: onStartReview) {
-                        Label("Start today's review", systemImage: "play.fill")
+                        Label(String(localized: "Start today's review", bundle: .module), systemImage: "play.fill")
                             .frame(maxWidth: .infinity)
                             .amgiFont(size: 16, weight: .semibold, relativeTo: .body)
                     }
@@ -69,7 +69,7 @@ public struct LibraryHeroCard: View {
     }
 
     private var subtitleText: String {
-        "cards across \(data.deckCount) deck\(data.deckCount == 1 ? "" : "s")"
+        String(localized: "cards across \(data.deckCount) decks", bundle: .module)
     }
 
     private var heroGradient: AmgiCardBackground {

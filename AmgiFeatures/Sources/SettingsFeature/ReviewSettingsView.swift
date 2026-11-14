@@ -37,36 +37,36 @@ struct ReviewSettingsView: View {
             answerButtonsSection
             audioSection
         }
-        .navigationTitle("Review")
+        .navigationTitle(String(localized: "Review", bundle: .module))
         .navigationBarTitleDisplayMode(.inline)
     }
 
     private var cardDisplaySection: some View {
         Group {
-            SettingsSectionHeader(title: "Card Display")
+            SettingsSectionHeader(title: String(localized: "Card Display", bundle: .module))
             SettingsGroup {
                 SettingsToggleRow(
-                    title: "Match toolbar to card background",
+                    title: String(localized: "Match toolbar to card background", bundle: .module),
                     systemImage: "paintbrush",
                     tone: .mature,
                     isOn: Binding($autoMatchCardBackground)
                 )
                 SettingsSeparator()
                 SettingsToggleRow(
-                    title: "Open links externally",
+                    title: String(localized: "Open links externally", bundle: .module),
                     systemImage: "arrow.up.right.square",
                     tone: .accent,
                     isOn: Binding($openLinksExternally)
                 )
                 SettingsSeparator()
                 SettingsPickerRow(
-                    title: "Content alignment",
+                    title: String(localized: "Content alignment", bundle: .module),
                     systemImage: "arrow.up.and.down.text.horizontal",
                     tone: .link,
                     selection: Binding($cardContentAlignment)
                 ) {
-                    Text("Center").tag(CardWebViewContentAlignment.center.rawValue)
-                    Text("Top").tag(CardWebViewContentAlignment.top.rawValue)
+                    Text("Center", bundle: .module).tag(CardWebViewContentAlignment.center.rawValue)
+                    Text("Top", bundle: .module).tag(CardWebViewContentAlignment.top.rawValue)
                 }
             }
         }
@@ -74,17 +74,17 @@ struct ReviewSettingsView: View {
 
     private var answerButtonsSection: some View {
         Group {
-            SettingsSectionHeader(title: "Answer Buttons")
+            SettingsSectionHeader(title: String(localized: "Answer Buttons", bundle: .module))
             SettingsGroup {
                 SettingsToggleRow(
-                    title: "Show remaining counts",
+                    title: String(localized: "Show remaining counts", bundle: .module),
                     systemImage: "number",
                     tone: .review,
                     isOn: Binding($showRemainingDays)
                 )
                 SettingsSeparator()
                 SettingsToggleRow(
-                    title: "Show next review time",
+                    title: String(localized: "Show next review time", bundle: .module),
                     systemImage: "clock",
                     tone: .info,
                     isOn: Binding($showNextReviewTime)
@@ -95,10 +95,10 @@ struct ReviewSettingsView: View {
 
     private var audioSection: some View {
         Group {
-            SettingsSectionHeader(title: "Audio")
+            SettingsSectionHeader(title: String(localized: "Audio", bundle: .module))
             SettingsGroup {
                 SettingsToggleRow(
-                    title: "Play audio in silent mode",
+                    title: String(localized: "Play audio in silent mode", bundle: .module),
                     systemImage: "speaker.wave.2",
                     tone: .learning,
                     isOn: Binding($playAudioInSilentMode)

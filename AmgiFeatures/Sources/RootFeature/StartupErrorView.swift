@@ -32,7 +32,7 @@ struct StartupErrorView: View {
                 .amgiFont(.displayHero)
                 .foregroundStyle(palette.textSecondary)
 
-            Text("Couldn't open your collection")
+            Text("Couldn't open your collection", bundle: .module)
                 .amgiFont(.cardTitle)
 
             Text(message)
@@ -41,16 +41,16 @@ struct StartupErrorView: View {
                 .multilineTextAlignment(.center)
 
             if didReset {
-                Text("Collection removed. Quit and reopen Amgi, then sync to restore your cards.")
+                Text("Collection removed. Quit and reopen Amgi, then sync to restore your cards.", bundle: .module)
                     .amgiStatusText(.info, font: .caption)
                     .multilineTextAlignment(.center)
             } else {
-                Text("If you sync, your cards are safe on the server and will come back after a reset.")
+                Text("If you sync, your cards are safe on the server and will come back after a reset.", bundle: .module)
                     .amgiFont(.caption)
                     .foregroundStyle(palette.textSecondary)
                     .multilineTextAlignment(.center)
 
-                Button("Reset This Profile's Collection", role: .destructive) {
+                Button(String(localized: "Reset This Profile's Collection", bundle: .module), role: .destructive) {
                     showResetConfirm = true
                 }
                 .buttonStyle(.borderedProminent)
@@ -60,14 +60,14 @@ struct StartupErrorView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .themedRoot()
         .confirmationDialog(
-            "Reset this profile's collection?",
+            String(localized: "Reset this profile's collection?", bundle: .module),
             isPresented: $showResetConfirm,
             titleVisibility: .visible
         ) {
-            Button("Delete Collection", role: .destructive) { reset() }
-            Button("Cancel", role: .cancel) {}
+            Button(String(localized: "Delete Collection", bundle: .module), role: .destructive) { reset() }
+            Button(String(localized: "Cancel", bundle: .module), role: .cancel) {}
         } message: {
-            Text("Deletes the local collection and sync credentials for this profile. Other profiles are untouched.")
+            Text("Deletes the local collection and sync credentials for this profile. Other profiles are untouched.", bundle: .module)
         }
     }
 

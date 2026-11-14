@@ -75,11 +75,11 @@ struct SyncSheetContent: View {
                     .padding(.horizontal)
             }
             .padding()
-            .navigationTitle("Sync")
+            .navigationTitle(String(localized: "Sync", bundle: .module))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") { onDone() }
+                    Button(String(localized: "Done", bundle: .module)) { onDone() }
                 }
             }
         }
@@ -109,7 +109,7 @@ struct SyncSheetContent: View {
             if let endpoint {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Server")
+                        Text("Server", bundle: .module)
                             .amgiFont(.caption)
                             .foregroundStyle(palette.textSecondary)
                         Text(endpoint)
@@ -125,22 +125,22 @@ struct SyncSheetContent: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     Menu {
-                        Button("Change Server") { onChangeServer() }
-                        Button("Logout", role: .destructive) { onLogout() }
+                        Button(String(localized: "Change Server", bundle: .module)) { onChangeServer() }
+                        Button(String(localized: "Logout", bundle: .module), role: .destructive) { onLogout() }
                     } label: {
                         Image(systemName: "ellipsis.circle")
                             .foregroundStyle(palette.textSecondary)
                     }
-                    .accessibilityLabel("Account actions")
+                    .accessibilityLabel(String(localized: "Account actions", bundle: .module))
                 }
                 .padding(.horizontal)
             } else if syncMode == .local {
                 HStack {
-                    Label("Syncing is disabled", systemImage: "iphone")
+                    Label(String(localized: "Syncing is disabled", bundle: .module), systemImage: "iphone")
                         .amgiFont(.caption)
                         .foregroundStyle(palette.textSecondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                    Button("Set Up Server") { onSetUpServer() }
+                    Button(String(localized: "Set Up Server", bundle: .module)) { onSetUpServer() }
                         .amgiFont(.caption)
                 }
                 .padding(.horizontal)
@@ -160,7 +160,7 @@ struct SyncSheetContent: View {
             Text(lastSyncedLabel)
                 .amgiFont(.body)
                 .foregroundStyle(palette.textSecondary)
-            Button("Sync Now") { onStartSync() }
+            Button(String(localized: "Sync Now", bundle: .module)) { onStartSync() }
                 .buttonStyle(.borderedProminent)
         }
     }
@@ -173,11 +173,11 @@ struct SyncSheetContent: View {
                 Text(syncStartedAt, style: .timer)
                     .amgiFont(.caption, .monospaced)
                     .foregroundStyle(palette.textSecondary)
-                    .accessibilityLabel("Sync running")
+                    .accessibilityLabel(String(localized: "Sync running", bundle: .module))
             }
             // The sync is not tied to this sheet's lifetime, and users who
             // think it is sit and watch it.
-            Text("You can close this \u{2014} syncing continues.")
+            Text("You can close this \u{2014} syncing continues.", bundle: .module)
                 .amgiFont(.micro)
                 .foregroundStyle(palette.textTertiary)
                 .multilineTextAlignment(.center)
@@ -190,13 +190,13 @@ struct SyncSheetContent: View {
             Image(systemName: "server.rack")
                 .font(.system(size: 48))
                 .foregroundStyle(palette.textSecondary)
-            Text("No Server Configured")
+            Text("No Server Configured", bundle: .module)
                 .amgiFont(.sectionHeading)
-            Text("Set up a sync server to keep your collection in sync across devices.")
+            Text("Set up a sync server to keep your collection in sync across devices.", bundle: .module)
                 .amgiFont(.caption)
                 .foregroundStyle(palette.textSecondary)
                 .multilineTextAlignment(.center)
-            Button("Set Up Server") { onSetUpServer() }
+            Button(String(localized: "Set Up Server", bundle: .module)) { onSetUpServer() }
                 .buttonStyle(.borderedProminent)
         }
     }
@@ -247,7 +247,7 @@ struct SyncSheetContent: View {
                         .amgiFont(.caption)
                         .foregroundStyle(palette.danger)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                    Button("Retry") { onRetryFooter() }
+                    Button(String(localized: "Retry", bundle: .module)) { onRetryFooter() }
                         .amgiFont(.captionBold)
                 }
             }
@@ -259,7 +259,7 @@ struct SyncSheetContent: View {
             Image(systemName: "arrow.triangle.2.circlepath")
                 .font(.system(size: 48))
                 .foregroundStyle(palette.warning)
-            Text("Full Sync Required")
+            Text("Full Sync Required", bundle: .module)
                 .amgiFont(.sectionHeading)
             Text(reason)
                 .amgiFont(.caption)
@@ -271,9 +271,9 @@ struct SyncSheetContent: View {
                     onMerge()
                 } label: {
                     VStack(spacing: 2) {
-                        Label("Merge (combine both)", systemImage: "arrow.triangle.merge")
+                        Label(String(localized: "Merge (combine both)", bundle: .module), systemImage: "arrow.triangle.merge")
                             .frame(maxWidth: .infinity)
-                        Text("Keeps cards from both sides; conflicts use newest")
+                        Text("Keeps cards from both sides; conflicts use newest", bundle: .module)
                             .amgiFont(.micro)
                             .foregroundStyle(.white.opacity(0.85))
                     }
@@ -284,9 +284,9 @@ struct SyncSheetContent: View {
                     pendingDestructiveChoice = .download
                 } label: {
                     VStack(spacing: 2) {
-                        Label("Replace local with server", systemImage: "arrow.down.circle")
+                        Label(String(localized: "Replace local with server", bundle: .module), systemImage: "arrow.down.circle")
                             .frame(maxWidth: .infinity)
-                        Text("Local-only changes will be lost")
+                        Text("Local-only changes will be lost", bundle: .module)
                             .amgiFont(.micro)
                             .foregroundStyle(palette.textSecondary)
                     }
@@ -297,9 +297,9 @@ struct SyncSheetContent: View {
                     pendingDestructiveChoice = .upload
                 } label: {
                     VStack(spacing: 2) {
-                        Label("Replace server with local", systemImage: "arrow.up.circle")
+                        Label(String(localized: "Replace server with local", bundle: .module), systemImage: "arrow.up.circle")
                             .frame(maxWidth: .infinity)
-                        Text("Server-only changes will be lost")
+                        Text("Server-only changes will be lost", bundle: .module)
                             .amgiFont(.micro)
                             .foregroundStyle(palette.textSecondary)
                     }
@@ -308,7 +308,7 @@ struct SyncSheetContent: View {
             }
         }
         .confirmationDialog(
-            "This cannot be undone",
+            String(localized: "This cannot be undone", bundle: .module),
             isPresented: Binding(
                 get: { pendingDestructiveChoice != nil },
                 set: { if !$0 { pendingDestructiveChoice = nil } }
@@ -319,7 +319,7 @@ struct SyncSheetContent: View {
             Button(destructiveButtonLabel(choice), role: .destructive) {
                 onFullSync(choice)
             }
-            Button("Cancel", role: .cancel) {}
+            Button(String(localized: "Cancel", bundle: .module), role: .cancel) {}
         } message: { choice in
             Text(destructiveDialogMessage(choice))
         }
@@ -331,17 +331,17 @@ struct SyncSheetContent: View {
 
     private func destructiveButtonLabel(_ choice: SyncDirection) -> String {
         switch choice {
-        case .download: return "Replace Local"
-        case .upload: return "Replace Server"
+        case .download: return String(localized: "Replace Local", bundle: .module)
+        case .upload: return String(localized: "Replace Server", bundle: .module)
         }
     }
 
     private func destructiveDialogMessage(_ choice: SyncDirection) -> String {
         switch choice {
         case .download:
-            return "Your local collection will be permanently overwritten with the server's copy. Any cards or reviews that exist only locally will be lost."
+            return String(localized: "Your local collection will be permanently overwritten with the server's copy. Any cards or reviews that exist only locally will be lost.", bundle: .module)
         case .upload:
-            return "The server's collection will be permanently overwritten with your local copy. Any cards or reviews that exist only on the server will be lost."
+            return String(localized: "The server's collection will be permanently overwritten with your local copy. Any cards or reviews that exist only on the server will be lost.", bundle: .module)
         }
     }
 
@@ -351,15 +351,15 @@ struct SyncSheetContent: View {
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 48))
                 .foregroundStyle(palette.positive)
-            Text("Sync Complete")
+            Text("Sync Complete", bundle: .module)
                 .amgiFont(.sectionHeading)
             VStack(alignment: .leading, spacing: 4) {
-                if summary.cardsPulled > 0 { Text("\u{2193} \(summary.cardsPulled) cards received") }
-                if summary.cardsPushed > 0 { Text("\u{2191} \(summary.cardsPushed) cards sent") }
-                if summary.notesPulled > 0 { Text("\u{2193} \(summary.notesPulled) notes received") }
-                if summary.notesPushed > 0 { Text("\u{2191} \(summary.notesPushed) notes sent") }
+                if summary.cardsPulled > 0 { Text("\u{2193} \(summary.cardsPulled) cards received", bundle: .module) }
+                if summary.cardsPushed > 0 { Text("\u{2191} \(summary.cardsPushed) cards sent", bundle: .module) }
+                if summary.notesPulled > 0 { Text("\u{2193} \(summary.notesPulled) notes received", bundle: .module) }
+                if summary.notesPushed > 0 { Text("\u{2191} \(summary.notesPushed) notes sent", bundle: .module) }
                 if summary.cardsPulled == 0 && summary.cardsPushed == 0 {
-                    Text("Everything up to date")
+                    Text("Everything up to date", bundle: .module)
                 }
             }
             .amgiFont(.caption)
@@ -373,13 +373,13 @@ struct SyncSheetContent: View {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.system(size: 48))
                 .foregroundStyle(palette.warning)
-            Text("Sync Failed")
+            Text("Sync Failed", bundle: .module)
                 .amgiFont(.sectionHeading)
             Text(message)
                 .amgiFont(.caption)
                 .foregroundStyle(palette.textSecondary)
                 .multilineTextAlignment(.center)
-            Button("Retry") { onStartSync() }
+            Button(String(localized: "Retry", bundle: .module)) { onStartSync() }
                 .buttonStyle(.borderedProminent)
         }
     }

@@ -47,7 +47,7 @@ struct EmptyCardsView: View {
             onOpenNote: { id in Task { await openNote(id) } },
             onRequestDeleteAll: { destination = .confirmDeleteAll }
         )
-        .navigationTitle("Empty Cards")
+        .navigationTitle(String(localized: "Empty Cards", bundle: .module))
         .navigationBarTitleDisplayMode(.inline)
         .modifier(EmptyCardsPrompts(
             destination: $destination,
@@ -73,7 +73,7 @@ struct EmptyCardsView: View {
             try await model.loadEmptyCards()
         } catch {
             destination = .error(.init(
-                title: "Couldn't load empty cards",
+                title: String(localized: "Couldn't load empty cards", bundle: .module),
                 message: error.localizedDescription
             ))
         }
@@ -85,7 +85,7 @@ struct EmptyCardsView: View {
             destination = .deleted
         } catch {
             destination = .error(.init(
-                title: "Couldn't delete empty cards",
+                title: String(localized: "Couldn't delete empty cards", bundle: .module),
                 message: error.localizedDescription
             ))
         }
@@ -95,8 +95,8 @@ struct EmptyCardsView: View {
         do {
             guard let note = try await model.fetchNote(id) else {
                 destination = .error(.init(
-                    title: "Note unavailable",
-                    message: "That note no longer exists."
+                    title: String(localized: "Note unavailable", bundle: .module),
+                    message: String(localized: "That note no longer exists.", bundle: .module)
                 ))
                 return
             }
@@ -105,7 +105,7 @@ struct EmptyCardsView: View {
                 : .editNote(note)
         } catch {
             destination = .error(.init(
-                title: "Couldn't open note",
+                title: String(localized: "Couldn't open note", bundle: .module),
                 message: error.localizedDescription
             ))
         }
@@ -128,25 +128,25 @@ private struct EmptyCardsPrompts: ViewModifier {
     func body(content: Content) -> some View {
         content
             .confirmationDialog(
-                "Delete empty cards?",
+                String(localized: "Delete empty cards?", bundle: .module),
                 isPresented: $destination.confirmDeleteAll,
                 titleVisibility: .visible
             ) {
-                Button("Delete", role: .destructive, action: onConfirmDeleteAll)
-                Button("Cancel", role: .cancel) {}
+                Button(String(localized: "Delete", bundle: .module), role: .destructive, action: onConfirmDeleteAll)
+                Button(String(localized: "Cancel", bundle: .module), role: .cancel) {}
             } message: {
-                Text("Delete \(emptyCardCount) empty cards? This cannot be undone.")
+                Text("Delete \(emptyCardCount) empty cards? This cannot be undone.", bundle: .module)
             }
-            .alert("Empty cards deleted", isPresented: $destination.deleted) {
-                Button("OK", role: .cancel, action: onAcknowledgeDeleted)
+            .alert(String(localized: "Empty cards deleted", bundle: .module), isPresented: $destination.deleted) {
+                Button(String(localized: "OK", bundle: .module), role: .cancel, action: onAcknowledgeDeleted)
             }
             .alert(
                 Text(failure?.title ?? ""),
                 isPresented: Binding($destination.error)
             ) {
-                Button("OK", role: .cancel) {}
+                Button(String(localized: "OK", bundle: .module), role: .cancel) {}
             } message: {
-                Text(failure?.message ?? "An unknown error occurred.")
+                Text(failure?.message ?? String(localized: "An unknown error occurred.", bundle: .module))
             }
     }
 }
@@ -180,7 +180,7 @@ struct EmptyCardsContent: View {
         List {
             if model.noteEntries.isEmpty {
                 Section {
-                    Label("No empty cards found", systemImage: "checkmark.circle")
+                    Label(String(localized: "No empty cards found", bundle: .module), systemImage: "checkmark.circle")
                         .amgiStatusText(.positive)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.vertical, 8)
@@ -200,14 +200,14 @@ struct EmptyCardsContent: View {
     private var summarySection: some View {
         Section {
             Label(
-                "Found \(model.totalEmptyCards) notes with empty cards",
+                String(localized: "Found \(model.totalEmptyCards) notes with empty cards", bundle: .module),
                 systemImage: "rectangle.stack.badge.minus"
             )
             .amgiStatusText(.warning)
             .listRowBackground(palette.surfaceElevated)
 
             if !model.report.isEmpty {
-                DisclosureGroup("Report") {
+                DisclosureGroup(String(localized: "Report", bundle: .module)) {
                     Text(model.report)
                         .amgiFont(.caption)
                         .foregroundStyle(palette.textSecondary)
@@ -225,17 +225,17 @@ struct EmptyCardsContent: View {
                 } label: {
                     HStack(alignment: .top, spacing: AmgiSpacing.sm) {
                         VStack(alignment: .leading, spacing: AmgiSpacing.xxs) {
-                            Text("Note id: \(entry.id.rawValue)")
+                            Text("Note id: \(entry.id.rawValue)", bundle: .module)
                                 .amgiFont(.body, .monospacedDigits)
                                 .foregroundStyle(palette.textPrimary)
-                            Text("\(entry.emptyCards) of \(entry.totalCards) cards empty")
+                            Text("\(entry.emptyCards) of \(entry.totalCards) cards empty", bundle: .module)
                                 .amgiFont(.caption)
                                 .foregroundStyle(palette.textSecondary)
-                            Text("Deck: \(entry.deckName)")
+                            Text("Deck: \(entry.deckName)", bundle: .module)
                                 .amgiFont(.caption)
                                 .foregroundStyle(palette.textSecondary)
                             if entry.willDeleteNote {
-                                Text("Will also delete the note (all cards empty)")
+                                Text("Will also delete the note (all cards empty)", bundle: .module)
                                     .amgiStatusText(.danger, font: .caption)
                             }
                         }
@@ -249,7 +249,7 @@ struct EmptyCardsContent: View {
                 .listRowBackground(palette.surfaceElevated)
             }
         } header: {
-            SettingsListHeader("Affected notes")
+            SettingsListHeader(String(localized: "Affected notes", bundle: .module))
         }
     }
 
@@ -260,12 +260,12 @@ struct EmptyCardsContent: View {
             } label: {
                 if model.isDeletingAll {
                     HStack {
-                        Text("Delete All Empty Cards")
+                        Text("Delete All Empty Cards", bundle: .module)
                             .frame(maxWidth: .infinity, alignment: .leading)
                         ProgressView()
                     }
                 } else {
-                    Label("Delete All Empty Cards…", systemImage: "trash")
+                    Label(String(localized: "Delete All Empty Cards…", bundle: .module), systemImage: "trash")
                 }
             }
             .disabled(model.isDeletingAll)

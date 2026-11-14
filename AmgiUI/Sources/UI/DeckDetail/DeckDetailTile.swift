@@ -30,11 +30,11 @@ public struct DeckDetailTile: View {
             contentInsets: EdgeInsets(top: 18, leading: 4, bottom: 18, trailing: 4)
         ) {
             HStack(spacing: 0) {
-                countColumn(label: "New", value: data.newCount, color: palette.cardStateNew)
+                countColumn(label: String(localized: "New", bundle: .module), value: data.newCount, color: palette.cardStateNew)
                 columnDivider
-                countColumn(label: "Learning", value: data.learnCount, color: palette.cardStateLearning)
+                countColumn(label: String(localized: "Learning", bundle: .module), value: data.learnCount, color: palette.cardStateLearning)
                 columnDivider
-                countColumn(label: "Review", value: data.reviewCount, color: palette.cardStateReview)
+                countColumn(label: String(localized: "Review", bundle: .module), value: data.reviewCount, color: palette.cardStateReview)
             }
         }
     }

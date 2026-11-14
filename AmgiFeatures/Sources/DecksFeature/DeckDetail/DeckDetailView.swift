@@ -47,7 +47,7 @@ struct DeckDetailView: View {
     private var alertTitle: String {
         guard let alert = currentAlert else { return "" }
         switch alert {
-        case .empty: return "Empty \"\(shortTitle)\"?"
+        case .empty: return String(localized: "Empty \"\(shortTitle)\"?", bundle: .module)
         case .error(let title, _): return title
         }
     }
@@ -58,8 +58,8 @@ struct DeckDetailView: View {
         let subtitle: String = {
             if let snap = model.statsSnapshot, !snap.subtitle.isEmpty { return snap.subtitle }
             return isEmpty
-                ? "No cards yet · Add some to start studying"
-                : "Tap Study to start a session"
+                ? String(localized: "No cards yet · Add some to start studying", bundle: .module)
+                : String(localized: "Tap Study to start a session", bundle: .module)
         }()
         let insights = model.statsSnapshot?.insights ?? .empty
         return .loaded(DeckDetailViewData(
@@ -133,14 +133,14 @@ struct DeckDetailView: View {
                     Button {
                         destination = .sheet(.addNote)
                     } label: {
-                        Label("Add Note…", systemImage: "square.and.pencil")
+                        Label(String(localized: "Add Note…", bundle: .module), systemImage: "square.and.pencil")
                     }
                     if !deck.isFiltered {
                         Button {
                             newSubdeckName = ""
                             destination = .sheet(.createSubdeck)
                         } label: {
-                            Label("Create Subdeck…", systemImage: "folder.badge.plus")
+                            Label(String(localized: "Create Subdeck…", bundle: .module), systemImage: "folder.badge.plus")
                         }
                     }
                 }
@@ -149,19 +149,19 @@ struct DeckDetailView: View {
                         Button {
                             destination = .sheet(.showDeckOptions)
                         } label: {
-                            Label("Deck Options…", systemImage: "slider.horizontal.3")
+                            Label(String(localized: "Deck Options…", bundle: .module), systemImage: "slider.horizontal.3")
                         }
                         Button {
                             limitDelta = Self.defaultNewDelta
                             destination = .sheet(.extendLimit(.new))
                         } label: {
-                            Label("Increase New Limit…", systemImage: "plus.rectangle.on.rectangle")
+                            Label(String(localized: "Increase New Limit…", bundle: .module), systemImage: "plus.rectangle.on.rectangle")
                         }
                         Button {
                             limitDelta = Self.defaultReviewDelta
                             destination = .sheet(.extendLimit(.review))
                         } label: {
-                            Label("Increase Review Limit…", systemImage: "plus.rectangle.on.rectangle")
+                            Label(String(localized: "Increase Review Limit…", bundle: .module), systemImage: "plus.rectangle.on.rectangle")
                         }
                     }
                 }
@@ -169,12 +169,12 @@ struct DeckDetailView: View {
                     Button {
                         Task { await runExport() }
                     } label: {
-                        Label("Export Deck…", systemImage: "square.and.arrow.up")
+                        Label(String(localized: "Export Deck…", bundle: .module), systemImage: "square.and.arrow.up")
                     }
                     .disabled(model.exportInProgress)
                 }
             } label: {
-                Label("More", systemImage: "ellipsis")
+                Label(String(localized: "More", bundle: .module), systemImage: "ellipsis")
             }
         }
     }
@@ -222,10 +222,10 @@ private extension DeckDetailView {
             }
         case .createSubdeck:
             TextPromptSheet(
-                title: "Create Subdeck",
-                placeholder: "Subdeck name",
-                footer: "Created inside \(shortTitle).",
-                confirmLabel: "Create",
+                title: String(localized: "Create Subdeck", bundle: .module),
+                placeholder: String(localized: "Subdeck name", bundle: .module),
+                footer: String(localized: "Created inside \(shortTitle).", bundle: .module),
+                confirmLabel: String(localized: "Create", bundle: .module),
                 capitalization: .words,
                 isValid: { !$0.trimmingCharacters(in: .whitespaces).isEmpty },
                 onConfirm: { name in await model.createSubdeck(rawName: name) },
@@ -233,10 +233,10 @@ private extension DeckDetailView {
             )
         case .extendLimit(let kind):
             TextPromptSheet(
-                title: "Increase Today's \(kind.noun) Limit",
-                placeholder: "Extra cards",
-                footer: "Extra \(kind.noun.lowercased()) cards to show today, on top of this deck's daily limit. Resets tomorrow.",
-                confirmLabel: "Increase",
+                title: kind.promptTitle,
+                placeholder: String(localized: "Extra cards", bundle: .module),
+                footer: kind.promptFooter,
+                confirmLabel: String(localized: "Increase", bundle: .module),
                 keyboard: .numberPad,
                 isValid: { Self.parseDelta($0) != nil },
                 onConfirm: { text in await runExtendLimit(kind, delta: text) },
@@ -249,12 +249,12 @@ private extension DeckDetailView {
     func alertActions(for alert: DeckDetailAlert) -> some View {
         switch alert {
         case .empty:
-            Button("Empty", role: .destructive) {
+            Button(String(localized: "Empty", bundle: .module), role: .destructive) {
                 Task { await runEmpty() }
             }
-            Button("Cancel", role: .cancel) {}
+            Button(String(localized: "Cancel", bundle: .module), role: .cancel) {}
         case .error:
-            Button("OK", role: .cancel) {}
+            Button(String(localized: "OK", bundle: .module), role: .cancel) {}
         }
     }
 
@@ -262,7 +262,7 @@ private extension DeckDetailView {
     func alertMessage(for alert: DeckDetailAlert) -> some View {
         switch alert {
         case .empty:
-            Text("Cards will be returned to their home decks.")
+            Text("Cards will be returned to their home decks.", bundle: .module)
         case .error(_, let message):
             Text(message)
         }
@@ -272,13 +272,13 @@ private extension DeckDetailView {
 
     func runRebuild() async {
         if let err = await model.rebuild() {
-            destination = .alert(.error(title: "Couldn't rebuild \"\(shortTitle)\"", message: err))
+            destination = .alert(.error(title: String(localized: "Couldn't rebuild \"\(shortTitle)\"", bundle: .module), message: err))
         }
     }
 
     func runEmpty() async {
         if let err = await model.empty() {
-            destination = .alert(.error(title: "Couldn't empty \"\(shortTitle)\"", message: err))
+            destination = .alert(.error(title: String(localized: "Couldn't empty \"\(shortTitle)\"", bundle: .module), message: err))
         }
     }
 
@@ -287,7 +287,7 @@ private extension DeckDetailView {
         case .success(let url):
             destination = .sheet(.exportFile(url))
         case .failure(let msg):
-            destination = .alert(.error(title: "Couldn't export \"\(shortTitle)\"", message: msg))
+            destination = .alert(.error(title: String(localized: "Couldn't export \"\(shortTitle)\"", bundle: .module), message: msg))
         }
     }
 

@@ -123,15 +123,15 @@ final class AddImageOcclusionModel {
         guard selectedDeckId.rawValue != 0 else {
             // Returning bare made Save do nothing at all with no
             // explanation, unlike the two guards below it.
-            errorMessage = "Choose a deck before saving."
+            errorMessage = String(localized: "Choose a deck before saving.", bundle: .module)
             return false
         }
         guard let url = imageURL else {
-            errorMessage = "Image is missing."
+            errorMessage = String(localized: "Image is missing.", bundle: .module)
             return false
         }
         guard !masks.isEmpty else {
-            errorMessage = "Add at least one mask before saving."
+            errorMessage = String(localized: "Add at least one mask before saving.", bundle: .module)
             return false
         }
         isSaving = true

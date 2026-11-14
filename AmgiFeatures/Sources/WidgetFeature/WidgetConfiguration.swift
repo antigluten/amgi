@@ -32,7 +32,7 @@ struct DeckEntityQuery: EntityQuery {
                 return DeckEntity(id: id, name: snapshot.deckName)
             }
             // defaultResult() hands out "0" before the first snapshot exists.
-            return id == "0" ? DeckEntity(id: "0", name: "All Decks") : nil
+            return id == "0" ? DeckEntity(id: "0", name: String(localized: "All Decks", bundle: .module)) : nil
         }
     }
 
@@ -51,7 +51,7 @@ struct DeckEntityQuery: EntityQuery {
         if let first = snapshots.first {
             return DeckEntity(id: String(first.deckId), name: first.deckName)
         }
-        return DeckEntity(id: "0", name: "All Decks")
+        return DeckEntity(id: "0", name: String(localized: "All Decks", bundle: .module))
     }
 }
 

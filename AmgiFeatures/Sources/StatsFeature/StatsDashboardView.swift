@@ -40,7 +40,7 @@ package struct StatsDashboardView: View {
         )
         .scrollContentBackground(.hidden)
         .background(palette.background)
-        .navigationTitle("Statistics")
+        .navigationTitle(String(localized: "Statistics", bundle: .module))
         .task(id: refreshID) { await model.loadDecks() }
         .task(id: query) { await reloadStats() }
         .task(id: streakQuery) { await model.loadStreak(search: search) }

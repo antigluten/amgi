@@ -63,11 +63,11 @@ final class FsrsSimulatorModel {
                 let memorized = result.accumulatedKnowledge.last ?? 0
                 let days = max(result.dailyReviewCount.count, 1)
                 summary = [
-                    ("Total new", "\(totalNew)"),
-                    ("Total reviews", "\(totalReview)"),
-                    ("Avg reviews/day", String(format: "%.1f", Double(totalReview) / Double(days))),
-                    ("Total time (s)", String(format: "%.1f", Double(totalTime))),
-                    ("Memorized (end)", String(format: "%.1f", Double(memorized)))
+                    (String(localized: "Total new", bundle: .module), "\(totalNew)"),
+                    (String(localized: "Total reviews", bundle: .module), "\(totalReview)"),
+                    (String(localized: "Avg reviews/day", bundle: .module), String(format: "%.1f", Double(totalReview) / Double(days))),
+                    (String(localized: "Total time (s)", bundle: .module), String(format: "%.1f", Double(totalTime))),
+                    (String(localized: "Memorized (end)", bundle: .module), String(format: "%.1f", Double(memorized)))
                 ]
                 workloadRows = []
             case .workload:
@@ -79,10 +79,10 @@ final class FsrsSimulatorModel {
                     let count = result.reviewCount[retention] ?? 0
                     return (
                         "\(retention)%",
-                        String(format: "cost %.2f · reviews %d", Double(cost), count)
+                        String(localized: "cost \(String(format: "%.2f", Double(cost))) · reviews \(Int(count))", bundle: .module)
                     )
                 }
-                summary = [("Points", "\(workloadRows.count)")]
+                summary = [(String(localized: "Points", bundle: .module), "\(workloadRows.count)")]
             }
         } catch {
             guard generation == self.generation else { return }

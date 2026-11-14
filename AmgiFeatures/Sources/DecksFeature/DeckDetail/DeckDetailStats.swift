@@ -54,7 +54,7 @@ enum DeckDetailStats {
 
     static func buildSubtitle(graphs: GraphsSnapshot, isEmpty: Bool) -> String {
         if isEmpty {
-            return "No cards yet · Add some to start studying"
+            return String(localized: "No cards yet · Add some to start studying", bundle: .module)
         }
 
         func dayTotal(_ rev: ReviewCountsAndTimes.Reviews) -> Int {
@@ -82,20 +82,20 @@ enum DeckDetailStats {
 
         let lastStudied: String
         switch lastOffset {
-        case nil: lastStudied = "never"
-        case .some(0): lastStudied = "today"
-        case .some(-1): lastStudied = "yesterday"
+        case nil: lastStudied = String(localized: "never", bundle: .module)
+        case .some(0): lastStudied = String(localized: "today", bundle: .module)
+        case .some(-1): lastStudied = String(localized: "yesterday", bundle: .module)
         case .some(let off):
             let date = Calendar.current.date(byAdding: .day, value: off, to: Date()) ?? Date()
             lastStudied = date.formatted(.dateTime.month(.abbreviated).day())
         }
 
         if streak > 0 {
-            return "Last studied \(lastStudied) · \(streak)-day streak"
+            return String(localized: "Last studied \(lastStudied) · \(streak)-day streak", bundle: .module)
         } else if lastOffset != nil {
-            return "Last studied \(lastStudied)"
+            return String(localized: "Last studied \(lastStudied)", bundle: .module)
         } else {
-            return "No reviews yet"
+            return String(localized: "No reviews yet", bundle: .module)
         }
     }
 }

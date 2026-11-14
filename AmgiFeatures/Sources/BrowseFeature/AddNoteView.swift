@@ -38,28 +38,28 @@ package struct AddNoteView: View {
     package var body: some View {
         NavigationStack {
             content
-                .navigationTitle("Add Note")
+                .navigationTitle(String(localized: "Add Note", bundle: .module))
                 .navigationBarTitleDisplayMode(.inline)
                 .interactiveDismissDisabled(model.hasUnsavedChanges || recordingActive || model.isSaving)
                 .confirmationDialog(
-                    "Discard this note?",
+                    String(localized: "Discard this note?", bundle: .module),
                     isPresented: $showDiscardConfirm,
                     titleVisibility: .visible
                 ) {
-                    Button("Discard", role: .destructive) {
+                    Button(String(localized: "Discard", bundle: .module), role: .destructive) {
                         #if canImport(UIKit)
                         recorder.cancel()
                         #endif
                         model.discardAudio()
                         dismiss()
                     }
-                    Button("Cancel", role: .cancel) {}
+                    Button(String(localized: "Cancel", bundle: .module), role: .cancel) {}
                 } message: {
-                    Text("The note hasn't been added yet. Discarding loses your text and recordings.")
+                    Text("The note hasn't been added yet. Discarding loses your text and recordings.", bundle: .module)
                 }
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
-                        Button("Cancel") {
+                        Button(String(localized: "Cancel", bundle: .module)) {
                             if model.hasUnsavedChanges || recordingActive {
                                 showDiscardConfirm = true
                             } else {
@@ -69,7 +69,7 @@ package struct AddNoteView: View {
                         .disabled(model.isSaving)
                     }
                     ToolbarItem(placement: .confirmationAction) {
-                        Button("Add") {
+                        Button(String(localized: "Add", bundle: .module)) {
                             finishRecording()
                             Task {
                                 if await model.save() {
@@ -103,34 +103,34 @@ extension AddNoteView {
     private var content: some View {
         #if canImport(UIKit)
         AddNoteContent(model: model, recorder: recorder)
-            .alert("Microphone access is off", isPresented: Binding(
+            .alert(String(localized: "Microphone access is off", bundle: .module), isPresented: Binding(
                 get: { recorder.failure == .permissionDenied },
                 set: { if !$0 { recorder.failure = nil } }
             )) {
-                Button("Open Settings") {
+                Button(String(localized: "Open Settings", bundle: .module)) {
                     if let url = URL(string: UIApplication.openSettingsURLString) {
                         UIApplication.shared.open(url)
                     }
                 }
-                Button("Cancel", role: .cancel) {}
+                Button(String(localized: "Cancel", bundle: .module), role: .cancel) {}
             } message: {
-                Text("Allow microphone access in Settings to record audio onto cards.")
+                Text("Allow microphone access in Settings to record audio onto cards.", bundle: .module)
             }
-            .alert("Recording could not start", isPresented: Binding(
+            .alert(String(localized: "Recording could not start", bundle: .module), isPresented: Binding(
                 get: { recorder.failure == .couldNotStart },
                 set: { if !$0 { recorder.failure = nil } }
             )) {
-                Button("OK", role: .cancel) {}
+                Button(String(localized: "OK", bundle: .module), role: .cancel) {}
             } message: {
-                Text("Please try recording again.")
+                Text("Please try recording again.", bundle: .module)
             }
-            .alert("Recording ended", isPresented: Binding(
+            .alert(String(localized: "Recording ended", bundle: .module), isPresented: Binding(
                 get: { recorder.failure == .endedEarly },
                 set: { if !$0 { recorder.failure = nil } }
             )) {
-                Button("OK", role: .cancel) {}
+                Button(String(localized: "OK", bundle: .module), role: .cancel) {}
             } message: {
-                Text("Recording was interrupted or reached the 10-minute limit. The clip so far was kept.")
+                Text("Recording was interrupted or reached the 10-minute limit. The clip so far was kept.", bundle: .module)
             }
             .onAppear {
                 recorder.onEndedEarly = { model.attachAudio($0.url, toField: $0.fieldIndex) }
@@ -180,16 +180,16 @@ struct AddNoteContent: View {
 
     var body: some View {
         Form {
-            Section("Deck") {
-                Picker("Deck", selection: $model.selectedDeckId) {
+            Section(String(localized: "Deck", bundle: .module)) {
+                Picker(String(localized: "Deck", bundle: .module), selection: $model.selectedDeckId) {
                     ForEach(model.decks) { deck in
                         Text(deck.name).tag(deck.id)
                     }
                 }
             }
 
-            Section("Note Type") {
-                Picker("Type", selection: $model.selectedNotetypeId) {
+            Section(String(localized: "Note Type", bundle: .module)) {
+                Picker(String(localized: "Type", bundle: .module), selection: $model.selectedNotetypeId) {
                     ForEach(model.notetypeNames, id: \.id) { entry in
                         Text(entry.name).tag(entry.id)
                     }
@@ -200,7 +200,7 @@ struct AddNoteContent: View {
                 }
             }
 
-            Section("Fields") {
+            Section(String(localized: "Fields", bundle: .module)) {
                 ForEach(Array(model.fieldNames.enumerated()), id: \.element) { index, name in
                     VStack(alignment: .leading, spacing: 4) {
                         HStack {
@@ -222,7 +222,7 @@ struct AddNoteContent: View {
                         if let recorder, model.fieldAudio.indices.contains(index) {
                             ForEach(Array(model.fieldAudio[index].enumerated()), id: \.element) { clipIndex, url in
                                 NoteVoiceClipRow(
-                                    title: "Recording \(clipIndex + 1)",
+                                    title: String(localized: "Recording \(clipIndex + 1)", bundle: .module),
                                     isPlaying: recorder.playingURL == url,
                                     onPlay: { recorder.togglePlayback(url) },
                                     onDelete: {
@@ -238,8 +238,8 @@ struct AddNoteContent: View {
                 }
             }
 
-            Section("Tags") {
-                TextField("Tags (space-separated)", text: $model.tags)
+            Section(String(localized: "Tags", bundle: .module)) {
+                TextField(String(localized: "Tags (space-separated)", bundle: .module), text: $model.tags)
                     .autocorrectionDisabled()
                     .textInputAutocapitalization(.never)
             }

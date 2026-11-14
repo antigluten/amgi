@@ -18,7 +18,7 @@ extension DeckConfigModel {
             try await deckClient.selectDeckPreset(deckId, target, applyToChildren)
             await loadConfig()
         } catch {
-            destination = .alert(.presetError("Failed to switch preset: \(error.localizedDescription)"))
+            destination = .alert(.presetError(String(localized: "Failed to switch preset: \(error.localizedDescription)", bundle: .module)))
         }
     }
 
@@ -33,7 +33,7 @@ extension DeckConfigModel {
             await loadConfig()
             return nil
         } catch {
-            return "Failed to create preset: \(error.localizedDescription)"
+            return String(localized: "Failed to create preset: \(error.localizedDescription)", bundle: .module)
         }
     }
 
@@ -51,7 +51,7 @@ extension DeckConfigModel {
             await loadConfig()
             return nil
         } catch {
-            return "Failed to rename preset: \(error.localizedDescription)"
+            return String(localized: "Failed to rename preset: \(error.localizedDescription)", bundle: .module)
         }
     }
 
@@ -63,7 +63,7 @@ extension DeckConfigModel {
             try await deckClient.deleteDeckPreset(deckId, current.id, fallback, applyToChildren)
             await loadConfig()
         } catch {
-            destination = .alert(.presetError("Failed to delete preset: \(error.localizedDescription)"))
+            destination = .alert(.presetError(String(localized: "Failed to delete preset: \(error.localizedDescription)", bundle: .module)))
         }
     }
 
@@ -102,22 +102,22 @@ extension DeckConfigModel {
             guard generation == optimizeGeneration else { return }
             guard !result.weights.isEmpty else {
                 destination = .alert(.fsrsError(
-                    title: "Not enough review history",
-                    message: "FSRS needs more reviews before it can optimize. Try lowering historical retention or expanding the search."
+                    title: String(localized: "Not enough review history", bundle: .module),
+                    message: String(localized: "FSRS needs more reviews before it can optimize. Try lowering historical retention or expanding the search.", bundle: .module)
                 ))
                 return
             }
             fsrsWeightsText = formatWeights(result.weights.values)
             if result.healthCheck == .failed {
                 destination = .alert(.fsrsError(
-                    title: "FSRS health check failed",
-                    message: "Review history may be inconsistent. Inspect the parameters before saving."
+                    title: String(localized: "FSRS health check failed", bundle: .module),
+                    message: String(localized: "Review history may be inconsistent. Inspect the parameters before saving.", bundle: .module)
                 ))
             }
         } catch {
             guard generation == optimizeGeneration else { return }
             destination = .alert(.fsrsError(
-                title: "Couldn't optimize FSRS parameters",
+                title: String(localized: "Couldn't optimize FSRS parameters", bundle: .module),
                 message: error.localizedDescription
             ))
         }
@@ -133,7 +133,7 @@ extension DeckConfigModel {
             await loadConfig()
         } catch {
             destination = .alert(.fsrsError(
-                title: "Couldn't optimize all presets",
+                title: String(localized: "Couldn't optimize all presets", bundle: .module),
                 message: error.localizedDescription
             ))
         }
@@ -148,8 +148,8 @@ extension DeckConfigModel {
         let weights = editedWeights.isEmpty ? currentWeights(from: cfg) : editedWeights
         guard !weights.isEmpty else {
             destination = .alert(.fsrsError(
-                title: "Simulator needs FSRS weights",
-                message: "This preset has no weights yet. Run Optimize Weights first, or save the preset."
+                title: String(localized: "Simulator needs FSRS weights", bundle: .module),
+                message: String(localized: "This preset has no weights yet. Run Optimize Weights first, or save the preset.", bundle: .module)
             ))
             return
         }

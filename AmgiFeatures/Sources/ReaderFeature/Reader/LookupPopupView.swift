@@ -134,14 +134,14 @@ package struct LookupPopupView: View {
     package var body: some View {
         NavigationStack(path: $lookupPath) {
             content
-                .navigationTitle("Lookup")
+                .navigationTitle(String(localized: "Lookup", bundle: .module))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .confirmationAction) {
-                        Button("Done") { onDismiss() }
+                        Button(String(localized: "Done", bundle: .module)) { onDismiss() }
                     }
                 }
-                .searchable(text: $query, prompt: "Word or phrase")
+                .searchable(text: $query, prompt: String(localized: "Word or phrase", bundle: .module))
                 .searchSuggestions {
                     ForEach(searchHistory.prefix(8), id: \.self) { recent in
                         Text(recent)
@@ -211,11 +211,11 @@ package struct LookupPopupView: View {
             ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if let lookupError = model.lookupError {
             ContentUnavailableView {
-                Label("Lookup failed", systemImage: "exclamationmark.triangle")
+                Label(String(localized: "Lookup failed", bundle: .module), systemImage: "exclamationmark.triangle")
             } description: {
                 Text(lookupError)
             } actions: {
-                Button("Retry") { Task { await performLookup() } }
+                Button(String(localized: "Retry", bundle: .module)) { Task { await performLookup() } }
             }
         } else if let result = model.result, !result.entries.isEmpty {
             LookupResultList(
@@ -255,9 +255,9 @@ package struct LookupPopupView: View {
             }
         } else if model.result?.isPlaceholder == true {
             ContentUnavailableView {
-                Label("Engine not ready", systemImage: "hourglass")
+                Label(String(localized: "Engine not ready", bundle: .module), systemImage: "hourglass")
             } description: {
-                Text("Dictionary lookup engine is still a placeholder — full hoshidicts integration is pending.")
+                Text("Dictionary lookup engine is still a placeholder — full hoshidicts integration is pending.", bundle: .module)
             }
         } else {
             ContentUnavailableView.search(text: query)
@@ -410,11 +410,11 @@ private struct LookupChildPane: View {
                 ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if let lookupError = model.lookupError {
                 ContentUnavailableView {
-                    Label("Lookup failed", systemImage: "exclamationmark.triangle")
+                    Label(String(localized: "Lookup failed", bundle: .module), systemImage: "exclamationmark.triangle")
                 } description: {
                     Text(lookupError)
                 } actions: {
-                    Button("Retry") {
+                    Button(String(localized: "Retry", bundle: .module)) {
                         Task {
                             await model.runLookup(
                                 query: query,

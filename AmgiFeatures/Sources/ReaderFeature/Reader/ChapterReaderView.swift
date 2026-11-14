@@ -146,7 +146,7 @@ struct ChapterReaderView: View {
                     .padding(.horizontal, 12)
                     .padding(.bottom, 24)
                     .allowsHitTesting(false)
-                    .accessibilityLabel("Reading progress")
+                    .accessibilityLabel(String(localized: "Reading progress", bundle: .module))
             }
             if debugInfoEnabled {
                 debugOverlay
@@ -166,7 +166,7 @@ struct ChapterReaderView: View {
                 } label: {
                     Image(systemName: "plus.circle")
                 }
-                .accessibilityLabel("Make note from selection")
+                .accessibilityLabel(String(localized: "Make note from selection", bundle: .module))
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
@@ -174,7 +174,7 @@ struct ChapterReaderView: View {
                 } label: {
                     Image(systemName: "character.book.closed")
                 }
-                .accessibilityLabel("Look up word")
+                .accessibilityLabel(String(localized: "Look up word", bundle: .module))
             }
         }
         .sheet(item: Binding(
@@ -230,9 +230,9 @@ struct ChapterReaderView: View {
         let layout = verticalLayout ? "vertical" : (latin ? "latin" : "cjk")
         let phrase = (lastTapPhrase ?? "—").prefix(40)
         return VStack(alignment: .leading, spacing: 2) {
-            Text("\(Int(scrollProgress * 100))% · font: \(font.title)")
-            Text("layout: \(layout) · lang: \(book.language ?? "?")")
-            Text("last tap: \(phrase)")
+            Text("\(Int(scrollProgress * 100))% · font: \(font.title)", bundle: .module)
+            Text("layout: \(layout) · lang: \(book.language ?? "?")", bundle: .module)
+            Text("last tap: \(phrase)", bundle: .module)
         }
         .font(.system(size: 10, design: .monospaced))
         .padding(6)

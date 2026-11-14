@@ -36,12 +36,12 @@ struct SyncFullSyncRequirement: Sendable, Equatable {
 
 extension SyncFullSyncRequirement {
     static let diverged = SyncFullSyncRequirement(
-        reason: "Your local and server collections have diverged. Choose how to reconcile them \u{2014} Merge is the safest option.",
+        reason: String(localized: "Your local and server collections have diverged. Choose how to reconcile them \u{2014} Merge is the safest option.", bundle: .module),
         localIsEmpty: false
     )
 
     static let serverEmpty = SyncFullSyncRequirement(
-        reason: "The server's collection is empty. Merge or \u{201C}Replace server\u{201D} keeps your cards; \u{201C}Replace local\u{201D} would erase them.",
+        reason: String(localized: "The server's collection is empty. Merge or \u{201C}Replace server\u{201D} keeps your cards; \u{201C}Replace local\u{201D} would erase them.", bundle: .module),
         localIsEmpty: false
     )
 }

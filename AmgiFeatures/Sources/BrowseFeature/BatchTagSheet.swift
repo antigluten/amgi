@@ -25,12 +25,12 @@ struct BatchTagSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("New tag") {
+                Section(String(localized: "New tag", bundle: .module)) {
                     HStack {
-                        TextField("Add new tag", text: $newTagName)
+                        TextField(String(localized: "Add new tag", bundle: .module), text: $newTagName)
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
-                        Button("Add") {
+                        Button(String(localized: "Add", bundle: .module)) {
                             let trimmed = newTagName.trimmingCharacters(in: .whitespacesAndNewlines)
                             guard !trimmed.isEmpty else { return }
                             checkedTags.insert(trimmed)
@@ -44,9 +44,9 @@ struct BatchTagSheet: View {
                     }
                 }
 
-                Section("Existing tags") {
+                Section(String(localized: "Existing tags", bundle: .module)) {
                     if model.allTags.isEmpty {
-                        Text("No tags yet").foregroundStyle(palette.textSecondary)
+                        Text("No tags yet", bundle: .module).foregroundStyle(palette.textSecondary)
                     } else {
                         ForEach(model.allTags, id: \.self) { tag in
                             Button {
@@ -67,14 +67,14 @@ struct BatchTagSheet: View {
                     }
                 }
             }
-            .navigationTitle("Add tags to \(noteIDs.count) note\(noteIDs.count == 1 ? "" : "s")")
+            .navigationTitle(String(localized: "Add tags to \(noteIDs.count) notes", bundle: .module))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button(String(localized: "Cancel", bundle: .module)) { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Apply") { apply() }
+                    Button(String(localized: "Apply", bundle: .module)) { apply() }
                         .disabled(checkedTags.isEmpty || model.isApplying)
                 }
             }

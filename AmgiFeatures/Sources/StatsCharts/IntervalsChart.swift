@@ -57,19 +57,19 @@ public struct IntervalsChart: View {
             contentInsets: EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
         ) {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Review Intervals").amgiFont(.bodyEmphasis)
+                Text("Review Intervals", bundle: .module).amgiFont(.bodyEmphasis)
 
                 if buckets.isEmpty {
-                    Text("No interval data").foregroundStyle(palette.textSecondary).frame(height: 180)
+                    Text("No interval data", bundle: .module).foregroundStyle(palette.textSecondary).frame(height: 180)
                 } else {
                     Chart(buckets) { bucket in
                         BarMark(
-                            x: .value("Interval", bucket.label),
-                            y: .value("Cards", bucket.count)
+                            x: .value(String(localized: "Interval", bundle: .module), bucket.label),
+                            y: .value(String(localized: "Cards", bundle: .module), bucket.count)
                         )
                         .foregroundStyle(palette.accent.gradient)
                         .accessibilityLabel(bucket.label)
-                        .accessibilityValue(ChartSpeech.count(bucket.count, "card"))
+                        .accessibilityValue(ChartSpeech.count(bucket.count, .card))
                     }
                     .chartXAxis {
                         AxisMarks(values: .automatic) { _ in

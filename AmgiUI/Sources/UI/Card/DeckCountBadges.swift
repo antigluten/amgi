@@ -53,11 +53,11 @@ public struct DeckCountBadges: View {
     private var total: Int { newCount + learnCount + reviewCount }
 
     private var accessibilityLabel: String {
-        guard total > 0 else { return "No cards due" }
+        guard total > 0 else { return String(localized: "No cards due", bundle: .module) }
         var parts: [String] = []
-        if newCount > 0 { parts.append("\(newCount) new") }
-        if learnCount > 0 { parts.append("\(learnCount) learning") }
-        if reviewCount > 0 { parts.append("\(reviewCount) to review") }
+        if newCount > 0 { parts.append(String(localized: "\(newCount) new", bundle: .module)) }
+        if learnCount > 0 { parts.append(String(localized: "\(learnCount) learning", bundle: .module)) }
+        if reviewCount > 0 { parts.append(String(localized: "\(reviewCount) to review", bundle: .module)) }
         return parts.joined(separator: ", ")
     }
 

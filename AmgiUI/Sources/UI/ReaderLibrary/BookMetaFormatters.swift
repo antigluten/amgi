@@ -27,8 +27,8 @@ public enum BookMetaFormatters {
 
     public static func relativeReadingDate(_ date: Date, reference now: Date = .init()) -> String {
         let delta = now.timeIntervalSince(date)
-        if delta < 60 * 60 * 24 { return "Today" }
-        if delta < 60 * 60 * 48 { return "Yesterday" }
+        if delta < 60 * 60 * 24 { return String(localized: "Today", bundle: .module) }
+        if delta < 60 * 60 * 48 { return String(localized: "Yesterday", bundle: .module) }
 
         return relativeFormatter.localizedString(for: date, relativeTo: now)
     }

@@ -64,11 +64,11 @@ func switchProfile(to account: AmgiAccount) async {
             // Discarding this left every screen failing its fetch with no
             // explanation — the app looked empty rather than broken.
             Log.decks.error("Profile switch and rollback both failed: \(rollbackError)")
-            store.switchFailure = """
+            store.switchFailure = String(localized: """
                 Couldn't open either profile's collection. Quit and reopen \
                 Amgi. If that doesn't help, reset the collection from \
                 Settings > Maintenance.
-                """
+                """, bundle: .module)
         }
         return
     }

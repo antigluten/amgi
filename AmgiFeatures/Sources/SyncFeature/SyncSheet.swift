@@ -110,8 +110,8 @@ struct SyncSheet: View {
     }
 
     private var lastSyncedLabel: String {
-        guard let last = coordinator.lastSuccessfulSync else { return "Never synced" }
-        return "Last synced \(last.formatted(.relative(presentation: .numeric)))"
+        guard let last = coordinator.lastSuccessfulSync else { return String(localized: "Never synced", bundle: .module) }
+        return String(localized: "Last synced \(last.formatted(.relative(presentation: .numeric)))", bundle: .module)
     }
 
     private var footerError: String? {

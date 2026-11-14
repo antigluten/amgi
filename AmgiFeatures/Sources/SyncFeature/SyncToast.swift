@@ -49,11 +49,11 @@ struct SyncToast: View {
 extension SyncToast {
     static func summaryMessage(for summary: SyncSummary) -> String {
         if summary.cardsPulled == 0 && summary.cardsPushed == 0 {
-            return "Already up to date"
+            return String(localized: "Already up to date", bundle: .module)
         }
         var parts: [String] = []
-        if summary.cardsPulled > 0 { parts.append("\u{2193} \(summary.cardsPulled) received") }
-        if summary.cardsPushed > 0 { parts.append("\u{2191} \(summary.cardsPushed) sent") }
-        return "Synced — " + parts.joined(separator: ", ")
+        if summary.cardsPulled > 0 { parts.append(String(localized: "\u{2193} \(summary.cardsPulled) received", bundle: .module)) }
+        if summary.cardsPushed > 0 { parts.append(String(localized: "\u{2191} \(summary.cardsPushed) sent", bundle: .module)) }
+        return String(localized: "Synced — ", bundle: .module) + parts.joined(separator: ", ")
     }
 }

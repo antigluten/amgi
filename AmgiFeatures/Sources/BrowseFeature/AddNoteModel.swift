@@ -227,7 +227,7 @@ final class AddNoteModel {
             discardAudio()
             return true
         } catch {
-            errorMessage = "Failed to add note: \(error.localizedDescription)"
+            errorMessage = String(localized: "Failed to add note: \(error.localizedDescription)", bundle: .module)
             return false
         }
     }
