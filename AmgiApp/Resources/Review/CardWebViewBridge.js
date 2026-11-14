@@ -164,24 +164,65 @@ function amgiApplyCardState(state) {
 // Extraction itself is window.amgiLookup from LookupExtraction.js (shared
 // with the EPUB reader, injected by CardWebView). This only decides whether
 // a tap on a card should look anything up at all.
+//
+// Card templates build their own controls — hint buttons, "show more"
+// toggles, tabs — out of plain <div>/<span> elements with click handlers.
+// A tap on one of those is the template's, not a lookup: it used to reveal
+// the text and open the dictionary on top of it. Three checks catch them:
+// the element looks interactive (role, onclick, tabindex, cursor: pointer),
+// a handler called preventDefault(), or the click changed the page.
+var AMGI_LOOKUP_IGNORED = 'a, button, input, textarea, select, option, label, summary, [contenteditable], ' +
+    '[onclick], [role="button"], [role="link"], [role="tab"], [role="checkbox"], [role="switch"], [tabindex], ' +
+    '.replay-button, .replay-btn, .sound-btn, #image-occlusion-canvas';
+
+function amgiIsTemplateControl(target) {
+    if (target.closest(AMGI_LOOKUP_IGNORED)) return true;
+    for (var node = target; node && node !== document.body && node !== document.documentElement; node = node.parentElement) {
+        try {
+            if (window.getComputedStyle(node).cursor === 'pointer') return true;
+        } catch (e) {}
+    }
+    return false;
+}
+
 function amgiCardLookupPayloadAt(x, y, scanLength) {
     if (!amgiLookupPopupEnabled() || !window.amgiLookup) return null;
     var selection = window.getSelection();
     if (selection && selection.toString().length > 0) return null;
     var target = document.elementFromPoint(x, y);
     if (!target) return null;
-    if (target.closest('a, button, input, textarea, select, option, [contenteditable], .replay-button, .replay-btn, .sound-btn, #image-occlusion-canvas')) {
-        return null;
-    }
+    if (amgiIsTemplateControl(target)) return null;
     return window.amgiLookup.payloadAt(x, y, scanLength);
 }
+
+// Counts DOM changes so a click whose handlers changed the page (revealed a
+// hint, toggled a section) can be told apart from a tap on plain text.
+var amgiDomChangeCount = 0;
+try {
+    new MutationObserver(function(records) { amgiDomChangeCount += records.length; })
+        .observe(document.documentElement, { childList: true, subtree: true, attributes: true, characterData: true });
+} catch (e) {}
+
+// Capture phase runs before any template handler, so this is the count the
+// click started from.
+window.addEventListener('click', function(event) {
+    event.amgiDomChangeStart = amgiDomChangeCount;
+}, true);
 
 document.addEventListener('click', function(event) {
     var state = amgiCardState();
     if (state.renderedAt && Date.now() - state.renderedAt < 300) return;
+    if (event.defaultPrevented) return;
+    // Measure now, while the tapped text is still where it was.
     var payload = amgiCardLookupPayloadAt(event.clientX, event.clientY, state.dictionaryScanLength);
     if (!payload) return;
-    try { window.webkit.messageHandlers.amgiLookupText.postMessage(payload); } catch(e) {}
+    var start = event.amgiDomChangeStart;
+    // Mutation records arrive as a microtask after the click finishes
+    // dispatching; by this timeout every handler's changes are counted.
+    setTimeout(function() {
+        if (typeof start === 'number' && amgiDomChangeCount !== start) return;
+        try { window.webkit.messageHandlers.amgiLookupText.postMessage(payload); } catch(e) {}
+    }, 0);
 }, false);
 
 function amgiSetCardCSS(cssText) {
