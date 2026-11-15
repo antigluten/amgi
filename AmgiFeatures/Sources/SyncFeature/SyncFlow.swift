@@ -96,6 +96,16 @@ extension EnvironmentValues {
 }
 
 extension View {
+    /// Present login without starting a sync, keeping the form internal.
+    package func syncLoginSheet(
+        isPresented: Binding<Bool>,
+        onSuccess: @escaping () -> Void
+    ) -> some View {
+        sheet(isPresented: isPresented) {
+            LoginSheet(isPresented: isPresented, onSuccess: onSuccess)
+        }
+    }
+
     /// Attach the sync flow. `onFinished` fires after the sheet is dismissed
     /// so the host can refresh anything not backed by `CollectionStore`.
     package func syncFlow(onFinished: @escaping () -> Void) -> some View {
