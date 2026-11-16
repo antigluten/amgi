@@ -50,16 +50,6 @@ struct SyncSettingsView: View {
         } message: {
             Text("Removes the server, credentials, and switches the app to local-only mode.")
         }
-        .confirmationDialog(
-            "Log out?",
-            isPresented: $showLogoutConfirm,
-            titleVisibility: .visible
-        ) {
-            Button("Log Out", role: .destructive) { logout() }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("Removes the stored credentials for this server. Your local collection is unaffected; you can sign in again at any time.")
-        }
     }
 
     // MARK: - Configured
@@ -121,6 +111,16 @@ struct SyncSettingsView: View {
                 showLogoutConfirm = true
             }
             .disabled(!isLoggedIn)
+            .confirmationDialog(
+                "Log out?",
+                isPresented: $showLogoutConfirm,
+                titleVisibility: .visible
+            ) {
+                Button("Log Out", role: .destructive) { logout() }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("Removes the stored credentials for this server. Your local collection is unaffected; you can sign in again at any time.")
+            }
         }
 
         SettingsGroup {
