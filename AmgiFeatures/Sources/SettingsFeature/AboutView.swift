@@ -54,12 +54,15 @@ struct AboutView: View {
                     tone: .accent
                 )
                 SettingsSeparator()
-                SettingsValueRow(
-                    title: "Community",
-                    value: "DreamAfar — fork contributor",
-                    systemImage: "person.2",
-                    tone: .learning
-                )
+                Link(destination: URL(string: "https://github.com/antigluten/amgi/blob/main/CONTRIBUTORS.md")!) {
+                    SettingsValueRow(
+                        title: "Community",
+                        value: "Contributors",
+                        systemImage: "person.2",
+                        tone: .learning
+                    )
+                }
+                .buttonStyle(.plain)
             }
             SettingsFootnote("Amgi is free software under AGPL-3.0; the full source of every release is at github.com/antigluten/amgi. It uses the official Anki Rust backend, which remains the work of its authors.")
             SettingsFootnote("Anki is a registered trademark of Ankitects Pty Ltd. Amgi is not affiliated with or endorsed by Ankitects.")
