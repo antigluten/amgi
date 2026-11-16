@@ -33,6 +33,16 @@ struct AboutView: View {
                     systemImage: "character.book.closed",
                     tone: .mature
                 )
+                SettingsSeparator()
+                Link(destination: URL(string: "https://github.com/antigluten/amgi")!) {
+                    SettingsValueRow(
+                        title: "Source code",
+                        value: "antigluten/amgi",
+                        systemImage: "chevron.left.forwardslash.chevron.right",
+                        tone: .info
+                    )
+                }
+                .buttonStyle(.plain)
             }
 
             SettingsSectionHeader(title: "Acknowledgements")
@@ -51,7 +61,8 @@ struct AboutView: View {
                     tone: .learning
                 )
             }
-            SettingsFootnote("Amgi uses the official Anki Rust backend. The backend code is licensed under AGPL-3.0 and remains the work of its authors.")
+            SettingsFootnote("Amgi is free software under AGPL-3.0; the full source of every release is at github.com/antigluten/amgi. It uses the official Anki Rust backend, which remains the work of its authors.")
+            SettingsFootnote("Anki is a registered trademark of Ankitects Pty Ltd. Amgi is not affiliated with or endorsed by Ankitects.")
         }
         .navigationTitle("About")
         .navigationBarTitleDisplayMode(.inline)
