@@ -60,6 +60,12 @@ public struct WatchLoginView: View {
                 .textInputAutocapitalization(.never)
             SecureField("Password", text: $password)
                 .textContentType(.password)
+            if endpoint.lowercased().contains("ankiweb") {
+                Text("AnkiWeb is supported by sales of AnkiMobile. Please consider buying it on your iPhone to support the sync servers.")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
             if case .failed(let error) = submission {
                 Text(error)
                     .font(.caption2)
@@ -83,10 +89,13 @@ public struct WatchLoginView: View {
         submission = .submitting
         // Persist endpoint if provided
         let ep = endpoint.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !ep.isEmpty {
+        if ep.isEmpty {
+            KeychainHelper.deleteEndpoint()
+        } else {
             // Ignore errors here; login flow should still proceed
             try? KeychainHelper.saveEndpoint(ep)
         }
+        KeychainHelper.deleteCurrentEndpoint()
         do {
             _ = try await SyncClient.login(username: username, password: password)
             // Initial sync to get the collection

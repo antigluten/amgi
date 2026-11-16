@@ -2,21 +2,25 @@
 
 Thank you to everyone who has contributed to Amgi.
 
-## Maintainer
+## Maintainers
 
 - **Vladimir Gusev** ([@antigluten](https://github.com/antigluten)) — project lead
+- **Kirill Gusev** ([@myaumura](https://github.com/myaumura)) — maintainer
 
-## Contributors
+## Big thanks
 
-- **DreamAfar** ([@DreamAfar](https://github.com/DreamAfar)) — v0.0.3 and v0.0.4 forks.
+- **DreamAfar** ([@DreamAfar](https://github.com/DreamAfar))
+- **Leaf Eriksen** ([@leaferiksen](https://github.com/leaferiksen))
+- **Oleg Zolotarev** ([@zom-2018](https://github.com/zom-2018))
 
-  In **v0.0.3**: Image Occlusion (create, edit, reviewer parity), the multi-theme system (Palette + Vivid/Muted × Light/Dark), the Settings tab and maintenance surfaces (Empty Cards, Media Check), the card template editor with uncommitted preview, the Statistics retrievability chart and dual-axis tooltips, tag management, the rich note field editor with HTML preview, the extended card context menu, and the tag-triggered GitHub Actions IPA workflow.
+## Thanks
 
-  In **v0.0.4**: the Reader stack — `AmgiReader` and `AmgiReaderDictionary` SPM packages, Yomitan-compatible `hoshidicts` engine integration via Cxx interop, structured-content rendering through the bundled `popup.js`, tap-to-lookup in the chapter reader and reviewer card via WKWebView JS bridge, the `ReaderLookupNoteTemplate` flow for making notes from lookup entries, the stacked lookup popup UX (chained queries with `NavigationStack`), language-aware TTS, dictionary-bundled audio playback with autoplay, the dictionary library settings (drag-to-reorder, audio template, scan length), the chapter CSS shell (font picker integration, vertical writing mode, ruby toggle, debug overlay), the bookshelf with sort modes / column count / search / cover-image resolution / custom-color theme editor, per-deck FSRS optimizer with simulator and preset CRUD, browse multi-select with the batch tag sheet, the `SyncCoordinator` state machine and `AnkiMobileAttributionView`, MathJax CHTML asset bundling for the reviewer, and the in-context `.apkg` import + single-deck `.colpkg` export from `DeckDetailView`.
-
-- **Leaf Eriksen** ([@leaferiksen](https://github.com/leaferiksen)) — the Apple Watch companion app (**v0.0.5**, PR #14): AmgiWatchApp target with deck list, card review with audio playback, stats, and sync/login, plus the watchOS cross-compilation of the Rust engine (`-Z build-std` tier-3 target slice in the XCFramework build).
-
-- **Kirill Gusev** ([@myaumura](https://github.com/myaumura)) — the safe sync merge flow (**v0.0.5**, PR #15): fixed local cards being deleted when syncing in local mode by splitting `fullSync` from `fullDownload`, added the export → download → import → upload merge option with on-disk recovery backups, sync-shard endpoint persistence, and destructive-sync confirmation dialogs. Also honest media-sync progress (**v0.2.0**, PR #27): `MediaSyncProgress`'s proto fields are localized display lines built by rslib from the ftl catalog and carry no numbers to parse, so `Int(_:)` over them returned nil on every real sync and both the toast and the sheet counted "Syncing media 0/0" for an entire download — the engine's own progress text is shown instead.
+- **Harel Cherian** ([@HarelKC](https://github.com/HarelKC))
+- **Skyler Luk** ([@skylerluk](https://github.com/skylerluk))
+- **Tyler Thrailkill** ([@snowe2010](https://github.com/snowe2010))
+- **lotp** ([@lo-tp](https://github.com/lo-tp))
+- **Antonio Mancini** ([@antomanc](https://github.com/antomanc))
+- **Ricky Cheung** ([@rcky844](https://github.com/rcky844))
 
 ## Upstream Acknowledgments
 
@@ -27,4 +31,4 @@ Amgi is built on top of work by:
 
 ## How to be Listed
 
-Open a pull request that closes a non-trivial issue or introduces a new feature. After the merge, your name and a short description of your contribution will be added here. Drive-by typo fixes are appreciated but not listed individually.
+Get a pull request merged and your name is added here.
