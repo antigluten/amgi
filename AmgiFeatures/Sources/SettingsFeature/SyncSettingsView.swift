@@ -18,6 +18,7 @@ struct SyncSettingsView: View {
     @State private var username: String? = KeychainHelper.loadUsername()
     @State private var isLoggedIn: Bool = KeychainHelper.loadHostKey() != nil
     @State private var showServerSetup = false
+    @State private var showLogin = false
     @State private var showDisableConfirm = false
     @State private var showLogoutConfirm = false
 
@@ -34,12 +35,9 @@ struct SyncSettingsView: View {
         .navigationTitle("Sync Server")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showServerSetup) {
-            ServerSetupView {
-                endpoint = KeychainHelper.loadEndpoint()
-                username = KeychainHelper.loadUsername()
-                isLoggedIn = KeychainHelper.loadHostKey() != nil
-            }
+            ServerSetupView(onSave: refreshAccount)
         }
+        .syncLoginSheet(isPresented: $showLogin, onSuccess: refreshAccount)
         .confirmationDialog(
             "Disable Sync?",
             isPresented: $showDisableConfirm,
@@ -86,20 +84,30 @@ struct SyncSettingsView: View {
 
         SettingsSectionHeader(title: "Account")
         SettingsGroup {
-            SettingsValueRow(
-                title: "Username",
-                value: username ?? "Not signed in",
-                systemImage: "person.crop.circle",
-                tone: .accent,
-                isMuted: username == nil
-            )
-            SettingsSeparator()
-            SettingsValueRow(
-                title: "Credentials",
-                value: isLoggedIn ? "Stored" : "Not signed in",
-                systemImage: "key",
-                tone: .neutral
-            )
+            if isLoggedIn {
+                SettingsValueRow(
+                    title: "Username",
+                    value: username ?? "Not signed in",
+                    systemImage: "person.crop.circle",
+                    tone: .accent,
+                    isMuted: username == nil
+                )
+                SettingsSeparator()
+                SettingsValueRow(
+                    title: "Credentials",
+                    value: "Stored",
+                    systemImage: "key",
+                    tone: .neutral
+                )
+            } else {
+                SettingsButtonRow(
+                    title: "Sign In",
+                    systemImage: "person.crop.circle",
+                    tone: .accent
+                ) {
+                    showLogin = true
+                }
+            }
         }
 
         SettingsSectionHeader(title: "Actions")
@@ -111,16 +119,17 @@ struct SyncSettingsView: View {
             ) {
                 showServerSetup = true
             }
-            SettingsSeparator()
-            SettingsButtonRow(
-                title: "Log Out…",
-                systemImage: "rectangle.portrait.and.arrow.right",
-                tone: .danger,
-                isDestructive: true
-            ) {
-                showLogoutConfirm = true
+            if isLoggedIn {
+                SettingsSeparator()
+                SettingsButtonRow(
+                    title: "Log Out…",
+                    systemImage: "rectangle.portrait.and.arrow.right",
+                    tone: .danger,
+                    isDestructive: true
+                ) {
+                    showLogoutConfirm = true
+                }
             }
-            .disabled(!isLoggedIn)
         }
 
         SettingsGroup {
@@ -163,6 +172,12 @@ struct SyncSettingsView: View {
 }
 
 private extension SyncSettingsView {
+    func refreshAccount() {
+        endpoint = KeychainHelper.loadEndpoint()
+        username = KeychainHelper.loadUsername()
+        isLoggedIn = KeychainHelper.loadHostKey() != nil
+    }
+
     func logout() {
         KeychainHelper.deleteHostKey()
         KeychainHelper.deleteUsername()
