@@ -156,6 +156,11 @@ function amgiApplyCardState(state) {
     var qa = document.getElementById('qa');
     document.body.className = s.bodyClass || document.body.className;
     document.body.style.setProperty('--amgi-body-padding-bottom', (s.bodyPaddingBottom || 16) + 'px');
+    // Also inline and !important: the room under the card for the answer
+    // buttons. A card's own CSS, loaded after the stylesheet above, often
+    // resets it (`body { padding: 0 }`), and the end of a long card then
+    // scrolled no further than behind the buttons.
+    document.body.style.setProperty('padding-bottom', (s.bodyPaddingBottom || 16) + 'px', 'important');
     document.body.classList.toggle('amgi-centered', !s.alignTop);
     if (qa) qa.style.setProperty('--amgi-card-padding-bottom', (s.cardPaddingBottom || 0) + 'px');
 }
