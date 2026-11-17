@@ -78,6 +78,9 @@ final class EPUBChapterPageController: UIViewController {
     /// silently dropped — we let `webView(_:didFinish:)` push the first
     /// layout instead.
     private var didFinishInitialLoad: Bool = false
+    /// Set once a saved position has been applied, or the reader has paged
+    /// on their own: either way a late restore must not move them.
+    private var didConsumeRestore = false
 
     init(
         chapterIndex: Int,
@@ -310,25 +313,47 @@ final class EPUBChapterPageController: UIViewController {
         }
     }
 
-    fileprivate func consumePendingRestore() {
-        guard let fraction = pendingRestoreFraction else { return }
+    /// Takes a saved position that resolved after this chapter was built.
+    /// The host opens the chapter as soon as its text is read, which can be
+    /// before the saved position comes back; it was dropped then, and the
+    /// chapter opened on its first page.
+    func restore(toFraction fraction: Double) {
+        guard !didConsumeRestore else { return }
+        pendingRestoreFraction = fraction
+        if didFinishInitialLoad { consumePendingRestore() }
+    }
+
+    fileprivate func userBeganPaging() {
+        didConsumeRestore = true
         pendingRestoreFraction = nil
+    }
+
+    fileprivate func consumePendingRestore() {
+        guard let fraction = pendingRestoreFraction, !didConsumeRestore else { return }
+        pendingRestoreFraction = nil
+        didConsumeRestore = true
         // Wait for the page's own layout pass rather than guessing at 250ms.
         // Two nested requestAnimationFrames: the first fires before the
         // pending layout is committed, the second after — at which point the
         // column count `__amgiRelayout` computes is final and the scroll
         // target is meaningful. The old fixed delay silently restored the
         // wrong position whenever layout took longer than that.
+        // Fonts first: a web or imported font that finishes loading after
+        // the jump re-flows the columns and changes the page count, which
+        // left the reader on the wrong page.
         let js = """
         (function() {
-          requestAnimationFrame(function() {
+          var go = function() {
             requestAnimationFrame(function() {
-              if (typeof window.__amgiRelayout === 'function') { window.__amgiRelayout(); }
-              if (typeof window.__amgiScrollToFraction === 'function') {
-                window.__amgiScrollToFraction(\(fraction));
-              }
+              requestAnimationFrame(function() {
+                if (typeof window.__amgiRelayout === 'function') { window.__amgiRelayout(); }
+                if (typeof window.__amgiScrollToFraction === 'function') {
+                  window.__amgiScrollToFraction(\(fraction));
+                }
+              });
             });
-          });
+          };
+          if (document.fonts && document.fonts.ready) { document.fonts.ready.then(go, go); } else { go(); }
         })();
         """
         webView.evaluateJavaScript(js) { _, error in
@@ -442,6 +467,10 @@ final class ScriptBridge: NSObject, WKScriptMessageHandler, WKNavigationDelegate
         if scrollView.contentOffset.y != 0 {
             scrollView.contentOffset.y = 0
         }
+    }
+
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        owner?.userBeganPaging()
     }
 
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {

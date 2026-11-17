@@ -72,6 +72,12 @@ struct EPUBPageViewControllerHost: UIViewControllerRepresentable {
             (uiViewController.viewControllers?.first as? EPUBChapterPageController)?
                 .highlightMatched(utf16Length: lookupHighlight.utf16Length)
         }
+        // The saved position can resolve after the chapter was built.
+        if let fraction = pendingRestoreFraction,
+           let current = uiViewController.viewControllers?.first as? EPUBChapterPageController,
+           current.chapterIndex == chapterIndex {
+            current.restore(toFraction: fraction)
+        }
         // If the host's chapterIndex Binding diverged from what the page
         // controller currently shows (programmatic jump), re-seed.
         if let current = uiViewController.viewControllers?.first as? EPUBChapterPageController,

@@ -38,6 +38,9 @@ struct EPUBChapterReaderView: View {
     @State private var pageCount: Int = 1
     @State private var progressFraction: Double = 0
     @State private var pendingRestoreFraction: Double?
+    /// True from opening until the saved position is known and applied.
+    /// Leaving before then saved the chapter's first page over it.
+    @State private var awaitingRestore = true
     @State private var lookupRequest: LookupRequest?
     @State private var lookupHighlight = LookupHighlight()
     @State private var didRequestInitialRestore = false
@@ -174,6 +177,7 @@ struct EPUBChapterReaderView: View {
                 onProgress: { fraction, idx in
                     pageIndex = idx
                     progressFraction = fraction
+                    awaitingRestore = false
                     saveProgress()
                 },
                 onWordTap: { token, sentence in
@@ -374,6 +378,8 @@ private extension EPUBChapterReaderView {
            saved.chapterID == chapter.id,
            saved.progress > 0.01 {
             pendingRestoreFraction = saved.progress
+        } else {
+            awaitingRestore = false
         }
         didRequestInitialRestore = true
     }
@@ -392,7 +398,7 @@ private extension EPUBChapterReaderView {
     }
 
     func flushProgress() {
-        guard let chapter = currentChapter else { return }
+        guard !awaitingRestore, let chapter = currentChapter else { return }
         progressCoordinator.save(
             bookID: book.id,
             chapterID: chapter.id,

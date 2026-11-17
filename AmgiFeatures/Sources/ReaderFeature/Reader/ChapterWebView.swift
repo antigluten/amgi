@@ -18,6 +18,9 @@ struct ChapterWebView: UIViewRepresentable {
     /// per appearance — set to nil after the initial restore.
     let initialProgress: Double?
     @Binding var progress: Double
+    /// Vertical (`vertical-rl`) text scrolls sideways, starting at the
+    /// right edge, so progress runs along the other axis.
+    var verticalLayout = false
     /// Called with a tapped phrase (the engine does its own deinflection
     /// and word-segmentation, so we forward a generous chunk starting at
     /// the tap point rather than a pre-extracted word — handles CJK,
@@ -60,6 +63,7 @@ struct ChapterWebView: UIViewRepresentable {
 
     func updateUIView(_ webView: WKWebView, context: Context) {
         context.coordinator.pendingInitialProgress = initialProgress
+        context.coordinator.verticalLayout = verticalLayout
         // The host builds the HTML in a `.task`, so the very first update
         // arrives empty. Loading it would flash a blank document before the
         // real one lands one runloop later.
@@ -151,6 +155,9 @@ struct ChapterWebView: UIViewRepresentable {
         var loadedHTML: String?
         var didFinishLoad = false
         var didApplyInitialProgress = false
+        var verticalLayout = false
+        /// The restored position, held while the page is still laying out.
+        private var restoreTarget: Double?
         @Binding var progress: Double
         let onTapLookup: ((String) -> Void)?
         let onSelectionForNote: ((String) -> Void)?
@@ -211,45 +218,70 @@ struct ChapterWebView: UIViewRepresentable {
             didApplyInitialProgress = true
             pendingInitialProgress = nil
             guard target > 0, let scrollView = webView?.scrollView else { return }
+            holdPosition(at: target, in: scrollView)
+        }
 
-            // Observe contentSize rather than sleeping 50ms and hoping. On a
-            // slow device or a long chapter the old delay fired while
-            // contentSize was still the initial frame height, so the offset
-            // clamped to ~0 and the reader silently reopened at the top.
-            if scrollView.contentSize.height > scrollView.bounds.height {
-                Self.applyProgress(target, to: scrollView)
-                return
-            }
-            // `change.newValue` is a CGSize, so nothing main-actor-isolated
-            // is captured by the Sendable observation closure; the scroll
-            // view is re-resolved inside the isolated block. contentSize is
+        /// Scrolls to `target` and keeps it there while the page is still
+        /// growing. Applying it once, on the first content size taller than
+        /// the screen, landed short whenever images, web fonts or the rest
+        /// of a long chapter laid out after that — and the next scroll
+        /// event then recorded the wrong spot as the new position. The hold
+        /// ends when the reader touches the page, or after two seconds.
+        private func holdPosition(at target: Double, in scrollView: UIScrollView) {
+            restoreTarget = target
+            Self.applyProgress(target, to: scrollView, vertical: verticalLayout)
+            // This can run inside a view update; write the binding after it.
+            Task { @MainActor [weak self] in self?.progress = target }
+            // `change.newValue` is unused, so nothing main-actor-isolated is
+            // captured by the Sendable observation closure. contentSize is
             // mutated on the main thread, so assumeIsolated holds.
-            contentSizeObservation = scrollView.observe(
-                \.contentSize, options: [.new]
-            ) { [weak self] _, change in
-                guard let newSize = change.newValue else { return }
+            contentSizeObservation = scrollView.observe(\.contentSize, options: [.new]) { [weak self] _, _ in
                 MainActor.assumeIsolated {
-                    guard let self, let scrollView = self.webView?.scrollView,
-                          newSize.height > scrollView.bounds.height else { return }
-                    Self.applyProgress(target, to: scrollView)
-                    self.contentSizeObservation = nil
+                    guard let self, let target = self.restoreTarget,
+                          let scrollView = self.webView?.scrollView else { return }
+                    Self.applyProgress(target, to: scrollView, vertical: self.verticalLayout)
                 }
+            }
+            Task { @MainActor [weak self] in
+                try? await Task.sleep(for: .seconds(2))
+                self?.endHold()
             }
         }
 
-        private static func applyProgress(_ target: Double, to scrollView: UIScrollView) {
-            let maxOffset = max(0, scrollView.contentSize.height - scrollView.bounds.height)
-            scrollView.contentOffset.y = maxOffset * CGFloat(target)
+        private func endHold() {
+            restoreTarget = nil
+            contentSizeObservation = nil
+        }
+
+        private static func applyProgress(_ target: Double, to scrollView: UIScrollView, vertical: Bool) {
+            if vertical {
+                let maxOffset = max(0, scrollView.contentSize.width - scrollView.bounds.width)
+                scrollView.contentOffset.x = maxOffset * CGFloat(1 - target)
+            } else {
+                let maxOffset = max(0, scrollView.contentSize.height - scrollView.bounds.height)
+                scrollView.contentOffset.y = maxOffset * CGFloat(target)
+            }
+        }
+
+        func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+            endHold()
         }
 
         func scrollViewDidScroll(_ scrollView: UIScrollView) {
-            let usable = scrollView.contentSize.height - scrollView.bounds.height
+            // Moves made while holding a restored position aren't the
+            // reader's; `progress` already says where they are.
+            guard restoreTarget == nil else { return }
+            let usable = verticalLayout
+                ? scrollView.contentSize.width - scrollView.bounds.width
+                : scrollView.contentSize.height - scrollView.bounds.height
             guard usable > 1 else {
                 progress = 0
                 return
             }
-            let fraction = min(max(scrollView.contentOffset.y / usable, 0), 1)
-            progress = Double(fraction)
+            let offset = verticalLayout
+                ? usable - scrollView.contentOffset.x
+                : scrollView.contentOffset.y
+            progress = Double(min(max(offset / usable, 0), 1))
         }
 
         func userContentController(
