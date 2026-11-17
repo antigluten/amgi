@@ -106,10 +106,18 @@ struct SettingsPickerRow<Value: Hashable, Options: View>: View {
 
     var body: some View {
         SettingsRowLayout(title: title, systemImage: systemImage, tone: tone) {
+            // The menu's label is the selected option. The row's stack
+            // offered it half the free width, and a long one (a font's full
+            // name) wrapped onto several lines, taller than the row and
+            // over its neighbours. With priority it is offered the whole
+            // width and takes what it needs, on one line.
             Picker(title, selection: $selection) { options() }
                 .labelsHidden()
                 .pickerStyle(.menu)
+                .lineLimit(1)
+                .truncationMode(.middle)
                 .tint(palette.textSecondary)
+                .layoutPriority(1)
         }
     }
 }
