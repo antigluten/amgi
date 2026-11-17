@@ -6,6 +6,7 @@
 //
 
 package import SwiftUI
+import AppCore
 import AppShared
 import AnkiKit
 import Theme
@@ -341,6 +342,8 @@ struct BrowseContent: View {
         List {
             ForEach(model.sortedNotes, id: \.id) { note in
                 noteRow(note)
+                    // Marked notes stand out as in Anki's browser.
+                    .listRowBackground(NoteMark.isMarked(tags: note.tags) ? NoteMark.rowBackground : nil)
                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                         Button(role: .destructive) {
                             onSwipeDelete(note)
