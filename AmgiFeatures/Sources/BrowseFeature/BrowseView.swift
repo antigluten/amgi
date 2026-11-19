@@ -338,7 +338,7 @@ struct BrowseContent: View {
     // MARK: - Note List
 
     private var noteList: some View {
-        List {
+        List(selection: listSelection) {
             ForEach(model.sortedNotes, id: \.id) { note in
                 noteRow(note)
                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
@@ -355,30 +355,61 @@ struct BrowseContent: View {
                     .frame(maxWidth: .infinity)
             }
         }
+        #if os(iOS)
+        .environment(\.editMode, editMode)
+        #endif
     }
+
+    /// The system list selection, so select mode gets the platform's own
+    /// checkmarks, tap-to-toggle, VoiceOver traits and two-finger drag to
+    /// select a run of notes. iOS only: on macOS a selectable list would
+    /// change what a click on a note row does.
+    ///
+    /// Writes outside select mode are dropped: tapping a row's
+    /// `NavigationLink` also selects that row, and keeping it would leave a
+    /// selection behind on the way back. Select mode itself only turns on
+    /// through edit mode — the menu, the long press, or the two-finger drag,
+    /// which switches editing on before it selects.
+    private var listSelection: Binding<Set<NoteID>>? {
+        #if os(iOS)
+        Binding(
+            get: { selectionState.selectedNoteIDs },
+            set: { ids in
+                guard selectionState.isSelectMode else { return }
+                selectionState.selectedNoteIDs = ids
+            }
+        )
+        #else
+        nil
+        #endif
+    }
+
+    #if os(iOS)
+    /// Select mode and the list's edit mode are one state. The Select menu
+    /// item and the long press turn it on from our side; a two-finger drag
+    /// turns it on from the list's side.
+    private var editMode: Binding<EditMode> {
+        Binding(
+            get: { selectionState.isSelectMode ? .active : .inactive },
+            set: { mode in
+                if mode.isEditing {
+                    selectionState.beginSelecting()
+                } else {
+                    selectionState.exitSelectMode()
+                }
+            }
+        )
+    }
+    #endif
 
     @ViewBuilder
     private func noteRow(_ note: NoteRecord) -> some View {
         HStack {
             if selectionState.isSelectMode {
-                // A `Button`, not `.onTapGesture` — VoiceOver announces a
-                // tap gesture on a plain row as static text, so the row
-                // reads as unactionable and selection can't be reached at
-                // all with the screen reader on.
-                Button {
-                    selectionState.toggle(note.id)
-                } label: {
-                    HStack {
-                        Image(systemName: selectionState.contains(note.id) ? "checkmark.circle.fill" : "circle")
-                            .foregroundStyle(selectionState.contains(note.id) ? palette.accent : palette.textSecondary)
-                            .accessibilityHidden(true)   // the .isSelected trait already says this
-                        NoteRowView(note: note, notetypeName: model.notetypeNames[note.mid])
-                    }
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.pressScale)
-                .accessibilityAddTraits(selectionState.contains(note.id) ? .isSelected : [])
-                .onAppear { onRowAppear(note) }
+                // The list draws the checkmark and owns tap-to-toggle and the
+                // selected trait, so the row is just the note.
+                NoteRowView(note: note, notetypeName: model.notetypeNames[note.mid])
+                    .onAppear { onRowAppear(note) }
             } else {
                 HStack {
                     NavigationLink {

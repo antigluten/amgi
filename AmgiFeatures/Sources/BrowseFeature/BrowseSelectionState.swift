@@ -20,6 +20,13 @@ struct BrowseSelectionState: Equatable, Sendable {
         selectedNoteIDs = preselect.map { [$0] } ?? []
     }
 
+    /// Enters select mode keeping the current selection. The note list's
+    /// two-finger drag turns editing on and selects rows in the same gesture,
+    /// so clearing here would drop the rows it has just picked.
+    mutating func beginSelecting() {
+        isSelectMode = true
+    }
+
     mutating func exitSelectMode() {
         isSelectMode = false
         selectedNoteIDs = []
