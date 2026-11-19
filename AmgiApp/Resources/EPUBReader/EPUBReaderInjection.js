@@ -238,11 +238,13 @@
   }
 
   // Host-callable API for restoring a saved progress position.
+  // The inverse of reportProgress: a fraction of (pageCount - 1). This
+  // used to scale the whole scroll width instead, which landed a page or
+  // more past the saved one in a long chapter.
   window.__amgiScrollToFraction = function (fraction) {
     const w = window.innerWidth || document.documentElement.clientWidth || 1;
-    const scrollW = document.documentElement.scrollWidth || w;
-    const target = Math.max(0, Math.min(scrollW - w, Math.round(scrollW * fraction)));
-    const pageIndex = Math.round(target / w);
+    const lastPage = Math.max(0, measurePages() - 1);
+    const pageIndex = Math.max(0, Math.min(lastPage, Math.round(fraction * lastPage)));
     document.documentElement.scrollLeft = pageIndex * w;
     reportPageInfo();
   };
