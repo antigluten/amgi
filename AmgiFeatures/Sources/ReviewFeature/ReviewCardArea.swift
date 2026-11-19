@@ -43,6 +43,11 @@ struct ReviewCardArea: View {
     private var dictionaryScanLength: Int = 16
     @State private var showRenderModeSheet = false
     @State private var nativeAudioPlayer = NativeCardAudioPlayer()
+    /// Height of the controls floating over the bottom of the card. The card
+    /// runs underneath them and pads its content by this much, so nothing is
+    /// hidden for good — it scrolls clear of the buttons instead of being cut
+    /// off by an opaque bar.
+    @State private var controlsHeight: CGFloat = 0
 
     private var mediaFolder: URL? { session.mediaFolder }
 
@@ -96,9 +101,25 @@ struct ReviewCardArea: View {
             }
             .onDisappear { nativeAudioPlayer.stop() }
             .sheet(isPresented: $showRenderModeSheet) { renderModeSheet }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .contentMargins(.bottom, controlsHeight, for: .scrollContent)
+            .overlay(alignment: .bottom) {
+                controls
+                    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { height in
+                        // Only ever grow: the inset is part of the web card's
+                        // content signature, so every change reloads the page.
+                        let rounded = height.rounded(.up)
+                        if rounded > controlsHeight { controlsHeight = rounded }
+                    }
+            }
+        }
+        .animation(AmgiMotion.quick, value: session.showAnswer)
+    }
 
-            Spacer()
-
+    /// Typed-answer field plus the reveal or rating buttons, with no backing
+    /// of their own so the card stays visible around them.
+    private var controls: some View {
+        VStack(spacing: 0) {
             if session.isTypedAnswerCard {
                 TypedAnswerField(session: session)
             }
@@ -119,7 +140,6 @@ struct ReviewCardArea: View {
                 .padding()
             }
         }
-        .animation(AmgiMotion.quick, value: session.showAnswer)
     }
 
     private var isNativeMode: Bool {
@@ -193,6 +213,7 @@ struct ReviewCardArea: View {
                     dictionaryScanLength: dictionaryScanLength,
                     lookupHighlight: lookupHighlight,
                     contentAlignment: CardWebViewContentAlignment(rawValue: cardContentAlignment) ?? .center,
+                    bottomContentInset: controlsHeight,
                     onAudioStateChange: { playing in session.updateAudioPlaying(playing) },
                     onCardBackgroundColorChange: { color, isDark in
                         session.updateCardChrome(color: color, isDark: isDark)
