@@ -17,7 +17,7 @@ struct ProfilePickerMenu: View {
 
     var body: some View {
         Menu {
-            Picker("Switch Profile", selection: selection) {
+            Picker(String(localized: "Switch Profile", bundle: .module), selection: selection) {
                 ForEach(store.accounts) { account in
                     Text(account.displayName).tag(account.id)
                 }
@@ -31,7 +31,7 @@ struct ProfilePickerMenu: View {
                     .lineLimit(1)
             }
         }
-        .accessibilityLabel("Profile: \(store.current.displayName)")
+        .accessibilityLabel(String(localized: "Profile: \(store.current.displayName)", bundle: .module))
     }
 
     private var selection: Binding<String> {

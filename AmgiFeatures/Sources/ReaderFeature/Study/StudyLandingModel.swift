@@ -69,7 +69,7 @@ final class StudyLandingModel {
             if deckCount == 0 {
                 subtitleLabel = weekday
             } else {
-                subtitleLabel = "\(weekday) · \(deckCount) deck\(deckCount == 1 ? "" : "s") due"
+                subtitleLabel = String(localized: "\(weekday) · \(deckCount) decks due", bundle: .module)
             }
 
             let summary = StudySummaryData(
@@ -77,7 +77,7 @@ final class StudyLandingModel {
                 newCount: totalNew,
                 learnCount: totalLearn,
                 reviewCount: totalReview,
-                todayLabel: "Today",
+                todayLabel: String(localized: "Today", bundle: .module),
                 subtitleLabel: subtitleLabel,
                 deckCount: deckCount
             )

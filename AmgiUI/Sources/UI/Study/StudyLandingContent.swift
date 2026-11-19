@@ -66,9 +66,9 @@ public struct StudyLandingContent: View {
 
     private var emptyView: some View {
         ContentUnavailableView(
-            "No decks yet",
+            String(localized: "No decks yet", bundle: .module),
             systemImage: "graduationcap",
-            description: Text("Add an Anki deck to get started.")
+            description: Text("Add an Anki deck to get started.", bundle: .module)
         )
     }
 
@@ -124,7 +124,7 @@ public struct StudyLandingContent: View {
             HStack(spacing: 8) {
                 Image(systemName: "play.fill")
                     .font(.system(size: 14, weight: .bold))
-                Text(totalDue > 0 ? "Begin session · \(totalDue) cards" : "Nothing due")
+                Text(totalDue > 0 ? "Begin session · \(totalDue) cards" : "Nothing due", bundle: .module)
                     .amgiFont(.body)
                     .bold()
             }
@@ -161,7 +161,7 @@ public struct StudyLandingContent: View {
     private func upNextSection(decks: [StudyDeckRowData]) -> some View {
         if !decks.isEmpty {
             VStack(alignment: .leading, spacing: 0) {
-                sectionHeader("Up Next")
+                sectionHeader(String(localized: "Up Next", bundle: .module))
                     .padding(.bottom, 4)
                 AmgiCard(
                     background: .surface,
@@ -189,7 +189,7 @@ public struct StudyLandingContent: View {
     @ViewBuilder
     private func readingRecsSection(readingRecs: [StudyReadingRecData]) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            sectionHeader("Reading recommendations")
+            sectionHeader(String(localized: "Reading recommendations", bundle: .module))
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(alignment: .top, spacing: 16) {
                     ForEach(readingRecs) { rec in

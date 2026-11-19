@@ -22,10 +22,10 @@ public enum ReaderFontOption: String, CaseIterable, Identifiable, Sendable {
 
     public var title: String {
         switch self {
-        case .system: return "System"
+        case .system: return String(localized: "System", bundle: .module)
         case .appleSDGothicNeo: return "Apple SD Gothic Neo"
         case .appleGothic: return "AppleGothic"
-        case .nanumMyeongjo: return "Nanum Myeongjo (serif)"
+        case .nanumMyeongjo: return String(localized: "Nanum Myeongjo (serif)", bundle: .module)
         case .nanumGothic: return "Nanum Gothic"
         case .hiraginoMincho: return "Hiragino Mincho ProN"
         case .hiraginoKakuGothic: return "Hiragino Kaku Gothic ProN"

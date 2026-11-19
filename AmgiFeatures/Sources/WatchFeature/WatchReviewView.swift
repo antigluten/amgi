@@ -43,7 +43,7 @@ struct WatchReviewView: View {
                             ratingButton(.good, label: "Good", color: .green)
                         }
                     } else {
-                        reviewButton("Show Answer", color: .blue) { session.revealAnswer() }
+                        reviewButton(String(localized: "Show Answer", bundle: .module), color: .blue) { session.revealAnswer() }
                     }
                 }
                 .ignoresSafeArea(edges: .bottom)
@@ -52,7 +52,7 @@ struct WatchReviewView: View {
         .background(Color.black)
         ._statusBarHidden()
         .onTapGesture { playAudio(from: currentHTML) }
-        .accessibilityAction(named: "Replay Audio") { playAudio(from: currentHTML) }
+        .accessibilityAction(named: String(localized: "Replay Audio", bundle: .module)) { playAudio(from: currentHTML) }
         .task {
             do {
                 try AVAudioSession.sharedInstance().setCategory(
@@ -79,10 +79,10 @@ struct WatchReviewView: View {
         VStack {
             Spacer()
             Image(systemName: "checkmark.circle.fill").font(.largeTitle).foregroundStyle(.green)
-            Text("Finished!").font(.headline)
-            Text("\(session.sessionStats.reviewed) cards").font(.caption).foregroundStyle(.secondary)
+            Text("Finished!", bundle: .module).font(.headline)
+            Text("\(session.sessionStats.reviewed) cards", bundle: .module).font(.caption).foregroundStyle(.secondary)
             Spacer()
-            Button("Done") {
+            Button(String(localized: "Done", bundle: .module)) {
                 dismiss()
                 onFinish()
             }
@@ -104,7 +104,7 @@ struct WatchReviewView: View {
         return reviewButton(interval, color: color, font: .caption) {
             session.answer(rating: rating)
         }
-        .accessibilityLabel(label)
+        .accessibilityLabel(Text(label, bundle: .module))
         .accessibilityValue(interval)
     }
     private func playAudio(from html: String) {

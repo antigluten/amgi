@@ -20,11 +20,13 @@ public struct DeckStudyButton: View {
 
     public init(
         isDisabled: Bool,
-        disabledHint: String = "Deck has no cards due",
+        disabledHint: String? = nil,
         onTap: @escaping () -> Void
     ) {
         self.isDisabled = isDisabled
-        self.disabledHint = disabledHint
+        // `Bundle.module` is internal, so the default cannot live in the
+        // public signature.
+        self.disabledHint = disabledHint ?? String(localized: "Deck has no cards due", bundle: .module)
         self.onTap = onTap
     }
 
@@ -33,7 +35,7 @@ public struct DeckStudyButton: View {
             HStack(spacing: 8) {
                 Image(systemName: "play.fill")
                     .font(.callout.weight(.semibold))
-                Text("Study Now")
+                Text("Study Now", bundle: .module)
                     .amgiFont(.bodyEmphasis)
             }
             .foregroundStyle(.white)
@@ -48,8 +50,8 @@ public struct DeckStudyButton: View {
         }
         .buttonStyle(.pressScale)
         .disabled(isDisabled)
-        .accessibilityLabel("Study now")
-        .accessibilityHint(isDisabled ? disabledHint : "Start a review session")
+        .accessibilityLabel(String(localized: "Study now", bundle: .module))
+        .accessibilityHint(isDisabled ? disabledHint : String(localized: "Start a review session", bundle: .module))
     }
 }
 

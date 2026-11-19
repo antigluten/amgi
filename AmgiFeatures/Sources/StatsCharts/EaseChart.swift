@@ -39,24 +39,24 @@ public struct EaseChart: View {
         ) {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
-                    Text("Card Ease").amgiFont(.bodyEmphasis)
+                    Text("Card Ease", bundle: .module).amgiFont(.bodyEmphasis)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                    Text("Avg: \(averageEase)")
+                    Text("Avg: \(averageEase)", bundle: .module)
                         .amgiFont(.captionBold)
                         .foregroundStyle(palette.textSecondary)
                 }
 
                 if chartData.isEmpty {
-                    Text("No ease data").foregroundStyle(palette.textSecondary).frame(height: 180)
+                    Text("No ease data", bundle: .module).foregroundStyle(palette.textSecondary).frame(height: 180)
                 } else {
                     Chart(chartData, id: \.ease) { item in
                         BarMark(
-                            x: .value("Ease", item.ease),
-                            y: .value("Cards", item.count)
+                            x: .value(String(localized: "Ease", bundle: .module), item.ease),
+                            y: .value(String(localized: "Cards", bundle: .module), item.count)
                         )
                         .foregroundStyle(palette.accent.gradient)
-                        .accessibilityLabel("\(item.ease / 10)% ease")
-                        .accessibilityValue(ChartSpeech.count(item.count, "card"))
+                        .accessibilityLabel(String(localized: "\(item.ease / 10)% ease", bundle: .module))
+                        .accessibilityValue(ChartSpeech.count(item.count, .card))
                     }
                     .chartXAxis {
                         AxisMarks(values: .automatic(desiredCount: 5)) { value in

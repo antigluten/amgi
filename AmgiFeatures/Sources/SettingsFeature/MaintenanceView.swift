@@ -16,10 +16,10 @@ struct MaintenanceView: View {
 
     var body: some View {
         SettingsPage {
-            SettingsSectionHeader(title: "Collection")
+            SettingsSectionHeader(title: String(localized: "Collection", bundle: .module))
             SettingsGroup {
                 SettingsButtonRow(
-                    title: "Check Database",
+                    title: String(localized: "Check Database", bundle: .module),
                     systemImage: "stethoscope",
                     tone: .info,
                     isBusy: model.isChecking
@@ -28,12 +28,12 @@ struct MaintenanceView: View {
                 }
                 .disabled(model.isChecking)
             }
-            SettingsFootnote("Verifies the integrity of your local Anki collection.")
+            SettingsFootnote(String(localized: "Verifies the integrity of your local Anki collection.", bundle: .module))
 
-            SettingsSectionHeader(title: "Danger Zone")
+            SettingsSectionHeader(title: String(localized: "Danger Zone", bundle: .module))
             SettingsGroup {
                 SettingsButtonRow(
-                    title: "Reset Everything…",
+                    title: String(localized: "Reset Everything…", bundle: .module),
                     systemImage: "trash",
                     tone: .danger,
                     isDestructive: true
@@ -41,10 +41,10 @@ struct MaintenanceView: View {
                     showResetConfirm = true
                 }
             }
-            SettingsFootnote("Deletes this profile's collection and credentials. You will need to sync or re-import after.")
+            SettingsFootnote(String(localized: "Deletes this profile's collection and credentials. You will need to sync or re-import after.", bundle: .module))
 
             if !model.statusMessage.isEmpty {
-                SettingsSectionHeader(title: "Status")
+                SettingsSectionHeader(title: String(localized: "Status", bundle: .module))
                 SettingsGroup {
                     Text(model.statusMessage)
                         .amgiFont(.caption)
@@ -55,17 +55,17 @@ struct MaintenanceView: View {
                 }
             }
         }
-        .navigationTitle("Maintenance")
+        .navigationTitle(String(localized: "Maintenance", bundle: .module))
         .navigationBarTitleDisplayMode(.inline)
         .confirmationDialog(
-            "Reset Everything?",
+            String(localized: "Reset Everything?", bundle: .module),
             isPresented: $showResetConfirm,
             titleVisibility: .visible
         ) {
-            Button("Reset", role: .destructive) { Task { await model.resetEverything() } }
-            Button("Cancel", role: .cancel) {}
+            Button(String(localized: "Reset", bundle: .module), role: .destructive) { Task { await model.resetEverything() } }
+            Button(String(localized: "Cancel", bundle: .module), role: .cancel) {}
         } message: {
-            Text("This deletes the active profile's collection database, media, and stored credentials. Other profiles are unaffected. The action cannot be undone.")
+            Text("This deletes the active profile's collection database, media, and stored credentials. Other profiles are unaffected. The action cannot be undone.", bundle: .module)
         }
     }
 }

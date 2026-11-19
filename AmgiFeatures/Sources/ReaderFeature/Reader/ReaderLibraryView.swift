@@ -22,9 +22,9 @@ enum BookshelfSortMode: String, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
-        case .recent:   "Recently Read"
-        case .title:    "Title"
-        case .progress: "Progress"
+        case .recent:   String(localized: "Recently Read", bundle: .module)
+        case .title:    String(localized: "Title", bundle: .module)
+        case .progress: String(localized: "Progress", bundle: .module)
         }
     }
 }
@@ -85,13 +85,13 @@ package struct ReaderLibraryView: View {
             onConfigure: { showConfiguration = true },
             onRetry: { model.startReload(searchText: searchText, sortMode: sortMode) }
         )
-        .navigationTitle("Library")
+        .navigationTitle(String(localized: "Library", bundle: .module))
         .navigationBarTitleDisplayMode(.large)
         .toolbar { toolbarContent }
         .searchable(
             text: $searchText,
             placement: .navigationBarDrawer(displayMode: .automatic),
-            prompt: "Search books"
+            prompt: String(localized: "Search books", bundle: .module)
         )
         .searchFocused($searchFocused)
         .onChange(of: searchText) { _, _ in model.rebuildViewData(searchText: searchText, sortMode: sortMode) }
@@ -114,11 +114,11 @@ package struct ReaderLibraryView: View {
         ) { result in
             handleImport(result: result)
         }
-        .alert("Import failed", isPresented: Binding(
+        .alert(String(localized: "Import failed", bundle: .module), isPresented: Binding(
             get: { model.importError != nil },
             set: { if !$0 { model.importError = nil } }
         )) {
-            Button("OK") { model.importError = nil }
+            Button(String(localized: "OK", bundle: .module)) { model.importError = nil }
         } message: {
             Text(model.importError ?? "")
         }
@@ -127,29 +127,29 @@ package struct ReaderLibraryView: View {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
-            Button("Import EPUB…", systemImage: "square.and.arrow.down") {
+            Button(String(localized: "Import EPUB…", bundle: .module), systemImage: "square.and.arrow.down") {
                 isImporting = true
             }
             .keyboardShortcut("o", modifiers: .command)
         }
         ToolbarItem(placement: .topBarTrailing) {
             Menu {
-                Picker("Sort By", selection: sortSelection) {
+                Picker(String(localized: "Sort By", bundle: .module), selection: sortSelection) {
                     ForEach(BookshelfSortMode.allCases) { mode in
                         Text(mode.label).tag(mode)
                     }
                 }
                 .pickerStyle(.inline)
                 Divider()
-                Button("Find", systemImage: "magnifyingglass") {
+                Button(String(localized: "Find", bundle: .module), systemImage: "magnifyingglass") {
                     searchFocused = true
                 }
                 .keyboardShortcut("f", modifiers: .command)
-                Button("Reader Settings", systemImage: "slider.horizontal.3") {
+                Button(String(localized: "Reader Settings", bundle: .module), systemImage: "slider.horizontal.3") {
                     showConfiguration = true
                 }
             } label: {
-                Label("More", systemImage: "ellipsis")
+                Label(String(localized: "More", bundle: .module), systemImage: "ellipsis")
             }
         }
     }

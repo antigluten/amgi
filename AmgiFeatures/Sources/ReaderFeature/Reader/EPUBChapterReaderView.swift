@@ -195,9 +195,9 @@ struct EPUBChapterReaderView: View {
 
     private var pagesLeftText: String {
         let remaining = pagesLeftInChapter
-        if remaining == 0 { return "Last page of chapter" }
-        if remaining == 1 { return "1 page left in chapter" }
-        return "\(remaining) pages left in chapter"
+        if remaining == 0 { return String(localized: "Last page of chapter", bundle: .module) }
+        if remaining == 1 { return String(localized: "1 page left in chapter", bundle: .module) }
+        return String(localized: "\(remaining) pages left in chapter", bundle: .module)
     }
 
     /// Both top capsules are removed from the tree when the chrome is hidden
@@ -221,7 +221,7 @@ struct EPUBChapterReaderView: View {
                     .amgiMaterial(.regular, in: Circle(), interactive: true)
                     .amgiMaterialElevation(Circle())
             }
-            .accessibilityLabel("Close")
+            .accessibilityLabel(String(localized: "Close", bundle: .module))
             .padding(.top, 8)
             .padding(.trailing, 16)
             .transition(.opacity)
@@ -248,7 +248,7 @@ struct EPUBChapterReaderView: View {
 
     @ViewBuilder
     private var pageNumberCapsule: some View {
-        Text("\(pageIndex + 1) of \(pageCount)")
+        Text("\(pageIndex + 1) of \(pageCount)", bundle: .module)
             .amgiFont(.caption, .monospacedDigits)
             .foregroundStyle(palette.textSecondary)
             .contentTransition(.numericText())
@@ -272,7 +272,7 @@ struct EPUBChapterReaderView: View {
                 .amgiMaterial(.regular, in: Circle(), interactive: true)
                 .amgiMaterialElevation(Circle())
         }
-        .accessibilityLabel("Reading Style")
+        .accessibilityLabel(String(localized: "Reading Style", bundle: .module))
         .opacity(chromeVisible ? 1 : 0)
         .allowsHitTesting(chromeVisible)
     }
@@ -318,14 +318,14 @@ struct EPUBChapterReaderView: View {
     private var endOfBookToast: some View {
         if endOfBookToastVisible {
             Button(action: dismissEndOfBookToast) {
-                Text("End of book")
+                Text("End of book", bundle: .module)
                     .amgiFont(.captionBold)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 8)
                     .amgiMaterial(.light, in: Capsule())
             }
             .buttonStyle(.pressScale)
-            .accessibilityHint("Dismisses this message")
+            .accessibilityHint(String(localized: "Dismisses this message", bundle: .module))
             .padding(.bottom, 80)
             .transition(AmgiMotion.slide(from: .bottom))
         }

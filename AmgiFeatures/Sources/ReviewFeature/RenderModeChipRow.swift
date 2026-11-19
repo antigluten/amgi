@@ -26,7 +26,7 @@ struct RenderModeChipRow: View {
             HStack(spacing: 8) {
                 badge
                 if isAuto {
-                    Text("auto")
+                    Text("auto", bundle: .module)
                         .amgiFont(.caption)
                         .foregroundStyle(palette.textSecondary)
                 }
@@ -46,11 +46,11 @@ struct RenderModeChipRow: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.pressScale)
-        .accessibilityLabel("Rendering: \(isNative ? "Native" : "HTML")\(isAuto ? ", automatic" : "")")
+        .accessibilityLabel(String(localized: "Rendering: \(isNative ? String(localized: "Native", bundle: .module) : "HTML")\(isAuto ? String(localized: ", automatic", bundle: .module) : "")", bundle: .module))
     }
 
     private var badge: some View {
-        Text(isNative ? "Native" : "HTML")
+        Text(isNative ? "Native" : "HTML", bundle: .module)
             .amgiFont(.caption)
             .fontWeight(.semibold)
             .foregroundStyle(isNative ? palette.positive : palette.warning)

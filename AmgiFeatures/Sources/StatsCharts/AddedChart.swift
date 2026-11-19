@@ -47,19 +47,19 @@ public struct AddedChart: View {
             contentInsets: EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
         ) {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Cards Added").amgiFont(.bodyEmphasis)
+                Text("Cards Added", bundle: .module).amgiFont(.bodyEmphasis)
 
                 if filteredData.isEmpty {
-                    Text("No cards added").foregroundStyle(palette.textSecondary).frame(height: 180)
+                    Text("No cards added", bundle: .module).foregroundStyle(palette.textSecondary).frame(height: 180)
                 } else {
                     Chart(filteredData, id: \.day) { item in
                         BarMark(
-                            x: .value("Day", item.day),
-                            y: .value("Cards", item.count)
+                            x: .value(String(localized: "Day", bundle: .module), item.day),
+                            y: .value(String(localized: "Cards", bundle: .module), item.count)
                         )
                         .foregroundStyle(palette.accent.gradient)
                         .accessibilityLabel(ChartSpeech.day(item.day))
-                        .accessibilityValue(ChartSpeech.count(item.count, "card"))
+                        .accessibilityValue(ChartSpeech.count(item.count, .card))
                     }
                     .chartXAxis {
                         AxisMarks(values: .automatic(desiredCount: 5)) { _ in
@@ -71,8 +71,8 @@ public struct AddedChart: View {
                 }
 
                 HStack(spacing: 16) {
-                    footerItem("Total", value: "\(totalAdded)")
-                    footerItem("Avg/day", value: String(format: "%.1f", avgPerDay))
+                    footerItem(String(localized: "Total", bundle: .module), value: "\(totalAdded)")
+                    footerItem(String(localized: "Avg/day", bundle: .module), value: String(format: "%.1f", avgPerDay))
                 }
             }
         }

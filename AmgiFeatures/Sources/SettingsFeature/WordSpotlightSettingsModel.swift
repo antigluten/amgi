@@ -200,7 +200,7 @@ final class WordSpotlightSettingsModel {
             }
             if await controller.save(preferences, profileID: profileID) {
                 savedPreferences = preferences
-                sourceStatus = "Source saved"
+                sourceStatus = String(localized: "Source saved", bundle: .module)
             } else if let message = controller.error {
                 failure = Failure(message: message, retry: .source)
             }

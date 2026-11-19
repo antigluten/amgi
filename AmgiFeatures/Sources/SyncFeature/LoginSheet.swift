@@ -25,10 +25,10 @@ struct LoginSheet: View {
         NavigationStack {
             Form {
                 Section {
-                    TextField("Username", text: $username)
+                    TextField(String(localized: "Username", bundle: .module), text: $username)
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
-                    SecureField("Password", text: $password)
+                    SecureField(String(localized: "Password", bundle: .module), text: $password)
                 }
                 if let errorMessage {
                     Section {
@@ -44,17 +44,17 @@ struct LoginSheet: View {
                         if isLoading {
                             ProgressView().frame(maxWidth: .infinity)
                         } else {
-                            Text("Sign In").frame(maxWidth: .infinity)
+                            Text("Sign In", bundle: .module).frame(maxWidth: .infinity)
                         }
                     }
                     .disabled(username.isEmpty || password.isEmpty || isLoading)
                 }
             }
-            .navigationTitle("Login")
+            .navigationTitle(String(localized: "Login", bundle: .module))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { isPresented = false }
+                    Button(String(localized: "Cancel", bundle: .module)) { isPresented = false }
                 }
             }
         }
@@ -71,7 +71,7 @@ private extension LoginSheet {
             isPresented = false
             onSuccess()
         } catch {
-            errorMessage = "Login failed. Check your username and password."
+            errorMessage = String(localized: "Login failed. Check your username and password.", bundle: .module)
         }
         isLoading = false
     }

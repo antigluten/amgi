@@ -14,11 +14,11 @@ enum IOShapeType: String, CaseIterable {
 
     var label: String {
         switch self {
-        case .select:  return "Select"
-        case .rect:    return "Rectangle"
-        case .ellipse: return "Ellipse"
-        case .polygon: return "Polygon"
-        case .text:    return "Text"
+        case .select:  return String(localized: "Select", bundle: .module)
+        case .rect:    return String(localized: "Rectangle", bundle: .module)
+        case .ellipse: return String(localized: "Ellipse", bundle: .module)
+        case .polygon: return String(localized: "Polygon", bundle: .module)
+        case .text:    return String(localized: "Text", bundle: .module)
         }
     }
 

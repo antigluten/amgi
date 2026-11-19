@@ -41,11 +41,11 @@ struct ReaderLibraryContent: View {
 
         case .error(let message):
             ContentUnavailableView {
-                Label("Couldn't load books", systemImage: "exclamationmark.triangle")
+                Label(String(localized: "Couldn't load books", bundle: .module), systemImage: "exclamationmark.triangle")
             } description: {
                 Text(message)
             } actions: {
-                Button("Retry", action: onRetry)
+                Button(String(localized: "Retry", bundle: .module), action: onRetry)
             }
         }
     }
@@ -55,18 +55,18 @@ struct ReaderLibraryContent: View {
 private extension ReaderLibraryContent {
     func empty(_ reason: EmptyReason) -> some View {
         ContentUnavailableView {
-            Label("No books yet", systemImage: "books.vertical")
+            Label(String(localized: "No books yet", bundle: .module), systemImage: "books.vertical")
         } description: {
             switch reason {
             case .noBooksAndNoConfig:
-                Text("Import an EPUB or configure a deck of notes to start reading.")
+                Text("Import an EPUB or configure a deck of notes to start reading.", bundle: .module)
             case .noBooksConfigured:
-                Text("Your configured deck doesn't have any books yet. Import an EPUB or reconfigure your reader source.")
+                Text("Your configured deck doesn't have any books yet. Import an EPUB or reconfigure your reader source.", bundle: .module)
             }
         } actions: {
-            Button(action: onImport) { Label("Import EPUB", systemImage: "square.and.arrow.down") }
+            Button(action: onImport) { Label(String(localized: "Import EPUB", bundle: .module), systemImage: "square.and.arrow.down") }
                 .buttonStyle(.borderedProminent)
-            Button(reason == .noBooksConfigured ? "Reconfigure Reader" : "Set Up Anki Library",
+            Button(reason == .noBooksConfigured ? String(localized: "Reconfigure Reader", bundle: .module) : String(localized: "Set Up Anki Library", bundle: .module),
                    action: onConfigure)
         }
     }

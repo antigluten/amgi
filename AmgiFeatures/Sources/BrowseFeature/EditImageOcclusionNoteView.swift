@@ -49,17 +49,17 @@ struct EditImageOcclusionNoteView: View {
             onEditMasks: { showOcclusionEditor = true }
         )
         .toolbarVisibility(.hidden, for: .tabBar)
-        .navigationTitle("Edit Image Occlusion")
+        .navigationTitle(String(localized: "Edit Image Occlusion", bundle: .module))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             if embedInNavigationStack {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button(String(localized: "Cancel", bundle: .module)) { dismiss() }
                         .amgiToolbarTextButton(tone: .neutral)
                 }
             }
             ToolbarItem(placement: .confirmationAction) {
-                Button("Save") {
+                Button(String(localized: "Save", bundle: .module)) {
                     Task {
                         if await model.save() {
                             onSave()
@@ -76,7 +76,7 @@ struct EditImageOcclusionNoteView: View {
             if let uiImage = model.uiImage {
                 NavigationStack {
                     ImageOcclusionWorkspaceView(
-                        title: "Edit",
+                        title: String(localized: "Edit", bundle: .module),
                         image: uiImage,
                         initialMasks: model.masks
                     ) { updatedMasks in
@@ -106,7 +106,7 @@ struct EditImageOcclusionContent: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if let err = model.loadError {
             AmgiStatusMessageView(
-                title: "Error",
+                title: String(localized: "Error", bundle: .module),
                 message: err,
                 systemImage: "exclamationmark.triangle",
                 tone: .warning
@@ -126,25 +126,25 @@ struct EditImageOcclusionContent: View {
                     .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
                     .listRowBackground(Color.clear)
                 } header: {
-                    Text("Masks")
+                    Text("Masks", bundle: .module)
                 } footer: {
-                    Text("Tap and drag to draw a mask. Drag handles to resize.")
+                    Text("Tap and drag to draw a mask. Drag handles to resize.", bundle: .module)
                         .amgiFont(.caption)
                         .foregroundStyle(palette.textSecondary)
                 }
             }
 
-            Section("Content") {
-                TextField("Header", text: $model.header)
-                TextField("Extra info shown on the back", text: $model.backExtra)
+            Section(String(localized: "Content", bundle: .module)) {
+                TextField(String(localized: "Header", bundle: .module), text: $model.header)
+                TextField(String(localized: "Extra info shown on the back", bundle: .module), text: $model.backExtra)
             }
 
             Section {
-                TextField("Tags", text: $model.tagsText)
+                TextField(String(localized: "Tags", bundle: .module), text: $model.tagsText)
             } header: {
-                Text("Tags")
+                Text("Tags", bundle: .module)
             } footer: {
-                Text("Space-separated")
+                Text("Space-separated", bundle: .module)
                     .amgiFont(.caption)
                     .foregroundStyle(palette.textSecondary)
             }

@@ -102,7 +102,7 @@ private extension HeatmapChartOptimized {
     func heatmapContent() -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .top) {
-                Text("Heatmap")
+                Text("Heatmap", bundle: .module)
                     .amgiFont(.sectionHeading)
                     .foregroundStyle(palette.textPrimary)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -129,7 +129,7 @@ private extension HeatmapChartOptimized {
                     #endif
 
                     if currentStreak > 0 {
-                        Label("\(currentStreak)-day streak", systemImage: "flame.fill")
+                        Label(String(localized: "\(currentStreak)-day streak", bundle: .module), systemImage: "flame.fill")
                             .amgiFont(.micro)
                             .foregroundStyle(palette.warning)
                     }
@@ -137,16 +137,16 @@ private extension HeatmapChartOptimized {
             }
 
             if visibleData.isEmpty {
-                Text("No reviews yet")
+                Text("No reviews yet", bundle: .module)
                     .foregroundStyle(palette.textSecondary)
                     .frame(maxWidth: .infinity, minHeight: isCompact ? 72 : 100)
             } else {
                 if !isCompact {
                     HStack(spacing: 16) {
-                        summaryItem(value: "\(totalReviews)", label: "Total")
-                        summaryItem(value: "\(reviewsThisMonth)", label: "This month")
-                        summaryItem(value: "\(reviewsThisWeek)", label: "This week")
-                        summaryItem(value: "\(visibleData[0] ?? 0)", label: "Today")
+                        summaryItem(value: "\(totalReviews)", label: String(localized: "Total", bundle: .module))
+                        summaryItem(value: "\(reviewsThisMonth)", label: String(localized: "This month", bundle: .module))
+                        summaryItem(value: "\(reviewsThisWeek)", label: String(localized: "This week", bundle: .module))
+                        summaryItem(value: "\(visibleData[0] ?? 0)", label: String(localized: "Today", bundle: .module))
                     }
                 }
 
@@ -228,25 +228,27 @@ private extension HeatmapChartOptimized {
             }
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Review activity")
+        .accessibilityLabel(String(localized: "Review activity", bundle: .module))
         .accessibilityValue(heatmapSummary)
     }
 
     var heatmapSummary: String {
         let days = visibleData.values.count(where: { $0 > 0 })
-        return "\(ChartSpeech.count(totalReviews, "review")) over \(dateRangeLabel(selectedDateRange)), "
-            + "on \(ChartSpeech.count(days, "day")). Busiest day \(ChartSpeech.count(maxCount, "review"))."
+        return String(
+            localized: "\(ChartSpeech.count(totalReviews, .review)) over \(dateRangeLabel(selectedDateRange)), on \(ChartSpeech.count(days, .day)). Busiest day \(ChartSpeech.count(maxCount, .review)).",
+            bundle: .module
+        )
     }
 
     func legendView() -> some View {
         HStack(spacing: isCompact ? 3 : 4) {
-            Text("Less").amgiFont(.micro).foregroundStyle(palette.textSecondary)
+            Text("Less", bundle: .module).amgiFont(.micro).foregroundStyle(palette.textSecondary)
             ForEach(Array(HeatmapColorRamp.legendColors(palette: palette).enumerated()), id: \.offset) { _, color in
                 RoundedRectangle(cornerRadius: 2)
                     .fill(color)
                     .frame(width: cellSize, height: cellSize)
             }
-            Text("More").amgiFont(.micro).foregroundStyle(palette.textSecondary)
+            Text("More", bundle: .module).amgiFont(.micro).foregroundStyle(palette.textSecondary)
         }
         .frame(maxWidth: .infinity, alignment: .trailing)
         .accessibilityHidden(true)
@@ -280,12 +282,12 @@ private extension HeatmapChartOptimized {
 
     func dateRangeLabel(_ days: Int) -> String {
         switch days {
-        case 30: return "Last 30 days"
-        case 90: return "Last 90 days"
-        case 180: return "Last 6 months"
-        case 365: return "Last 1 year"
-        case 730: return "Last 2 years"
-        default: return "\(days) days"
+        case 30: return String(localized: "Last 30 days", bundle: .module)
+        case 90: return String(localized: "Last 90 days", bundle: .module)
+        case 180: return String(localized: "Last 6 months", bundle: .module)
+        case 365: return String(localized: "Last 1 year", bundle: .module)
+        case 730: return String(localized: "Last 2 years", bundle: .module)
+        default: return String(localized: "\(days) days", bundle: .module)
         }
     }
 

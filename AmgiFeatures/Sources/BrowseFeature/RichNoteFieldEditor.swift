@@ -24,12 +24,12 @@ struct RichNoteFieldEditor: UIViewRepresentable {
         Coordinator.normalizedStoredHTML(from: text)
     }
 
-    private let doneButtonTitle = "Done"
-    private let boldTitle = "Bold"
-    private let italicTitle = "Italic"
-    private let underlineTitle = "Underline"
-    private let strikeTitle = "Strikethrough"
-    private let clearFormatTitle = "Clear formatting"
+    private let doneButtonTitle = String(localized: "Done", bundle: .module)
+    private let boldTitle = String(localized: "Bold", bundle: .module)
+    private let italicTitle = String(localized: "Italic", bundle: .module)
+    private let underlineTitle = String(localized: "Underline", bundle: .module)
+    private let strikeTitle = String(localized: "Strikethrough", bundle: .module)
+    private let clearFormatTitle = String(localized: "Clear formatting", bundle: .module)
 
     func makeCoordinator() -> Coordinator {
         Coordinator(htmlText: $htmlText)
@@ -266,12 +266,12 @@ private extension RichNoteFieldEditor {
         scrollView.addSubview(stackView)
 
         stackView.addArrangedSubview(
-            makeSymbolButton(systemName: "arrow.uturn.backward", title: "Undo") {
+            makeSymbolButton(systemName: "arrow.uturn.backward", title: String(localized: "Undo", bundle: .module)) {
                 textView.undoManager?.undo()
             }
         )
         stackView.addArrangedSubview(
-            makeSymbolButton(systemName: "arrow.uturn.forward", title: "Redo") {
+            makeSymbolButton(systemName: "arrow.uturn.forward", title: String(localized: "Redo", bundle: .module)) {
                 textView.undoManager?.redo()
             }
         )

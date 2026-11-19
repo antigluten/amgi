@@ -71,7 +71,7 @@ private struct TodayProgress: View {
                 .gaugeStyle(.linearCapacity)
                 .tint(palette.accent)
                 .accessibilityHidden(true)
-            Text("\(reviewedToday) reviewed today · \(totalDue) remaining")
+            Text("\(reviewedToday) reviewed today · \(totalDue) remaining", bundle: .module)
                 .amgiFont(.micro, .monospacedDigits)
                 .foregroundStyle(palette.textTertiary)
         }
@@ -96,9 +96,9 @@ private struct CountBreakdown: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            column(color: palette.cardStateNew, label: "New", count: newCount)
-            column(color: palette.cardStateLearning, label: "Learn", count: learnCount)
-            column(color: palette.cardStateReview, label: "Review", count: reviewCount)
+            column(color: palette.cardStateNew, label: String(localized: "New", bundle: .module), count: newCount)
+            column(color: palette.cardStateLearning, label: String(localized: "Learn", bundle: .module), count: learnCount)
+            column(color: palette.cardStateReview, label: String(localized: "Review", bundle: .module), count: reviewCount)
         }
         .frame(maxWidth: .infinity)
     }
@@ -130,7 +130,7 @@ private struct WeekChart: View {
         VStack(alignment: .leading, spacing: AmgiSpacing.sm) {
             // Cased in the literal, not via `.textCase(.uppercase)`, so a
             // translation can choose its own casing.
-            Text("LAST 7 DAYS")
+            Text("LAST 7 DAYS", bundle: .module)
                 .amgiFont(size: 11, weight: .medium, tracking: 1.5, relativeTo: .caption2)
                 .foregroundStyle(palette.textTertiary)
 
@@ -155,7 +155,7 @@ private struct WeekChart: View {
             }
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Reviews in the last 7 days")
+        .accessibilityLabel(String(localized: "Reviews in the last 7 days", bundle: .module))
         .accessibilityValue(
             counts.enumerated()
                 .map { "\(dayLabel($0.offset)) \($0.element)" }

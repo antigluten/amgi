@@ -26,10 +26,10 @@ struct CodeEditorSettingsView: View {
 
     var body: some View {
         SettingsPage {
-            SettingsSectionHeader(title: "Font")
+            SettingsSectionHeader(title: String(localized: "Font", bundle: .module))
             SettingsGroup {
                 SettingsStepperRow(
-                    title: "Size",
+                    title: String(localized: "Size", bundle: .module),
                     systemImage: "textformat.size",
                     tone: .accent,
                     value: Binding($fontSize),
@@ -38,7 +38,7 @@ struct CodeEditorSettingsView: View {
                 ) { "\(Int($0))pt" }
                 SettingsSeparator()
                 SettingsPickerRow(
-                    title: "Family",
+                    title: String(localized: "Family", bundle: .module),
                     systemImage: "textformat",
                     tone: .link,
                     selection: Binding($fontFamilyRaw)
@@ -49,17 +49,17 @@ struct CodeEditorSettingsView: View {
                 }
             }
 
-            SettingsSectionHeader(title: "Preview")
+            SettingsSectionHeader(title: String(localized: "Preview", bundle: .module))
             SettingsGroup {
                 previewRow
             }
         }
-        .navigationTitle("Code Editor")
+        .navigationTitle(String(localized: "Code Editor", bundle: .module))
         .navigationBarTitleDisplayMode(.inline)
     }
 
     private var previewRow: some View {
-        Text("{{Front}}")
+        Text("{{Front}}", bundle: .module)
             .font(selectedFamily.font(size: fontSize))
             .foregroundStyle(palette.textPrimary)
             .frame(maxWidth: .infinity, alignment: .leading)

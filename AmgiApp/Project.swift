@@ -33,6 +33,12 @@ let project = Project(
                 .folderReference(path: "Resources/Review"),
                 .folderReference(path: "Resources/Fonts"),
                 .folderReference(path: "Resources/EPUBReader"),
+                // App Intents titles and dialogs, Siri phrases and Info.plist
+                // strings are read from the main bundle, so their catalogs
+                // live in the app target rather than in IntentsFeature.
+                "Resources/Localizable.xcstrings",
+                "Resources/AppShortcuts.xcstrings",
+                "Resources/InfoPlist.xcstrings",
             ],
             entitlements: .file(path: "AmgiApp.entitlements"),
             dependencies: [
@@ -54,6 +60,9 @@ let project = Project(
             deploymentTargets: .iOS("18.0"),
             infoPlist: .file(path: "Sources/Widgets/Info.plist"),
             sources: ["Sources/Widgets/**"],
+            // The widget's AppIntent configuration strings resolve against
+            // the extension's own bundle.
+            resources: ["Sources/Widgets/Localizable.xcstrings"],
             entitlements: .file(path: "AmgiWidget.entitlements"),
             dependencies: [
                 .project(target: "WidgetFeature", path: .relativeToRoot("AmgiFeatures")),
@@ -71,8 +80,10 @@ let project = Project(
                 "CFBundleShortVersionString": "$(MARKETING_VERSION)",
                 "CFBundleVersion": "$(CURRENT_PROJECT_VERSION)",
                 "WKCompanionAppBundleIdentifier": "com.amgiapp.AmgiApp",
+                "CFBundleLocalizations": ["en", "zh-Hans", "zh-Hant", "ja", "ko"],
             ]),
             sources: ["Sources/Watch/**"],
+            resources: ["Sources/Watch/Localizable.xcstrings"],
             dependencies: [
                 .project(target: "AnkiKit", path: .relativeToRoot(".")),
                 .project(target: "Theme", path: .relativeToRoot("AmgiUI")),

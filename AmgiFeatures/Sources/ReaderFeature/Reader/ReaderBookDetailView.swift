@@ -211,13 +211,13 @@ private struct BookHeaderView: View {
     private var metaText: String? {
         var parts: [String] = []
         if let pages = book.pageCount {
-            parts.append("\(pages) pages")
+            parts.append(String(localized: "\(pages) pages", bundle: .module))
         }
         if let language = book.language, !language.isEmpty {
             parts.append(language)
         }
         let chapters = book.chapters.count
-        parts.append("\(chapters) chapter\(chapters == 1 ? "" : "s")")
+        parts.append(String(localized: "\(chapters) chapters", bundle: .module))
         return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }
 }
@@ -236,7 +236,7 @@ private struct ContinueBlock<Destination: View>: View {
             NavigationLink {
                 destination(resumeIndex)
             } label: {
-                Text("Continue · \(percent)%")
+                Text("Continue · \(percent)%", bundle: .module)
                     .amgiFont(.cardTitle)
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
@@ -266,7 +266,7 @@ private struct ChaptersSection<Destination: View>: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("CHAPTERS")
+            Text("CHAPTERS", bundle: .module)
                 .amgiFont(.captionBold)
                 .foregroundStyle(palette.textSecondary)
                 .padding(.top, 8)
@@ -351,7 +351,7 @@ private struct ChapterRow: View {
                 : "\(range.lowerBound)–\(range.upperBound)")
         }
         if cardsAdded > 0 {
-            parts.append("\(cardsAdded) card\(cardsAdded == 1 ? "" : "s") added")
+            parts.append(String(localized: "\(cardsAdded) cards added", bundle: .module))
         }
         return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }

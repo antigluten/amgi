@@ -266,10 +266,10 @@ enum WordSpotlightError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .invalidSource: "Choose an existing vocabulary deck, note type, and word/meaning fields in Settings."
-        case .missingWord: "This word is no longer available. It may have been deleted or its fields changed."
-        case .differentProfile: "This word belongs to another profile. Switch to that profile to view it."
-        case .noWords: "No eligible words found. Check the selected fields and add vocabulary cards to this deck."
+        case .invalidSource: String(localized: "Choose an existing vocabulary deck, note type, and word/meaning fields in Settings.", bundle: .module)
+        case .missingWord: String(localized: "This word is no longer available. It may have been deleted or its fields changed.", bundle: .module)
+        case .differentProfile: String(localized: "This word belongs to another profile. Switch to that profile to view it.", bundle: .module)
+        case .noWords: String(localized: "No eligible words found. Check the selected fields and add vocabulary cards to this deck.", bundle: .module)
         }
     }
 }

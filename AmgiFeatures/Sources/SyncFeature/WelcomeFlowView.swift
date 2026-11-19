@@ -108,7 +108,7 @@ private extension WelcomeFlowView {
         HStack {
             Spacer()
             if !isLastStep {
-                Button("Skip", action: onDone)
+                Button(String(localized: "Skip", bundle: .module), action: onDone)
                     .amgiFont(.body)
                     .foregroundStyle(palette.textSecondary)
                     // RULES.md §1 — the label is 17pt, the hit region is 44pt.
@@ -162,18 +162,18 @@ private extension WelcomeFlowView {
 
     func copy(_ step: WelcomeStep) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(step.eyebrow)
+            Text(step.eyebrow, bundle: .module)
                 .amgiFont(size: 13, weight: .semibold, tracking: 0.6, relativeTo: .footnote)
                 .textCase(.uppercase)
                 .foregroundStyle(palette.accent)
                 .padding(.bottom, AmgiSpacing.sm)
 
-            Text(step.title)
+            Text(step.title, bundle: .module)
                 .amgiFont(.displayHero)
                 .foregroundStyle(palette.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
 
-            Text(step.subtitle)
+            Text(step.subtitle, bundle: .module)
                 .amgiFont(.body)
                 .lineSpacing(3)
                 .foregroundStyle(palette.textSecondary)
@@ -195,7 +195,7 @@ private extension WelcomeFlowView {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("Step \(index + 1) of \(steps.count)")
+                .accessibilityLabel(String(localized: "Step \(index + 1) of \(steps.count)", bundle: .module))
                 .accessibilityAddTraits(index == step ? [.isSelected] : [])
             }
         }
@@ -203,7 +203,7 @@ private extension WelcomeFlowView {
 
     var continueButton: some View {
         Button(action: advance) {
-            Text(current.cta ?? "Continue")
+            Text(current.cta ?? "Continue", bundle: .module)
                 .frame(maxWidth: .infinity)
                 // 28 + the style's 8pt vertical padding on each side = 44.
                 .frame(minHeight: 28)
@@ -281,8 +281,8 @@ private struct IntervalVisual: View {
             ForEach(Array(Self.marks.enumerated()), id: \.offset) { index, mark in
                 pulse(index: index, mark: mark)
             }
-            axisCaption("MEMORY STRENGTH", y: 8)
-            axisCaption("TIME →", y: Self.axisY + 24)
+            axisCaption(String(localized: "MEMORY STRENGTH", bundle: .module), y: 8)
+            axisCaption(String(localized: "TIME →", bundle: .module), y: Self.axisY + 24)
         }
         .frame(width: 280, height: 230)
     }
@@ -400,13 +400,13 @@ private struct ReaderVisual: View {
                 .textCase(.uppercase)
                 .foregroundStyle(palette.accent)
 
-            Text("cool, stylish, splendid")
+            Text("cool, stylish, splendid", bundle: .module)
                 .amgiFont(.caption)
                 .foregroundStyle(palette.textPrimary)
 
             HStack(spacing: AmgiSpacing.xs) {
-                chip("Look up", systemImage: "character.book.closed", isProminent: true)
-                chip("Save", systemImage: nil, isProminent: false)
+                chip(String(localized: "Look up", bundle: .module), systemImage: "character.book.closed", isProminent: true)
+                chip(String(localized: "Save", bundle: .module), systemImage: nil, isProminent: false)
             }
             .padding(.top, AmgiSpacing.sm)
         }

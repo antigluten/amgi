@@ -60,32 +60,32 @@ struct AccountsSettingsView: View {
         }
         .scrollContentBackground(.hidden)
         .background(palette.background)
-        .navigationTitle("Profiles")
+        .navigationTitle(String(localized: "Profiles", bundle: .module))
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: Binding($destination.add)) {
             addProfileSheet
         }
         .confirmationDialog(
-            "Delete \(pendingDelete?.displayName ?? "")?",
+            String(localized: "Delete \(pendingDelete?.displayName ?? "")?", bundle: .module),
             isPresented: Binding($destination.confirmDelete),
             titleVisibility: .visible,
             presenting: pendingDelete
         ) { account in
-            Button("Delete profile only", role: .destructive) {
+            Button(String(localized: "Delete profile only", bundle: .module), role: .destructive) {
                 attemptDelete(account, deleteFiles: false)
             }
-            Button("Delete profile and files", role: .destructive) {
+            Button(String(localized: "Delete profile and files", bundle: .module), role: .destructive) {
                 attemptDelete(account, deleteFiles: true)
             }
-            Button("Cancel", role: .cancel) {}
+            Button(String(localized: "Cancel", bundle: .module), role: .cancel) {}
         } message: { _ in
-            Text("Files include the Anki collection, media, and per-profile sync state. Deleting only the profile leaves the files on disk; you can re-add the profile to recover.")
+            Text("Files include the Anki collection, media, and per-profile sync state. Deleting only the profile leaves the files on disk; you can re-add the profile to recover.", bundle: .module)
         }
         .alert(
-            "Couldn't delete profile",
+            String(localized: "Couldn't delete profile", bundle: .module),
             isPresented: Binding($destination.deleteFailed)
         ) {
-            Button("OK", role: .cancel) {}
+            Button(String(localized: "OK", bundle: .module), role: .cancel) {}
         } message: {
             Text(deleteError ?? "")
         }
@@ -123,10 +123,10 @@ struct AccountsSettingsView: View {
 
     private var toolbarSection: some View {
         Section {
-            Toggle("Show in Library toolbar", isOn: Binding($showProfileInToolbar))
+            Toggle(String(localized: "Show in Library toolbar", bundle: .module), isOn: Binding($showProfileInToolbar))
                 .listRowBackground(palette.surfaceElevated)
         } footer: {
-            Text("The profile switcher is hidden automatically while you have only one profile. Profiles are always available here.")
+            Text("The profile switcher is hidden automatically while you have only one profile. Profiles are always available here.", bundle: .module)
         }
     }
 
@@ -137,7 +137,7 @@ struct AccountsSettingsView: View {
                     .listRowBackground(palette.surfaceElevated)
             }
         } header: {
-            SettingsListHeader("Profiles")
+            SettingsListHeader(String(localized: "Profiles", bundle: .module))
         }
     }
 
@@ -148,14 +148,14 @@ struct AccountsSettingsView: View {
             } label: {
                 HStack(spacing: AmgiSpacing.md) {
                     SettingsIconTile(systemImage: "plus", tone: .accent)
-                    Text("New profile")
+                    Text("New profile", bundle: .module)
                         .amgiFont(.body)
                         .foregroundStyle(palette.textPrimary)
                 }
             }
             .listRowBackground(palette.surfaceElevated)
         } footer: {
-            Text("Each profile keeps its own collection, sync login, and review history. Switching applies immediately.")
+            Text("Each profile keeps its own collection, sync login, and review history. Switching applies immediately.", bundle: .module)
                 .amgiFont(.caption)
                 .foregroundStyle(palette.textSecondary)
         }
@@ -164,12 +164,12 @@ struct AccountsSettingsView: View {
     private var addProfileSheet: some View {
         NavigationStack {
             SettingsPage {
-                SettingsSectionHeader(title: "Name")
+                SettingsSectionHeader(title: String(localized: "Name", bundle: .module))
                 SettingsGroup {
                     TextField(
-                        "Profile name",
+                        String(localized: "Profile name", bundle: .module),
                         text: newName,
-                        prompt: Text("e.g. Korean").foregroundStyle(palette.textTertiary)
+                        prompt: Text("e.g. Korean", bundle: .module).foregroundStyle(palette.textTertiary)
                     )
                         .amgiFont(.body)
                         .foregroundStyle(palette.textPrimary)
@@ -185,14 +185,14 @@ struct AccountsSettingsView: View {
                         .foregroundStyle(palette.danger)
                 }
             }
-            .navigationTitle("New profile")
+            .navigationTitle(String(localized: "New profile", bundle: .module))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { destination = nil }
+                    Button(String(localized: "Cancel", bundle: .module)) { destination = nil }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Add") { attemptAdd() }
+                    Button(String(localized: "Add", bundle: .module)) { attemptAdd() }
                         .disabled(newName.wrappedValue.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
             }
@@ -214,7 +214,7 @@ private extension AccountsSettingsView {
                     Text(account.displayName)
                         .amgiFont(.body)
                         .foregroundStyle(palette.textPrimary)
-                    Text("Created \(account.createdAt.formatted(date: .abbreviated, time: .omitted))")
+                    Text("Created \(account.createdAt.formatted(date: .abbreviated, time: .omitted))", bundle: .module)
                         .amgiFont(.caption)
                         .foregroundStyle(palette.textSecondary)
                 }
@@ -230,7 +230,7 @@ private extension AccountsSettingsView {
             Button(role: .destructive) {
                 destination = .confirmDelete(account)
             } label: {
-                Label("Delete", systemImage: "trash")
+                Label(String(localized: "Delete", bundle: .module), systemImage: "trash")
             }
             .disabled(account.id == store.selectedID || store.accounts.count <= 1)
         }

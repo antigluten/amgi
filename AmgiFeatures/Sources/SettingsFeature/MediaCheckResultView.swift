@@ -29,11 +29,11 @@ struct MediaCheckResultView: View {
                 contentList(result: result)
             } else {
                 ContentUnavailableView {
-                    Label("Media Check Unavailable", systemImage: "exclamationmark.triangle")
+                    Label(String(localized: "Media Check Unavailable", bundle: .module), systemImage: "exclamationmark.triangle")
                 } description: {
-                    Text(model.actionMessage ?? "Couldn't read the media database.")
+                    Text(model.actionMessage ?? String(localized: "Couldn't read the media database.", bundle: .module))
                 } actions: {
-                    Button("Try Again") { Task { await model.runMediaCheck() } }
+                    Button(String(localized: "Try Again", bundle: .module)) { Task { await model.runMediaCheck() } }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(palette.background)
@@ -41,27 +41,27 @@ struct MediaCheckResultView: View {
         }
         .scrollContentBackground(.hidden)
         .background(palette.background)
-        .navigationTitle("Media Check")
+        .navigationTitle(String(localized: "Media Check", bundle: .module))
         .navigationBarTitleDisplayMode(.inline)
         .alert(
-            Text(model.actionFailed ? "Couldn't update media" : "Media updated"),
+            Text(model.actionFailed ? "Couldn't update media" : "Media updated", bundle: .module),
             isPresented: $model.showActionAlert
         ) {
-            Button("OK", role: .cancel) {}
+            Button(String(localized: "OK", bundle: .module), role: .cancel) {}
         } message: {
             Text(model.actionMessage ?? "")
         }
         .confirmationDialog(
-            "Empty trash?",
+            String(localized: "Empty trash?", bundle: .module),
             isPresented: $showEmptyTrashConfirm,
             titleVisibility: .visible
         ) {
-            Button("Empty Trash", role: .destructive) {
+            Button(String(localized: "Empty Trash", bundle: .module), role: .destructive) {
                 Task { await model.emptyTrash() }
             }
-            Button("Cancel", role: .cancel) {}
+            Button(String(localized: "Cancel", bundle: .module), role: .cancel) {}
         } message: {
-            Text("Permanently deletes the trashed media files. They can't be restored afterwards.")
+            Text("Permanently deletes the trashed media files. They can't be restored afterwards.", bundle: .module)
         }
         .task { await model.runMediaCheck() }
     }
@@ -83,21 +83,21 @@ private extension MediaCheckResultView {
     func summarySection(result: MediaCheckResult) -> some View {
         Section {
             Label(
-                "\(result.missing.count) missing files",
+                String(localized: "\(result.missing.count) missing files", bundle: .module),
                 systemImage: "exclamationmark.triangle"
             )
             .amgiStatusText(result.missing.isEmpty ? .neutral : .danger)
             .listRowBackground(palette.surfaceElevated)
 
             Label(
-                "\(result.unused.count) unused files",
+                String(localized: "\(result.unused.count) unused files", bundle: .module),
                 systemImage: "archivebox"
             )
             .amgiStatusText(result.unused.isEmpty ? .neutral : .warning)
             .listRowBackground(palette.surfaceElevated)
 
             if !result.report.isEmpty {
-                DisclosureGroup("Full report") {
+                DisclosureGroup(String(localized: "Full report", bundle: .module)) {
                     Text(result.report)
                         .amgiFont(.caption)
                         .foregroundStyle(palette.textSecondary)
@@ -105,7 +105,7 @@ private extension MediaCheckResultView {
                 .listRowBackground(palette.surfaceElevated)
             }
         } header: {
-            SettingsListHeader("Summary")
+            SettingsListHeader(String(localized: "Summary", bundle: .module))
         }
     }
 
@@ -117,13 +117,13 @@ private extension MediaCheckResultView {
                     .listRowBackground(palette.surfaceElevated)
             }
             if result.missing.count > 200 {
-                Text("…and \(result.missing.count - 200) more")
+                Text("…and \(result.missing.count - 200) more", bundle: .module)
                     .amgiFont(.caption)
                     .foregroundStyle(palette.textSecondary)
                     .listRowBackground(palette.surfaceElevated)
             }
         } header: {
-            SettingsListHeader("Missing files")
+            SettingsListHeader(String(localized: "Missing files", bundle: .module))
         }
     }
 
@@ -135,13 +135,13 @@ private extension MediaCheckResultView {
                     .listRowBackground(palette.surfaceElevated)
             }
             if result.unused.count > 200 {
-                Text("…and \(result.unused.count - 200) more")
+                Text("…and \(result.unused.count - 200) more", bundle: .module)
                     .amgiFont(.caption)
                     .foregroundStyle(palette.textSecondary)
                     .listRowBackground(palette.surfaceElevated)
             }
         } header: {
-            SettingsListHeader("Unused files")
+            SettingsListHeader(String(localized: "Unused files", bundle: .module))
         }
     }
 
@@ -153,12 +153,12 @@ private extension MediaCheckResultView {
                 } label: {
                     if model.isTrashingUnused {
                         HStack {
-                            Text("Trash unused files")
+                            Text("Trash unused files", bundle: .module)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             ProgressView()
                         }
                     } else {
-                        Label("Trash unused files", systemImage: "trash")
+                        Label(String(localized: "Trash unused files", bundle: .module), systemImage: "trash")
                     }
                 }
                 .disabled(model.isTrashingUnused)
@@ -171,12 +171,12 @@ private extension MediaCheckResultView {
                 } label: {
                     if model.isDeletingTrash {
                         HStack {
-                            Text("Empty trash")
+                            Text("Empty trash", bundle: .module)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             ProgressView()
                         }
                     } else {
-                        Label("Empty trash…", systemImage: "trash.slash")
+                        Label(String(localized: "Empty trash…", bundle: .module), systemImage: "trash.slash")
                     }
                 }
                 .disabled(model.isDeletingTrash)
@@ -187,19 +187,19 @@ private extension MediaCheckResultView {
                 } label: {
                     if model.isRestoringTrash {
                         HStack {
-                            Text("Restore trash")
+                            Text("Restore trash", bundle: .module)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             ProgressView()
                         }
                     } else {
-                        Label("Restore trash", systemImage: "arrow.uturn.backward")
+                        Label(String(localized: "Restore trash", bundle: .module), systemImage: "arrow.uturn.backward")
                     }
                 }
                 .disabled(model.isRestoringTrash)
                 .listRowBackground(palette.surfaceElevated)
             }
         } header: {
-            SettingsListHeader("Actions")
+            SettingsListHeader(String(localized: "Actions", bundle: .module))
         }
     }
 

@@ -29,10 +29,10 @@ struct RatingBar: View {
 
     private var choices: [Choice] {
         [
-            Choice(rating: .again, label: "Again", key: "1"),
-            Choice(rating: .hard, label: "Hard", key: "2"),
-            Choice(rating: .good, label: "Good", key: "3"),
-            Choice(rating: .easy, label: "Easy", key: "4"),
+            Choice(rating: .again, label: String(localized: "Again", bundle: .module), key: "1"),
+            Choice(rating: .hard, label: String(localized: "Hard", bundle: .module), key: "2"),
+            Choice(rating: .good, label: String(localized: "Good", bundle: .module), key: "3"),
+            Choice(rating: .easy, label: String(localized: "Easy", bundle: .module), key: "4"),
         ]
     }
 
@@ -111,7 +111,7 @@ struct RatingBar: View {
         }
         .buttonStyle(.pressScale)
         .disabled(isDisabled)
-        .accessibilityLabel("\(label)\(showIntervals ? ", next in \(intervals[rating] ?? "")" : "")")
+        .accessibilityLabel("\(label)\(showIntervals ? String(localized: ", next in \(intervals[rating] ?? "")", bundle: .module) : "")")
     }
 }
 

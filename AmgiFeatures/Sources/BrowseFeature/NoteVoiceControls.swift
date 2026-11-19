@@ -30,7 +30,7 @@ struct NoteVoiceRecordButton: View {
                 }
                 .foregroundStyle(palette.danger)
             } else {
-                Label("Record", systemImage: "mic.fill")
+                Label(String(localized: "Record", bundle: .module), systemImage: "mic.fill")
                     .labelStyle(.iconOnly)
                     .foregroundStyle(palette.accent)
             }
@@ -38,7 +38,7 @@ struct NoteVoiceRecordButton: View {
         .buttonStyle(.borderless)
         .amgiFont(.body)
         .disabled(recorder.isStarting || (recorder.isRecording && !isRecordingHere))
-        .accessibilityLabel(isRecordingHere ? "Stop recording" : "Record voice")
+        .accessibilityLabel(isRecordingHere ? String(localized: "Stop recording", bundle: .module) : String(localized: "Record voice", bundle: .module))
     }
 }
 
@@ -58,7 +58,7 @@ struct NoteVoiceClipRow: View {
             .foregroundStyle(palette.accent)
             Spacer()
             Button(role: .destructive, action: onDelete) {
-                Label("Delete \(title)", systemImage: "trash")
+                Label(String(localized: "Delete \(title)", bundle: .module), systemImage: "trash")
                     .labelStyle(.iconOnly)
             }
             .buttonStyle(.borderless)

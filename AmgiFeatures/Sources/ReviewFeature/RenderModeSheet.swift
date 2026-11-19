@@ -15,17 +15,17 @@ import ReviewCore
 extension CardRenderEngine {
     package var displayName: String {
         switch self {
-        case .auto: "Auto"
-        case .alwaysNative: "Native"
+        case .auto: String(localized: "Auto", bundle: .module)
+        case .alwaysNative: String(localized: "Native", bundle: .module)
         case .alwaysHTML: "HTML"
         }
     }
 
     package var summary: String {
         switch self {
-        case .auto: "Use the built-in renderer for simple cards, and the card's own template for the rest."
-        case .alwaysNative: "Use the built-in renderer wherever the card allows it."
-        case .alwaysHTML: "Always use the card's own template."
+        case .auto: String(localized: "Use the built-in renderer for simple cards, and the card's own template for the rest.", bundle: .module)
+        case .alwaysNative: String(localized: "Use the built-in renderer wherever the card allows it.", bundle: .module)
+        case .alwaysHTML: String(localized: "Always use the card's own template.", bundle: .module)
         }
     }
 }
@@ -56,30 +56,30 @@ struct RenderModeSheet: View {
                         engineRow(engine)
                     }
                 } footer: {
-                    Text("This card: \(explainer)")
+                    Text("This card: \(explainer)", bundle: .module)
                 }
 
                 if let template {
                     Section {
-                        Picker("Override", selection: overrideBinding(for: template)) {
-                            Text("Default").tag(CardRenderEngine?.none)
-                            Text("Native").tag(CardRenderEngine?.some(.alwaysNative))
-                            Text("HTML").tag(CardRenderEngine?.some(.alwaysHTML))
+                        Picker(String(localized: "Override", bundle: .module), selection: overrideBinding(for: template)) {
+                            Text("Default", bundle: .module).tag(CardRenderEngine?.none)
+                            Text("Native", bundle: .module).tag(CardRenderEngine?.some(.alwaysNative))
+                            Text("HTML", bundle: .module).tag(CardRenderEngine?.some(.alwaysHTML))
                         }
                     } header: {
-                        Text(templateName.map { "Template · \($0)" } ?? "This template")
+                        Text(templateName.map { String(localized: "Template · \($0)", bundle: .module) } ?? String(localized: "This template", bundle: .module))
                     } footer: {
-                        Text("Overrides the global choice for every card of this template. Stored on this device only.")
+                        Text("Overrides the global choice for every card of this template. Stored on this device only.", bundle: .module)
                     }
                 }
             }
-            .navigationTitle("Card Rendering")
+            .navigationTitle(String(localized: "Card Rendering", bundle: .module))
             .navigationBarTitleDisplayMode(.inline)
             .onChange(of: engineRaw) { _, _ in onChanged() }
             .onChange(of: overridesRaw) { _, _ in onChanged() }
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
+                    Button(String(localized: "Done", bundle: .module)) { dismiss() }
                 }
             }
         }

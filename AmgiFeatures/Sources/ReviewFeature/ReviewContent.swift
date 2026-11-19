@@ -89,7 +89,7 @@ struct ReviewContent: View {
                     } label: {
                         Image(systemName: "xmark")
                     }
-                    .accessibilityLabel("Close")
+                    .accessibilityLabel(String(localized: "Close", bundle: .module))
                 }
                 ToolbarItem(placement: .principal) {
                     ReviewDeckTitle(session: session)
@@ -160,7 +160,7 @@ struct ReviewContent: View {
             } label: {
                 Image(systemName: "xmark")
             }
-            .accessibilityLabel("Close")
+            .accessibilityLabel(String(localized: "Close", bundle: .module))
 
             Spacer()
             ReviewDeckTitle(session: session)
@@ -301,8 +301,8 @@ private extension ReviewSession.StudyNotice {
     /// least one.
     var caption: String {
         cardsTakenOutOfStudyCount == 1
-            ? "Card taken out of study"
-            : "\(cardsTakenOutOfStudyCount) cards taken out of study"
+            ? String(localized: "Card taken out of study", bundle: .module)
+            : String(localized: "\(cardsTakenOutOfStudyCount) cards taken out of study", bundle: .module)
     }
 }
 
@@ -336,7 +336,7 @@ private struct ReviewPositionCounter: View {
             .foregroundStyle(palette.textSecondary)
             .contentTransition(.numericText())
             .animation(AmgiMotion.quick, value: position)
-            .accessibilityLabel("Card \(position) of \(total)")
+            .accessibilityLabel(String(localized: "Card \(position) of \(total)", bundle: .module))
     }
 }
 
@@ -352,7 +352,7 @@ private struct ReviewUndoButton: View {
         }
         .disabled(!session.canUndo)
         .keyboardShortcut(shortcutEnabled ? KeyboardShortcut("z", modifiers: .command) : nil)
-        .accessibilityLabel("Undo")
+        .accessibilityLabel(String(localized: "Undo", bundle: .module))
     }
 }
 
@@ -380,14 +380,14 @@ private struct CardActionsMenu: View {
                 Button {
                     destination = session.currentNote.map(ReviewDestination.editNote)
                 } label: {
-                    Label("Edit Note", systemImage: "pencil")
+                    Label(String(localized: "Edit Note", bundle: .module), systemImage: "pencil")
                 }
                 .disabled(session.currentNote == nil)
 
                 Button {
                     destination = session.currentTemplateTarget.map(ReviewDestination.editTemplate)
                 } label: {
-                    Label("Edit Template", systemImage: "square.and.pencil")
+                    Label(String(localized: "Edit Template", bundle: .module), systemImage: "square.and.pencil")
                 }
                 .disabled(session.currentTemplateTarget == nil)
 
@@ -397,7 +397,7 @@ private struct CardActionsMenu: View {
                     // the query is pre-populated.
                     destination = .lookup("")
                 } label: {
-                    Label("Look Up", systemImage: "character.book.closed")
+                    Label(String(localized: "Look Up", bundle: .module), systemImage: "character.book.closed")
                 }
 
                 Button {
@@ -408,7 +408,7 @@ private struct CardActionsMenu: View {
                     }
                 } label: {
                     Label(
-                        session.isAudioPlaying ? "Stop Audio" : "Replay Audio",
+                        session.isAudioPlaying ? String(localized: "Stop Audio", bundle: .module) : String(localized: "Replay Audio", bundle: .module),
                         systemImage: session.isAudioPlaying ? "pause.circle" : "play.circle"
                     )
                 }
@@ -432,7 +432,7 @@ private struct CardActionsMenu: View {
                         : CardFlag.color(cardActions.currentFlag)
                 )
         }
-        .accessibilityLabel("Card actions")
+        .accessibilityLabel(String(localized: "Card actions", bundle: .module))
     }
 }
 
@@ -467,11 +467,11 @@ private struct ReviewStartFailureView: View {
 
     var body: some View {
         ContentUnavailableView {
-            Label("Couldn't Start Reviewing", systemImage: "exclamationmark.triangle")
+            Label(String(localized: "Couldn't Start Reviewing", bundle: .module), systemImage: "exclamationmark.triangle")
         } description: {
             Text(message)
         } actions: {
-            Button("Try Again", action: onRetry)
+            Button(String(localized: "Try Again", bundle: .module), action: onRetry)
                 .buttonStyle(AmgiPrimaryButtonStyle())
         }
     }
@@ -491,19 +491,19 @@ private struct ReviewFinishedView: View {
                 .font(.system(size: glyphSize))
                 .foregroundStyle(palette.positive)
                 .accessibilityHidden(true)   // "Congratulations!" below says it
-            Text("Congratulations!")
+            Text("Congratulations!", bundle: .module)
                 .amgiFont(.sectionHeading)
                 .foregroundStyle(palette.textPrimary)
-            Text("You've reviewed \(session.sessionStats.reviewed) cards")
+            Text("You've reviewed \(session.sessionStats.reviewed) cards", bundle: .module)
                 .amgiFont(.body)
                 .foregroundStyle(palette.textSecondary)
             if session.sessionStats.reviewed > 0 {
-                Text("Accuracy: \(Int(session.sessionStats.accuracy * 100))%")
+                Text("Accuracy: \(Int(session.sessionStats.accuracy * 100))%", bundle: .module)
                     .amgiFont(.body)
                     .foregroundStyle(palette.textSecondary)
             }
             Spacer()
-            Button("Done", action: onDone)
+            Button(String(localized: "Done", bundle: .module), action: onDone)
                 .buttonStyle(AmgiPrimaryButtonStyle())
                 .padding()
         }

@@ -60,7 +60,7 @@ struct BackupView: View {
         }
         .scrollContentBackground(.hidden)
         .background(palette.background)
-        .navigationTitle("Backups")
+        .navigationTitle(String(localized: "Backups", bundle: .module))
         .navigationBarTitleDisplayMode(.inline)
         .modifier(BackupAlerts(destination: $destination, onDelete: deleteBackup))
         .task { loadBackups() }
@@ -73,7 +73,7 @@ struct BackupView: View {
             } label: {
                 HStack(spacing: AmgiSpacing.md) {
                     SettingsIconTile(systemImage: "externaldrive.badge.plus", tone: .accent)
-                    Text(isCreating ? "Creating backup…" : "Create backup now")
+                    Text(isCreating ? "Creating backup…" : "Create backup now", bundle: .module)
                         .amgiFont(.body)
                         .foregroundStyle(palette.textPrimary)
                     Spacer(minLength: AmgiSpacing.sm)
@@ -83,7 +83,7 @@ struct BackupView: View {
             .disabled(isCreating)
             .listRowBackground(palette.surfaceElevated)
         } footer: {
-            Text("Backups live in this device's Documents folder for the current profile. Use Share to copy a backup to Files, iCloud Drive, or another device.")
+            Text("Backups live in this device's Documents folder for the current profile. Use Share to copy a backup to Files, iCloud Drive, or another device.", bundle: .module)
                 .amgiFont(.caption)
                 .foregroundStyle(palette.textSecondary)
         }
@@ -91,7 +91,7 @@ struct BackupView: View {
 
     private var emptySection: some View {
         Section {
-            Text("No backups yet. Use “Create backup now” above to make one.")
+            Text("No backups yet. Use “Create backup now” above to make one.", bundle: .module)
                 .amgiFont(.body)
                 .foregroundStyle(palette.textSecondary)
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -109,12 +109,12 @@ struct BackupView: View {
                         Button(role: .destructive) {
                             destination = .confirmDelete(entry)
                         } label: {
-                            Label("Delete", systemImage: "trash")
+                            Label(String(localized: "Delete", bundle: .module), systemImage: "trash")
                         }
                     }
             }
         } header: {
-            SettingsListHeader("Available backups")
+            SettingsListHeader(String(localized: "Available backups", bundle: .module))
         }
     }
 
@@ -165,7 +165,7 @@ private extension BackupView {
                 throw NSError(
                     domain: "BackupView",
                     code: -1,
-                    userInfo: [NSLocalizedDescriptionKey: "Cannot access backup directory."]
+                    userInfo: [NSLocalizedDescriptionKey: String(localized: "Cannot access backup directory.", bundle: .module)]
                 )
             }
             let formatter = DateFormatter()
@@ -184,7 +184,7 @@ private extension BackupView {
                 try service.exportCollectionPackage(outPath, true)
             }
             loadBackups()
-            destination = .success("Saved \(destURL.lastPathComponent).")
+            destination = .success(String(localized: "Saved \(destURL.lastPathComponent).", bundle: .module))
         } catch {
             destination = .failure(error.localizedDescription)
         }
@@ -219,7 +219,7 @@ private struct BackupRow: View {
                     .foregroundStyle(accent)
             }
             .buttonStyle(.plain)
-            .accessibilityLabel("Share backup from \(entry.formattedDate)")
+            .accessibilityLabel(String(localized: "Share backup from \(entry.formattedDate)", bundle: .module))
         }
     }
 }
@@ -246,23 +246,23 @@ private struct BackupAlerts: ViewModifier {
     func body(content: Content) -> some View {
         content
             .confirmationDialog(
-                "Delete backup?",
+                String(localized: "Delete backup?", bundle: .module),
                 isPresented: Binding($destination.confirmDelete),
                 titleVisibility: .visible,
                 presenting: pendingDelete
             ) { entry in
-                Button("Delete", role: .destructive) { onDelete(entry) }
-                Button("Cancel", role: .cancel) {}
+                Button(String(localized: "Delete", bundle: .module), role: .destructive) { onDelete(entry) }
+                Button(String(localized: "Cancel", bundle: .module), role: .cancel) {}
             } message: { entry in
-                Text("Delete the backup from \(entry.formattedDate)?")
+                Text("Delete the backup from \(entry.formattedDate)?", bundle: .module)
             }
-            .alert("Backup saved", isPresented: Binding($destination.success)) {
-                Button("OK", role: .cancel) {}
+            .alert(String(localized: "Backup saved", bundle: .module), isPresented: Binding($destination.success)) {
+                Button(String(localized: "OK", bundle: .module), role: .cancel) {}
             } message: {
                 Text(successMessage ?? "")
             }
-            .alert("Couldn't create backup", isPresented: Binding($destination.failure)) {
-                Button("OK", role: .cancel) {}
+            .alert(String(localized: "Couldn't create backup", bundle: .module), isPresented: Binding($destination.failure)) {
+                Button(String(localized: "OK", bundle: .module), role: .cancel) {}
             } message: {
                 Text(failureMessage ?? "")
             }

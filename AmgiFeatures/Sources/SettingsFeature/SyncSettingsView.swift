@@ -31,7 +31,7 @@ struct SyncSettingsView: View {
                 disabledSection
             }
         }
-        .navigationTitle("Sync Server")
+        .navigationTitle(String(localized: "Sync Server", bundle: .module))
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showServerSetup) {
             ServerSetupView {
@@ -41,24 +41,24 @@ struct SyncSettingsView: View {
             }
         }
         .confirmationDialog(
-            "Disable Sync?",
+            String(localized: "Disable Sync?", bundle: .module),
             isPresented: $showDisableConfirm,
             titleVisibility: .visible
         ) {
-            Button("Disable", role: .destructive) { disableSync() }
-            Button("Cancel", role: .cancel) {}
+            Button(String(localized: "Disable", bundle: .module), role: .destructive) { disableSync() }
+            Button(String(localized: "Cancel", bundle: .module), role: .cancel) {}
         } message: {
-            Text("Removes the server, credentials, and switches the app to local-only mode.")
+            Text("Removes the server, credentials, and switches the app to local-only mode.", bundle: .module)
         }
         .confirmationDialog(
-            "Log out?",
+            String(localized: "Log out?", bundle: .module),
             isPresented: $showLogoutConfirm,
             titleVisibility: .visible
         ) {
-            Button("Log Out", role: .destructive) { logout() }
-            Button("Cancel", role: .cancel) {}
+            Button(String(localized: "Log Out", bundle: .module), role: .destructive) { logout() }
+            Button(String(localized: "Cancel", bundle: .module), role: .cancel) {}
         } message: {
-            Text("Removes the stored credentials for this server. Your local collection is unaffected; you can sign in again at any time.")
+            Text("Removes the stored credentials for this server. Your local collection is unaffected; you can sign in again at any time.", bundle: .module)
         }
     }
 
@@ -73,7 +73,7 @@ struct SyncSettingsView: View {
         }
         .padding(.top, AmgiSpacing.lg)
 
-        SettingsSectionHeader(title: "Server")
+        SettingsSectionHeader(title: String(localized: "Server", bundle: .module))
         SettingsGroup {
             SettingsValueRow(
                 title: "URL",
@@ -84,28 +84,28 @@ struct SyncSettingsView: View {
             )
         }
 
-        SettingsSectionHeader(title: "Account")
+        SettingsSectionHeader(title: String(localized: "Account", bundle: .module))
         SettingsGroup {
             SettingsValueRow(
-                title: "Username",
-                value: username ?? "Not signed in",
+                title: String(localized: "Username", bundle: .module),
+                value: username ?? String(localized: "Not signed in", bundle: .module),
                 systemImage: "person.crop.circle",
                 tone: .accent,
                 isMuted: username == nil
             )
             SettingsSeparator()
             SettingsValueRow(
-                title: "Credentials",
-                value: isLoggedIn ? "Stored" : "Not signed in",
+                title: String(localized: "Credentials", bundle: .module),
+                value: isLoggedIn ? String(localized: "Stored", bundle: .module) : String(localized: "Not signed in", bundle: .module),
                 systemImage: "key",
                 tone: .neutral
             )
         }
 
-        SettingsSectionHeader(title: "Actions")
+        SettingsSectionHeader(title: String(localized: "Actions", bundle: .module))
         SettingsGroup {
             SettingsButtonRow(
-                title: "Change Server…",
+                title: String(localized: "Change Server…", bundle: .module),
                 systemImage: "arrow.triangle.2.circlepath",
                 tone: .info
             ) {
@@ -113,7 +113,7 @@ struct SyncSettingsView: View {
             }
             SettingsSeparator()
             SettingsButtonRow(
-                title: "Log Out…",
+                title: String(localized: "Log Out…", bundle: .module),
                 systemImage: "rectangle.portrait.and.arrow.right",
                 tone: .danger,
                 isDestructive: true
@@ -125,7 +125,7 @@ struct SyncSettingsView: View {
 
         SettingsGroup {
             SettingsButtonRow(
-                title: "Disable Sync (Local Only)…",
+                title: String(localized: "Disable Sync (Local Only)…", bundle: .module),
                 systemImage: "iphone.slash",
                 tone: .danger,
                 isDestructive: true
@@ -134,7 +134,7 @@ struct SyncSettingsView: View {
             }
         }
         .padding(.top, AmgiSpacing.lg)
-        SettingsFootnote("Stops syncing. Your local collection is unaffected.")
+        SettingsFootnote(String(localized: "Stops syncing. Your local collection is unaffected.", bundle: .module))
     }
 
     // MARK: - Not configured
@@ -143,14 +143,14 @@ struct SyncSettingsView: View {
     private var disabledSection: some View {
         SettingsGroup {
             SettingsValueRow(
-                title: "Sync",
-                value: "Disabled",
+                title: String(localized: "Sync", bundle: .module),
+                value: String(localized: "Disabled", bundle: .module),
                 systemImage: "iphone",
                 tone: .neutral
             )
             SettingsSeparator()
             SettingsButtonRow(
-                title: "Set Up Server…",
+                title: String(localized: "Set Up Server…", bundle: .module),
                 systemImage: "arrow.triangle.2.circlepath",
                 tone: .accent
             ) {
@@ -158,7 +158,7 @@ struct SyncSettingsView: View {
             }
         }
         .padding(.top, AmgiSpacing.lg)
-        SettingsFootnote("Amgi works fully offline. Add a server only if you want to sync with AnkiWeb or a self-hosted instance.")
+        SettingsFootnote(String(localized: "Amgi works fully offline. Add a server only if you want to sync with AnkiWeb or a self-hosted instance.", bundle: .module))
     }
 }
 
@@ -192,14 +192,14 @@ private struct ServerSetupView: View {
     var body: some View {
         NavigationStack {
             SettingsPage {
-                SettingsSectionHeader(title: "Sync Server URL")
+                SettingsSectionHeader(title: String(localized: "Sync Server URL", bundle: .module))
                 SettingsGroup {
                     TextField(
-                        "Sync server URL",
+                        String(localized: "Sync server URL", bundle: .module),
                         text: $url,
                         // Explicit prompt: the default placeholder picks up
                         // the tint and renders accent-blue inside the group.
-                        prompt: Text("https://sync.example.com")
+                        prompt: Text("https://sync.example.com", bundle: .module)
                             .foregroundStyle(palette.textTertiary)
                     )
                         .amgiFont(.body)
@@ -212,11 +212,11 @@ private struct ServerSetupView: View {
                         .padding(.vertical, AmgiSpacing.md)
                         .frame(minHeight: 44)
                 }
-                SettingsFootnote(endpointError ?? "Enter the URL of your Anki-compatible sync server.")
+                SettingsFootnote(endpointError ?? String(localized: "Enter the URL of your Anki-compatible sync server.", bundle: .module))
 
                 SettingsGroup {
                     SettingsButtonRow(
-                        title: "Save",
+                        title: String(localized: "Save", bundle: .module),
                         systemImage: "checkmark",
                         tone: .accent,
                         action: save
@@ -225,11 +225,11 @@ private struct ServerSetupView: View {
                 }
                 .padding(.top, AmgiSpacing.lg)
             }
-            .navigationTitle("Sync Server")
+            .navigationTitle(String(localized: "Sync Server", bundle: .module))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button(String(localized: "Cancel", bundle: .module)) { dismiss() }
                 }
             }
         }

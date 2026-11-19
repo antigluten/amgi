@@ -66,7 +66,7 @@ package struct DeckListView: View {
             onCreateDeck: { showCreateSheet = true }
         )
         .equatable()
-        .navigationTitle("Library")
+        .navigationTitle(String(localized: "Library", bundle: .module))
         .navigationDestination(item: $pendingDeck) { deck in
             DeckDetailView(deck: deck)
         }
@@ -97,11 +97,11 @@ package struct DeckListView: View {
             }
         }
         ToolbarItem(placement: .primaryAction) {
-            Button("Sync", systemImage: "arrow.triangle.2.circlepath", action: onSync)
+            Button(String(localized: "Sync", bundle: .module), systemImage: "arrow.triangle.2.circlepath", action: onSync)
                 .keyboardShortcut("r", modifiers: .command)
         }
         ToolbarItem(placement: .primaryAction) {
-            Button("New Deck", systemImage: "plus") {
+            Button(String(localized: "New Deck", bundle: .module), systemImage: "plus") {
                 showCreateSheet = true
             }
             .keyboardShortcut("n", modifiers: .command)
@@ -112,14 +112,14 @@ package struct DeckListView: View {
                 Button {
                     showBrowse = true
                 } label: {
-                    Label("Browse Notes", systemImage: "doc.text")
+                    Label(String(localized: "Browse Notes", bundle: .module), systemImage: "doc.text")
                 }
                 #endif
                 Button(action: onImport) {
-                    Label("Import Deck…", systemImage: "square.and.arrow.down")
+                    Label(String(localized: "Import Deck…", bundle: .module), systemImage: "square.and.arrow.down")
                 }
             } label: {
-                Label("More", systemImage: "ellipsis")
+                Label(String(localized: "More", bundle: .module), systemImage: "ellipsis")
             }
         }
     }

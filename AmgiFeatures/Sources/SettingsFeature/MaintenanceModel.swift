@@ -37,10 +37,10 @@ final class MaintenanceModel {
             let service = collectionService
             let problems = try await backendOffload { try service.checkDatabase() }
             statusMessage = problems.isEmpty
-                ? "Database check passed"
-                : "Database check completed:\n" + problems.joined(separator: "\n")
+                ? String(localized: "Database check passed", bundle: .module)
+                : String(localized: "Database check completed:\n", bundle: .module) + problems.joined(separator: "\n")
         } catch {
-            statusMessage = "Database check error: \(error.localizedDescription)"
+            statusMessage = String(localized: "Database check error: \(error.localizedDescription)", bundle: .module)
         }
     }
 
@@ -65,13 +65,13 @@ final class MaintenanceModel {
         WordSpotlightController.shared.reset(profileID: profileID)
         do {
             try FileManager.default.removeItem(at: profileDirectory)
-            statusMessage = "Reset complete. Please restart the app."
+            statusMessage = String(localized: "Reset complete. Please restart the app.", bundle: .module)
         } catch CocoaError.fileNoSuchFile {
-            statusMessage = "Reset complete. Please restart the app."
+            statusMessage = String(localized: "Reset complete. Please restart the app.", bundle: .module)
         } catch {
             // Reporting success on a failed delete left the user believing
             // their data was gone when it was not.
-            statusMessage = "Reset failed: \(error.localizedDescription)"
+            statusMessage = String(localized: "Reset failed: \(error.localizedDescription)", bundle: .module)
         }
     }
 }

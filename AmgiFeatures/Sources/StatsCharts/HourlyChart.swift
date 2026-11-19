@@ -65,19 +65,19 @@ public struct HourlyChart: View {
             contentInsets: EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
         ) {
             VStack(alignment: .leading, spacing: AmgiSpacing.sm) {
-                Text("Hourly Breakdown").amgiFont(.bodyEmphasis)
+                Text("Hourly Breakdown", bundle: .module).amgiFont(.bodyEmphasis)
 
                 if entries.allSatisfy({ $0.total == 0 }) {
-                    Text("No review data").foregroundStyle(palette.textSecondary).frame(height: chartsHeight)
+                    Text("No review data", bundle: .module).foregroundStyle(palette.textSecondary).frame(height: chartsHeight)
                 } else {
                     Chart(entries) { entry in
                         BarMark(
-                            x: .value("Hour", entry.hour),
-                            y: .value("Reviews", entry.total)
+                            x: .value(String(localized: "Hour", bundle: .module), entry.hour),
+                            y: .value(String(localized: "Reviews", bundle: .module), entry.total)
                         )
                         .foregroundStyle(palette.accent.gradient)
                         .accessibilityLabel(formatHour(entry.hour))
-                        .accessibilityValue(ChartSpeech.count(entry.total, "review"))
+                        .accessibilityValue(ChartSpeech.count(entry.total, .review))
                     }
                     .chartXAxis {
                         AxisMarks(values: hourTicks) { value in
@@ -93,17 +93,17 @@ public struct HourlyChart: View {
 
                     Chart(entries) { entry in
                         LineMark(
-                            x: .value("Hour", entry.hour),
-                            y: .value("Correct %", entry.correctPct)
+                            x: .value(String(localized: "Hour", bundle: .module), entry.hour),
+                            y: .value(String(localized: "Correct %", bundle: .module), entry.correctPct)
                         )
                         .foregroundStyle(palette.positive)
                         .interpolationMethod(.catmullRom)
                         .accessibilityLabel(formatHour(entry.hour))
-                        .accessibilityValue("\(ChartSpeech.percent(entry.correctPct)) correct")
+                        .accessibilityValue(String(localized: "\(ChartSpeech.percent(entry.correctPct)) correct", bundle: .module))
 
                         AreaMark(
-                            x: .value("Hour", entry.hour),
-                            y: .value("Correct %", entry.correctPct)
+                            x: .value(String(localized: "Hour", bundle: .module), entry.hour),
+                            y: .value(String(localized: "Correct %", bundle: .module), entry.correctPct)
                         )
                         .foregroundStyle(palette.positive.opacity(0.1))
                         .interpolationMethod(.catmullRom)
@@ -118,7 +118,7 @@ public struct HourlyChart: View {
                     }
                     .chartXScale(domain: 0...23)
                     .chartYScale(domain: 0...100)
-                    .chartYAxisLabel("Correct %")
+                    .chartYAxisLabel(String(localized: "Correct %", bundle: .module))
                     .dynamicTypeSize(...DynamicTypeSize.accessibility3)
                     .frame(height: cappedAccuracyHeight)
                 }

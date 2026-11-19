@@ -55,34 +55,34 @@ package struct TagsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    Button("Add Tag", systemImage: "plus") { destination = .addTag("") }
+                    Button(String(localized: "Add Tag", bundle: .module), systemImage: "plus") { destination = .addTag("") }
                 }
                 if !isNoteMode {
                     ToolbarItem(placement: .primaryAction) {
                         Menu {
-                            Button("Clear Unused Tags", systemImage: "sparkles") {
+                            Button(String(localized: "Clear Unused Tags", bundle: .module), systemImage: "sparkles") {
                                 Task { await model.clearUnusedTags() }
                             }
                             .disabled(model.isDeleting)
                         } label: {
-                            Label("More", systemImage: "ellipsis")
+                            Label(String(localized: "More", bundle: .module), systemImage: "ellipsis")
                         }
                     }
                 }
             }
             .alert(
-                "Unused Tags Cleared",
+                String(localized: "Unused Tags Cleared", bundle: .module),
                 isPresented: Binding(
                     get: { model.lastCleanupCount != nil },
                     set: { if !$0 { model.lastCleanupCount = nil } }
                 ),
                 presenting: model.lastCleanupCount
             ) { _ in
-                Button("OK") { model.lastCleanupCount = nil }
+                Button(String(localized: "OK", bundle: .module)) { model.lastCleanupCount = nil }
             } message: { count in
                 Text(count == 0
                     ? "Every tag in your collection is still in use."
-                    : "Removed \(count) tag\(count == 1 ? "" : "s") that no note was using.")
+                    : "Removed \(count) tags that no note was using.", bundle: .module)
             }
     }
 
@@ -93,11 +93,11 @@ package struct TagsView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if model.allTags.isEmpty {
             ContentUnavailableView(
-                "No Tags",
+                String(localized: "No Tags", bundle: .module),
                 systemImage: "tag.slash",
                 description: Text(isNoteMode
                     ? "These notes don't have any tags."
-                    : "Your collection has no tags yet.")
+                    : "Your collection has no tags yet.", bundle: .module)
             )
         } else {
             tagListContent
@@ -108,9 +108,9 @@ package struct TagsView: View {
 
     private var navigationTitle: String {
         switch noteMode {
-        case .addToNotes: return "Add Tag"
-        case .removeFromNotes: return "Remove Tag"
-        case .manage: return isNoteMode ? "Tags on Notes" : "Tags"
+        case .addToNotes: return String(localized: "Add Tag", bundle: .module)
+        case .removeFromNotes: return String(localized: "Remove Tag", bundle: .module)
+        case .manage: return isNoteMode ? String(localized: "Tags on Notes", bundle: .module) : String(localized: "Tags", bundle: .module)
         }
     }
 
@@ -120,13 +120,13 @@ package struct TagsView: View {
         List {
             if isNoteMode {
                 Section {
-                    Label("Tap a tag to act on \(targetNoteIDs.count) selected note\(targetNoteIDs.count == 1 ? "" : "s")", systemImage: "doc.text")
+                    Label(String(localized: "Tap a tag to act on \(targetNoteIDs.count) selected notes", bundle: .module), systemImage: "doc.text")
                         .amgiFont(.caption)
                         .foregroundStyle(palette.textSecondary)
                 }
             }
 
-            Section(isNoteMode ? "Available Tags" : "All Tags") {
+            Section(isNoteMode ? String(localized: "Available Tags", bundle: .module) : String(localized: "All Tags", bundle: .module)) {
                 ForEach(model.allTags, id: \.self) { tag in
                     tagRow(tag)
                 }
@@ -145,37 +145,37 @@ package struct TagsView: View {
                 addTagSheet
             }
             .confirmationDialog(
-                "Delete Tag?",
+                String(localized: "Delete Tag?", bundle: .module),
                 isPresented: Binding($destination.deleteTag),
                 titleVisibility: .visible,
                 presenting: pendingDeleteTag
             ) { tag in
-                Button("Delete", role: .destructive) {
+                Button(String(localized: "Delete", bundle: .module), role: .destructive) {
                     Task { await deleteTag(tag) }
                 }
-                Button("Cancel", role: .cancel) {}
+                Button(String(localized: "Cancel", bundle: .module), role: .cancel) {}
             } message: { tag in
-                Text("Delete \"\(tag)\"? This will remove it from all notes.")
+                Text("Delete \"\(tag)\"? This will remove it from all notes.", bundle: .module)
             }
             .alert(
-                "Rename Tag",
+                String(localized: "Rename Tag", bundle: .module),
                 isPresented: Binding($destination.renameTag),
                 presenting: pendingRename
             ) { rename in
-                TextField("New name", text: renameNameBinding)
+                TextField(String(localized: "New name", bundle: .module), text: renameNameBinding)
                     .autocorrectionDisabled()
                     .textInputAutocapitalization(.never)
-                Button("Cancel", role: .cancel) {}
-                Button("Rename") {
+                Button(String(localized: "Cancel", bundle: .module), role: .cancel) {}
+                Button(String(localized: "Rename", bundle: .module)) {
                     Task { await renameTagAction(from: rename.original, to: renameNameBinding.wrappedValue) }
                 }
             } message: { rename in
-                Text("Enter a new name for \"\(rename.original)\". It will be updated on all notes that use it.")
+                Text("Enter a new name for \"\(rename.original)\". It will be updated on all notes that use it.", bundle: .module)
             }
-            .alert("Couldn't update tags", isPresented: Binding($model.errorMessage)) {
-                Button("OK") {}
+            .alert(String(localized: "Couldn't update tags", bundle: .module), isPresented: Binding($model.errorMessage)) {
+                Button(String(localized: "OK", bundle: .module)) {}
             } message: {
-                Text(model.errorMessage ?? "An unknown error occurred.")
+                Text(model.errorMessage ?? String(localized: "An unknown error occurred.", bundle: .module))
             }
             .confirmationDialog(
                 pendingNoteActionTag ?? "",
@@ -183,13 +183,13 @@ package struct TagsView: View {
                 titleVisibility: .visible,
                 presenting: pendingNoteActionTag
             ) { tag in
-                Button("Apply to \(targetNoteIDs.count) note\(targetNoteIDs.count == 1 ? "" : "s")") {
+                Button(String(localized: "Apply to \(targetNoteIDs.count) notes", bundle: .module)) {
                     Task { await applyTag(tag) }
                 }
-                Button("Remove from \(targetNoteIDs.count) note\(targetNoteIDs.count == 1 ? "" : "s")", role: .destructive) {
+                Button(String(localized: "Remove from \(targetNoteIDs.count) notes", bundle: .module), role: .destructive) {
                     Task { await removeTagFromSelectedNotes(tag) }
                 }
-                Button("Cancel", role: .cancel) {}
+                Button(String(localized: "Cancel", bundle: .module), role: .cancel) {}
             }
     }
 
@@ -232,30 +232,30 @@ package struct TagsView: View {
         NavigationStack {
             Form {
                 if isNoteMode {
-                    Section("Selected Notes") {
-                        Text("The new tag will be applied to \(targetNoteIDs.count) selected note\(targetNoteIDs.count == 1 ? "" : "s").")
+                    Section(String(localized: "Selected Notes", bundle: .module)) {
+                        Text("The new tag will be applied to \(targetNoteIDs.count) selected notes.", bundle: .module)
                             .amgiFont(.caption)
                             .foregroundStyle(palette.textSecondary)
                     }
                 }
-                Section("Tag Name") {
-                    TextField("e.g. anatomy::heart", text: newTagNameBinding)
+                Section(String(localized: "Tag Name", bundle: .module)) {
+                    TextField(String(localized: "e.g. anatomy::heart", bundle: .module), text: newTagNameBinding)
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
                 }
                 Section {
-                    Button(isNoteMode ? "Create & Apply" : "Create Tag") {
+                    Button(isNoteMode ? String(localized: "Create & Apply", bundle: .module) : String(localized: "Create Tag", bundle: .module)) {
                         Task { await createTag() }
                     }
                 }
             }
             .scrollContentBackground(.hidden)
             .background(palette.background)
-            .navigationTitle("New Tag")
+            .navigationTitle(String(localized: "New Tag", bundle: .module))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { destination = nil }
+                    Button(String(localized: "Cancel", bundle: .module)) { destination = nil }
                 }
             }
         }
@@ -300,27 +300,27 @@ private extension TagsView {
                 Button {
                     Task { await removeTagFromSelectedNotes(tag) }
                 } label: {
-                    Label("Remove", systemImage: "tag.slash")
+                    Label(String(localized: "Remove", bundle: .module), systemImage: "tag.slash")
                 }
                 .tint(palette.warning)
 
                 Button {
                     Task { await applyTag(tag) }
                 } label: {
-                    Label("Apply", systemImage: "tag")
+                    Label(String(localized: "Apply", bundle: .module), systemImage: "tag")
                 }
                 .tint(palette.accent)
             } else {
                 Button(role: .destructive) {
                     destination = .deleteTag(tag)
                 } label: {
-                    Label("Delete", systemImage: "trash")
+                    Label(String(localized: "Delete", bundle: .module), systemImage: "trash")
                 }
 
                 Button {
                     destination = .renameTag(TagRename(original: tag))
                 } label: {
-                    Label("Rename", systemImage: "pencil")
+                    Label(String(localized: "Rename", bundle: .module), systemImage: "pencil")
                 }
                 .tint(palette.accent)
             }

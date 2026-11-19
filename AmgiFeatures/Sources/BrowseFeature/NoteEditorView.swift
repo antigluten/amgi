@@ -26,11 +26,11 @@ package struct NoteEditorView: View {
 
     package var body: some View {
         NoteEditorContent(model: model)
-            .navigationTitle("Edit Note")
+            .navigationTitle(String(localized: "Edit Note", bundle: .module))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
+                    Button(String(localized: "Save", bundle: .module)) {
                         savedToastTask = Task {
                             if await model.save() {
                                 withAnimation(AmgiMotion.momentum) { showSavedConfirmation = true }
@@ -58,14 +58,14 @@ package struct NoteEditorView: View {
             VStack {
                 Spacer()
                 Button { savedToastTask?.cancel() } label: {
-                    Text("Saved")
+                    Text("Saved", bundle: .module)
                         .amgiFont(.bodyEmphasis)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
                         .amgiMaterial(.light, in: Capsule())
                 }
                 .buttonStyle(.pressScale)
-                .accessibilityHint("Dismisses this message")
+                .accessibilityHint(String(localized: "Dismisses this message", bundle: .module))
                 .padding(.bottom, 32)
             }
             .transition(AmgiMotion.slide(from: .bottom))
@@ -84,7 +84,7 @@ struct NoteEditorContent: View {
 
     var body: some View {
         Form {
-            Section("Fields") {
+            Section(String(localized: "Fields", bundle: .module)) {
                 ForEach(Array(model.fieldNames.enumerated()), id: \.element) { index, name in
                     VStack(alignment: .leading, spacing: 4) {
                         Text(name)
@@ -95,8 +95,8 @@ struct NoteEditorContent: View {
                 }
             }
 
-            Section("Tags") {
-                TextField("Tags (space-separated)", text: $model.tags)
+            Section(String(localized: "Tags", bundle: .module)) {
+                TextField(String(localized: "Tags (space-separated)", bundle: .module), text: $model.tags)
                     .autocorrectionDisabled()
                     .textInputAutocapitalization(.never)
             }

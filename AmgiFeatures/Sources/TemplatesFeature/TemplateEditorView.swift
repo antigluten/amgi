@@ -70,7 +70,7 @@ package struct TemplateEditorView: View {
 
     private var currentTemplateName: String {
         guard model.notetype.templates.indices.contains(model.selectedTemplateIndex) else {
-            return "No template selected."
+            return String(localized: "No template selected.", bundle: .module)
         }
         return model.notetype.templates[model.selectedTemplateIndex].name
     }
@@ -115,7 +115,7 @@ package struct TemplateEditorView: View {
             ProgressView()
         } else if let errorMessage = model.errorMessage {
             AmgiStatusMessageView(
-                title: "Could not load templates",
+                title: String(localized: "Could not load templates", bundle: .module),
                 message: errorMessage,
                 systemImage: "exclamationmark.triangle",
                 tone: .warning
@@ -128,11 +128,11 @@ package struct TemplateEditorView: View {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .cancellationAction) {
-            Button("Cancel") { attemptDismiss() }
+            Button(String(localized: "Cancel", bundle: .module)) { attemptDismiss() }
                 .amgiToolbarTextButton(tone: .neutral)
         }
         ToolbarItem(placement: .primaryAction) {
-            Button("Fields") { destination = .fieldManager }
+            Button(String(localized: "Fields", bundle: .module)) { destination = .fieldManager }
                 .amgiToolbarTextButton(tone: .neutral)
                 .disabled(model.isLoading)
         }
@@ -140,7 +140,7 @@ package struct TemplateEditorView: View {
             if model.isSaving {
                 ProgressView()
             } else {
-                Button("Save") {
+                Button(String(localized: "Save", bundle: .module)) {
                     Task {
                         if await model.saveTemplate(onSaved: onSaved) {
                             dismiss()
@@ -173,7 +173,7 @@ package struct TemplateEditorView: View {
 
                 if let currentTemplateValidationMessage {
                     AmgiStatusMessageView(
-                        title: "Template issue",
+                        title: String(localized: "Template issue", bundle: .module),
                         message: currentTemplateValidationMessage,
                         systemImage: "exclamationmark.triangle",
                         tone: .warning
@@ -184,8 +184,8 @@ package struct TemplateEditorView: View {
                     text: currentEditorBinding,
                     fieldNames: currentFieldNames,
                     insertableTokens: currentInsertableTokens,
-                    fieldButtonTitle: "Fields",
-                    doneButtonTitle: "Done",
+                    fieldButtonTitle: String(localized: "Fields", bundle: .module),
+                    doneButtonTitle: String(localized: "Done", bundle: .module),
                     searchQuery: editorSearchText,
                     fontSize: codeEditorFontSize,
                     fontFamilyRaw: codeEditorFontFamilyRaw
@@ -210,8 +210,8 @@ package struct TemplateEditorView: View {
 
     private var previewSheet: some View {
         TemplatePreviewSheet(
-            title: "Rendered preview",
-            emptyMessage: "This card has no content to preview.",
+            title: String(localized: "Rendered preview", bundle: .module),
+            emptyMessage: String(localized: "This card has no content to preview.", bundle: .module),
             notetype: model.notetype,
             initialTemplateIndex: model.selectedTemplateIndex,
             loadSampleFields: {
@@ -308,20 +308,20 @@ struct TemplateEditorPresentations<FieldManager: View, Preview: View>: ViewModif
 
     func body(content: Content) -> some View {
         content
-            .alert("Save failed", isPresented: $destination.saveError) {
-                Button("OK", role: .cancel) {}
+            .alert(String(localized: "Save failed", bundle: .module), isPresented: $destination.saveError) {
+                Button(String(localized: "OK", bundle: .module), role: .cancel) {}
             } message: {
-                Text(errorMessage ?? "An unknown error occurred.")
+                Text(errorMessage ?? String(localized: "An unknown error occurred.", bundle: .module))
             }
             .confirmationDialog(
-                "Unsaved changes",
+                String(localized: "Unsaved changes", bundle: .module),
                 isPresented: $destination.discardChanges,
                 titleVisibility: .visible
             ) {
-                Button("Discard", role: .destructive) { onDiscard() }
-                Button("Cancel", role: .cancel) {}
+                Button(String(localized: "Discard", bundle: .module), role: .destructive) { onDiscard() }
+                Button(String(localized: "Cancel", bundle: .module), role: .cancel) {}
             } message: {
-                Text("You have unsaved changes. Discard them?")
+                Text("You have unsaved changes. Discard them?", bundle: .module)
             }
             .sheet(isPresented: $destination.fieldManager) { fieldManager() }
             .sheet(isPresented: $destination.preview) { preview() }
@@ -357,7 +357,7 @@ struct TemplateEditorHeaderCard: View {
                     .foregroundStyle(palette.textSecondary)
             }
 
-            Picker("Template Editor", selection: $editorTab) {
+            Picker(String(localized: "Template Editor", bundle: .module), selection: $editorTab) {
                 ForEach(TemplateEditorTab.allCases, id: \.self) { tab in
                     Text(tab.label).tag(tab)
                 }
@@ -410,14 +410,14 @@ struct InsertFieldSearchBox: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Insert field")
+            Text("Insert field", bundle: .module)
                 .amgiFont(.captionBold)
                 .foregroundStyle(palette.textSecondary)
 
             HStack(spacing: 8) {
                 Image(systemName: "magnifyingglass")
                     .foregroundStyle(palette.textSecondary)
-                TextField("Search fields", text: $searchText)
+                TextField(String(localized: "Search fields", bundle: .module), text: $searchText)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
             }

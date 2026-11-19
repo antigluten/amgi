@@ -17,7 +17,7 @@ enum ImportError: Error, LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .accessDenied: return "Cannot access the selected file"
+        case .accessDenied: return String(localized: "Cannot access the selected file", bundle: .module)
         case .importFailed(let msg): return msg
         }
     }

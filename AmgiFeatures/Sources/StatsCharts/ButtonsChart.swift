@@ -40,15 +40,15 @@ public struct ButtonsChart: View {
         let count: Int
     }
 
-    private let buttonLabels = ["Again", "Hard", "Good", "Easy"]
-    private let cardTypes = ["Learning", "Young", "Mature"]
+    private let buttonLabels = [String(localized: "Again", bundle: .module), String(localized: "Hard", bundle: .module), String(localized: "Good", bundle: .module), String(localized: "Easy", bundle: .module)]
+    private let cardTypes = [String(localized: "Learning", bundle: .module), String(localized: "Young", bundle: .module), String(localized: "Mature", bundle: .module)]
 
     private var entries: [ButtonEntry] {
         let bc = buttonCounts
         let sources: [(String, [Int])] = [
-            ("Learning", bc.learning),
-            ("Young", bc.young),
-            ("Mature", bc.mature),
+            (String(localized: "Learning", bundle: .module), bc.learning),
+            (String(localized: "Young", bundle: .module), bc.young),
+            (String(localized: "Mature", bundle: .module), bc.mature),
         ]
         var result: [ButtonEntry] = []
         for (typeName, counts) in sources {
@@ -73,24 +73,24 @@ public struct ButtonsChart: View {
             contentInsets: EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
         ) {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Answer Buttons").amgiFont(.bodyEmphasis)
+                Text("Answer Buttons", bundle: .module).amgiFont(.bodyEmphasis)
 
                 if entries.isEmpty {
-                    Text("No button data").foregroundStyle(palette.textSecondary).frame(height: 180)
+                    Text("No button data", bundle: .module).foregroundStyle(palette.textSecondary).frame(height: 180)
                 } else {
                     Chart(entries) { entry in
                         BarMark(
-                            x: .value("Button", entry.button),
-                            y: .value("Count", entry.count)
+                            x: .value(String(localized: "Button", bundle: .module), entry.button),
+                            y: .value(String(localized: "Count", bundle: .module), entry.count)
                         )
-                        .foregroundStyle(by: .value("Type", entry.cardType))
+                        .foregroundStyle(by: .value(String(localized: "Type", bundle: .module), entry.cardType))
                         .accessibilityLabel("\(entry.cardType), \(entry.button)")
-                        .accessibilityValue(ChartSpeech.count(entry.count, "press"))
+                        .accessibilityValue(ChartSpeech.count(entry.count, .press))
                     }
                     .chartForegroundStyleScale([
-                        "Learning": palette.cardStateNew,
-                        "Young": palette.cardStateLearning,
-                        "Mature": palette.cardStateMature,
+                        String(localized: "Learning", bundle: .module): palette.cardStateNew,
+                        String(localized: "Young", bundle: .module): palette.cardStateLearning,
+                        String(localized: "Mature", bundle: .module): palette.cardStateMature,
                     ])
                     .frame(height: 180)
                 }

@@ -17,9 +17,9 @@ enum LookupAudioPlaybackMode: String, CaseIterable, Identifiable, Sendable {
 
     var label: String {
         switch self {
-        case .interrupt: return "Interrupt other audio"
-        case .duck: return "Duck other audio"
-        case .mix: return "Mix with other audio"
+        case .interrupt: return String(localized: "Interrupt other audio", bundle: .module)
+        case .duck: return String(localized: "Duck other audio", bundle: .module)
+        case .mix: return String(localized: "Mix with other audio", bundle: .module)
         }
     }
 }

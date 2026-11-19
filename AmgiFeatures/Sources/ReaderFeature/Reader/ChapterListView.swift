@@ -35,7 +35,7 @@ struct ChapterListView: View {
                     NavigationLink {
                         ChapterReaderView(book: book, chapter: chapter, progress: progress)
                     } label: {
-                        Label("Resume", systemImage: "play.fill")
+                        Label(String(localized: "Resume", bundle: .module), systemImage: "play.fill")
                     }
                 }
             }
@@ -53,7 +53,7 @@ private struct ChapterRow: View {
         VStack(alignment: .leading, spacing: 2) {
             Text(chapter.title).amgiFont(.body)
             if let order = chapter.order {
-                Text("Chapter \(order)").amgiFont(.caption).foregroundStyle(palette.textSecondary)
+                Text("Chapter \(order)", bundle: .module).amgiFont(.caption).foregroundStyle(palette.textSecondary)
             }
             if let savedProgress {
                 ProgressView(value: savedProgress.progress)

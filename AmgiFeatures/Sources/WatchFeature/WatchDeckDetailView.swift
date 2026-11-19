@@ -21,11 +21,11 @@ struct WatchDeckDetailView: View {
             VStack(spacing: 12) {
                 // Compact Counts
                 HStack {
-                    countItem(label: "New", count: counts.newCount, color: palette.cardStateNew)
+                    countItem(label: String(localized: "New", bundle: .module), count: counts.newCount, color: palette.cardStateNew)
                     Spacer()
-                    countItem(label: "Learn", count: counts.learnCount, color: palette.cardStateLearning)
+                    countItem(label: String(localized: "Learn", bundle: .module), count: counts.learnCount, color: palette.cardStateLearning)
                     Spacer()
-                    countItem(label: "Due", count: counts.reviewCount, color: palette.cardStateReview)
+                    countItem(label: String(localized: "Due", bundle: .module), count: counts.reviewCount, color: palette.cardStateReview)
                 }
                 .padding(.horizontal)
                 NavigationLink {
@@ -34,11 +34,11 @@ struct WatchDeckDetailView: View {
                         onFinish: { Task { await loadCounts() } }
                     )
                 } label: {
-                    Label("Study", systemImage: "play.fill")
+                    Label(String(localized: "Study", bundle: .module), systemImage: "play.fill")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
-                Text("Tap to replay audio.")
+                Text("Tap to replay audio.", bundle: .module)
             }
         }
         .navigationTitle(deck.name.split(separator: "::").last ?? "")

@@ -52,5 +52,5 @@ func statsBarRangeLabel(start: Int, bucketSize: Int) -> String {
     }
 
     let end = start + bucketSize - 1
-    return "\(start) to \(end)"
+    return String(localized: "\(start) to \(end)", bundle: .module)
 }

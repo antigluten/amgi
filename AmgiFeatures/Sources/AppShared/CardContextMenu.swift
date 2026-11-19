@@ -33,7 +33,7 @@ public struct CardFlagPicker: View {
 
     public var body: some View {
         Section {
-            Picker("Flag", selection: Binding(
+            Picker(String(localized: "Flag", bundle: .module), selection: Binding(
                 get: { model.currentFlag & 0b111 },
                 set: { value in
                     Task {
@@ -87,16 +87,16 @@ public struct CardActionSections: View {
     public var body: some View {
         Section {
             Button { act { await model.suspend(cardId) } } label: {
-                Label("Suspend Card", systemImage: "pause.circle")
+                Label(String(localized: "Suspend Card", bundle: .module), systemImage: "pause.circle")
             }
             Button { act { await model.bury(cardId) } } label: {
-                Label("Bury Card Until Tomorrow", systemImage: "moon.zzz")
+                Label(String(localized: "Bury Card Until Tomorrow", bundle: .module), systemImage: "moon.zzz")
             }
             Button { act { await model.resetToNew(cardId) } } label: {
-                Label("Forget Card", systemImage: "arrow.counterclockwise")
+                Label(String(localized: "Forget Card", bundle: .module), systemImage: "arrow.counterclockwise")
             }
             Button { model.showSetDueDate = true } label: {
-                Label("Set Due Date", systemImage: "calendar.badge.clock")
+                Label(String(localized: "Set Due Date", bundle: .module), systemImage: "calendar.badge.clock")
             }
         }
 
@@ -104,21 +104,21 @@ public struct CardActionSections: View {
             Section {
                 Button { act { await model.toggleMarked(noteId) } } label: {
                     Label(
-                        model.isMarkedNote ? "Unmark Note" : "Mark Note",
+                        model.isMarkedNote ? String(localized: "Unmark Note", bundle: .module) : String(localized: "Mark Note", bundle: .module),
                         systemImage: model.isMarkedNote ? "star.slash" : "star"
                     )
                 }
                 Button { act { await model.suspendNote(noteId) } } label: {
-                    Label("Suspend Note", systemImage: "pause.circle.fill")
+                    Label(String(localized: "Suspend Note", bundle: .module), systemImage: "pause.circle.fill")
                 }
                 Button { act { await model.buryNote(noteId) } } label: {
-                    Label("Bury Note", systemImage: "moon.zzz.fill")
+                    Label(String(localized: "Bury Note", bundle: .module), systemImage: "moon.zzz.fill")
                 }
             }
 
             Section {
                 Button(role: .destructive) { confirmDeleteNote = true } label: {
-                    Label("Delete Note", systemImage: "trash")
+                    Label(String(localized: "Delete Note", bundle: .module), systemImage: "trash")
                 }
             }
         }
@@ -169,29 +169,29 @@ private struct CardActionPresentations: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .alert("Action failed", isPresented: $model.showError) {
-                Button("OK") { }
+            .alert(String(localized: "Action failed", bundle: .module), isPresented: $model.showError) {
+                Button(String(localized: "OK", bundle: .module)) { }
             } message: {
-                Text(model.errorMessage ?? "An unknown error occurred.")
+                Text(model.errorMessage ?? String(localized: "An unknown error occurred.", bundle: .module))
             }
             .confirmationDialog(
-                "Delete this note?",
+                String(localized: "Delete this note?", bundle: .module),
                 isPresented: $confirmDeleteNote,
                 titleVisibility: .visible
             ) {
-                Button("Delete", role: .destructive) {
+                Button(String(localized: "Delete", bundle: .module), role: .destructive) {
                     guard let noteId else { return }
                     Task {
                         if let advance = await model.deleteNote(noteId) { onAction(advance) }
                     }
                 }
-                Button("Cancel", role: .cancel) { }
+                Button(String(localized: "Cancel", bundle: .module), role: .cancel) { }
             } message: {
-                Text("This deletes the note and all its cards. The action cannot be undone.")
+                Text("This deletes the note and all its cards. The action cannot be undone.", bundle: .module)
             }
-            .alert("Set Due Date", isPresented: $model.showSetDueDate) {
-                TextField("Days", text: $model.dueDateSpec)
-                Button("Set") {
+            .alert(String(localized: "Set Due Date", bundle: .module), isPresented: $model.showSetDueDate) {
+                TextField(String(localized: "Days", bundle: .module), text: $model.dueDateSpec)
+                Button(String(localized: "Set", bundle: .module)) {
                     guard let cardId else { return }
                     Task {
                         if let advance = await model.setDueDate(cardId, model.dueDateSpec) {
@@ -199,9 +199,9 @@ private struct CardActionPresentations: ViewModifier {
                         }
                     }
                 }
-                Button("Cancel", role: .cancel) { }
+                Button(String(localized: "Cancel", bundle: .module), role: .cancel) { }
             } message: {
-                Text("0 = today, 1 = tomorrow, 3-7 = a random day in that range. Append ! to also reset the interval, e.g. 3!.")
+                Text("0 = today, 1 = tomorrow, 3-7 = a random day in that range. Append ! to also reset the interval, e.g. 3!.", bundle: .module)
             }
             .task(id: cardId) {
                 guard let cardId else { return }
@@ -253,7 +253,7 @@ public struct CardContextMenu: View {
                 Button {
                     Task { if let advance = await model.undo(cardId) { forward(advance) } }
                 } label: {
-                    Label("Undo", systemImage: "arrow.uturn.backward")
+                    Label(String(localized: "Undo", bundle: .module), systemImage: "arrow.uturn.backward")
                 }
                 .disabled(!model.canUndo || model.isUndoing)
             }
@@ -261,7 +261,7 @@ public struct CardContextMenu: View {
             Image(systemName: "ellipsis.circle")
                 .amgiFont(.bodyEmphasis)
         }
-        .accessibilityLabel("Card actions")
+        .accessibilityLabel(String(localized: "Card actions", bundle: .module))
         .cardActionPresentations(
             model: model,
             cardId: cardId,

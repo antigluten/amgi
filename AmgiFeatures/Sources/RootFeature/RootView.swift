@@ -111,7 +111,7 @@ public struct RootView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { wordSheet = nil }
+                    Button(String(localized: "Done", bundle: .module)) { wordSheet = nil }
                         .accessibilityIdentifier("wordSpotlight.dismiss")
                 }
             }
@@ -148,10 +148,10 @@ public struct RootView: View {
             onSelectStudyDeck: { pendingReviewDeckId = $0 }
         )
         .alert(
-            "Couldn't switch profile",
+            String(localized: "Couldn't switch profile", bundle: .module),
             isPresented: $accountStore.hasSwitchFailure
         ) {
-            Button("OK", role: .cancel) { accountStore.switchFailure = nil }
+            Button(String(localized: "OK", bundle: .module), role: .cancel) { accountStore.switchFailure = nil }
         } message: {
             Text(accountStore.switchFailure ?? "")
         }

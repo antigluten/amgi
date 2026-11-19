@@ -57,7 +57,7 @@ final class MediaCheckModel {
         do {
             try await client.trashMediaFiles(filenames)
             currentResult = try await client.checkMedia()
-            actionMessage = "Files moved to trash"
+            actionMessage = String(localized: "Files moved to trash", bundle: .module)
             actionFailed = false
         } catch {
             actionMessage = error.localizedDescription
@@ -79,7 +79,7 @@ final class MediaCheckModel {
         do {
             try await client.emptyTrash()
             currentResult = try await client.checkMedia()
-            actionMessage = "Trash emptied"
+            actionMessage = String(localized: "Trash emptied", bundle: .module)
             actionFailed = false
         } catch {
             actionMessage = error.localizedDescription
@@ -101,7 +101,7 @@ final class MediaCheckModel {
         do {
             try await client.restoreTrash()
             currentResult = try await client.checkMedia()
-            actionMessage = "Trash restored"
+            actionMessage = String(localized: "Trash restored", bundle: .module)
             actionFailed = false
         } catch {
             actionMessage = error.localizedDescription

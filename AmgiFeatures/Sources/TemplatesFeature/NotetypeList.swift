@@ -23,10 +23,10 @@ struct NotetypeList: View {
             NotetypeRow(entry: entry, onTap: { onSelect(entry) })
                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                     Button(role: .destructive) { onRequestDelete(entry) } label: {
-                        Label("Delete", systemImage: "trash")
+                        Label(String(localized: "Delete", bundle: .module), systemImage: "trash")
                     }
                     Button { onRequestRename(entry) } label: {
-                        Label("Rename", systemImage: "pencil")
+                        Label(String(localized: "Rename", bundle: .module), systemImage: "pencil")
                     }
                     .tint(palette.accent)
                 }
@@ -82,29 +82,29 @@ struct DeckTemplateListAlerts: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .alert("Rename notetype", isPresented: $showRenamePrompt) {
-                TextField("New name", text: $renameText)
-                Button("Cancel", role: .cancel) {}
-                Button("Save") { onRename() }
+            .alert(String(localized: "Rename notetype", bundle: .module), isPresented: $showRenamePrompt) {
+                TextField(String(localized: "New name", bundle: .module), text: $renameText)
+                Button(String(localized: "Cancel", bundle: .module), role: .cancel) {}
+                Button(String(localized: "Save", bundle: .module)) { onRename() }
             } message: {
                 Text(renameTargetName)
             }
             .confirmationDialog(
-                "Delete notetype",
+                String(localized: "Delete notetype", bundle: .module),
                 isPresented: $showDeleteConfirm,
                 titleVisibility: .visible
             ) {
-                Button("Delete", role: .destructive) { onDelete() }
-                Button("Cancel", role: .cancel) {}
+                Button(String(localized: "Delete", bundle: .module), role: .destructive) { onDelete() }
+                Button(String(localized: "Cancel", bundle: .module), role: .cancel) {}
             } message: {
                 if let name = deleteTargetName {
-                    Text("Delete \"\(name)\"? Cards using this notetype will be removed too.")
+                    Text("Delete \"\(name)\"? Cards using this notetype will be removed too.", bundle: .module)
                 }
             }
-            .alert("Couldn't update notetype", isPresented: $showActionError) {
-                Button("OK", role: .cancel) {}
+            .alert(String(localized: "Couldn't update notetype", bundle: .module), isPresented: $showActionError) {
+                Button(String(localized: "OK", bundle: .module), role: .cancel) {}
             } message: {
-                Text(actionError ?? "An unknown error occurred.")
+                Text(actionError ?? String(localized: "An unknown error occurred.", bundle: .module))
             }
     }
 }

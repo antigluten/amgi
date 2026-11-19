@@ -32,13 +32,13 @@ public struct StudyDeckRow: View {
                         .foregroundStyle(palette.textPrimary)
                         .lineLimit(1)
                     if data.isFiltered {
-                        Label("Filtered", systemImage: "bolt.fill")
+                        Label(String(localized: "Filtered", bundle: .module), systemImage: "bolt.fill")
                             .amgiFont(.caption)
                             .foregroundStyle(palette.customStudyBadge)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                Text("\(data.totalDue) cards")
+                Text("\(data.totalDue) cards", bundle: .module)
                     .amgiFont(.caption)
                     .foregroundStyle(palette.textSecondary)
             }

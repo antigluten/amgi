@@ -61,23 +61,23 @@ public struct FutureDueChart: View {
             contentInsets: EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
         ) {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Future Due").amgiFont(.bodyEmphasis)
+                Text("Future Due", bundle: .module).amgiFont(.bodyEmphasis)
 
                 if filteredData.isEmpty {
-                    Text("No cards due").foregroundStyle(palette.textSecondary).frame(height: cappedChartHeight)
+                    Text("No cards due", bundle: .module).foregroundStyle(palette.textSecondary).frame(height: cappedChartHeight)
                 } else {
                     Chart(filteredData, id: \.day) { item in
                         BarMark(
-                            x: .value("Day", item.day),
-                            y: .value("Cards", item.count)
+                            x: .value(String(localized: "Day", bundle: .module), item.day),
+                            y: .value(String(localized: "Cards", bundle: .module), item.count)
                         )
                         .foregroundStyle(item.day < 0 ? palette.danger.gradient : palette.accent.gradient)
                         .accessibilityLabel(
                             item.day < 0
-                                ? "\(ChartSpeech.day(item.day)), overdue"
+                                ? String(localized: "\(ChartSpeech.day(item.day)), overdue", bundle: .module)
                                 : ChartSpeech.day(item.day)
                         )
-                        .accessibilityValue(ChartSpeech.count(item.count, "card"))
+                        .accessibilityValue(ChartSpeech.count(item.count, .card))
                     }
                     .chartXAxis {
                         AxisMarks(values: .automatic(desiredCount: 5)) { _ in
@@ -89,15 +89,15 @@ public struct FutureDueChart: View {
                 }
 
                 if futureDue.haveBacklog {
-                    Toggle("Include Backlog", isOn: $includeBacklog)
+                    Toggle(String(localized: "Include Backlog", bundle: .module), isOn: $includeBacklog)
                         .amgiFont(.caption)
                 }
 
                 let items = [
-                    (label: "Total", value: "\(totalDue(filteredData))"),
-                    (label: "Avg/day", value: String(format: "%.1f", avgPerDay(filteredData))),
-                    (label: "Tomorrow", value: "\(dueTomorrow(filteredData))"),
-                    (label: "Daily Load", value: "\(futureDue.dailyLoad)"),
+                    (label: String(localized: "Total", bundle: .module), value: "\(totalDue(filteredData))"),
+                    (label: String(localized: "Avg/day", bundle: .module), value: String(format: "%.1f", avgPerDay(filteredData))),
+                    (label: String(localized: "Tomorrow", bundle: .module), value: "\(dueTomorrow(filteredData))"),
+                    (label: String(localized: "Daily Load", bundle: .module), value: "\(futureDue.dailyLoad)"),
                 ]
                 ViewThatFits(in: .horizontal) {
                     HStack(spacing: AmgiSpacing.lg) {

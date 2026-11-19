@@ -32,12 +32,12 @@ struct ReaderConfigurationView: View {
 
     var body: some View {
         Form {
-            Section("Deck") {
+            Section(String(localized: "Deck", bundle: .module)) {
                 if model.decks.isEmpty {
-                    Text("Loading decks…").foregroundStyle(palette.textSecondary)
+                    Text("Loading decks…", bundle: .module).foregroundStyle(palette.textSecondary)
                 } else {
-                    Picker("Deck", selection: Binding($deckName)) {
-                        Text("Select a deck").tag("")
+                    Picker(String(localized: "Deck", bundle: .module), selection: Binding($deckName)) {
+                        Text("Select a deck", bundle: .module).tag("")
                         ForEach(model.decks, id: \.id) { deck in
                             Text(deck.name).tag(deck.name)
                         }
@@ -46,49 +46,49 @@ struct ReaderConfigurationView: View {
             }
 
             Section {
-                LabeledContent("Book ID") {
-                    TextField("Book ID field", text: Binding($bookIDField))
+                LabeledContent(String(localized: "Book ID", bundle: .module)) {
+                    TextField(String(localized: "Book ID field", bundle: .module), text: Binding($bookIDField))
                         .multilineTextAlignment(.trailing)
                 }
-                LabeledContent("Book title") {
-                    TextField("Book title field", text: Binding($bookTitleField))
+                LabeledContent(String(localized: "Book title", bundle: .module)) {
+                    TextField(String(localized: "Book title field", bundle: .module), text: Binding($bookTitleField))
                         .multilineTextAlignment(.trailing)
                 }
-                LabeledContent("Book cover") {
-                    TextField("Optional", text: Binding($bookCoverField))
+                LabeledContent(String(localized: "Book cover", bundle: .module)) {
+                    TextField(String(localized: "Optional", bundle: .module), text: Binding($bookCoverField))
                         .multilineTextAlignment(.trailing)
                 }
-                LabeledContent("Chapter title") {
-                    TextField("Chapter title field", text: Binding($chapterTitleField))
+                LabeledContent(String(localized: "Chapter title", bundle: .module)) {
+                    TextField(String(localized: "Chapter title field", bundle: .module), text: Binding($chapterTitleField))
                         .multilineTextAlignment(.trailing)
                 }
-                LabeledContent("Chapter order") {
-                    TextField("Chapter order field", text: Binding($chapterOrderField))
+                LabeledContent(String(localized: "Chapter order", bundle: .module)) {
+                    TextField(String(localized: "Chapter order field", bundle: .module), text: Binding($chapterOrderField))
                         .multilineTextAlignment(.trailing)
                 }
-                LabeledContent("Content") {
-                    TextField("Content field", text: Binding($contentField))
+                LabeledContent(String(localized: "Content", bundle: .module)) {
+                    TextField(String(localized: "Content field", bundle: .module), text: Binding($contentField))
                         .multilineTextAlignment(.trailing)
                 }
-                LabeledContent("Language") {
-                    TextField("Optional", text: Binding($languageField))
+                LabeledContent(String(localized: "Language", bundle: .module)) {
+                    TextField(String(localized: "Optional", bundle: .module), text: Binding($languageField))
                         .multilineTextAlignment(.trailing)
                 }
             } header: {
-                Text("Field mapping")
+                Text("Field mapping", bundle: .module)
             } footer: {
-                Text("Field names from the notetype that holds your book chapters. Each note becomes a chapter; chapters with the same Book ID collapse into one book.")
+                Text("Field names from the notetype that holds your book chapters. Each note becomes a chapter; chapters with the same Book ID collapse into one book.", bundle: .module)
             }
 
             if let loadError = model.loadError {
                 Section { Text(loadError).foregroundStyle(palette.danger) }
             }
         }
-        .navigationTitle("Reader Setup")
+        .navigationTitle(String(localized: "Reader Setup", bundle: .module))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
-                Button("Done") { onDismiss() }
+                Button(String(localized: "Done", bundle: .module)) { onDismiss() }
             }
         }
         .task { await model.loadDecks() }

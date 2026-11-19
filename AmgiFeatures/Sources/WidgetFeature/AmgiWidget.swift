@@ -23,7 +23,7 @@ public struct AmgiWidget: Widget {
             AmgiWidgetEntryView(entry: entry)
         }
         .configurationDisplayName("Amgi")
-        .description("See your cards due today.")
+        .description(String(localized: "See your cards due today.", bundle: .module))
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }

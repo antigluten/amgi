@@ -66,7 +66,7 @@ public func writeWidgetSnapshot() async {
         )
         let allDecksSnapshot = WidgetSnapshot(
             deckId: 0,
-            deckName: "All Decks",
+            deckName: String(localized: "All Decks", bundle: .module),
             newCount: aggregateBase.newCount,
             learnCount: aggregateBase.learnCount,
             reviewCount: aggregateBase.reviewCount,

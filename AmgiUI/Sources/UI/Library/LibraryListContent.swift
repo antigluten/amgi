@@ -55,20 +55,20 @@ public struct LibraryListContent: View {
             ProgressView()
         case .empty:
             ContentUnavailableView {
-                Label("No Decks", systemImage: "rectangle.stack")
+                Label(String(localized: "No Decks", bundle: .module), systemImage: "rectangle.stack")
             } description: {
-                Text("Sync with your server, or create a deck to get started.")
+                Text("Sync with your server, or create a deck to get started.", bundle: .module)
             } actions: {
-                Button("Create Deck", action: onCreateDeck)
+                Button(String(localized: "Create Deck", bundle: .module), action: onCreateDeck)
                     .buttonStyle(.borderedProminent)
             }
         case .failed(let message):
             ContentUnavailableView {
-                Label("Couldn't Load Decks", systemImage: "exclamationmark.triangle")
+                Label(String(localized: "Couldn't Load Decks", bundle: .module), systemImage: "exclamationmark.triangle")
             } description: {
                 Text(message)
             } actions: {
-                Button("Try Again") { Task { await onRefresh() } }
+                Button(String(localized: "Try Again", bundle: .module)) { Task { await onRefresh() } }
                     .buttonStyle(.borderedProminent)
             }
         case .loaded(let rows, let hero, let heatmap):
@@ -141,9 +141,9 @@ public struct LibraryListContent: View {
 
     private var deckSectionHeader: some View {
         HStack {
-            Text("Decks")
+            Text("Decks", bundle: .module)
             Spacer()
-            Picker("Deck view", selection: $layout) {
+            Picker(String(localized: "Deck view", bundle: .module), selection: $layout) {
                 ForEach(DeckLayout.allCases) { option in
                     Label(option.label, systemImage: option.symbol).tag(option)
                 }

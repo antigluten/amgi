@@ -37,7 +37,7 @@ struct DeckConfigView: View {
 
     var body: some View {
         formContent
-            .navigationTitle("Deck Options")
+            .navigationTitle(String(localized: "Deck Options", bundle: .module))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbarContent }
             .interactiveDismissDisabled(model.hasUnsavedChanges)
@@ -61,10 +61,10 @@ struct DeckConfigView: View {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .cancellationAction) {
-            Button("Cancel") { attemptDismiss() }
+            Button(String(localized: "Cancel", bundle: .module)) { attemptDismiss() }
         }
         ToolbarItem(placement: .confirmationAction) {
-            Button("Save") { Task { if await model.saveConfig() { onDismiss() } } }
+            Button(String(localized: "Save", bundle: .module)) { Task { if await model.saveConfig() { onDismiss() } } }
                 .disabled(!model.hasLoadedConfig || model.isSaving)
         }
     }
@@ -77,7 +77,7 @@ struct DeckConfigView: View {
             } else if let loadError = model.loadError {
                 Section {
                     Text(loadError).foregroundStyle(palette.danger)
-                    Button("Retry") { Task { await model.loadConfig() } }
+                    Button(String(localized: "Retry", bundle: .module)) { Task { await model.loadConfig() } }
                 }
             } else {
                 loadedSections

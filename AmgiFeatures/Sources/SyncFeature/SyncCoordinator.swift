@@ -112,7 +112,7 @@ package final class SyncCoordinator {
         }
 
         clearLog()
-        state = .syncing(message: "Connecting…")
+        state = .syncing(message: String(localized: "Connecting…", bundle: .module))
         appendLog("Starting sync")
 
         let task = Task { [weak self] in
@@ -142,7 +142,7 @@ package final class SyncCoordinator {
             } catch let error as SyncError where error == .authFailed {
                 self.appendLog("Authentication failed", level: .error)
                 self.requiresLogin = true
-                self.state = .error("Authentication failed — please sign in again")
+                self.state = .error(String(localized: "Authentication failed — please sign in again", bundle: .module))
                 self.activeTask = nil
                 self.isCancelling = false
             } catch {
@@ -162,7 +162,7 @@ package final class SyncCoordinator {
             return
         }
 
-        let label = direction == .upload ? "Uploading collection" : "Downloading collection"
+        let label = direction == .upload ? String(localized: "Uploading collection", bundle: .module) : String(localized: "Downloading collection", bundle: .module)
         state = .syncing(message: label)
         appendLog("Full sync started: \(direction == .upload ? "upload" : "download")")
 
@@ -196,7 +196,7 @@ package final class SyncCoordinator {
             return
         }
 
-        state = .syncing(message: "Preparing merge...")
+        state = .syncing(message: String(localized: "Preparing merge...", bundle: .module))
         appendLog("Merge started")
 
         let task = Task { [weak self] in
@@ -245,7 +245,7 @@ package final class SyncCoordinator {
         requiresLogin = false
         if needsFullSyncFlag {
             state = .needsFullSync(SyncFullSyncRequirement(
-                reason: "A full sync was requested previously and not yet completed",
+                reason: String(localized: "A full sync was requested previously and not yet completed", bundle: .module),
                 localIsEmpty: false
             ))
         } else {
@@ -330,11 +330,11 @@ private extension SyncCoordinator {
             return
         }
         appendLog("Collection synced; media sync failed: \(mediaFailure)", level: .error)
-        state = .error("Collection synced, but media failed: \(mediaFailure)")
+        state = .error(String(localized: "Collection synced, but media failed: \(mediaFailure)", bundle: .module))
     }
 
     static func mediaProgressMessage(_ progress: MediaSyncProgress?) -> String {
-        guard let progress else { return "Syncing media\u{2026}" }
+        guard let progress else { return String(localized: "Syncing media\u{2026}", bundle: .module) }
         return "\(progress.checked) \u{00B7} \(progress.added)"
     }
 
@@ -374,7 +374,7 @@ private extension SyncCoordinator {
 
         if needsFullSyncFlag {
             state = .needsFullSync(SyncFullSyncRequirement(
-                reason: "A full sync was requested previously and not yet completed",
+                reason: String(localized: "A full sync was requested previously and not yet completed", bundle: .module),
                 localIsEmpty: false
             ))
         }

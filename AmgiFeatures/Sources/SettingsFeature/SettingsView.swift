@@ -49,17 +49,17 @@ package struct SettingsView: View {
             .padding(.bottom, AmgiSpacing.xl)
         }
         .background(palette.background)
-        .navigationTitle("Settings")
+        .navigationTitle(String(localized: "Settings", bundle: .module))
     }
 
     // MARK: - Sections
 
     private var appearanceSection: some View {
         Group {
-            SettingsSectionHeader(title: "Appearance")
+            SettingsSectionHeader(title: String(localized: "Appearance", bundle: .module))
             SettingsGroup {
                 SettingsRowLink(
-                    title: "Theme & Appearance",
+                    title: String(localized: "Theme & Appearance", bundle: .module),
                     systemImage: "paintpalette",
                     tone: .mature,
                     detail: themeName
@@ -69,7 +69,7 @@ package struct SettingsView: View {
                 #if canImport(UIKit)
                 SettingsSeparator()
                 SettingsRowLink(
-                    title: "Reader Display",
+                    title: String(localized: "Reader Display", bundle: .module),
                     systemImage: "book",
                     tone: .learning
                 ) {
@@ -82,10 +82,10 @@ package struct SettingsView: View {
 
     private var accountSection: some View {
         Group {
-            SettingsSectionHeader(title: "Account")
+            SettingsSectionHeader(title: String(localized: "Account", bundle: .module))
             SettingsGroup {
                 SettingsRowLink(
-                    title: "Profiles",
+                    title: String(localized: "Profiles", bundle: .module),
                     systemImage: "person.crop.circle",
                     tone: .accent,
                     detail: AccountStore.shared.current.displayName
@@ -94,7 +94,7 @@ package struct SettingsView: View {
                 }
                 SettingsSeparator()
                 SettingsRowLink(
-                    title: "Sync Server",
+                    title: String(localized: "Sync Server", bundle: .module),
                     systemImage: "arrow.triangle.2.circlepath",
                     tone: .info
                 ) {
@@ -106,10 +106,10 @@ package struct SettingsView: View {
 
     private var studySection: some View {
         Group {
-            SettingsSectionHeader(title: "Study")
+            SettingsSectionHeader(title: String(localized: "Study", bundle: .module))
             SettingsGroup {
                 SettingsRowLink(
-                    title: "Word Spotlight",
+                    title: String(localized: "Word Spotlight", bundle: .module),
                     systemImage: "character.book.closed",
                     tone: .accent
                 ) {
@@ -118,7 +118,7 @@ package struct SettingsView: View {
                 .accessibilityIdentifier("settings.wordSpotlight")
                 SettingsSeparator()
                 SettingsRowLink(
-                    title: "Review Behavior",
+                    title: String(localized: "Review Behavior", bundle: .module),
                     systemImage: "timer",
                     tone: .review
                 ) {
@@ -126,7 +126,7 @@ package struct SettingsView: View {
                 }
                 SettingsSeparator()
                 SettingsRowLink(
-                    title: "Card Rendering",
+                    title: String(localized: "Card Rendering", bundle: .module),
                     systemImage: "textformat",
                     tone: .accent
                 ) {
@@ -134,7 +134,7 @@ package struct SettingsView: View {
                 }
                 SettingsSeparator()
                 SettingsRowLink(
-                    title: "Manage Templates",
+                    title: String(localized: "Manage Templates", bundle: .module),
                     systemImage: "doc.text",
                     tone: .learning
                 ) {
@@ -142,7 +142,7 @@ package struct SettingsView: View {
                 }
                 SettingsSeparator()
                 SettingsRowLink(
-                    title: "Template Overrides",
+                    title: String(localized: "Template Overrides", bundle: .module),
                     systemImage: "arrow.turn.down.right",
                     tone: .neutral
                 ) {
@@ -150,7 +150,7 @@ package struct SettingsView: View {
                 }
                 SettingsSeparator()
                 SettingsRowLink(
-                    title: "Code Editor",
+                    title: String(localized: "Code Editor", bundle: .module),
                     systemImage: "chevron.left.forwardslash.chevron.right",
                     tone: .link
                 ) {
@@ -163,10 +163,10 @@ package struct SettingsView: View {
     private var readerSection: some View {
         Group {
             if let dictionarySettings {
-                SettingsSectionHeader(title: "Reader")
+                SettingsSectionHeader(title: String(localized: "Reader", bundle: .module))
                 SettingsGroup {
                     SettingsRowLink(
-                        title: "Dictionaries",
+                        title: String(localized: "Dictionaries", bundle: .module),
                         systemImage: "character.book.closed",
                         tone: .danger
                     ) {
@@ -179,10 +179,10 @@ package struct SettingsView: View {
 
     private var maintenanceSection: some View {
         Group {
-            SettingsSectionHeader(title: "Maintenance")
+            SettingsSectionHeader(title: String(localized: "Maintenance", bundle: .module))
             SettingsGroup {
                 SettingsRowLink(
-                    title: "Manage Tags",
+                    title: String(localized: "Manage Tags", bundle: .module),
                     systemImage: "tag",
                     tone: .neutral
                 ) {
@@ -190,7 +190,7 @@ package struct SettingsView: View {
                 }
                 SettingsSeparator()
                 SettingsRowLink(
-                    title: "Database",
+                    title: String(localized: "Database", bundle: .module),
                     systemImage: "internaldrive",
                     tone: .info
                 ) {
@@ -198,7 +198,7 @@ package struct SettingsView: View {
                 }
                 SettingsSeparator()
                 SettingsRowLink(
-                    title: "Empty Cards",
+                    title: String(localized: "Empty Cards", bundle: .module),
                     systemImage: "square.dashed",
                     tone: .danger
                 ) {
@@ -206,7 +206,7 @@ package struct SettingsView: View {
                 }
                 SettingsSeparator()
                 SettingsRowLink(
-                    title: "Backups",
+                    title: String(localized: "Backups", bundle: .module),
                     systemImage: "clock.arrow.circlepath",
                     tone: .mature
                 ) {
@@ -214,7 +214,7 @@ package struct SettingsView: View {
                 }
                 SettingsSeparator()
                 SettingsRowLink(
-                    title: "Media Check",
+                    title: String(localized: "Media Check", bundle: .module),
                     systemImage: "photo",
                     tone: .learning
                 ) {
@@ -226,10 +226,10 @@ package struct SettingsView: View {
 
     private var aboutSection: some View {
         Group {
-            SettingsSectionHeader(title: "About")
+            SettingsSectionHeader(title: String(localized: "About", bundle: .module))
             SettingsGroup {
                 SettingsRowLink(
-                    title: "About Amgi",
+                    title: String(localized: "About Amgi", bundle: .module),
                     systemImage: "info.circle",
                     tone: .accent,
                     detail: appVersion
@@ -241,7 +241,7 @@ package struct SettingsView: View {
     }
 
     private var footer: some View {
-        Text("Amgi · v\(appVersion) · Built with care")
+        Text("Amgi · v\(appVersion) · Built with care", bundle: .module)
             .amgiFont(.micro)
             .foregroundStyle(palette.textTertiary)
             .frame(maxWidth: .infinity, alignment: .center)

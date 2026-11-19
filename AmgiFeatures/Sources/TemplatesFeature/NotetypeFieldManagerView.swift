@@ -21,9 +21,9 @@ struct NotetypeFieldManagerView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            Text("Field editor coming soon.")
+            Text("Field editor coming soon.", bundle: .module)
                 .foregroundStyle(palette.textSecondary)
-            Button("Done") { dismiss() }
+            Button(String(localized: "Done", bundle: .module)) { dismiss() }
         }
         .navigationTitle(preferredName)
         .navigationBarTitleDisplayMode(.inline)

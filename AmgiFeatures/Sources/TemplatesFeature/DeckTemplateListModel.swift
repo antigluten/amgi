@@ -49,7 +49,7 @@ final class DeckTemplateListModel {
             try await notetypesClient.update(notetype)
             await loadTemplates()
         } catch {
-            actionError = "Rename failed: \(error.localizedDescription)"
+            actionError = String(localized: "Rename failed: \(error.localizedDescription)", bundle: .module)
             showActionError = true
         }
     }
@@ -59,7 +59,7 @@ final class DeckTemplateListModel {
             try await notetypesClient.remove(target.id)
             await loadTemplates()
         } catch {
-            actionError = "Delete failed: \(error.localizedDescription)"
+            actionError = String(localized: "Delete failed: \(error.localizedDescription)", bundle: .module)
             showActionError = true
         }
     }

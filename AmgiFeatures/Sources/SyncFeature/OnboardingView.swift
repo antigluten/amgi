@@ -43,11 +43,11 @@ package struct OnboardingView: View {
                 .font(.system(size: 64))
                 .foregroundStyle(palette.accent)
 
-            Text("Stay in sync")
+            Text("Stay in sync", bundle: .module)
                 .amgiFont(.displayHero)
                 .foregroundStyle(palette.textPrimary)
 
-            Text("Choose how to sync your collection")
+            Text("Choose how to sync your collection", bundle: .module)
                 .amgiFont(.body)
                 .foregroundStyle(palette.textSecondary)
 
@@ -57,7 +57,7 @@ package struct OnboardingView: View {
                         AnkiMobileAttributionView()
                             .padding(.horizontal)
 
-                        TextField("Server URL", text: $serverURL)
+                        TextField(String(localized: "Server URL", bundle: .module), text: $serverURL)
                             .textFieldStyle(.roundedBorder)
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
@@ -70,13 +70,13 @@ package struct OnboardingView: View {
                                 .padding(.horizontal)
                         }
 
-                        Button("Continue") {
+                        Button(String(localized: "Continue", bundle: .module)) {
                             saveAndContinue()
                         }
                         .buttonStyle(AmgiPrimaryButtonStyle())
                         .disabled(serverURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
 
-                        Button("Back") {
+                        Button(String(localized: "Back", bundle: .module)) {
                             withAnimation(AmgiMotion.standard) { showServerSetup = false }
                         }
                         .amgiFont(.caption)
@@ -88,7 +88,7 @@ package struct OnboardingView: View {
                         Button {
                             withAnimation(AmgiMotion.standard) { showServerSetup = true }
                         } label: {
-                            Label("Custom Server", systemImage: "server.rack")
+                            Label(String(localized: "Custom Server", bundle: .module), systemImage: "server.rack")
                                 .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(AmgiPrimaryButtonStyle())
@@ -97,7 +97,7 @@ package struct OnboardingView: View {
                             $syncMode.withLock { $0 = .local }
                             $onboardingCompleted.withLock { $0 = true }
                         } label: {
-                            Label("Use Locally", systemImage: "iphone")
+                            Label(String(localized: "Use Locally", bundle: .module), systemImage: "iphone")
                                 .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(AmgiSecondaryButtonStyle())
@@ -107,7 +107,7 @@ package struct OnboardingView: View {
             }
             .padding(.horizontal, 32)
 
-            Text("You can change this anytime in sync settings")
+            Text("You can change this anytime in sync settings", bundle: .module)
                 .amgiFont(.micro)
                 .foregroundStyle(palette.textTertiary)
 

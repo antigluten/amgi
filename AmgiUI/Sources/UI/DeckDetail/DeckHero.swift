@@ -59,14 +59,14 @@ public struct DeckHero: View {
         HStack(spacing: 4) {
             Image(systemName: "bolt.fill")
                 .font(.caption.weight(.semibold))
-            Text("Custom Study")
+            Text("Custom Study", bundle: .module)
                 .amgiFont(size: 11, weight: .semibold)
         }
         .foregroundStyle(palette.background)
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
         .background(palette.customStudyBadge, in: Capsule())
-        .accessibilityLabel("Custom study deck")
+        .accessibilityLabel(String(localized: "Custom study deck", bundle: .module))
     }
 
     private var subtitleText: some View {

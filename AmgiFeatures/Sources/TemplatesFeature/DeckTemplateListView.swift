@@ -38,9 +38,9 @@ package struct DeckTemplateListView: View {
     package var body: some View {
         mainContent
             .background(palette.background)
-            .navigationTitle("Card Templates")
+            .navigationTitle(String(localized: "Card Templates", bundle: .module))
             .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $searchText, prompt: "Search notetypes")
+            .searchable(text: $searchText, prompt: String(localized: "Search notetypes", bundle: .module))
             .sheet(item: $editorTarget) { target in
                 TemplateEditorView(
                     notetypeId: target.id,
@@ -70,16 +70,16 @@ package struct DeckTemplateListView: View {
             ProgressView()
         } else if let errorMessage = model.errorMessage {
             AmgiStatusMessageView(
-                title: "Could not load templates",
+                title: String(localized: "Could not load templates", bundle: .module),
                 message: errorMessage,
                 systemImage: "exclamationmark.triangle",
                 tone: .warning
             )
         } else if model.entries.isEmpty {
             ContentUnavailableView(
-                "No notetypes",
+                String(localized: "No notetypes", bundle: .module),
                 systemImage: "square.stack.3d.up.slash",
-                description: Text("This collection has no notetypes yet.")
+                description: Text("This collection has no notetypes yet.", bundle: .module)
             )
         } else if filteredEntries.isEmpty {
             ContentUnavailableView.search(text: searchText)

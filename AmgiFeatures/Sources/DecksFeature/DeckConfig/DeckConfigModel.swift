@@ -118,11 +118,11 @@ final class DeckConfigModel {
 
     var alertTitle: String {
         switch currentAlert {
-        case .saveFailed: "Couldn't save deck options"
+        case .saveFailed: String(localized: "Couldn't save deck options", bundle: .module)
         case .fsrsError(let title, _): title
-        case .presetError: "Couldn't change preset"
-        case .deletePresetConfirm: "Delete \"\(currentPresetName ?? "this preset")\"?"
-        case .discardChanges: "Unsaved changes"
+        case .presetError: String(localized: "Couldn't change preset", bundle: .module)
+        case .deletePresetConfirm: String(localized: "Delete \"\(currentPresetName ?? String(localized: "this preset", bundle: .module))\"?", bundle: .module)
+        case .discardChanges: String(localized: "Unsaved changes", bundle: .module)
         case nil: ""
         }
     }
@@ -169,7 +169,7 @@ final class DeckConfigModel {
             apply(config: config, context: context)
             isLoading = false
         } catch {
-            loadError = "Failed to load deck options: \(error.localizedDescription)"
+            loadError = String(localized: "Failed to load deck options: \(error.localizedDescription)", bundle: .module)
             isLoading = false
         }
     }

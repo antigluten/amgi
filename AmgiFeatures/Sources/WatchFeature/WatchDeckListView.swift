@@ -54,19 +54,19 @@ struct WatchDeckListView: View {
                 ProgressView()
             case .failed:
                 ContentUnavailableView {
-                    Label("Couldn't Load Decks", systemImage: "exclamationmark.triangle")
+                    Label(String(localized: "Couldn't Load Decks", bundle: .module), systemImage: "exclamationmark.triangle")
                 } description: {
-                    Text("The collection couldn't be read.")
+                    Text("The collection couldn't be read.", bundle: .module)
                 } actions: {
-                    Button("Try Again") { Task { await loadDecks() } }
+                    Button(String(localized: "Try Again", bundle: .module)) { Task { await loadDecks() } }
                 }
             case .loaded(let loaded) where loaded.isEmpty:
                 ContentUnavailableView {
-                    Label("No Decks", systemImage: "rectangle.stack")
+                    Label(String(localized: "No Decks", bundle: .module), systemImage: "rectangle.stack")
                 } description: {
-                    Text("Sync to bring your decks over from iPhone.")
+                    Text("Sync to bring your decks over from iPhone.", bundle: .module)
                 } actions: {
-                    Button("Sync") { Task { await sync() } }
+                    Button(String(localized: "Sync", bundle: .module)) { Task { await sync() } }
                         .disabled(isSyncing)
                 }
             case .loaded:
@@ -88,14 +88,14 @@ struct WatchDeckListView: View {
                 }
             }
         }
-        .navigationTitle("Decks")
+        .navigationTitle(String(localized: "Decks", bundle: .module))
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 NavigationLink {
                     WatchStatsView()
                 } label: {
                     Image(systemName: "chart.bar.fill")
-                        .accessibilityLabel("Stats")
+                        .accessibilityLabel(String(localized: "Stats", bundle: .module))
                 }
             }
             ToolbarItem(placement: .topBarTrailing) {
@@ -108,7 +108,7 @@ struct WatchDeckListView: View {
                         Image(systemName: "arrow.clockwise")
                     }
                 }
-                .accessibilityLabel(isSyncing ? "Syncing" : "Sync")
+                .accessibilityLabel(isSyncing ? String(localized: "Syncing", bundle: .module) : String(localized: "Sync", bundle: .module))
                 .disabled(isSyncing || isLoadingDecks)
             }
         }
@@ -117,11 +117,11 @@ struct WatchDeckListView: View {
             case .syncMenu:
                 // WatchOS sheet: minimal actions
                 VStack {
-                    Button("Sync") {
+                    Button(String(localized: "Sync", bundle: .module)) {
                         destination = nil
                         Task { await sync() }
                     }
-                    Button("Switch Account") {
+                    Button(String(localized: "Switch Account", bundle: .module)) {
                         destination = .login
                     }
                 }
@@ -231,8 +231,8 @@ private struct WatchDeckRow: View {
                         .frame(width: 20)
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("Subdecks")
-                .accessibilityValue(isExpanded ? "Expanded" : "Collapsed")
+                .accessibilityLabel(String(localized: "Subdecks", bundle: .module))
+                .accessibilityValue(isExpanded ? String(localized: "Expanded", bundle: .module) : String(localized: "Collapsed", bundle: .module))
             }
         }
         .padding(.leading, CGFloat(depth) * Self.indentPerLevel)

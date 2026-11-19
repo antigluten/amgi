@@ -26,7 +26,7 @@ struct AllBooksSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("ALL BOOKS")
+            Text("ALL BOOKS", bundle: .module)
                 .amgiFont(.captionBold)
                 .tracking(1.4)
                 .foregroundStyle(palette.textSecondary)

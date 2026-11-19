@@ -129,7 +129,7 @@ extension CardWebView {
             let encoded = filename.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? filename
             let replacement: String
             if showReplayButtons {
-                let iconHTML = audioButtonIconHTML(systemName: "play.circle", alt: "Play", isDarkMode: isDarkMode)
+                let iconHTML = audioButtonIconHTML(systemName: "play.circle", alt: String(localized: "Play", bundle: .module), isDarkMode: isDarkMode)
                 replacement = "<span class=\"sound-btn\"><audio class=\"anki-sound-audio\" src=\"\(encoded)\" preload=\"auto\"></audio><a class=\"replay-button replay-btn soundLink\" href=\"#\" draggable=\"false\" onclick=\"return playSound(this)\">\(iconHTML)</a></span>"
             } else {
                 replacement = "<span class=\"sound-btn\"><audio class=\"anki-sound-audio\" src=\"\(encoded)\" preload=\"auto\"></audio></span>"
@@ -163,7 +163,7 @@ extension CardWebView {
 
             let replacement: String
             if showReplayButtons {
-                let iconHTML = audioButtonIconHTML(systemName: "play.circle", alt: "Speak", isDarkMode: isDarkMode)
+                let iconHTML = audioButtonIconHTML(systemName: "play.circle", alt: String(localized: "Speak", bundle: .module), isDarkMode: isDarkMode)
                 replacement = "<a class=\"replay-button replay-btn tts-btn\" href=\"#\" draggable=\"false\" data-tts-text=\"\(htmlAttributeEscaped(spokenText))\" data-tts-lang=\"\(htmlAttributeEscaped(lang))\" data-tts-voices=\"\(htmlAttributeEscaped(voices))\" data-tts-speed=\"\(htmlAttributeEscaped(speed))\" onclick=\"return amgiSpeakTts(this)\">\(iconHTML)</a>"
             } else {
                 replacement = ""

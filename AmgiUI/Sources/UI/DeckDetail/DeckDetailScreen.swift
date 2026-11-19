@@ -68,7 +68,7 @@ public struct DeckDetailScreen<HeatmapSlot: View>: View {
     private var heroSection: some View {
         switch state {
         case .loading:
-            DeckHero(title: "Deck name", subtitle: "Last studied recently", tone: palette.border, deckName: "📚", isFiltered: false)
+            DeckHero(title: String(localized: "Deck name", bundle: .module), subtitle: String(localized: "Last studied recently", bundle: .module), tone: palette.border, deckName: "📚", isFiltered: false)
                 .redacted(reason: .placeholder)
         case .loaded(let data):
             DeckHero(
@@ -106,7 +106,7 @@ public struct DeckDetailScreen<HeatmapSlot: View>: View {
     private var customStudySection: some View {
         if case .loaded(let data) = state, data.isFiltered {
             VStack(alignment: .leading, spacing: 6) {
-                sectionHeader("Custom study")
+                sectionHeader(String(localized: "Custom study", bundle: .module))
                 DeckCustomStudyCard(
                     isActionInFlight: data.isActionInFlight,
                     onRebuild: { onAction(.rebuild) },
@@ -120,7 +120,7 @@ public struct DeckDetailScreen<HeatmapSlot: View>: View {
     private var subdecksSection: some View {
         if case .loaded(let data) = state, !data.subdecks.isEmpty {
             VStack(alignment: .leading, spacing: 6) {
-                sectionHeader("Subdecks")
+                sectionHeader(String(localized: "Subdecks", bundle: .module))
                 DeckSubdecksCard(rows: data.subdecks) { row in
                     onAction(.subdeckSelected(row))
                 }
@@ -139,7 +139,7 @@ public struct DeckDetailScreen<HeatmapSlot: View>: View {
     private var insightsSection: some View {
         if case .loaded(let data) = state {
             VStack(alignment: .leading, spacing: 6) {
-                sectionHeader("Insights")
+                sectionHeader(String(localized: "Insights", bundle: .module))
                 InsightsCard(data: data.insights)
             }
         }

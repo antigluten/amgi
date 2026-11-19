@@ -30,29 +30,29 @@ struct CreateDeckSheet: View {
         NavigationStack {
             Form {
                 Section {
-                    TextField("Deck name, use :: for subdecks", text: $name)
+                    TextField(String(localized: "Deck name, use :: for subdecks", bundle: .module), text: $name)
                         .autocorrectionDisabled()
                 }
             }
-            .navigationTitle("New Deck")
+            .navigationTitle(String(localized: "New Deck", bundle: .module))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button(String(localized: "Cancel", bundle: .module)) { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Create") {
+                    Button(String(localized: "Create", bundle: .module)) {
                         Task { await create() }
                     }
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty || isSaving)
                 }
             }
             .alert(
-                "Couldn't create deck",
+                String(localized: "Couldn't create deck", bundle: .module),
                 isPresented: Binding(get: { errorMessage != nil }, set: { if !$0 { errorMessage = nil } }),
                 presenting: errorMessage
             ) { _ in
-                Button("OK") {}
+                Button(String(localized: "OK", bundle: .module)) {}
             } message: { message in
                 Text(message)
             }
@@ -69,7 +69,7 @@ private extension CreateDeckSheet {
             store.apply(creation.changes)
             onDone()
         } catch {
-            errorMessage = "Failed to create deck: \(error.localizedDescription)"
+            errorMessage = String(localized: "Failed to create deck: \(error.localizedDescription)", bundle: .module)
         }
         isSaving = false
     }

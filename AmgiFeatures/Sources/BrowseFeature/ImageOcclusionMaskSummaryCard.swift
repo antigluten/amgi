@@ -43,12 +43,12 @@ struct ImageOcclusionMaskSummaryCard: View {
             .allowsHitTesting(false)
 
             HStack(spacing: 12) {
-                Text(masks.isEmpty ? "No masks yet" : "\(masks.count) masks")
+                Text(masks.isEmpty ? "No masks yet" : "\(masks.count) masks", bundle: .module)
                     .amgiFont(.caption)
                     .foregroundStyle(palette.textSecondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 Button(action: action) {
-                    Text("Edit")
+                    Text("Edit", bundle: .module)
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.small)

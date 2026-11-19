@@ -29,7 +29,7 @@ public struct StreakCard: View {
             HStack(spacing: AmgiSpacing.lg) {
                 flameDisc
                 VStack(alignment: .leading, spacing: AmgiSpacing.xxs) {
-                    Text("Streak")
+                    Text("Streak", bundle: .module)
                         .amgiFont(.captionBold)
                         .foregroundStyle(palette.textSecondary)
                         .textCase(.uppercase)
@@ -45,7 +45,7 @@ public struct StreakCard: View {
                 Spacer(minLength: 0)
             }
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("Review streak")
+            .accessibilityLabel(String(localized: "Review streak", bundle: .module))
             .accessibilityValue(accessibilityValue)
         }
     }
@@ -71,23 +71,23 @@ public struct StreakCard: View {
 
     private var streakLabel: String {
         switch streak {
-        case 0: "No streak"
-        case 1: "1 day"
-        default: "\(streak) days"
+        case 0: String(localized: "No streak", bundle: .module)
+        case 1: String(localized: "1 day", bundle: .module)
+        default: String(localized: "\(streak) days", bundle: .module)
         }
     }
 
     private var comparisonLabel: String? {
         guard let comparison else { return nil }
         guard streak > 0 || comparison != 0 else {
-            return "Review today to start one"
+            return String(localized: "Review today to start one", bundle: .module)
         }
         return switch comparison {
-        case 1: "1 day ahead of last month"
-        case let n where n > 1: "\(n) days ahead of last month"
-        case -1: "1 day behind last month"
-        case let n where n < -1: "\(-n) days behind last month"
-        default: "Level with last month"
+        case 1: String(localized: "1 day ahead of last month", bundle: .module)
+        case let n where n > 1: String(localized: "\(n) days ahead of last month", bundle: .module)
+        case -1: String(localized: "1 day behind last month", bundle: .module)
+        case let n where n < -1: String(localized: "\(-n) days behind last month", bundle: .module)
+        default: String(localized: "Level with last month", bundle: .module)
         }
     }
 

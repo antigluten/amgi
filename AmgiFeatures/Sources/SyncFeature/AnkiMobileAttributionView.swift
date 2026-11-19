@@ -16,16 +16,16 @@ package struct AnkiMobileAttributionView: View {
 
     package var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Label("Sync provided by AnkiWeb", systemImage: "icloud.and.arrow.up.fill")
+            Label(String(localized: "Sync provided by AnkiWeb", bundle: .module), systemImage: "icloud.and.arrow.up.fill")
                 .amgiFont(.bodyEmphasis)
                 .foregroundStyle(palette.textPrimary)
-            Text("AnkiWeb is supported by sales of AnkiMobile. Please consider purchasing a copy to support the sync servers.")
+            Text("AnkiWeb is supported by sales of AnkiMobile. Please consider purchasing a copy to support the sync servers.", bundle: .module)
                 .amgiFont(.caption)
                 .foregroundStyle(palette.textSecondary)
             Button {
                 openAnkiMobile()
             } label: {
-                Label("View AnkiMobile in App Store", systemImage: "apps.iphone")
+                Label(String(localized: "View AnkiMobile in App Store", bundle: .module), systemImage: "apps.iphone")
             }
             .amgiFont(.captionBold)
         }

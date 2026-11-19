@@ -14,14 +14,14 @@ public enum CardFlag {
 
     public static func name(_ value: UInt32) -> String {
         switch value & 0b111 {
-        case 1: return "Red"
-        case 2: return "Orange"
-        case 3: return "Green"
-        case 4: return "Blue"
-        case 5: return "Pink"
-        case 6: return "Cyan"
-        case 7: return "Purple"
-        default: return "No Flag"
+        case 1: return String(localized: "Red", bundle: .module)
+        case 2: return String(localized: "Orange", bundle: .module)
+        case 3: return String(localized: "Green", bundle: .module)
+        case 4: return String(localized: "Blue", bundle: .module)
+        case 5: return String(localized: "Pink", bundle: .module)
+        case 6: return String(localized: "Cyan", bundle: .module)
+        case 7: return String(localized: "Purple", bundle: .module)
+        default: return String(localized: "No Flag", bundle: .module)
         }
     }
 
