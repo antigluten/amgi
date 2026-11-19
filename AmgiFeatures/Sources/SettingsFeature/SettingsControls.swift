@@ -109,14 +109,16 @@ struct SettingsPickerRow<Value: Hashable, Options: View>: View {
             // The menu's label is the selected option. The row's stack
             // offered it half the free width, and a long one (a font's full
             // name) wrapped onto several lines, taller than the row and
-            // over its neighbours. With priority it is offered the whole
-            // width and takes what it needs, on one line.
+            // over its neighbours. It stays on one line, taking the width
+            // the title leaves and cutting a long value in the middle.
             Picker(title, selection: $selection) { options() }
                 .labelsHidden()
                 .pickerStyle(.menu)
                 .lineLimit(1)
                 .truncationMode(.middle)
                 .tint(palette.textSecondary)
+                // Always room for a few characters, cut in the middle.
+                .frame(minWidth: 96, alignment: .trailing)
                 .layoutPriority(1)
         }
     }
@@ -248,9 +250,13 @@ private struct SettingsRowLayout<Accessory: View>: View {
     var body: some View {
         HStack(spacing: AmgiSpacing.md) {
             SettingsIconTile(systemImage: systemImage, tone: tone)
+            // The title is measured first, so it keeps its words whole; the
+            // accessory takes what is left. Giving a picker priority instead
+            // left the title a letter wide beside a long value.
             Text(title)
                 .amgiFont(.body)
                 .foregroundStyle(palette.textPrimary)
+                .layoutPriority(2)
             Spacer(minLength: AmgiSpacing.sm)
             accessory()
         }
